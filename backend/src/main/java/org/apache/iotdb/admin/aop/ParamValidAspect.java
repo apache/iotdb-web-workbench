@@ -1,7 +1,7 @@
 package org.apache.iotdb.admin.aop;
 
-import org.apache.iotdb.admin.common.exception.ParamInvalidException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.iotdb.admin.common.exception.BaseException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,19 +14,14 @@ import javax.validation.Path;
 import javax.validation.Validator;
 import java.util.Set;
 
-import static org.apache.iotdb.admin.common.constant.ErrorConst.PARAM_ERROR;
-
 /**
- * 处理@NotNull校验框架等注解的切面
  *
- * @author 辰行
- * @date 2020/10/15
+ * @anthor fyx 2021/5/27
  */
 @Aspect
 @Slf4j
 @Component
 public class ParamValidAspect {
-
 
     @Autowired
     private Validator validator;
@@ -54,7 +49,7 @@ public class ParamValidAspect {
                         String name = property.iterator().next().getName();
                         //打印具体异常信息，对应校验框架注解中的message
                         log.error("[" + name + "]" + constraintViolation.getMessage());
-                        throw new ParamInvalidException(PARAM_ERROR);
+                        throw new BaseException(0,"参数错误");
                     }
                 }
             }

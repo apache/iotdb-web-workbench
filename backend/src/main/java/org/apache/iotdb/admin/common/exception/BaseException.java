@@ -1,26 +1,24 @@
 package org.apache.iotdb.admin.common.exception;
 
-import org.apache.iotdb.admin.model.dto.CodeMsgDTO;
-
 /**
  * @anthor fyx 2021/5/13
  */
 public class BaseException extends Exception {
-    private CodeMsgDTO codeMsgDTO;
 
-    public BaseException(CodeMsgDTO codeMsgDTO) {
-        this.codeMsgDTO = codeMsgDTO;
+    private Integer errorCode;
+    private String message;
+
+    public BaseException(Integer errorCode, String message) {
+        this.errorCode = errorCode;
+        this.message = message;
     }
 
-    public BaseException(CodeMsgDTO codeMsgDTO, Throwable cause) {
-        super(codeMsgDTO.toString(), cause);
+    public Integer getErrorCode() {
+        return errorCode;
     }
 
-    public BaseException(Throwable cause) {
-        super(cause);
-    }
-
-    public long getErrorCode() {
-        return this.codeMsgDTO != null ? this.codeMsgDTO.getErrorCode() : -1L;
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

@@ -3,6 +3,7 @@ package org.apache.iotdb.admin.controller;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.iotdb.admin.common.exception.BaseException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -19,10 +20,10 @@ public class HealthController {
      * 如果多次返回500，则表示这个程序已经死了，会重启这个程序。
      */
     @GetMapping(value = "/healthz/liveness")
-    public void liveness(HttpServletResponse response) throws IOException {
+    public void liveness(HttpServletResponse response) throws IOException, BaseException {
         // boolean isAlive = true;
-
-        response.setStatus(HttpServletResponse.SC_OK);
+        throw new BaseException(0,"探针不正常");
+//        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     /**

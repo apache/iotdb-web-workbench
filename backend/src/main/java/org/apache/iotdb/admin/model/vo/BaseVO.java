@@ -24,6 +24,9 @@ public class BaseVO<T> {
      */
     private T data;
 
+    public BaseVO() {
+    }
+
     public BaseVO(Integer code, String message, T data) {
         this.code = code;
         this.message = message;
