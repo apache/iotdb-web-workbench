@@ -8,6 +8,7 @@ import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.entity.User;
 import org.apache.iotdb.admin.model.vo.BaseVO;
 import org.apache.iotdb.admin.model.vo.ConnVO;
+import org.apache.iotdb.admin.model.vo.ConnectionVO;
 import org.apache.iotdb.admin.service.ConnectionService;
 import org.apache.iotdb.admin.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +36,13 @@ public class UserController {
 
     @PostMapping("/login")
     @ApiOperation("登录")
-    public BaseVO<List<ConnVO>> login(@RequestParam("name")String name, @RequestParam("password") String password, HttpServletResponse response) throws BaseException {
+    public BaseVO<ConnectionVO> login(@RequestParam("name")String name, @RequestParam("password") String password, HttpServletResponse response) throws BaseException {
         User user = userService.login(name, password);
-        List<ConnVO> connVOs = connectionService.getAllConnections(user.getId());
+        int userId = user.getId();
+        List<ConnVO> connVOs = connectionService.getAllConnections(userId);
+        ConnectionVO connectionVO = new ConnectionVO(connVOs,userId);
         response.addHeader("Authorization",getToken(user));
-        return new BaseVO<>(200,"成功",connVOs);
+        return new BaseVO<>(200,"成功",connectionVO);
     }
 
     private String getToken(User user) {

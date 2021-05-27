@@ -11,12 +11,12 @@ import java.util.List;
  * @anthor fyx 2021/5/25
  */
 public interface ConnectionService {
-    List<ConnVO> getAllConnections(int id);
+    List<ConnVO> getAllConnections(Integer id);
 
 
     void insert(Connection connection) throws BaseException;
 
-    void deleteById(String serverId) throws BaseException;
+    void deleteById(Integer serverId) throws BaseException;
 
-    Connection getById(String serverId);
+    Connection getById(Integer serverId);
 }

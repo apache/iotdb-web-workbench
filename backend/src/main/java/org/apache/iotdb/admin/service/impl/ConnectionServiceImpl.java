@@ -24,7 +24,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     private ConnectionMapper connectionMapper;
 
     @Override
-    public List<ConnVO> getAllConnections(int userId) {
+    public List<ConnVO> getAllConnections(Integer userId) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("user_id",userId);
         List<Connection> connections = connectionMapper.selectList(queryWrapper);
@@ -54,7 +54,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     }
 
     @Override
-    public void deleteById(String serverId) throws BaseException {
+    public void deleteById(Integer serverId) throws BaseException {
         int flag = connectionMapper.deleteById(serverId);
         if(flag <= 0){
             throw new BaseException(0,"删除连接失败");
@@ -62,7 +62,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     }
 
     @Override
-    public Connection getById(String serverId) {
+    public Connection getById(Integer serverId) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("id",serverId);
         return connectionMapper.selectOne(queryWrapper);
