@@ -3,6 +3,7 @@ package org.apache.iotdb.admin.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.apache.iotdb.admin.common.exception.BaseException;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ public class TokenFilter implements HandlerInterceptor {
             jwtVerifier.verify(request.getHeader("Authorization"));
         } catch (Exception e) {
             e.printStackTrace();
+            throw new BaseException(0,"请登录或token失效");
         }
         return true;
     }
