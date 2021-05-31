@@ -13,7 +13,6 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(value = {"org.apache.iotdb.admin"})
-// Mybatis-plus
 @MapperScan("org.apache.iotdb.admin.mapper")
 public class DemoApplication {
 

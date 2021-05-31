@@ -10,6 +10,8 @@ import java.util.List;
  */
 @Data
 public class IotDBRole implements Serializable {
+
     private String roleName;
     private List<String> privileges;
+
 }

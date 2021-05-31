@@ -118,16 +118,16 @@ public class IotDBServiceImpl implements IotDBService {
         String password = iotDBUser.getPassword();
         String sql = "create user " + userName + " '" + password + "'";
         customExecute(conn,sql);
-        //用户角色
+        // 用户角色
         for (String role : iotDBUser.getRoles()) {
             sql = "grant " + role + " to " + userName;
             customExecute(conn,sql);
         }
-        //用户授权
+        // 用户授权
         List<String> privileges = iotDBUser.getPrivileges();
         for (String privilege : privileges) {
             sql = handlerPrivilegeStrToSql(privilege, userName,null);
-            if(sql != null){
+            if (sql != null) {
                 customExecute(conn,sql);
             }
         }
@@ -143,7 +143,7 @@ public class IotDBServiceImpl implements IotDBService {
         List<String> privileges = iotDBRole.getPrivileges();
         for (String privilege : privileges) {
             sql = handlerPrivilegeStrToSql(privilege, null,roleName);
-            if(sql != null){
+            if (sql != null) {
                 customExecute(conn,sql);
             }
         }
@@ -183,11 +183,11 @@ public class IotDBServiceImpl implements IotDBService {
         String path = privilege.substring(0,i).trim();
         String[] privileges = privilege.substring(i+1).trim().split(" ");
         int len = privileges.length;
-        if(len == 0){
+        if (len == 0) {
             return null;
         }
         StringBuilder str = new StringBuilder();
-        if(userName != null){
+        if (userName != null) {
             str.append("grant user " + userName + " privileges ");
         }else{
             str.append("grant role " + roleName + " privileges ");
@@ -207,13 +207,14 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (SQLException e) {
             throw new BaseException(3001,e.getMessage());
         } finally {
-            if( preparedStatement != null){
+            if (preparedStatement != null) {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
                     throw new BaseException(3001,e.getMessage());
                 }
             }
+            closeConnection(conn);
         }
     }
 
@@ -234,20 +235,21 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (SQLException e) {
             throw new BaseException(3001,e.getMessage());
         } finally {
-            if(resultSet != null){
+            if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
                     throw new BaseException(3001,e.getMessage());
                 }
             }
-            if(statement != null){
+            if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException e) {
                     throw new BaseException(3001,e.getMessage());
                 }
             }
+            closeConnection(conn);
         }
     }
 
@@ -275,20 +277,21 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (Exception e) {
             throw new BaseException(3001,e.getMessage());
         } finally {
-            if(resultSet != null){
+            if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
                     throw new BaseException(3001,e.getMessage());
                 }
             }
-            if(statement != null){
+            if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException e) {
                     throw new BaseException(3001,e.getMessage());
                 }
             }
+            closeConnection(conn);
         }
     }
 }

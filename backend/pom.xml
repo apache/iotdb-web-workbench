@@ -90,13 +90,7 @@
         </dependency>
         <!-- 常用工具库结束 -->
 
-        <!-- 配置中心 -->
-        <dependency>
-            <groupId>com.ctrip.framework.apollo</groupId>
-            <artifactId>apollo-client</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-        <!-- 配置中心结束-->
+
 
         <!-- spring单元测试 -->
         <dependency>
@@ -138,13 +132,6 @@
         <!--        </dependency>-->
         <!--        异常组件结束-->
 
-        <!-- cat监控  -->
-        <dependency>
-            <groupId>com.dianping.cat</groupId>
-            <artifactId>cat-client</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-        <!-- cat监控结束  -->
 
         <!-- 校验框架-->
         <dependency>

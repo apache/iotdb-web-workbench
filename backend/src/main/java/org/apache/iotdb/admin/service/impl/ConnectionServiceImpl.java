@@ -43,12 +43,12 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
         queryWrapper.eq("user_id",userId);
         queryWrapper.eq("alias",alias);
         List list = connectionMapper.selectList(queryWrapper);
-        //别名唯一
-        if (list != null && list.size() > 0){
+        // 别名唯一
+        if (list != null && list.size() > 0) {
             throw new BaseException(1001,"别名重复");
         }
         int flag = connectionMapper.insert(connection);
-        if(flag <= 0){
+        if (flag <= 0) {
             throw new BaseException(1002,"添加连接失败");
         }
     }
@@ -56,7 +56,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     @Override
     public void deleteById(Integer serverId) throws BaseException {
         int flag = connectionMapper.deleteById(serverId);
-        if(flag <= 0){
+        if (flag <= 0) {
             throw new BaseException(1003,"删除连接失败");
         }
     }

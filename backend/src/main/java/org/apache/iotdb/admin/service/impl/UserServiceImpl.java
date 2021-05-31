@@ -25,7 +25,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq("name",name);
         queryWrapper.eq("password",password);
         User user = userMapper.selectOne(queryWrapper);
-        if(user != null){
+        if (user != null) {
             return user;
         }else {
             throw new BaseException(2001,"登录失败,用户不存在或账号密码错误");
