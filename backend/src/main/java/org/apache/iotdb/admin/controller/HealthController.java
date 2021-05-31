@@ -22,8 +22,7 @@ public class HealthController {
     @GetMapping(value = "/healthz/liveness")
     public void liveness(HttpServletResponse response) throws IOException, BaseException {
         // boolean isAlive = true;
-        throw new BaseException(0,"探针不正常");
-//        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     /**

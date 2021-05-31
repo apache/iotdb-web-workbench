@@ -42,7 +42,7 @@ public class UserController {
         List<ConnVO> connVOs = connectionService.getAllConnections(userId);
         ConnectionVO connectionVO = new ConnectionVO(connVOs,userId);
         response.addHeader("Authorization",getToken(user));
-        return new BaseVO<>(200,"成功",connectionVO);
+        return new BaseVO<>(200,"登录成功",connectionVO);
     }
 
     private String getToken(User user) {

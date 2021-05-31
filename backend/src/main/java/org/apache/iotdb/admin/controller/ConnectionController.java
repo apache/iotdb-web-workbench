@@ -28,20 +28,20 @@ public class ConnectionController {
     @ApiOperation("保存或更新连接")
     public BaseVO saveOrUpdateConnection(@RequestBody Connection connection) throws BaseException {
         connectionService.insert(connection);
-        return new BaseVO(200,"成功",null);
+        return new BaseVO(0,"更新成功",null);
     }
 
     @DeleteMapping("/servers/{serverId}")
     @ApiOperation("删除连接")
     public BaseVO deleteConnection(@PathVariable("serverId") Integer serverId) throws BaseException {
         connectionService.deleteById(serverId);
-        return new BaseVO(200,"成功",null);
+        return new BaseVO(0,"删除成功",null);
     }
 
     @GetMapping("/servers/{serverId}")
     @ApiOperation("获取连接具体配置")
     public BaseVO<Connection> getConnection(@PathVariable("serverId") Integer serverId){
-        return new BaseVO(200,"成功",connectionService.getById(serverId));
+        return new BaseVO(0,"获取成功",connectionService.getById(serverId));
     }
 
     @GetMapping("/servers")
@@ -49,6 +49,6 @@ public class ConnectionController {
     public BaseVO<ConnectionVO> getAllConnections(@RequestParam("userId") Integer userId){
         List<ConnVO> connVOs = connectionService.getAllConnections(userId);
         ConnectionVO connectionVO = new ConnectionVO(connVOs,userId);
-        return new BaseVO<>(200,"成功",connectionVO);
+        return new BaseVO<>(0,"获取成功",connectionVO);
     }
 }

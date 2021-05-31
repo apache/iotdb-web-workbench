@@ -28,7 +28,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(user != null){
             return user;
         }else {
-            throw new BaseException(0,"登录失败,用户不存在或账号密码错误");
+            throw new BaseException(2001,"登录失败,用户不存在或账号密码错误");
         }
     }
 }
