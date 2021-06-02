@@ -5,9 +5,11 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.dto.IotDBRole;
 import org.apache.iotdb.admin.model.dto.IotDBUser;
+import org.apache.iotdb.admin.model.dto.Timeseries;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.BaseVO;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
+import org.apache.iotdb.admin.model.vo.SqlResultVO;
 import org.apache.iotdb.admin.service.ConnectionService;
 import org.apache.iotdb.admin.service.IotDBService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,17 @@ public class IotDBController<T> {
         return new BaseVO<>(0, "获取成功", measurements);
     }
 
+    @PostMapping("/devices/{deviceName}")
+    @ApiOperation("创建时间序列")
+    public BaseVO<List<String>> insertTimeseries(@PathVariable("serverId") Integer serverId,
+                                                 @PathVariable("deviceName") String deviceName,
+                                                 @RequestBody Timeseries timeseries) throws BaseException {
+        Connection connection = connectionService.getById(serverId);
+        iotDBService.insertTimeseries(connection, deviceName,timeseries);
+        return new BaseVO<>(0, "创建成功", null);
+    }
+
+
 
     @GetMapping("/users")
     @ApiOperation("获取数据库用户列表")
@@ -129,11 +142,11 @@ public class IotDBController<T> {
     }
 
 
-//    @PostMapping("/query")
-//    public BaseVO<T> query(@PathVariable("serverId") Integer serverId,@RequestParam("sql") String sql){
-//        Connection connection = connectionService.getById(serverId);
-//        T t = iotDBService.query(connection,sql);
-//        return new BaseVO<>(200,"成功",t);
-//    }
+    @PostMapping("/query")
+    public BaseVO<SqlResultVO> query(@PathVariable("serverId") Integer serverId,@RequestParam("sql") String sql) throws BaseException {
+        Connection connection = connectionService.getById(serverId);
+        SqlResultVO sqlResultVO = iotDBService.query(connection, sql);
+        return new BaseVO<>(0,"查询成功",sqlResultVO);
+    }
 
 }

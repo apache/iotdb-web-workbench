@@ -1,7 +1,6 @@
 package org.apache.iotdb.admin.model.dto;
 
 import lombok.Data;
-import org.apache.iotdb.admin.model.vo.RoleWithPrivileges;
 
 import java.io.Serializable;
 import java.util.List;

@@ -12,10 +12,7 @@ import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @anthor fyx 2021/5/13
@@ -26,6 +23,8 @@ public class NativeAPI {
         //建立连接
         Session session = new Session("localhost", 6667,"root","root");
         session.open();
+//        SessionPool sessionPool = new SessionPool("localhost", 6667,"root","root",3);
+//        sessionPool.insertRecord();
         //创建存储组
         session.setStorageGroup("root.fyx");
         //创建时间序列
@@ -55,7 +54,7 @@ public class NativeAPI {
          *        PAA
          *        PLA
          */
-        session.createTimeseries("root.fyx.cq.dev.temp", TSDataType.FLOAT, TSEncoding.RLE, CompressionType.SNAPPY);
+        session.createTimeseries("root.fyx.cq.dev.temp", TSDataType.FLOAT, TSEncoding.RLE, CompressionType.SNAPPY,null,null,null,null);
         //创建多个时间序列
 //        session.createMultiTimeseries();
         //插入数据

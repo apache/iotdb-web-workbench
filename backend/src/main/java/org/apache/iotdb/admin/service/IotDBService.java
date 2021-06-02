@@ -3,8 +3,10 @@ package org.apache.iotdb.admin.service;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.dto.IotDBRole;
 import org.apache.iotdb.admin.model.dto.IotDBUser;
+import org.apache.iotdb.admin.model.dto.Timeseries;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
+import org.apache.iotdb.admin.model.vo.SqlResultVO;
 
 import java.util.List;
 
@@ -35,4 +37,8 @@ public interface IotDBService {
     void setIotDBUser(Connection connection, IotDBUser iotDBUserVO) throws BaseException;
 
     void setIotDBRole(Connection connection, IotDBRole iotDBRole) throws BaseException;
+
+    SqlResultVO query(Connection connection, String sql) throws BaseException;
+
+    void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries) throws BaseException;
 }
