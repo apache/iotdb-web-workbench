@@ -82,6 +82,21 @@ public class IotDBController<T> {
         return new BaseVO<>(0, "创建成功", null);
     }
 
+    @GetMapping("/devices/{deviceName}/timeseries")
+    @ApiOperation("指定设备下的所有时间序列")
+    public BaseVO<SqlResultVO> showTimeseries(@PathVariable("serverId") Integer serverId, @PathVariable("deviceName") String deviceName) throws BaseException {
+        Connection connection = connectionService.getById(serverId);
+        SqlResultVO resultVO = iotDBService.showTimeseries(connection, deviceName);
+        return new BaseVO<>(0, "获取成功", resultVO);
+    }
+
+    @DeleteMapping("/timeseries/{timeseriesName}")
+    @ApiOperation("删除时间序列")
+    public BaseVO<List<String>> deleteTimeseries(@PathVariable("serverId") Integer serverId, @PathVariable("timeseriesName") String timeseriesName) throws BaseException {
+        Connection connection = connectionService.getById(serverId);
+        iotDBService.deleteTimeseries(connection, timeseriesName);
+        return new BaseVO<>(0, "删除成功", null);
+    }
 
 
     @GetMapping("/users")

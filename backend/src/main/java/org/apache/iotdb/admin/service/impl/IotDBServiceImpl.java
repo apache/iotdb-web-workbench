@@ -1,24 +1,20 @@
 package org.apache.iotdb.admin.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import net.bytebuddy.utility.JavaConstant;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.dto.IotDBRole;
 import org.apache.iotdb.admin.model.dto.IotDBUser;
 import org.apache.iotdb.admin.model.dto.Timeseries;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
-import org.apache.iotdb.admin.model.vo.RoleWithPrivileges;
+import org.apache.iotdb.admin.model.vo.RoleWithPrivilegesVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
 import org.apache.iotdb.admin.service.IotDBService;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.pool.SessionPool;
-import org.apache.iotdb.tsfile.encoding.encoder.TSEncodingBuilder;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.springframework.stereotype.Service;
 
-import javax.lang.model.element.TypeElement;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
@@ -105,7 +101,7 @@ public class IotDBServiceImpl implements IotDBService {
         IotDBUserVO iotDBUserVO = new IotDBUserVO();
         iotDBUserVO.setUserName(userName);
         String sql = "list user privileges " + userName;
-        List<RoleWithPrivileges> roleWithPrivileges = customExecuteQuery(RoleWithPrivileges.class, conn, sql);
+        List<RoleWithPrivilegesVO> roleWithPrivileges = customExecuteQuery(RoleWithPrivilegesVO.class, conn, sql);
         closeConnection(conn);
         iotDBUserVO.setRoleWithPrivileges(roleWithPrivileges);
         return iotDBUserVO;
@@ -191,6 +187,28 @@ public class IotDBServiceImpl implements IotDBService {
             }
         }
 
+    }
+
+    @Override
+    public void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException {
+        SessionPool session = getSession(connection);
+        try {
+            session.deleteTimeseries(timeseriesName);
+        } catch (IoTDBConnectionException e) {
+            throw new BaseException(3001, e.getMessage());
+        } catch (StatementExecutionException e) {
+            throw new BaseException(3001, e.getMessage());
+        }
+        session.close();
+    }
+
+    @Override
+    public SqlResultVO showTimeseries(Connection connection, String deviceName) throws BaseException {
+        java.sql.Connection conn = getConnection(connection);
+        String sql = "show timeseries " + deviceName;
+        SqlResultVO resultVO = sqlQuery(conn, sql);
+        closeConnection(conn);
+        return resultVO;
     }
 
     private List<Object> handleValueStr(List<String> values, List<TSDataType> types) throws BaseException {

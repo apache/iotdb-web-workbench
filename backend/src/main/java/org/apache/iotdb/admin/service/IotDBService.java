@@ -41,4 +41,8 @@ public interface IotDBService {
     SqlResultVO query(Connection connection, String sql) throws BaseException;
 
     void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries) throws BaseException;
+
+    void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException;
+
+    SqlResultVO showTimeseries(Connection connection, String deviceName) throws BaseException;
 }

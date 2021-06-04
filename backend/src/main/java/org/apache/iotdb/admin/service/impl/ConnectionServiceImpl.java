@@ -47,9 +47,16 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
         if (list != null && list.size() > 0) {
             throw new BaseException(1001,"别名重复");
         }
-        int flag = connectionMapper.insert(connection);
-        if (flag <= 0) {
-            throw new BaseException(1002,"添加连接失败");
+        Integer id = connection.getId();
+        //已有连接更新
+        try {
+            if(id != null){
+                connectionMapper.updateById(connection);
+                return;
+            }
+            connectionMapper.insert(connection);
+        } catch (Exception e) {
+            throw new BaseException(1002,"添加或更新连接失败"+e);
         }
     }
 

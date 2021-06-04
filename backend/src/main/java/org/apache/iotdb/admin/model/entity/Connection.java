@@ -1,5 +1,7 @@
 package org.apache.iotdb.admin.model.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.io.Serializable;
 @Data
 public class Connection implements Serializable {
 
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private String host;
     private Integer port;
