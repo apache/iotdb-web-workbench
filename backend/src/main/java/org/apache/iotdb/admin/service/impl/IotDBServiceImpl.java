@@ -44,6 +44,7 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public void saveStorageGroup(Connection connection, String groupName) throws BaseException {
+        paramValid(groupName);
         java.sql.Connection conn = getConnection(connection);
         String sql = "set storage group to " + groupName;
         customExecute(conn, sql);
@@ -51,8 +52,10 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
 
+
     @Override
     public void deleteStorageGroup(Connection connection, String groupName) throws BaseException {
+        paramValid(groupName);
         java.sql.Connection conn = getConnection(connection);
         String sql = "delete storage group " + groupName;
         customExecute(conn, sql);
@@ -61,6 +64,7 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public List<String> getDevicesByGroup(Connection connection, String groupName) throws BaseException {
+        paramValid(groupName);
         java.sql.Connection conn = getConnection(connection);
         String sql = "show devices " + groupName;
         List<String> devices = customExecuteQuery(conn, sql);
@@ -70,6 +74,7 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public List<String> getMeasurementsByDevice(Connection connection, String deviceName) throws BaseException {
+        paramValid(deviceName);
         java.sql.Connection conn = getConnection(connection);
         String sql = "show child paths " + deviceName;
         List<String> measurements = customExecuteQuery(conn, sql);
@@ -97,6 +102,7 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException {
+        paramValid(userName);
         java.sql.Connection conn = getConnection(connection);
         IotDBUserVO iotDBUserVO = new IotDBUserVO();
         iotDBUserVO.setUserName(userName);
@@ -109,6 +115,7 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public void deleteIotDBUser(Connection connection, String userName) throws BaseException {
+        paramValid(userName);
         java.sql.Connection conn = getConnection(connection);
         String sql = "drop user " + userName;
         customExecute(conn, sql);
@@ -117,6 +124,7 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public void deleteIotDBRole(Connection connection, String roleName) throws BaseException {
+        paramValid(roleName);
         java.sql.Connection conn = getConnection(connection);
         String sql = "drop role " + roleName;
         customExecute(conn, sql);
@@ -132,6 +140,7 @@ public class IotDBServiceImpl implements IotDBService {
         customExecute(conn, sql);
         // 用户角色
         for (String role : iotDBUser.getRoles()) {
+            paramValid(role);
             sql = "grant " + role + " to " + userName;
             customExecute(conn, sql);
         }
@@ -204,6 +213,7 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public SqlResultVO showTimeseries(Connection connection, String deviceName) throws BaseException {
+        paramValid(deviceName);
         java.sql.Connection conn = getConnection(connection);
         String sql = "show timeseries " + deviceName;
         SqlResultVO resultVO = sqlQuery(conn, sql);
@@ -502,6 +512,16 @@ public class IotDBServiceImpl implements IotDBService {
                 }
             }
             closeConnection(conn);
+        }
+    }
+
+    /**
+     * 防止sql注入对参数进行校验不能有空格
+     * @param field 拼接sql的字段
+     */
+    private void paramValid(String field) throws BaseException {
+        if(!field.matches("^[^ ]+$")){
+            throw new BaseException(3004,"参数不合法");
         }
     }
 }

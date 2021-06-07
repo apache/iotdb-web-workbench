@@ -158,6 +158,7 @@ public class IotDBController<T> {
 
 
     @PostMapping("/query")
+    @ApiOperation("用于查询器查询")
     public BaseVO<SqlResultVO> query(@PathVariable("serverId") Integer serverId,@RequestParam("sql") String sql) throws BaseException {
         Connection connection = connectionService.getById(serverId);
         SqlResultVO sqlResultVO = iotDBService.query(connection, sql);

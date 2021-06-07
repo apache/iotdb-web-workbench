@@ -11,8 +11,12 @@ import java.util.List;
  */
 @Data
 public class Timeseries implements Serializable {
+
     private List<String> measurements = new ArrayList<>();
+
     private List<String> types = new ArrayList<>();
+
     private long time;
+
     private List<String> values;
 }
