@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @anthor fyx 2021/5/27
+ * 展示用户的连接列表
  */
 @Data
 @AllArgsConstructor

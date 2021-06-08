@@ -3,16 +3,15 @@ package org.apache.iotdb.admin.model.vo;
 import lombok.Data;
 
 /**
- * @author 辰行
- * @date 2020/10/10
+ * 返回信息类
  */
 @Data
 public class BaseVO<T> {
 
     /**
-     * 200 表示成功 0表示失败
+     * 0 表示成功 其他表示错误类型
      */
-    private Integer code;
+    private String code;
 
     /**
      * 定义出错时候用户可读的信息
@@ -27,18 +26,14 @@ public class BaseVO<T> {
     public BaseVO() {
     }
 
-    public BaseVO(Integer code, String message, T data) {
+    public BaseVO(String code, String message, T data) {
         this.code = code;
         this.message = message;
         this.data = data;
     }
 
-    public static <T> BaseVO<T> success(T data) {
-        return new BaseVO<>(0, "成功", data);
-    }
-
-    public static <T> BaseVO<T> success() {
-        return new BaseVO<>(0, "成功", null);
+    public static <T> BaseVO<T> success(String message,T data) {
+        return new BaseVO<>("0", message, data);
     }
 
 }

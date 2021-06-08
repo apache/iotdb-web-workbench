@@ -10,9 +10,7 @@ import org.apache.iotdb.admin.model.vo.SqlResultVO;
 
 import java.util.List;
 
-/**
- * @anthor fyx 2021/5/27
- */
+
 public interface IotDBService {
     List<String> getAllStorageGroups(Connection connection) throws BaseException;
 

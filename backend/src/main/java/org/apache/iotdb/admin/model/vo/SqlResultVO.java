@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @anthor fyx 2021/6/2
+ * sql查询的元数据列表和数据列表
  */
 @Data
 public class SqlResultVO implements Serializable {

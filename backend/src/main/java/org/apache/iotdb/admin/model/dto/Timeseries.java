@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @anthor fyx 2021/6/2
+ * 传输时间序列信息的类
  */
 @Data
 public class Timeseries implements Serializable {

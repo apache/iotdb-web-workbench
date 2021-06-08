@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @anthor fyx 2021/5/31
+ * 传输User信息类
  */
 @Data
 public class IotDBUser implements Serializable {

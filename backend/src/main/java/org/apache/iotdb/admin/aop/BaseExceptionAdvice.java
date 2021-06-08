@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 通用异常处理拦截器
- * @anthor fyx 2021/5/27
  */
 @Slf4j
 @ControllerAdvice

@@ -9,10 +9,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 /**
- * 校验框架配置
- *
- * @author 辰行
- * @date 2020/10/15
+ * 校验框架配置类
  */
 @Configuration
 public class ValidatorConfiguration {

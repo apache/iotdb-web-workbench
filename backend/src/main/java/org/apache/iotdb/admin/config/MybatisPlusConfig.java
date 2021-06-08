@@ -7,17 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 该类是Mybatis-Plus的配置类，mybatis以插件的形式来实现特定功能，目前支持的插件有：
- *
- * 分页插件: PaginationInnerInterceptor
- * 多租户插件: TenantLineInnerInterceptor
- * 动态表名插件: DynamicTableNameInnerInterceptor
- * 乐观锁插件: OptimisticLockerInnerInterceptor
- * sql性能规范插件: IllegalSQLInnerInterceptor
- * 防止全表更新与删除插件: BlockAttackInnerInterceptor
- *
- * @author 辰行
- * @date 2020/10/09
+ * 该类是Mybatis-Plus的配置类，mybatis以插件的形式来实现特定功能
  */
 @Configuration
 public class MybatisPlusConfig {

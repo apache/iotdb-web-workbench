@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * @anthor fyx 2021/5/25
+ *  展示别名及serverId
  */
 @Data
 @AllArgsConstructor

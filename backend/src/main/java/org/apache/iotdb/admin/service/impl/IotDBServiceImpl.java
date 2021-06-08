@@ -1,6 +1,7 @@
 package org.apache.iotdb.admin.service.impl;
 
 import org.apache.iotdb.admin.common.exception.BaseException;
+import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.IotDBRole;
 import org.apache.iotdb.admin.model.dto.IotDBUser;
 import org.apache.iotdb.admin.model.dto.Timeseries;
@@ -20,17 +21,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @anthor fyx 2021/5/27
- */
+
 @Service
 public class IotDBServiceImpl implements IotDBService {
-
-//    private static SessionPool sessionPool;
-//    private static String host;
-//    private static Integer port;
-//    private static String username;
-//    private static String password;
 
     @Override
     public List<String> getAllStorageGroups(Connection connection) throws BaseException {
@@ -41,7 +34,6 @@ public class IotDBServiceImpl implements IotDBService {
         return users;
     }
 
-
     @Override
     public void saveStorageGroup(Connection connection, String groupName) throws BaseException {
         paramValid(groupName);
@@ -50,8 +42,6 @@ public class IotDBServiceImpl implements IotDBService {
         customExecute(conn, sql);
         closeConnection(conn);
     }
-
-
 
     @Override
     public void deleteStorageGroup(Connection connection, String groupName) throws BaseException {
@@ -187,9 +177,9 @@ public class IotDBServiceImpl implements IotDBService {
             List<Object> values = handleValueStr(timeseries.getValues(),types);
             session.insertRecord(deviceName,timeseries.getTime(),timeseries.getMeasurements(),types,values);
         } catch (IoTDBConnectionException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
         } catch (StatementExecutionException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
         }finally {
             if(session != null){
                 session.close();
@@ -204,9 +194,9 @@ public class IotDBServiceImpl implements IotDBService {
         try {
             session.deleteTimeseries(timeseriesName);
         } catch (IoTDBConnectionException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
         } catch (StatementExecutionException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
         }
         session.close();
     }
@@ -238,7 +228,7 @@ public class IotDBServiceImpl implements IotDBService {
                     list.add(flag);
                     continue;
                 }
-                throw new BaseException(3003, "Boolean值输入错误,0为false，1为true");
+                throw new BaseException(ErrorCode.DB_BOOL_WRONG, ErrorCode.DB_BOOL_WRONG_MSG);
             }
             if(type == TSDataType.INT32 || type == TSDataType.INT64){
                 Integer intNum = Integer.valueOf(values.get(i));
@@ -284,7 +274,7 @@ public class IotDBServiceImpl implements IotDBService {
                     tsDataType = TSDataType.TEXT;
                     break;
                 default:
-                    throw new BaseException(3002,"TSDataType类型传入错误");
+                    throw new BaseException(ErrorCode.DB_DATATYPE_WRONG,ErrorCode.DB_DATATYPE_WRONG_MSG);
             }
             list.add(tsDataType);
         }
@@ -302,9 +292,9 @@ public class IotDBServiceImpl implements IotDBService {
             Class.forName(driver);
             conn = DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.GET_DBCONN_FAIL,ErrorCode.GET_DBCONN_FAIL_MSG);
         } catch (SQLException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.GET_DBCONN_FAIL,ErrorCode.GET_DBCONN_FAIL_MSG);
         }
         return conn;
     }
@@ -318,7 +308,7 @@ public class IotDBServiceImpl implements IotDBService {
             try {
                 sessionPool = new SessionPool(host,port,username,password,3);
             } catch (Exception e) {
-                throw new BaseException(3001, e.getMessage());
+                throw new BaseException(ErrorCode.GET_SESSION_FAIL,ErrorCode.GET_SESSION_FAIL_MSG);
             }
             return sessionPool;
         }
@@ -349,7 +339,7 @@ public class IotDBServiceImpl implements IotDBService {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.CLOSE_DBCONN_FAIL,ErrorCode.CLOSE_DBCONN_FAIL_MSG);
         }
     }
 
@@ -380,13 +370,13 @@ public class IotDBServiceImpl implements IotDBService {
             preparedStatement = conn.prepareStatement(sql);
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
         } finally {
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
-                    throw new BaseException(3001, e.getMessage());
+                    throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
                 }
             }
             closeConnection(conn);
@@ -408,20 +398,20 @@ public class IotDBServiceImpl implements IotDBService {
             }
             return list;
         } catch (SQLException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
         } finally {
             if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
-                    throw new BaseException(3001, e.getMessage());
+                    throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
                 }
             }
             if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException e) {
-                    throw new BaseException(3001, e.getMessage());
+                    throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
                 }
             }
             closeConnection(conn);
@@ -450,20 +440,20 @@ public class IotDBServiceImpl implements IotDBService {
             }
             return list;
         } catch (Exception e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.QUERY_FAIL,ErrorCode.QUERY_FAIL_MSG);
         } finally {
             if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
-                    throw new BaseException(3001, e.getMessage());
+                    throw new BaseException(ErrorCode.QUERY_FAIL,ErrorCode.QUERY_FAIL_MSG);
                 }
             }
             if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException e) {
-                    throw new BaseException(3001, e.getMessage());
+                    throw new BaseException(ErrorCode.QUERY_FAIL,ErrorCode.QUERY_FAIL_MSG);
                 }
             }
             closeConnection(conn);
@@ -495,20 +485,20 @@ public class IotDBServiceImpl implements IotDBService {
             sqlResultVO.setValueList(valuelist);
             return sqlResultVO;
         } catch (SQLException e) {
-            throw new BaseException(3001, e.getMessage());
+            throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
         } finally {
             if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
-                    throw new BaseException(3001, e.getMessage());
+                    throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
                 }
             }
             if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException e) {
-                    throw new BaseException(3001, e.getMessage());
+                    throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
                 }
             }
             closeConnection(conn);
@@ -520,8 +510,10 @@ public class IotDBServiceImpl implements IotDBService {
      * @param field 拼接sql的字段
      */
     private void paramValid(String field) throws BaseException {
-        if(!field.matches("^[^ ]+$")){
-            throw new BaseException(3004,"参数不合法");
+        if(field != null){
+            if (!field.matches("^[^ ]+$")) {
+                throw new BaseException(ErrorCode.SQL_PARAM_WRONG,ErrorCode.SQL_PARAM_WRONG_MSG);
+            }
         }
     }
 }

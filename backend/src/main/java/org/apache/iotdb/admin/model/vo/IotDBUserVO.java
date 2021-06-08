@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @anthor fyx 2021/5/28
+ * 返回iotdb用户的信息及其角色权限
  */
 @Data
 public class IotDBUserVO implements Serializable {

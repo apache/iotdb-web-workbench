@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @anthor fyx 2021/5/28
+ *  角色及其对应权限
  */
 @Data
 public class RoleWithPrivilegesVO implements Serializable {

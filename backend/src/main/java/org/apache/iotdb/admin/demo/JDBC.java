@@ -4,7 +4,7 @@ package org.apache.iotdb.admin.demo;
 import java.sql.*;
 
 /**
- * @anthor fyx 2021/5/11
+ * JDBC demo代码
  */
 public class JDBC {
     public static void main(String[] args) throws SQLException {

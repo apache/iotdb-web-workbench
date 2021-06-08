@@ -29,5 +29,7 @@ README.md : 帮助文件目录
 
 ## 快速启动
 
-
+项目提供maven、gradle两种构建工具,以maven为例启动项目。
+首先右键点击pom.xml,点击import maven project导入项目相关依赖,完成后启动AdminApplication运行项目
+默认登录用户和密码为root。
 

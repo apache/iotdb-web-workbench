@@ -2,6 +2,7 @@ package org.apache.iotdb.admin.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.admin.common.exception.BaseException;
+import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,8 +16,7 @@ import javax.validation.Validator;
 import java.util.Set;
 
 /**
- *
- * @anthor fyx 2021/5/27
+ * 参数验证
  */
 @Aspect
 @Slf4j
@@ -49,7 +49,7 @@ public class ParamValidAspect {
                         String name = property.iterator().next().getName();
                         //打印具体异常信息，对应校验框架注解中的message
                         log.error("[" + name + "]" + constraintViolation.getMessage());
-                        throw new BaseException(4001,"参数错误:"+"[" + name + "]" + constraintViolation.getMessage());
+                        throw new BaseException(ErrorCode.WRONG_PARAM,"参数错误:"+"[" + name + "]" + constraintViolation.getMessage());
                     }
                 }
             }

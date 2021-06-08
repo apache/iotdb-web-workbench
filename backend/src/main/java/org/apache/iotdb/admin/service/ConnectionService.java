@@ -7,16 +7,16 @@ import org.apache.iotdb.admin.model.vo.ConnVO;
 
 import java.util.List;
 
-/**
- * @anthor fyx 2021/5/25
- */
+
 public interface ConnectionService {
     List<ConnVO> getAllConnections(Integer id);
 
 
     void insert(Connection connection) throws BaseException;
 
-    void deleteById(Integer serverId) throws BaseException;
+    void deleteById(Integer serverId,Integer userId) throws BaseException;
 
-    Connection getById(Integer serverId);
+    Connection getById(Integer serverId) throws BaseException;
+
+    void check(Integer serverId, Integer userId) throws BaseException;
 }

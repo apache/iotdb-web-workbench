@@ -11,7 +11,7 @@ import java.util.List;
 
 
 /**
- * @anthor fyx 2021/5/24
+ *  拦截器配置类
  */
 @Component
 public class FilterConfig implements WebMvcConfigurer {

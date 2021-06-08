@@ -3,6 +3,7 @@ package org.apache.iotdb.admin.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.iotdb.admin.common.exception.BaseException;
+import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.mapper.ConnectionMapper;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.ConnVO;
@@ -13,9 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @anthor fyx 2021/5/25
- */
+
 
 @Service
 public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connection> implements ConnectionService {
@@ -45,7 +44,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
         List list = connectionMapper.selectList(queryWrapper);
         // 别名唯一
         if (list != null && list.size() > 0) {
-            throw new BaseException(1001,"别名重复");
+            throw new BaseException(ErrorCode.ALIAS_REPEAT,ErrorCode.ALIAS_REPEAT_MSG);
         }
         Integer id = connection.getId();
         //已有连接更新
@@ -56,23 +55,43 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
             }
             connectionMapper.insert(connection);
         } catch (Exception e) {
-            throw new BaseException(1002,"添加或更新连接失败"+e);
+            throw new BaseException(ErrorCode.INSERT_CONN_FAIL,ErrorCode.INSERT_CONN_FAIL_MSG);
         }
     }
 
     @Override
-    public void deleteById(Integer serverId) throws BaseException {
-        int flag = connectionMapper.deleteById(serverId);
-        if (flag <= 0) {
-            throw new BaseException(1003,"删除连接失败");
+    public void deleteById(Integer serverId,Integer userId) throws BaseException {
+        try {
+            connectionMapper.deleteById(serverId);
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.DELETE_CONN_FAIL,ErrorCode.DELETE_CONN_FAIL_MSG);
         }
     }
 
     @Override
-    public Connection getById(Integer serverId) {
+    public Connection getById(Integer serverId) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("id",serverId);
-        return connectionMapper.selectOne(queryWrapper);
+        try {
+            Connection connection = connectionMapper.selectOne(queryWrapper);
+            if(connection == null){
+                throw new BaseException(ErrorCode.NO_CONN,ErrorCode.NO_CONN_MSG);
+            }
+            return connection;
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.GET_CONN_FAIL,ErrorCode.GET_CONN_FAIL_MSG);
+        }
+    }
+
+    @Override
+    public void check(Integer serverId, Integer userId) throws BaseException {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("id",serverId);
+        queryWrapper.eq("user_id",userId);
+        Connection connection = connectionMapper.selectOne(queryWrapper);
+        if(connection == null){
+            throw new BaseException(ErrorCode.CHECK_FAIL,ErrorCode.CHECK_FAIL_MSG);
+        }
     }
 
 
