@@ -12,6 +12,12 @@ npm install
 npm run serve
 ```
 
+## 运行单元测试
+
+```
+npm run test:unit
+```
+
 ## 技术栈
 
 **Vue3.0** + **Scss**(css modules) + **Element Plus** + **Eslint,Stylelint,Prettier,Husky** 统一代码风格与规范。
