@@ -2,6 +2,7 @@
   <div class="home">
     <HelloWorld msg="Welcome to Your Vue.js App" />
     <el-button>默认按钮</el-button>
+    <p>{{ $t("message.hello") }}</p>
   </div>
 </template>
 

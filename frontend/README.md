@@ -42,6 +42,9 @@ src 源码目录
   |-- api 接口，统一管理
   |-- assets 静态资源，统一管理
   |-- components 公用组件，全局文件
+  |-- hooks 共用hooks文件
+  |-- i18n 国际化配置文件
+  |-- components 公用组件，全局文件
   |-- util 全局工具
   |-- icons 图标，全局资源
   |-- lib 外部引用的插件存放及修改文件
@@ -49,11 +52,11 @@ src 源码目录
   |-- router 路由，统一管理
   |-- store vuex, 统一管理
   |-- views 视图目录
-  | |-- staffWorkbench 视图模块名
-  | |-- |-- api 需要就近维护的接口文件夹
-  | |-- |-- index.vue 模块入口页面
-  | |-- |-- indexComponents 模块页面级组件文件夹
-  | |-- |-- components 模块通用组件文件夹
+  | |-- pageA 页面
+  | |-- |-- hooks 页面通用hooks
+  | |-- |-- api 需要就近维护的接口
+  | |-- |-- index.vue 页面入口页面
+  | |-- |-- components 页面通用组件
 ```
 #### UI 规范
 原则上基于 Element Plus 组件库进行开发，统一开发样式。
