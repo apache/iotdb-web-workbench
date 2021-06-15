@@ -10,9 +10,18 @@
 // @ is an alias to /src
 import HelloWorld from "@/components/HelloWorld.vue";
 import { ElButton } from "element-plus";
+import { onMounted } from "vue";
+import axios from "@/util/axios.js";
 
 export default {
   name: "Home",
+  setup() {
+    onMounted(() => {
+      axios.get("/data/cityinfo/101010100.html", {}).then((res) => {
+        console.log(res, "kk");
+      });
+    });
+  },
   components: {
     HelloWorld,
     ElButton,

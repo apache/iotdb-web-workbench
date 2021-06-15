@@ -9,4 +9,12 @@ module.exports = {
       .set("@", resolve("./src"))
       .set("components", resolve("./src/components"));
   },
+  devServer: {
+    proxy: {
+      "/data": {
+        target: "http://www.weather.com.cn",
+        changeOrigin: true,
+      },
+    },
+  },
 };
