@@ -41,13 +41,13 @@ npm run test:unit
 src 源码目录
   |-- api 接口，统一管理
   |-- assets 静态资源，统一管理
-  |-- components 公用组件，全局文件
+  |-- components 公用业务组件，
   |-- hooks 共用hooks文件
   |-- i18n 国际化配置文件
   |-- components 公用组件，全局文件
   |-- util 全局工具
   |-- icons 图标，全局资源
-  |-- lib 外部引用的插件存放及修改文件
+  |-- lib  共用库
   |-- mock 模拟接口，临时存放
   |-- router 路由，统一管理
   |-- store vuex, 统一管理

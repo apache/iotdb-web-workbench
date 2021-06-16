@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <HelloWorld msg="Welcome to Your Vue.js App" />
-    <el-button>默认按钮</el-button>
+    <iot-button>默认按钮1</iot-button>
     <p>{{ $t("message.hello") }}</p>
   </div>
 </template>
@@ -9,7 +9,7 @@
 <script>
 // @ is an alias to /src
 import HelloWorld from "@/components/HelloWorld.vue";
-import { ElButton } from "element-plus";
+import IotButton from "@/lib/Button.vue";
 import { onMounted } from "vue";
 import axios from "@/util/axios.js";
 
@@ -24,7 +24,7 @@ export default {
   },
   components: {
     HelloWorld,
-    ElButton,
+    IotButton,
   },
 };
 </script>
