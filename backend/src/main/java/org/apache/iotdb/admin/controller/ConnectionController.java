@@ -3,6 +3,7 @@ package org.apache.iotdb.admin.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
+import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.BaseVO;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
 import java.util.List;
 
 
@@ -45,6 +47,7 @@ public class ConnectionController {
     public BaseVO<Connection> getConnection(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
         Integer userId = AuthenticationUtils.getUserId(request);
         connectionService.check(serverId,userId);
+        // 1. 增加数据源详情内容
         return BaseVO.success("获取成功",connectionService.getById(serverId));
     }
 
@@ -55,5 +58,23 @@ public class ConnectionController {
         List<ConnVO> connVOs = connectionService.getAllConnections(userId);
         ConnectionVO connectionVO = new ConnectionVO(connVOs,userId);
         return BaseVO.success("获取成功",connectionVO);
+    }
+
+    // 4. 连通性测试
+    @GetMapping("/test")
+    @ApiOperation("连通性测试")
+    public BaseVO<ConnectionVO> testConnection(String host) throws BaseException {
+        if(host == null || !host.matches("^(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3}$")){
+            throw new BaseException(ErrorCode.TEST_CONN_WRONG,ErrorCode.TEST_CONN_WRONG_MSG);
+        }
+        try {
+            InetAddress address  = InetAddress.getByName(host);
+            if(address.isReachable(5000)){
+                return BaseVO.success("连通成功",null);
+            }
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.TEST_CONN_FAIL,ErrorCode.TEST_CONN_FAIL_MSG);
+        }
+        throw new BaseException(ErrorCode.TEST_CONN_FAIL,ErrorCode.TEST_CONN_FAIL_MSG);
     }
 }

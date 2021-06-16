@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
+import org.apache.iotdb.admin.model.dto.DeviceDTO;
 import org.apache.iotdb.admin.model.dto.IotDBRole;
 import org.apache.iotdb.admin.model.dto.IotDBUser;
 import org.apache.iotdb.admin.model.dto.Timeseries;
@@ -14,6 +15,7 @@ import org.apache.iotdb.admin.model.vo.IotDBUserVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
 import org.apache.iotdb.admin.service.ConnectionService;
 import org.apache.iotdb.admin.service.IotDBService;
+import org.osgi.service.device.Device;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +41,8 @@ public class IotDBController<T> {
         check(request,serverId);
         Connection connection = connectionService.getById(serverId);
         List<String> groupList = iotDBService.getAllStorageGroups(connection);
+        // 3.存储组列表 增加描述、设备数量
+
         return BaseVO.success("获取成功", groupList);
     }
 
@@ -53,6 +57,9 @@ public class IotDBController<T> {
         check(request,serverId);
         Connection connection = connectionService.getById(serverId);
         iotDBService.saveStorageGroup(connection, groupName);
+        // 5. 新增存储组时添加描述和ttl
+
+        // 8. 存储组的编辑
         return BaseVO.success( "新增成功", null);
     }
 
@@ -70,6 +77,22 @@ public class IotDBController<T> {
         return BaseVO.success("删除成功", null);
     }
 
+    // 6. 存储组详情获取
+    @GetMapping("/storageGroups/{groupName}")
+    @ApiOperation("存储组详情获取")
+    public BaseVO getStorageGroup(@PathVariable("serverId") Integer serverId,
+                                   @PathVariable("groupName") String groupName,
+                                   HttpServletRequest request) throws BaseException {
+        if(groupName == null || groupName.matches("^[^ ]+$")){
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM,ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request,serverId);
+        // 描述 创建人 创建时间
+
+        return BaseVO.success("获取成功", null);
+    }
+
+
     @GetMapping("/storageGroups/{groupName}/devices")
     @ApiOperation("获取指定存储组下的设备列表")
     public BaseVO<List<String>> getDevicesByGroupName(@PathVariable("serverId") Integer serverId,
@@ -81,7 +104,40 @@ public class IotDBController<T> {
         check(request,serverId);
         Connection connection = connectionService.getById(serverId);
         List<String> devices = iotDBService.getDevicesByGroup(connection, groupName);
+        // 7.设备列表分页
+
         return BaseVO.success("获取成功", devices);
+    }
+
+    // 9.新增设备  // 12. 编辑设备
+    @PostMapping("/storageGroups/{groupName}/devices")
+    @ApiOperation("新增或编辑设备")
+    public BaseVO<List<String>> getDevicesByGroupName(@PathVariable("serverId") Integer serverId,
+                                                      @PathVariable("groupName") String groupName,
+                                                      @RequestBody DeviceDTO deviceDTO,
+                                                      HttpServletRequest request) throws BaseException {
+        if(groupName == null || groupName.matches("^[^ ]+$")){
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM,ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request,serverId);
+        //新增设备时 添加描述和ttl
+
+
+        return BaseVO.success("新增成功", null);
+    }
+
+    // 10.获取设备详情
+    @GetMapping("/storageGroups/{groupName}/devices/{deviceId}")
+    @ApiOperation("获取设备")
+    public BaseVO<List<String>> getDevicesByGroupName(@PathVariable("serverId") Integer serverId,
+                                                      @PathVariable("groupName") String groupName,
+                                                      @PathVariable("groupName") Integer deviceId,
+                                                      HttpServletRequest request) throws BaseException {
+        if(groupName == null || groupName.matches("^[^ ]+$")){
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM,ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request,serverId);
+        return BaseVO.success("获取成功", null);
     }
 
     @GetMapping("/devices/{deviceName}")
@@ -95,6 +151,7 @@ public class IotDBController<T> {
         check(request,serverId);
         Connection connection = connectionService.getById(serverId);
         List<String> measurements = iotDBService.getMeasurementsByDevice(connection, deviceName);
+        // 11.测点列表加分页
         return BaseVO.success( "获取成功", measurements);
     }
 
@@ -140,7 +197,6 @@ public class IotDBController<T> {
         iotDBService.deleteTimeseries(connection, timeseriesName);
         return BaseVO.success("删除成功", null);
     }
-
 
     @GetMapping("/users")
     @ApiOperation("获取数据库用户列表")
@@ -211,6 +267,7 @@ public class IotDBController<T> {
         check(request,serverId);
         Connection connection = connectionService.getById(serverId);
         iotDBService.setIotDBUser(connection, iotDBUser);
+        // 2.用户增加修改去掉角色
         return BaseVO.success("创建成功", null);
     }
 

@@ -24,6 +24,12 @@ public class ErrorCode {
     public static final String CHECK_FAIL = "CONN-0006";
     public static final String CHECK_FAIL_MSG = "没有权限或连接不存在";
 
+    public static final String TEST_CONN_FAIL = "CONN-0007";
+    public static final String TEST_CONN_FAIL_MSG = "连接不可达或连接超时";
+
+    public static final String TEST_CONN_WRONG = "CONN-0008";
+    public static final String TEST_CONN_WRONG_MSG = "连接失败,主机输入不合法";
+
     // 登录相关
     public static final String LOGIN_FAIL_USER = "USER-0001";
     public static final String LOGIN_FAIL_USER_MSG = "登录失败,用户不存在";

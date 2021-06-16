@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.InetAddress;
 import java.util.Calendar;
 import java.util.List;
 
@@ -76,5 +77,4 @@ public class UserController {
         logger.info(user.getName()+"登录成功");
         return token;
     }
-
 }
