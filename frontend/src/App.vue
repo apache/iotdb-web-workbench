@@ -13,5 +13,6 @@
   color: #2c3e50;
   width: 100vw;
   height: 100vh;
+  position: relative;
 }
 </style>

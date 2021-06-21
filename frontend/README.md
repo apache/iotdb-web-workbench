@@ -51,6 +51,7 @@ src 源码目录
   |-- mock 模拟接口，临时存放
   |-- router 路由，统一管理
   |-- store vuex, 统一管理
+  |-- styles 全局样式，scss全局变量等样式相关文件
   |-- views 视图目录
   | |-- pageA 页面
   | |-- |-- hooks 页面通用hooks

@@ -9,6 +9,13 @@ module.exports = {
       .set("@", resolve("./src"))
       .set("components", resolve("./src/components"));
   },
+  css: {
+    loaderOptions: {
+      sass: {
+        prependData: `@import "@/styles/variables.scss";`,
+      },
+    },
+  },
   devServer: {
     proxy: {
       "/data": {

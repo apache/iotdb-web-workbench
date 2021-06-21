@@ -7,11 +7,16 @@ import ElementLocale from "element-plus/lib/locale";
 import enLocale from "element-plus/lib/locale/lang/en";
 import zhLocale from "element-plus/lib/locale/lang/zh-cn";
 import "element-plus/packages/theme-chalk/src/base.scss";
-import messages from "@/i18n/messages.js";
-import "@/assets/reset.scss";
+import messages from "@/i18n/index";
+import "@/styles/reset.scss";
 
+let langMap = {
+  cn: zhLocale.name,
+  en: enLocale.name,
+};
+let locale = localStorage.getItem("lang") || "cn";
 const i18n = createI18n({
-  locale: zhLocale.name,
+  locale: langMap[locale],
   fallbackLocale: enLocale.name,
   messages,
 });
