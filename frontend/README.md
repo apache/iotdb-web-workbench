@@ -52,6 +52,9 @@ src 源码目录
   |-- router 路由，统一管理
   |-- store vuex, 统一管理
   |-- styles 全局样式，scss全局变量等样式相关文件
+  | |-- element.scss 全局修改element plus组件库样式
+  | |-- reset.scss 重置浏览器样式
+  | |-- variables.scss scss全局变量
   |-- views 视图目录
   | |-- pageA 页面
   | |-- |-- hooks 页面通用hooks

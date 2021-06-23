@@ -9,6 +9,7 @@ import zhLocale from "element-plus/lib/locale/lang/zh-cn";
 import "element-plus/packages/theme-chalk/src/base.scss";
 import messages from "@/i18n/index";
 import "@/styles/reset.scss";
+import "@/styles/element.scss";
 
 let langMap = {
   cn: zhLocale.name,

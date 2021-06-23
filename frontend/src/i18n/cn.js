@@ -12,6 +12,7 @@ const cn = {
       loginoutText: "退出登录",
       about: "关于我们",
       help: "帮助手册",
+      databaseManagement: "数据库管理",
     },
     loginPage: {
       account: "账号",

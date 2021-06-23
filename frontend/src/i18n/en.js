@@ -12,6 +12,7 @@ const en = {
       loginoutText: "login out",
       about: "about us",
       help: "help book",
+      databaseManagement: "database management",
     },
     loginPage: {
       account: "account",

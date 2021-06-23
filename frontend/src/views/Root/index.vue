@@ -7,10 +7,9 @@
           mode="horizontal"
           @select="handleMenuSelect"
         >
-          <el-submenu index="1">
-            <template #title>数据库管理</template>
-            <el-menu-item index="1-1">选项1</el-menu-item>
-          </el-submenu>
+          <el-menu-item index="1">{{
+            $t("rootPage.databaseManagement")
+          }}</el-menu-item>
           <div class="lang-btn">
             <el-dropdown @command="handleLangCommand">
               <span class="el-dropdown-link">
@@ -54,13 +53,9 @@
           </div>
         </el-menu>
       </el-header>
-      <el-container>
-        <el-aside width="200px">Aside</el-aside>
-        <el-main
-          >Main
-          <el-date-picker type="date" placeholder="选择日期"> </el-date-picker>
-        </el-main>
-      </el-container>
+      <div class="content-page-block">
+        <router-view></router-view>
+      </div>
     </el-container>
   </div>
 </template>
@@ -70,18 +65,16 @@
 import { onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import useLangSwitch from "./hooks/useLangSwitch.js";
+
 import {
   ElContainer,
   ElHeader,
-  ElAside,
-  ElMain,
   ElMenu,
   ElMenuItem,
-  ElSubmenu,
   ElDropdown,
   ElDropdownMenu,
   ElDropdownItem,
-  ElDatePicker,
 } from "element-plus";
 
 export default {
@@ -89,26 +82,12 @@ export default {
   setup() {
     const router = useRouter();
     const store = useStore();
-    const menuIndex = ref("2");
-    let langMap = {
-      cn: 0,
-      en: 1,
-    };
-    const lang = langMap[localStorage.getItem("lang") || "cn"];
-    const langIndex = ref(lang);
+    const menuIndex = ref("1");
     const userName = ref("admin");
+
+    const { langIndex, handleLangCommand } = useLangSwitch();
     const handleMenuSelect = (key) => {
       menuIndex.value = key;
-    };
-    // const internalInstance = getCurrentInstance();
-    const handleLangCommand = (val) => {
-      let langIndexMap = {
-        0: "cn",
-        1: "en",
-      };
-      langIndex.value = parseInt(val);
-      localStorage.setItem("lang", langIndexMap[val]);
-      location.reload();
     };
     const handleLoginCommand = (val) => {
       if (val === "0") {
@@ -123,6 +102,10 @@ export default {
     };
 
     onMounted(() => {
+      // window.onbeforeunload = function () {
+      //   router.push({ name: "Root" });
+      //   return "";
+      // };
       store.dispatch("fetchIsLogin");
     });
 
@@ -147,17 +130,13 @@ export default {
     };
   },
   components: {
+    ElMenuItem,
     ElContainer,
     ElHeader,
-    ElAside,
-    ElMain,
     ElMenu,
-    ElMenuItem,
-    ElSubmenu,
     ElDropdown,
     ElDropdownMenu,
     ElDropdownItem,
-    ElDatePicker,
   },
 };
 </script>
@@ -178,6 +157,9 @@ export default {
       top: 50%;
       transform: translate(0, -50%);
     }
+  }
+  .content-page-block {
+    height: calc(100vh - 60px);
   }
 }
 </style>
