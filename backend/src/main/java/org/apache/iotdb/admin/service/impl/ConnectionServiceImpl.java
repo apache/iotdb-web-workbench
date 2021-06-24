@@ -49,7 +49,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
         Integer id = connection.getId();
         //已有连接更新
         try {
-            if(id != null){
+            if (id != null) {
                 connectionMapper.updateById(connection);
                 return;
             }
@@ -89,7 +89,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
         queryWrapper.eq("id",serverId);
         queryWrapper.eq("user_id",userId);
         Connection connection = connectionMapper.selectOne(queryWrapper);
-        if(connection == null){
+        if (connection == null) {
             throw new BaseException(ErrorCode.CHECK_FAIL,ErrorCode.CHECK_FAIL_MSG);
         }
     }

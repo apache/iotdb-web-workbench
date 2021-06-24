@@ -13,12 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthenticationUtils {
 
     public static void userAuthentication(Integer userId, HttpServletRequest request) throws BaseException {
-        if(userId == null){
+        if (userId == null) {
             throw new BaseException(ErrorCode.NO_USER,ErrorCode.NO_USER_MSG);
         }
         DecodedJWT authorization = JWT.decode(request.getHeader("Authorization"));
         Integer tokenUserId = authorization.getClaim("userId").asInt();
-        if(!tokenUserId.equals(userId)){
+        if (!tokenUserId.equals(userId)) {
             throw new BaseException(ErrorCode.USER_AUTH_FAIL,ErrorCode.USER_AUTH_FAIL_MSG);
         }
     }

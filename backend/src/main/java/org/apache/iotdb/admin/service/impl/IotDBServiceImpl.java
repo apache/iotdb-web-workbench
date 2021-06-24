@@ -14,12 +14,15 @@ import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
+import org.apache.iotdb.tsfile.file.metadata.enums.CompressionType;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
+import org.apache.naming.EjbRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import sun.reflect.annotation.TypeNotPresentExceptionProxy;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -120,7 +123,7 @@ public class IotDBServiceImpl implements IotDBService {
                     List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
                     for (int i = 0; i < fields.size(); i++) {
                         org.apache.iotdb.tsfile.read.common.Field field = fields.get(i);
-                        if(i == 0 &&  field != null && field.toString().length() > 0){
+                        if (i == 0 &&  field != null && field.toString().length() > 0) {
                             break;
                         }
                         privileges.add(field.toString());
@@ -217,7 +220,7 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (StatementExecutionException e) {
             throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
         }finally {
-            if(sessionPool != null){
+            if (sessionPool != null) {
                 sessionPool.close();
             }
         }
@@ -257,7 +260,7 @@ public class IotDBServiceImpl implements IotDBService {
         for (String groupName : groupNames) {
             String sql = "count devices " + groupName;
             String value = executeQueryOneValue(sessionPool, sql);
-            if(value == null){
+            if (value == null) {
                 devicesCount.add(0);
                 continue;
             }
@@ -307,7 +310,7 @@ public class IotDBServiceImpl implements IotDBService {
         SessionPool sessionPool = getSessionPool(connection);
         String sql = "count devices " + groupName;
         String value = executeQueryOneValue(sessionPool, sql);
-        if(value == null){
+        if (value == null) {
             return 0;
         }
         Integer count = Integer.valueOf(value);
@@ -321,7 +324,7 @@ public class IotDBServiceImpl implements IotDBService {
         for (String deviceName : deviceNames) {
             String sql = "count timeseries " + deviceName;
             String value = executeQueryOneValue(sessionPool, sql);
-            if(value == null){
+            if (value == null) {
                 lines.add(0);
                 continue;
             }
@@ -353,13 +356,18 @@ public class IotDBServiceImpl implements IotDBService {
         List<TSDataType> types = handleTypeStr(deviceDTO.getTypes());
         List<TSEncoding> encodings = handleEncodingStr(deviceDTO.getEncoding());
         List<String> measurements = deviceDTO.getMeasurements();
+        List<CompressionType> compressionTypes = new ArrayList<>();
+        for (int i = 0; i < types.size(); i++) {
+            compressionTypes.add(CompressionType.SNAPPY);
+        }
         try {
-            // 方法修改 有问题
-            sessionPool.createMultiTimeseries(measurements,types,encodings,null,null,null,null,null);
+            sessionPool.createMultiTimeseries(measurements,types,encodings,compressionTypes,null,null,null,null);
         } catch (IoTDBConnectionException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.INSERT_DEV_FAIL,ErrorCode.INSERT_DEV_FAIL_MSG);
         } catch (StatementExecutionException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.INSERT_DEV_FAIL,ErrorCode.INSERT_DEV_FAIL_MSG);
         }finally {
             if (sessionPool != null) {
                 sessionPool.close();
@@ -470,32 +478,32 @@ public class IotDBServiceImpl implements IotDBService {
         List<Object> list = new ArrayList<>();
         for (int i = 0; i < types.size(); i++) {
             TSDataType type = types.get(i);
-            if(type == TSDataType.BOOLEAN){
+            if (type == TSDataType.BOOLEAN) {
                 Integer booleanNum = Integer.valueOf(values.get(i));
                 Boolean flag = null;
-                if(booleanNum == 0){
+                if (booleanNum == 0) {
                     flag = false;
                 }
-                if(booleanNum == 1){
+                if (booleanNum == 1) {
                     flag = true;
                 }
-                if(flag != null){
+                if (flag != null) {
                     list.add(flag);
                     continue;
                 }
                 throw new BaseException(ErrorCode.DB_BOOL_WRONG, ErrorCode.DB_BOOL_WRONG_MSG);
             }
-            if(type == TSDataType.INT32 || type == TSDataType.INT64){
+            if (type == TSDataType.INT32 || type == TSDataType.INT64) {
                 Integer intNum = Integer.valueOf(values.get(i));
                 list.add(intNum);
                 continue;
             }
-            if(type == TSDataType.FLOAT){
+            if (type == TSDataType.FLOAT) {
                 Float floatNum = Float.valueOf(values.get(i));
                 list.add(floatNum);
                 continue;
             }
-            if(type == TSDataType.DOUBLE){
+            if (type == TSDataType.DOUBLE) {
                 Double doubleNum = Double.valueOf(values.get(i));
                 list.add(doubleNum);
                 continue;
@@ -765,7 +773,7 @@ public class IotDBServiceImpl implements IotDBService {
      * @param field 拼接sql的字段
      */
     private void paramValid(String field) throws BaseException {
-        if(field != null){
+        if (field != null) {
             if (!field.matches("^[^ ]+$")) {
                 throw new BaseException(ErrorCode.SQL_PARAM_WRONG,ErrorCode.SQL_PARAM_WRONG_MSG);
             }

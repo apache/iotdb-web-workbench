@@ -1,7 +1,6 @@
 package org.apache.iotdb.admin.model.vo;
 
 import lombok.Data;
-import sun.plugin.javascript.navig.LinkArray;
 
 import java.io.Serializable;
 import java.util.List;

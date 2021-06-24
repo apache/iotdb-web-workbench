@@ -24,7 +24,7 @@ public class swagger2Config {
     private boolean enableSwaager;
 
     @Bean
-    public Docket createRestApi(){
+    public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiinfo())
                 .enable(enableSwaager)

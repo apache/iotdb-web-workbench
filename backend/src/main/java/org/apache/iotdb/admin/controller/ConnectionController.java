@@ -64,12 +64,12 @@ public class ConnectionController {
     @GetMapping("/test")
     @ApiOperation("连通性测试")
     public BaseVO<ConnectionVO> testConnection(String host) throws BaseException {
-        if(host == null || !host.matches("^(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3}$")){
+        if (host == null || !host.matches("^(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3}$")) {
             throw new BaseException(ErrorCode.TEST_CONN_WRONG,ErrorCode.TEST_CONN_WRONG_MSG);
         }
         try {
             InetAddress address  = InetAddress.getByName(host);
-            if(address.isReachable(5000)){
+            if (address.isReachable(5000)) {
                 return BaseVO.success("连通成功",null);
             }
         } catch (Exception e) {

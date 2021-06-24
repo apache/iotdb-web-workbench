@@ -40,10 +40,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
         queryWrapper.eq("connection_id",connection.getId());
         queryWrapper.eq("group_name",groupDTO.getGroupName());
         StorageGroup storageGroup = groupMapper.selectOne(queryWrapper);
-        if(storageGroup != null){
+        if (storageGroup != null) {
             storageGroup.setDescription(groupDTO.getDescription());
             int flag = groupMapper.updateById(storageGroup);
-            if(flag <= 0){
+            if (flag <= 0) {
                 throw new BaseException(ErrorCode.INSERT_GROUP_INFO_FAIL,ErrorCode.INSERT_GROUP_INFO_FAIL_MSG);
             }
             return;
@@ -55,7 +55,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
         group.setGroupName(groupDTO.getGroupName());
         group.setDescription(groupDTO.getDescription());
         int flag = groupMapper.insert(group);
-        if(flag <= 0){
+        if (flag <= 0) {
             throw new BaseException(ErrorCode.INSERT_GROUP_INFO_FAIL,ErrorCode.INSERT_GROUP_INFO_FAIL_MSG);
         }
     }
@@ -66,7 +66,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.eq("group_name",groupName);
         StorageGroup group = groupMapper.selectOne(queryWrapper);
-        if(group != null){
+        if (group != null) {
             return true;
         }
         return false;
@@ -78,7 +78,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.eq("group_name",groupName);
         int flag = groupMapper.delete(queryWrapper);
-        if(flag <= 0){
+        if (flag <= 0) {
             throw new BaseException(ErrorCode.DELETE_GROUP_INFO_FAIL,ErrorCode.DELETE_GROUP_INFO_FAIL_MSG);
         }
     }
@@ -88,7 +88,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.eq("group_name",groupName);
         StorageGroup storageGroup = groupMapper.selectOne(queryWrapper);
-        if(storageGroup != null){
+        if (storageGroup != null) {
             return storageGroup.getDescription();
         }
         return null;

@@ -11,7 +11,6 @@ import java.util.List;
 public interface ConnectionService {
     List<ConnVO> getAllConnections(Integer id);
 
-
     void insert(Connection connection) throws BaseException;
 
     void deleteById(Integer serverId,Integer userId) throws BaseException;

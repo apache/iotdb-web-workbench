@@ -42,7 +42,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("name",user.getName());
         User existUser = userMapper.selectOne(queryWrapper);
-        if(existUser == null) {
+        if (existUser == null) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             try {
                 userMapper.insert(user);

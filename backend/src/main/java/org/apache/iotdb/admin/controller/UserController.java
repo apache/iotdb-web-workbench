@@ -40,7 +40,7 @@ public class UserController {
     @PostMapping("/login")
     @ApiOperation("登录")
     public BaseVO<ConnectionVO> login(@RequestParam("name")String name, @RequestParam("password") String password, HttpServletResponse response) throws BaseException {
-        if(name == null || password == null || name.length() < 4 || password.length() < 4){
+        if (name == null || password == null || name.length() < 4 || password.length() < 4) {
             throw new BaseException(ErrorCode.WRONG_USER_PARAM,ErrorCode.WRONG_USER_PARAM_MSG);
         }
         User user = userService.login(name, password);

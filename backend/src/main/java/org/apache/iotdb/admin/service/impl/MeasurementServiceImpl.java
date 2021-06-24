@@ -28,7 +28,7 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.like("measurement_name",groupName);
         int flag = measurementMapper.delete(queryWrapper);
-        if(flag <= 0){
+        if (flag <= 0) {
             throw new BaseException(ErrorCode.DELETE_MEASUREMENT_INFO_FAIL,ErrorCode.DELETE_MEASUREMENT_INFO_FAIL_MSG);
         }
     }
@@ -39,7 +39,7 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.eq("measurement_name",deviceName);
         int flag = measurementMapper.delete(queryWrapper);
-        if(flag <= 0){
+        if (flag <= 0) {
             throw new BaseException(ErrorCode.DELETE_MEASUREMENT_INFO_FAIL,ErrorCode.DELETE_MEASUREMENT_INFO_FAIL_MSG);
         }
     }
@@ -49,13 +49,19 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
         List<String> measurements = deviceDTO.getMeasurements();
         List<String> descriptions = deviceDTO.getDescriptions();
         for (int i = 0; i < measurements.size(); i++) {
-            Measurement mea = new Measurement();
-            mea.setDescription(descriptions.get(i));
-            mea.setMeasurementName(measurements.get(i));
-            mea.setConnectionId(serverId);
-            int flag = measurementMapper.insert(mea);
-            if (flag <= 0) {
-                throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL,ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("connection_id",serverId);
+            queryWrapper.eq("measurement_name",measurements.get(i));
+            Measurement existMeasurement = measurementMapper.selectOne(queryWrapper);
+            if (existMeasurement == null) {
+                Measurement mea = new Measurement();
+                mea.setDescription(descriptions.get(i));
+                mea.setMeasurementName(measurements.get(i));
+                mea.setConnectionId(serverId);
+                int flag = measurementMapper.insert(mea);
+                if (flag <= 0) {
+                    throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL,ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
+                }
             }
         }
     }

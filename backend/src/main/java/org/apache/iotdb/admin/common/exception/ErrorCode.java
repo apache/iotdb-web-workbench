@@ -110,6 +110,9 @@ public class ErrorCode {
     public static final String GET_SQL_SET_FAIL = "IOTDB-0017";
     public static final String GET_SQL_SET_FAIL_MSG = "获取列表集合失败";
 
+    public static final String INSERT_DEV_FAIL = "IOTDB-0018";;
+    public static final String INSERT_DEV_FAIL_MSG = "插入设备失败";;
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
@@ -133,6 +136,5 @@ public class ErrorCode {
 
     // 参数校验相关
     public static final String WRONG_PARAM = "PARAM-0001";
-
 
 }
