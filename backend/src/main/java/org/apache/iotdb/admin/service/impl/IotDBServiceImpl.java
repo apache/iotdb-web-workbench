@@ -2,10 +2,7 @@ package org.apache.iotdb.admin.service.impl;
 
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
-import org.apache.iotdb.admin.model.dto.DeviceDTO;
-import org.apache.iotdb.admin.model.dto.IotDBRole;
-import org.apache.iotdb.admin.model.dto.IotDBUser;
-import org.apache.iotdb.admin.model.dto.Timeseries;
+import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
@@ -78,14 +75,18 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public List<String> getMeasurementsByDevice(Connection connection, String deviceName) throws BaseException {
+    public List<MeasurementDTO> getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum) throws BaseException {
         paramValid(deviceName);
-        java.sql.Connection conn = getConnection(connection);
-        String sql = "show child paths " + deviceName;
-        List<String> measurements = customExecuteQuery(conn, sql);
-        closeConnection(conn);
-        return measurements;
+        SessionPool sessionPool = getSessionPool(connection);
+        String sql = "show timeseries " + deviceName;
+        List<MeasurementDTO> measurementDTOList = executeQuery(MeasurementDTO.class,sessionPool,sql,pageSize,pageNum);
+        return measurementDTOList;
+        //        java.sql.Connection conn = getConnection(connection);
+//        String sql = "show child paths " + deviceName;
+//        List<String> measurements = customExecuteQuery(conn, sql);
+//        closeConnection(conn);
     }
+
 
     @Override
     public List<String> getIotDBUserList(Connection connection) throws BaseException {
@@ -371,6 +372,101 @@ public class IotDBServiceImpl implements IotDBService {
         }finally {
             if (sessionPool != null) {
                 sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public Integer getMeasurementsCount(Connection connection, String deviceName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        String sql = "count timeseries " + deviceName;
+        String valueStr = executeQueryOneValue(sessionPool, sql);
+        return Integer.valueOf(valueStr);
+    }
+
+    @Override
+    public String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        int index = timeseries.lastIndexOf(".");
+        String sql = "select last " + timeseries.substring(index + 1) + " from " + timeseries.substring(0,index);
+        try {
+            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            int mark = -1;
+            for (int i = 0; i < columnNames.size(); i++) {
+                if ("value".equalsIgnoreCase(columnNames.get(i))) {
+                    mark = i;
+                    break;
+                }
+            }
+            if (mark == -1) {
+                throw new BaseException(ErrorCode.NO_SUCH_FIELD,ErrorCode.NO_SUCH_FIELD_MSG);
+            }
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                    // 时间戳不在fields里面 所以下标减1
+                    return fields.get(mark - 1).toString();
+                }
+            }
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_LAST_VALUE_FAIL,ErrorCode.GET_LAST_VALUE_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_LAST_VALUE_FAIL,ErrorCode.GET_LAST_VALUE_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+        return null;
+    }
+
+    private <T> List<T> executeQuery(Class<T> clazz, SessionPool sessionPool, String sql, Integer pageSize, Integer pageNum) throws BaseException {
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            List<T> results = new ArrayList<>();
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            int count = 0;
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    count++;
+                    if (count < pageSize * (pageNum - 1) + 1) {
+                        continue;
+                    }
+                    if (count > pageSize * pageNum) {
+                        break;
+                    }
+                    T t = clazz.newInstance();
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                    List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+                    List<TSDataType> columnTypes = sessionDataSetWrapper.getColumnTypes();
+                    for (int i = 0; i < fields.size(); i++) {
+                        Field field = clazz.getDeclaredField(columnNames.get(i).replaceAll(" ",""));
+                        field.setAccessible(true);
+                        field.set(t,fields.get(i).toString());
+                    }
+                    results.add(t);
+                }
+            }
+            return results;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_MSM_FAIL,ErrorCode.GET_MSM_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_MSM_FAIL,ErrorCode.GET_MSM_FAIL_MSG);
+        } catch (Exception e){
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_MSM_FAIL,ErrorCode.GET_MSM_FAIL_MSG);
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
             }
         }
     }

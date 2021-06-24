@@ -65,4 +65,16 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
             }
         }
     }
+
+    @Override
+    public String getDescription(Integer serverId, String timeseries) throws BaseException {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("connection_id",serverId);
+        queryWrapper.eq("measurement_name",timeseries);
+        Measurement measurement = measurementMapper.selectOne(queryWrapper);
+        if (measurement != null) {
+            return measurement.getDescription();
+        }
+        throw new BaseException(ErrorCode.GET_MSM_DES_FAIL,ErrorCode.GET_MSM_DES_FAIL_MSG);
+    }
 }

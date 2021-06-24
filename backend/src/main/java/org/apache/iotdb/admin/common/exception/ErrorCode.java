@@ -110,8 +110,17 @@ public class ErrorCode {
     public static final String GET_SQL_SET_FAIL = "IOTDB-0017";
     public static final String GET_SQL_SET_FAIL_MSG = "获取列表集合失败";
 
-    public static final String INSERT_DEV_FAIL = "IOTDB-0018";;
-    public static final String INSERT_DEV_FAIL_MSG = "插入设备失败";;
+    public static final String INSERT_DEV_FAIL = "IOTDB-0018";
+    public static final String INSERT_DEV_FAIL_MSG = "插入设备失败";
+
+    public static final String GET_MSM_FAIL = "IOTDB-0019";
+    public static final String GET_MSM_FAIL_MSG = "获取测点数据信息失败";
+
+    public static final String NO_SUCH_FIELD = "IOTDB-0020";
+    public static final String NO_SUCH_FIELD_MSG = "返回集没此属性";
+
+    public static final String GET_LAST_VALUE_FAIL = "IOTDB-0021";
+    public static final String GET_LAST_VALUE_FAIL_MSG = "获取测点最新值失败";
 
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
@@ -134,7 +143,9 @@ public class ErrorCode {
     public static final String SET_MEASUREMENT_INFO_FAIL = "MEASU-0002";
     public static final String SET_MEASUREMENT_INFO_FAIL_MSG = "插入测点信息失败";
 
+    public static final String GET_MSM_DES_FAIL = "MEASU-0003";
+    public static final String GET_MSM_DES_FAIL_MSG = "获取测点描述信息失败";
+
     // 参数校验相关
     public static final String WRONG_PARAM = "PARAM-0001";
-
 }

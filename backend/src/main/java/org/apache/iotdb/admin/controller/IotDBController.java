@@ -5,14 +5,12 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
-import org.apache.iotdb.admin.model.dto.DeviceDTO;
-import org.apache.iotdb.admin.model.dto.GroupDTO;
-import org.apache.iotdb.admin.model.dto.IotDBUser;
-import org.apache.iotdb.admin.model.dto.Timeseries;
+import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.entity.Device;
 import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -225,17 +223,35 @@ public class IotDBController<T> {
 
     @GetMapping("/devices/{deviceName}")
     @ApiOperation("获取指定设备下的测点列表")
-    public BaseVO<List<String>> getMeasurementsByDeviceName(@PathVariable("serverId") Integer serverId,
-                                                            @PathVariable("deviceName") String deviceName,
-                                                            HttpServletRequest request) throws BaseException {
+    public BaseVO<MeasuremtnInfoVO> getMeasurementsByDeviceName(@PathVariable("serverId") Integer serverId,
+                                                                   @PathVariable("deviceName") String deviceName,
+                                                                   @RequestParam("pageSize") Integer pageSize,
+                                                                   @RequestParam("pageNum") Integer pageNum,
+                                                                   HttpServletRequest request) throws BaseException {
         if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM,ErrorCode.WRONG_DB_PARAM_MSG);
         }
         check(request,serverId);
         Connection connection = connectionService.getById(serverId);
-        List<String> measurements = iotDBService.getMeasurementsByDevice(connection, deviceName);
+        List<MeasurementDTO> measurementDTOList = iotDBService.getMeasurementsByDevice(connection, deviceName,pageSize,pageNum);
+        List<MeasurementVO> measurementVOList = new ArrayList<>();
+        for (MeasurementDTO measurementDTO : measurementDTOList) {
+            MeasurementVO measurementVO = new MeasurementVO();
+            BeanUtils.copyProperties(measurementDTO,measurementVO);
+            String description = measurementService.getDescription(serverId,measurementDTO.getTimeseries());
+            String newValue = iotDBService.getLastMeasurementValue(connection,measurementDTO.getTimeseries());
+            measurementVO.setNewValue(newValue);
+            measurementVO.setDescription(description);
+            measurementVOList.add(measurementVO);
+        }
+        Integer totalCount = iotDBService.getMeasurementsCount(connection,deviceName);
+        Integer totalPage = totalCount  % pageSize == 0 ? totalCount  / pageSize : totalCount / pageSize + 1;
+        MeasuremtnInfoVO measuremtnInfoVO = new MeasuremtnInfoVO();
+        measuremtnInfoVO.setMeasurementVOList(measurementVOList);
+        measuremtnInfoVO.setTotalCount(totalCount);
+        measuremtnInfoVO.setTotalPage(totalPage);
         // 11.测点列表加分页
-        return BaseVO.success( "获取成功", measurements);
+        return BaseVO.success( "获取成功", measuremtnInfoVO);
     }
 
     @PostMapping("/devices/{deviceName}/timeseries")

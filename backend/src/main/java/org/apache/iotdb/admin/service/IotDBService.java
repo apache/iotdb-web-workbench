@@ -1,10 +1,7 @@
 package org.apache.iotdb.admin.service;
 
 import org.apache.iotdb.admin.common.exception.BaseException;
-import org.apache.iotdb.admin.model.dto.DeviceDTO;
-import org.apache.iotdb.admin.model.dto.IotDBRole;
-import org.apache.iotdb.admin.model.dto.IotDBUser;
-import org.apache.iotdb.admin.model.dto.Timeseries;
+import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
@@ -21,7 +18,7 @@ public interface IotDBService {
 
     List<String> getDevicesByGroup(Connection connection, String groupName,Integer pageSize,Integer pageNum) throws BaseException;
 
-    List<String> getMeasurementsByDevice(Connection connection, String deviceName) throws BaseException;
+    List<MeasurementDTO> getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum) throws BaseException;
 
     List<String> getIotDBUserList(Connection connection) throws BaseException;
 
@@ -58,4 +55,8 @@ public interface IotDBService {
     void deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException;
 
     void createDeviceWithMeasurements(Connection connection, DeviceDTO deviceDTO) throws BaseException;
+
+    Integer getMeasurementsCount(Connection connection, String deviceName) throws BaseException;
+
+    String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException;
 }
