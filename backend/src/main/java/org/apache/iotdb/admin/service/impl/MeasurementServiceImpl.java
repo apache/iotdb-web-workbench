@@ -63,6 +63,11 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
                     throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL,ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
                 }
             }
+            existMeasurement.setDescription(descriptions.get(i));
+            int flag = measurementMapper.updateById(existMeasurement);
+            if (flag <= 0) {
+                throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL,ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
+            }
         }
     }
 

@@ -80,6 +80,12 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
             if (flag <= 0) {
                 throw new BaseException(ErrorCode.SET_DEVICE_INFO_FAIL,ErrorCode.SET_DEVICE_INFO_FAIL_MSG);
             }
+            return;
+        }
+        existDevice.setDescription(deviceDTO.getDescription());
+        int flag = deviceMapper.updateById(existDevice);
+        if (flag <= 0) {
+            throw new BaseException(ErrorCode.SET_DEVICE_INFO_FAIL,ErrorCode.SET_DEVICE_INFO_FAIL_MSG);
         }
     }
 

@@ -367,8 +367,10 @@ public class IotDBServiceImpl implements IotDBService {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.INSERT_DEV_FAIL,ErrorCode.INSERT_DEV_FAIL_MSG);
         } catch (StatementExecutionException e) {
-            logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.INSERT_DEV_FAIL,ErrorCode.INSERT_DEV_FAIL_MSG);
+            if (!e.getMessage().contains("PathAlreadyExistException")) {
+                logger.error(e.getMessage());
+                throw new BaseException(ErrorCode.INSERT_DEV_FAIL,ErrorCode.INSERT_DEV_FAIL_MSG);
+            }
         }finally {
             if (sessionPool != null) {
                 sessionPool.close();

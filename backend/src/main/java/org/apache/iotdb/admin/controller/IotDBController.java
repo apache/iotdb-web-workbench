@@ -166,6 +166,7 @@ public class IotDBController<T> {
                                                       @PathVariable("groupName") String groupName,
                                                       @RequestBody DeviceDTO deviceDTO,
                                                       HttpServletRequest request) throws BaseException {
+        // 修改DeviceDTO传参内容 修改逻辑
         if (groupName == null || !groupName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM,ErrorCode.WRONG_DB_PARAM_MSG);
         }
@@ -179,7 +180,7 @@ public class IotDBController<T> {
             deviceService.setDeviceInfo(connection,deviceDTO);
             measurementService.setMeasurementsInfo(serverId,deviceDTO);
             //新增设备时 添加描述
-            return BaseVO.success("新增成功", null);
+            return BaseVO.success("新增或更新成功", null);
         }else {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM,ErrorCode.WRONG_DB_PARAM_MSG);
         }
