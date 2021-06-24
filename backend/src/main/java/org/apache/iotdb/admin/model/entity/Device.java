@@ -20,8 +20,8 @@ public class Device implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    @NotNull(message = "未指定所属组")
-    private Integer groupId;
+    @NotNull(message = "未指定连接")
+    private Integer connectionId;
 
     private String description;
 
@@ -33,4 +33,7 @@ public class Device implements Serializable {
     @NotNull(message = "未指定创建时间")
     private Long createTime;
 
+    @NotBlank
+    @Pattern(regexp = "^[^ ]+$",message = "不能包含空格")
+    private String deviceName;
 }

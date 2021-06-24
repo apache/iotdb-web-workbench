@@ -1,6 +1,7 @@
 package org.apache.iotdb.admin.service;
 
 import org.apache.iotdb.admin.common.exception.BaseException;
+import org.apache.iotdb.admin.model.dto.DeviceDTO;
 import org.apache.iotdb.admin.model.dto.IotDBRole;
 import org.apache.iotdb.admin.model.dto.IotDBUser;
 import org.apache.iotdb.admin.model.dto.Timeseries;
@@ -18,7 +19,7 @@ public interface IotDBService {
 
     void deleteStorageGroup(Connection connection, String groupName) throws BaseException;
 
-    List<String> getDevicesByGroup(Connection connection, String groupName) throws BaseException;
+    List<String> getDevicesByGroup(Connection connection, String groupName,Integer pageSize,Integer pageNum) throws BaseException;
 
     List<String> getMeasurementsByDevice(Connection connection, String deviceName) throws BaseException;
 
@@ -43,4 +44,18 @@ public interface IotDBService {
     void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException;
 
     SqlResultVO showTimeseries(Connection connection, String deviceName) throws BaseException;
+
+    List<Integer> getDevicesCount(Connection connection,List<String> groupNames) throws BaseException;
+
+    void saveGroupTtl(Connection connection,String groupName,long l) throws BaseException;
+
+    void cancelGroupTtl(Connection connection, String groupName) throws BaseException;
+
+    Integer getDeviceCount(Connection connection, String groupName) throws BaseException;
+
+    List<Integer> getTimeseriesCount(Connection connection, List<String> deviceNames) throws BaseException;
+
+    void deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException;
+
+    void createDeviceWithMeasurements(Connection connection, DeviceDTO deviceDTO) throws BaseException;
 }

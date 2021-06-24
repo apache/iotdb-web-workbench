@@ -14,7 +14,7 @@ import java.io.Serializable;
  * @anthor fyx 2021/6/16
  */
 @Data
-public class Group implements Serializable {
+public class StorageGroup implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -31,4 +31,8 @@ public class Group implements Serializable {
 
     @NotNull(message = "未指定创建时间")
     private Long createTime;
+
+    @NotBlank
+    private String groupName;
+
 }

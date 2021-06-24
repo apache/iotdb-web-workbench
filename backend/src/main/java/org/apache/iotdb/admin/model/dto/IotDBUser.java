@@ -21,7 +21,7 @@ public class IotDBUser implements Serializable {
     @Pattern(regexp = "^[^ ]+$",message = "不能包含空格")
     private String password;
 
-    private List<String> privileges;
-
-    private List<String> roles;
+//    private List<String> privileges;
+//
+//    private List<String> roles;
 }

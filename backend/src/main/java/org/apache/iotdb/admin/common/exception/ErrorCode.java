@@ -92,6 +92,47 @@ public class ErrorCode {
     public static final String WRONG_DB_PARAM = "IOTDB-0011";
     public static final String WRONG_DB_PARAM_MSG = "输入参数不合法";
 
+    public static final String GET_USER_FAIL = "IOTDB-0012";
+    public static final String GET_USER_FAIL_MSG = "获取用户信息失败";
+
+    public static final String GET_SQL_ONE_VALUE_FAIL = "IOTDB-0013";
+    public static final String GET_SQL_ONE_VALUE_FAIL_MSG = "获取值失败";
+
+    public static final String SET_TTL_FAIL = "IOTDB-0014";
+    public static final String SET_TTL_FAIL_MSG = "设置ttl失败";
+
+    public static final String DEL_TTL_FAIL = "IOTDB-0015";
+    public static final String DEL_TTL_FAIL_MSG = "删除ttl失败";
+
+    public static final String GET_SQL_ONE_COLUMN_FAIL = "IOTDB-0016";
+    public static final String GET_SQL_ONE_COLUMN_FAIL_MSG = "获取列表失败";
+
+    public static final String GET_SQL_SET_FAIL = "IOTDB-0017";
+    public static final String GET_SQL_SET_FAIL_MSG = "获取列表集合失败";
+
+    // 存储组表相关
+    public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
+    public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
+
+    public static final String DELETE_GROUP_INFO_FAIL = "GROUP-0002";
+    public static final String DELETE_GROUP_INFO_FAIL_MSG = "删除存储组信息失败";
+
+    // 设备表相关
+    public static final String DELETE_DEVICE_INFO_FAIL = "DEV-0001";
+    public static final String DELETE_DEVICE_INFO_FAIL_MSG = "删除设备信息失败";
+
+    public static final String SET_DEVICE_INFO_FAIL = "DEV-0002";
+    public static final String SET_DEVICE_INFO_FAIL_MSG = "插入设备信息失败";
+
+    // 测点表相关
+    public static final String DELETE_MEASUREMENT_INFO_FAIL = "MEASU-0001";
+    public static final String DELETE_MEASUREMENT_INFO_FAIL_MSG = "删除测点信息失败";
+
+    public static final String SET_MEASUREMENT_INFO_FAIL = "MEASU-0002";
+    public static final String SET_MEASUREMENT_INFO_FAIL_MSG = "插入测点信息失败";
+
     // 参数校验相关
     public static final String WRONG_PARAM = "PARAM-0001";
+
+
 }

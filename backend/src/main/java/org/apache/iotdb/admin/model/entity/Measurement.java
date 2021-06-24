@@ -17,8 +17,11 @@ public class Measurement implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    @NotNull(message = "未指定所属组")
-    private Integer deviceId;
+    @NotNull(message = "未指定所属连接id")
+    private Integer connectionId;
+
+    @NotNull(message = "未指定测点名")
+    private String measurementName;
 
     private String description;
 }

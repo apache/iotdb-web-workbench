@@ -2,18 +2,23 @@ package org.apache.iotdb.admin.service.impl;
 
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
+import org.apache.iotdb.admin.model.dto.DeviceDTO;
 import org.apache.iotdb.admin.model.dto.IotDBRole;
 import org.apache.iotdb.admin.model.dto.IotDBUser;
 import org.apache.iotdb.admin.model.dto.Timeseries;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
-import org.apache.iotdb.admin.model.vo.RoleWithPrivilegesVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
 import org.apache.iotdb.admin.service.IotDBService;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
+import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
+import org.apache.iotdb.tsfile.read.common.RowRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -24,6 +29,8 @@ import java.util.List;
 
 @Service
 public class IotDBServiceImpl implements IotDBService {
+
+    private static final Logger logger = LoggerFactory.getLogger(IotDBServiceImpl.class);
 
     @Override
     public List<String> getAllStorageGroups(Connection connection) throws BaseException {
@@ -53,13 +60,18 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public List<String> getDevicesByGroup(Connection connection, String groupName) throws BaseException {
+    public List<String> getDevicesByGroup(Connection connection, String groupName,Integer pageSize,Integer pageNum) throws BaseException {
         paramValid(groupName);
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String sql = "show devices " + groupName;
-        List<String> devices = customExecuteQuery(conn, sql);
-        closeConnection(conn);
+        List<String> devices = executeQueryOneColumn(sessionPool, sql, pageSize, pageNum);
+        sessionPool.close();
         return devices;
+//        java.sql.Connection conn = getConnection(connection);
+//        String sql = "show devices " + groupName;
+//        List<String> devices = customExecuteQuery(conn, sql);
+//        closeConnection(conn);
+//        return devices;
     }
 
     @Override
@@ -93,13 +105,37 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException {
         paramValid(userName);
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionpool = getSessionPool(connection);
         IotDBUserVO iotDBUserVO = new IotDBUserVO();
         iotDBUserVO.setUserName(userName);
+        iotDBUserVO.setPassword(connection.getPassword());
         String sql = "list user privileges " + userName;
-        List<RoleWithPrivilegesVO> roleWithPrivileges = customExecuteQuery(RoleWithPrivilegesVO.class, conn, sql);
-        closeConnection(conn);
-        iotDBUserVO.setRoleWithPrivileges(roleWithPrivileges);
+        try {
+            SessionDataSetWrapper sessionDataSetWrapper =  sessionpool.executeQueryStatement(sql);
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            if (batchSize  > 0) {
+                List<String> privileges = new ArrayList<>();
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord next = sessionDataSetWrapper.next();
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
+                    for (int i = 0; i < fields.size(); i++) {
+                        org.apache.iotdb.tsfile.read.common.Field field = fields.get(i);
+                        if(i == 0 &&  field != null && field.toString().length() > 0){
+                            break;
+                        }
+                        privileges.add(field.toString());
+                    }
+                }
+                iotDBUserVO.setPrivileges(privileges);
+            }
+        }catch (Exception e) {
+            throw new BaseException(ErrorCode.GET_USER_FAIL,ErrorCode.GET_USER_FAIL_MSG);
+        } finally {
+            if (sessionpool != null) {
+                sessionpool.close();
+            }
+        }
+//        iotDBUserVO.setRoleWithPrivileges(roleWithPrivileges);
         return iotDBUserVO;
     }
 
@@ -128,20 +164,20 @@ public class IotDBServiceImpl implements IotDBService {
         String password = iotDBUser.getPassword();
         String sql = "create user " + userName + " '" + password + "'";
         customExecute(conn, sql);
-        // 用户角色
-        for (String role : iotDBUser.getRoles()) {
-            paramValid(role);
-            sql = "grant " + role + " to " + userName;
-            customExecute(conn, sql);
-        }
-        // 用户授权
-        List<String> privileges = iotDBUser.getPrivileges();
-        for (String privilege : privileges) {
-            sql = handlerPrivilegeStrToSql(privilege, userName, null);
-            if (sql != null) {
-                customExecute(conn, sql);
-            }
-        }
+//        // 用户角色
+//        for (String role : iotDBUser.getRoles()) {
+//            paramValid(role);
+//            sql = "grant " + role + " to " + userName;
+//            customExecute(conn, sql);
+//        }
+//        // 用户授权
+//        List<String> privileges = iotDBUser.getPrivileges();
+//        for (String privilege : privileges) {
+//            sql = handlerPrivilegeStrToSql(privilege, userName, null);
+//            if (sql != null) {
+//                customExecute(conn, sql);
+//            }
+//        }
         closeConnection(conn);
     }
 
@@ -171,18 +207,18 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries) throws BaseException {
-        SessionPool session = getSession(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         try {
             List<TSDataType> types = handleTypeStr(timeseries.getTypes());
             List<Object> values = handleValueStr(timeseries.getValues(),types);
-            session.insertRecord(deviceName,timeseries.getTime(),timeseries.getMeasurements(),types,values);
+            sessionPool.insertRecord(deviceName,timeseries.getTime(),timeseries.getMeasurements(),types,values);
         } catch (IoTDBConnectionException e) {
             throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
         } catch (StatementExecutionException e) {
             throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
         }finally {
-            if(session != null){
-                session.close();
+            if(sessionPool != null){
+                sessionPool.close();
             }
         }
 
@@ -190,15 +226,18 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException {
-        SessionPool session = getSession(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         try {
-            session.deleteTimeseries(timeseriesName);
+            sessionPool.deleteTimeseries(timeseriesName);
         } catch (IoTDBConnectionException e) {
             throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
         } catch (StatementExecutionException e) {
             throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
+        }finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
         }
-        session.close();
     }
 
     @Override
@@ -209,6 +248,222 @@ public class IotDBServiceImpl implements IotDBService {
         SqlResultVO resultVO = sqlQuery(conn, sql);
         closeConnection(conn);
         return resultVO;
+    }
+
+    @Override
+    public List<Integer> getDevicesCount(Connection connection, List<String> groupNames) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<Integer> devicesCount = new ArrayList<>();
+        for (String groupName : groupNames) {
+            String sql = "count devices " + groupName;
+            String value = executeQueryOneValue(sessionPool, sql);
+            if(value == null){
+                devicesCount.add(0);
+                continue;
+            }
+            Integer count = Integer.valueOf(value);
+            devicesCount.add(count);
+        }
+        sessionPool.close();
+        return devicesCount;
+    }
+
+    @Override
+    public void saveGroupTtl(Connection connection,String groupName,long l) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        String sql = "set ttl to " + groupName + " " + l;
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_TTL_FAIL,ErrorCode.SET_TTL_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_TTL_FAIL,ErrorCode.SET_TTL_FAIL_MSG);
+        }finally {
+            sessionPool.close();
+        }
+    }
+
+    @Override
+    public void cancelGroupTtl(Connection connection, String groupName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        String sql = "unset ttl to " + groupName;
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DEL_TTL_FAIL,ErrorCode.DEL_TTL_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DEL_TTL_FAIL,ErrorCode.DEL_TTL_FAIL_MSG);
+        }finally {
+            sessionPool.close();
+        }
+    }
+
+    @Override
+    public Integer getDeviceCount(Connection connection, String groupName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        String sql = "count devices " + groupName;
+        String value = executeQueryOneValue(sessionPool, sql);
+        if(value == null){
+            return 0;
+        }
+        Integer count = Integer.valueOf(value);
+        return count;
+    }
+
+    @Override
+    public List<Integer> getTimeseriesCount(Connection connection, List<String> deviceNames) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<Integer> lines = new ArrayList<>();
+        for (String deviceName : deviceNames) {
+            String sql = "count timeseries " + deviceName;
+            String value = executeQueryOneValue(sessionPool, sql);
+            if(value == null){
+                lines.add(0);
+                continue;
+            }
+            Integer count = Integer.valueOf(value);
+            lines.add(count);
+        }
+        sessionPool.close();
+        return lines;
+    }
+
+    @Override
+    public void deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        String sql = "delete timeseries " + deviceName + ".*";
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_TS_FAIL,ErrorCode.DELETE_TS_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_TS_FAIL,ErrorCode.DELETE_TS_FAIL_MSG);
+        }
+    }
+
+    @Override
+    public void createDeviceWithMeasurements(Connection connection, DeviceDTO deviceDTO) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<TSDataType> types = handleTypeStr(deviceDTO.getTypes());
+        List<TSEncoding> encodings = handleEncodingStr(deviceDTO.getEncoding());
+        List<String> measurements = deviceDTO.getMeasurements();
+        try {
+            // 方法修改 有问题
+            sessionPool.createMultiTimeseries(measurements,types,encodings,null,null,null,null,null);
+        } catch (IoTDBConnectionException e) {
+            e.printStackTrace();
+        } catch (StatementExecutionException e) {
+            e.printStackTrace();
+        }finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    private String executeQueryOneValue(SessionPool sessionPool,String sql) throws BaseException {
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            String value = null;
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                    value = fields.get(0).toString();
+                    break;
+                }
+            }
+            return value;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SQL_ONE_VALUE_FAIL,ErrorCode.GET_SQL_ONE_VALUE_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SQL_ONE_VALUE_FAIL,ErrorCode.GET_SQL_ONE_VALUE_FAIL_MSG);
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
+            }
+        }
+    }
+
+    private List<String> executeQueryOneColumn(SessionPool sessionPool,String sql,Integer pageSize,Integer pageNum) throws BaseException {
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            List<String> values = new ArrayList<>();
+            int count = 0;
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    count++;
+                    if (count < pageSize * (pageNum - 1) + 1) {
+                        continue;
+                    }
+                    if (count > pageSize * pageNum) {
+                        break;
+                    }
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                    values.add(fields.get(0).toString());
+                }
+            }
+            return values;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL,ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL,ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
+            }
+        }
+    }
+
+    private List<TSEncoding> handleEncodingStr(List<String> encoding) {
+        List<TSEncoding> list = new ArrayList<>();
+        for (String s : encoding) {
+            switch (s){
+                case "PLAIN":
+                    list.add(TSEncoding.PLAIN);
+                    break;
+                case "PLAIN_DICTIONARY":
+                    list.add(TSEncoding.PLAIN_DICTIONARY);
+                    break;
+                case "RLE":
+                    list.add(TSEncoding.RLE);
+                    break;
+                case "DIFF":
+                    list.add(TSEncoding.DIFF);
+                    break;
+                case "TS_2DIFF":
+                    list.add(TSEncoding.TS_2DIFF);
+                    break;
+                case "BITMAP":
+                    list.add(TSEncoding.BITMAP);
+                    break;
+                case "GORILLA_V1":
+                    list.add(TSEncoding.GORILLA_V1);
+                    break;
+                case "REGULAR":
+                    list.add(TSEncoding.REGULAR);
+                    break;
+                case "GORILLA":
+                    list.add(TSEncoding.GORILLA);
+                    break;
+            }
+        }
+        return list;
     }
 
     private List<Object> handleValueStr(List<String> values, List<TSDataType> types) throws BaseException {
@@ -299,19 +554,19 @@ public class IotDBServiceImpl implements IotDBService {
         return conn;
     }
 
-        public static SessionPool getSession(Connection connection) throws BaseException {
-            String host = connection.getHost();
-            Integer port = connection.getPort();
-            String username = connection.getUsername();
-            String password = connection.getPassword();
-            SessionPool sessionPool = null;
-            try {
-                sessionPool = new SessionPool(host,port,username,password,3);
-            } catch (Exception e) {
-                throw new BaseException(ErrorCode.GET_SESSION_FAIL,ErrorCode.GET_SESSION_FAIL_MSG);
-            }
-            return sessionPool;
+    public static SessionPool getSessionPool(Connection connection) throws BaseException {
+        String host = connection.getHost();
+        Integer port = connection.getPort();
+        String username = connection.getUsername();
+        String password = connection.getPassword();
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = new SessionPool(host,port,username,password,3);
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL,ErrorCode.GET_SESSION_FAIL_MSG);
         }
+        return sessionPool;
+    }
 //    public static SessionPool getSession(Connection connection) throws BaseException {
 //        if(sessionPool == null){
 //            host = connection.getHost();
@@ -516,4 +771,5 @@ public class IotDBServiceImpl implements IotDBService {
             }
         }
     }
+
 }

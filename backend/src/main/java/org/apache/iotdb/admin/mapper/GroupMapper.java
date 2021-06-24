@@ -1,7 +1,7 @@
 package org.apache.iotdb.admin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.iotdb.admin.model.entity.Group;
+import org.apache.iotdb.admin.model.entity.StorageGroup;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,5 +9,5 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public interface GroupMapper extends BaseMapper<Group> {
+public interface GroupMapper extends BaseMapper<StorageGroup> {
 }
