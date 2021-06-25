@@ -177,16 +177,29 @@
             </exclusions>
         </dependency>
     </dependencies>
+
     <build>
-        <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
-        </pluginManagement>
+            <resources>
+                <resource>
+                    <directory>backend/src/main/resources/iotdb.db</directory>
+                    <targetPath>backend/src/main/resources/iotdb.db</targetPath>
+                </resource>
+            </resources>
     </build>
+
     <repositories>
         <repository>
             <id>nexus</id>

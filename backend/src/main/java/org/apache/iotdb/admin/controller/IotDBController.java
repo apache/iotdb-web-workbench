@@ -106,7 +106,7 @@ public class IotDBController<T> {
 
     // 6. 存储组详情获取 孟老师
     @GetMapping("/storageGroups/{groupName}")
-    @ApiOperation("存储组详情获取")
+    @ApiOperation("存储组详情获取 未完")
     public BaseVO getStorageGroup(@PathVariable("serverId") Integer serverId,
                                    @PathVariable("groupName") String groupName,
                                    HttpServletRequest request) throws BaseException {
@@ -121,7 +121,7 @@ public class IotDBController<T> {
 
 
     @GetMapping("/storageGroups/{groupName}/devices")
-    @ApiOperation("获取指定存储组下的设备列表")
+    @ApiOperation("获取指定存储组下的实体(设备)列表")
     public BaseVO<DeviceInfoVO> getDevicesByGroupName(@PathVariable("serverId") Integer serverId,
                                                       @PathVariable("groupName") String groupName,
                                                       @RequestParam("pageSize") Integer pageSize,
@@ -161,8 +161,8 @@ public class IotDBController<T> {
 
     // 9.新增设备  // 12. 编辑设备
     @PostMapping("/storageGroups/{groupName}/devices")
-    @ApiOperation("新增或编辑设备")
-    public BaseVO<List<String>> getDevicesByGroupName(@PathVariable("serverId") Integer serverId,
+    @ApiOperation("新增或编辑实体(设备)")
+    public BaseVO<List<String>> saveOrUpdateDevice(@PathVariable("serverId") Integer serverId,
                                                       @PathVariable("groupName") String groupName,
                                                       @RequestBody DeviceDTO deviceDTO,
                                                       HttpServletRequest request) throws BaseException {
@@ -188,7 +188,7 @@ public class IotDBController<T> {
 
 
     @DeleteMapping("/storageGroups/{groupName}/devices/{deviceName}")
-    @ApiOperation("删除设备")
+    @ApiOperation("删除实体(设备)")
     public BaseVO deleteDevice(@PathVariable("serverId") Integer serverId,
                                                       @PathVariable("groupName") String groupName,
                                                       @PathVariable("deviceName") String deviceName,
@@ -209,7 +209,7 @@ public class IotDBController<T> {
 
     // 10.获取设备详情
     @GetMapping("/storageGroups/{groupName}/devices/{deviceName}")
-    @ApiOperation("获取设备")
+    @ApiOperation("获取实体(设备)详情")
     public BaseVO<DeviceVO> getDeviceInfo(@PathVariable("serverId") Integer serverId,
                                                       @PathVariable("groupName") String groupName,
                                                       @PathVariable("deviceName") String deviceName,
@@ -223,7 +223,7 @@ public class IotDBController<T> {
     }
 
     @GetMapping("/devices/{deviceName}")
-    @ApiOperation("获取指定设备下的测点列表")
+    @ApiOperation("获取指定实体(设备)下的测点列表详情")
     public BaseVO<MeasuremtnInfoVO> getMeasurementsByDeviceName(@PathVariable("serverId") Integer serverId,
                                                                    @PathVariable("deviceName") String deviceName,
                                                                    @RequestParam("pageSize") Integer pageSize,
@@ -285,7 +285,7 @@ public class IotDBController<T> {
     }
 
     @DeleteMapping("/timeseries/{timeseriesName}")
-    @ApiOperation("删除时间序列")
+    @ApiOperation("删除时间序列 未完")
     public BaseVO<List<String>> deleteTimeseries(@PathVariable("serverId") Integer serverId,
                                                  @PathVariable("timeseriesName") String timeseriesName,
                                                  HttpServletRequest request) throws BaseException {
@@ -384,7 +384,7 @@ public class IotDBController<T> {
 
 
     @PostMapping("/query")
-    @ApiOperation("用于查询器查询")
+    @ApiOperation("用于查询器查询 未完")
     public BaseVO<SqlResultVO> query(@PathVariable("serverId") Integer serverId,
                                      @RequestParam("sql") String sql,
                                      HttpServletRequest request) throws BaseException {
@@ -395,6 +395,12 @@ public class IotDBController<T> {
         Connection connection = connectionService.getById(serverId);
         SqlResultVO sqlResultVO = iotDBService.query(connection, sql);
         return BaseVO.success("查询成功",sqlResultVO);
+    }
+
+    @PostMapping("/stop")
+    @ApiOperation("用于查询终止 未写")
+    public BaseVO query(@PathVariable("serverId") Integer serverId){
+        return BaseVO.success("查询成功",null);
     }
 
     private void check(HttpServletRequest request, Integer serverId) throws BaseException {
