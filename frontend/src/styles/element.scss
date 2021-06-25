@@ -1,3 +1,16 @@
-.el-menu--horizontal > .el-menu-item.is-active{
-    color: red 
+.el-button--primary {
+  background-color: $theme-color;
+  span {
+    color: #fff;
+  }
+}
+.el-tree-node {
+  margin: 10px 16px;
+  &.is-current {
+    color: $theme-color;
+    background: rgba(69, 117, 246, 0.04);
+  }
+
+  & > .el-tree-node__content {
+  }
 }

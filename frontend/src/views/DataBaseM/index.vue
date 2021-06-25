@@ -34,7 +34,6 @@
 import { onMounted, ref } from "vue";
 import useElementResize from "./hooks/useElementResize.js";
 import DataListTree from "./components/dataListTree.vue";
-
 import { ElContainer, ElAside, ElMain, ElTabs, ElTabPane } from "element-plus";
 
 export default {
@@ -116,12 +115,12 @@ export default {
   &::v-deep .content-container {
     height: 100%;
     .divider {
-      width: 2px;
+      width: 1px;
       height: 100%;
-      background-color: rgb(206, 199, 199);
+      background-color: #f0f0f0;
       cursor: w-resize;
       &:hover {
-        background-color: blue;
+        background-color: $theme-color;
       }
     }
   }

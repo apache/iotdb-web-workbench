@@ -17,8 +17,15 @@ const cn = {
     loginPage: {
       account: "账号",
       password: "密码",
+      placeholderAccount: "请输入账号",
+      placeholderPassword: "请输入密码",
       forgetPassWord: "忘记密码",
       signIn: "登录",
+      forgetPassword: "忘记密码",
+      forgetPasswordTip: "请联系系统管理员",
+      accountEmptyTip: "账号不能为空",
+      passwordEmptyTip: "密码不能为空",
+      welcomeLogin: "登录IOTDB数据库管理",
     },
   },
 };

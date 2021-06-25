@@ -1,5 +1,5 @@
 {
-  "name": "iotdb-fe",
+  "name": "iotdb",
   "version": "0.1.0",
   "private": true,
   "husky": {

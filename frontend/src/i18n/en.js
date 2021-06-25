@@ -17,8 +17,15 @@ const en = {
     loginPage: {
       account: "account",
       password: "password",
+      placeholderAccount: "please input account",
+      placeholderPassword: "please input password",
       forgetPassWord: "forget passWord",
       signIn: "sign in",
+      forgetPassword: "forget password",
+      forgetPasswordTip: "please contact system administrator",
+      accountEmptyTip: "account can not be empty",
+      passwordEmptyTip: "password can not be empty",
+      welcomeLogin: "log in to iotdb database management",
     },
   },
 };

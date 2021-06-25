@@ -10,48 +10,49 @@
           <el-menu-item index="1">{{
             $t("rootPage.databaseManagement")
           }}</el-menu-item>
-          <div class="lang-btn">
-            <el-dropdown @command="handleLangCommand">
-              <span class="el-dropdown-link">
-                {{
-                  [$t("rootPage.chinalang"), $t("rootPage.englishlang")][
-                    langIndex
-                  ]
-                }}<i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item :disabled="langIndex === 0" command="0">{{
-                    $t("rootPage.chinalang")
-                  }}</el-dropdown-item>
-                  <el-dropdown-item :disabled="langIndex === 1" command="1">{{
-                    $t("rootPage.englishlang")
-                  }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
-          <div class="user-btn">
-            <el-dropdown @command="handleLoginCommand">
-              <span class="el-dropdown-link">
-                {{ userName }} <i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="0">{{
-                    $t("rootPage.loginoutText")
-                  }}</el-dropdown-item>
-                  <el-dropdown-item command="1">{{
-                    $t("rootPage.about")
-                  }}</el-dropdown-item>
-                  <el-dropdown-item command="2">{{
-                    $t("rootPage.help")
-                  }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
         </el-menu>
+        <div class="logo-img"></div>
+        <div class="lang-btn">
+          <el-dropdown @command="handleLangCommand">
+            <span class="el-dropdown-link">
+              {{
+                [$t("rootPage.chinalang"), $t("rootPage.englishlang")][
+                  langIndex
+                ]
+              }}<i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item :disabled="langIndex === 0" command="0">{{
+                  $t("rootPage.chinalang")
+                }}</el-dropdown-item>
+                <el-dropdown-item :disabled="langIndex === 1" command="1">{{
+                  $t("rootPage.englishlang")
+                }}</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+        <div class="user-btn">
+          <el-dropdown @command="handleLoginCommand">
+            <span class="el-dropdown-link">
+              {{ userName }} <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="0">{{
+                  $t("rootPage.loginoutText")
+                }}</el-dropdown-item>
+                <el-dropdown-item command="1">{{
+                  $t("rootPage.about")
+                }}</el-dropdown-item>
+                <el-dropdown-item command="2">{{
+                  $t("rootPage.help")
+                }}</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </el-header>
       <div class="content-page-block">
         <router-view></router-view>
@@ -144,22 +145,58 @@ export default {
 <style scoped lang="scss">
 .root {
   &::v-deep .el-header {
+    height: 64px !important;
+    border-width: 0;
+    border-bottom-width: 1px;
+    border-style: solid;
+    border-color: #f0f0f0;
     padding: 0;
-    .lang-btn {
-      position: absolute;
-      right: 100px;
-      top: 50%;
-      transform: translate(0, -50%);
-    }
-    .user-btn {
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translate(0, -50%);
+    padding-left: 220px;
+    position: relative;
+    .el-menu {
+      height: 100%;
+      .el-menu-item {
+        height: 50px;
+        border-color: transparent;
+        &.is-active {
+          color: $theme-color;
+          position: relative;
+          &::after {
+            bottom: 0;
+            left: calc(50% - 6px);
+            position: absolute;
+            content: "";
+            width: 12px;
+            height: 2px;
+            background-color: $theme-color;
+          }
+        }
+      }
     }
   }
   .content-page-block {
-    height: calc(100vh - 60px);
+    height: calc(100vh - 64px);
+  }
+  .logo-img {
+    position: absolute;
+    background-image: url(~@/assets/logo.png);
+    background-size: 100% 100%;
+    width: 200px;
+    height: 36px;
+    left: 20px;
+    top: 14px;
+  }
+  .lang-btn {
+    position: absolute;
+    right: 100px;
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+  .user-btn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translate(0, -50%);
   }
 }
 </style>
