@@ -4,13 +4,29 @@
     color: #fff;
   }
 }
-.el-tree-node {
-  margin: 10px 16px;
+.el-tree--highlight-current .el-tree-node {
   &.is-current {
-    color: $theme-color;
-    background: rgba(69, 117, 246, 0.04);
+    & > .el-tree-node__content {
+      border-style: solid;
+      border-color: transparent;
+      border-width: 10px 16px;
+      color: $theme-color;
+      background-color: rgba(69, 117, 246, 0.04);
+      position: relative;
+      &::after {
+        content: "";
+        width: 4px;
+        background-color: $theme-color;
+        position: absolute;
+        left: -16px;
+        top: -10px;
+        bottom:-10px;
+      }
+    }
   }
-
-  & > .el-tree-node__content {
+  .el-tree-node__content {
+    border-style: solid;
+    border-color: transparent;
+    border-width: 10px 16px;
   }
 }
