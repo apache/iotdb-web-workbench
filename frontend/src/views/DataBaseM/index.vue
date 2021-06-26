@@ -9,21 +9,26 @@
       ></el-aside>
       <div class="divider" ref="dividerRef"></div>
       <el-main>
-        <el-tabs
-          v-model="urlTabsValue"
-          type="card"
-          @tab-click="handleClick"
-          @tab-remove="removeTab"
-          closable
-        >
-          <el-tab-pane
-            v-for="item in urlTabs"
-            :key="item.name"
-            :label="item.title"
-            :name="item.name"
+        <template v-if="urlTabs.length !== 0">
+          <el-tabs
+            v-model="urlTabsValue"
+            type="card"
+            @tab-click="handleClick"
+            @tab-remove="removeTab"
+            closable
           >
-          </el-tab-pane>
-        </el-tabs>
+            <el-tab-pane
+              v-for="item in urlTabs"
+              :key="item.name"
+              :label="item.title"
+              :name="item.name"
+            >
+            </el-tab-pane>
+          </el-tabs>
+          <div class="router-container">
+            <router-view></router-view>
+          </div>
+        </template>
       </el-main>
     </el-container>
   </div>
@@ -118,35 +123,36 @@ export default {
     background-color: #f0f0f0;
     cursor: w-resize;
     &:hover {
-      background-color: $theme-color;
+      background-color: $theme-color !important;
       width: 2px;
     }
   }
+  .router-container {
+    height: calc(100% - 42px);
+  }
   &::v-deep .content-container {
     height: 100%;
+    .el-aside {
+      height: 100%;
+    }
     .el-main {
       padding: 0;
-      .el-tabs__nav {
-        border: 0;
-        .el-tabs__item {
-          padding: 10px 15px;
-          box-sizing: content-box;
-          border-width: 0;
-          line-height: 22px;
-          height: 22px;
-          position: relative;
-          // &::after {
-          //   position: absolute;
-          //   top: calc(50% - 6px);
-          //   right: -1px;
-          //   content: "";
-          //   width: 1px;
-          //   height: 12px;
-          //   background-color: #f0f0f0;
-          // }
-          &.is-active {
-            background: rgba(69, 117, 246, 0.04);
-            color: $theme-color;
+      height: 100%;
+      .el-tabs__header {
+        margin: 0;
+        .el-tabs__nav {
+          border: 0;
+          .el-tabs__item {
+            padding: 10px 15px;
+            box-sizing: content-box;
+            border-width: 0;
+            line-height: 22px;
+            height: 22px;
+            position: relative;
+            &.is-active {
+              background: rgba(69, 117, 246, 0.04);
+              color: $theme-color;
+            }
           }
         }
       }

@@ -13,6 +13,9 @@ const en = {
       about: "about us",
       help: "help book",
       databaseManagement: "database management",
+      dataList: "data list",
+      newdatasource: "new data source",
+      newQueryWindow: "new query window",
     },
     loginPage: {
       account: "account",

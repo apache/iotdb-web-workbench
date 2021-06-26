@@ -1,13 +1,40 @@
 <template>
   <div class="data-list-tree">
     <div class="data-list-top">
-      <span>数据列表</span>
-      <svg class="icon icon-1" aria-hidden="true" @click="btnClick1">
-        <use xlink:href="#icon-xinjianchaxun"></use>
-      </svg>
-      <svg class="icon icon-2" aria-hidden="true" @click="btnClick2">
-        <use xlink:href="#icon-xinzengshujulianjie"></use>
-      </svg>
+      <span>{{ $t("rootPage.dataList") }}</span>
+      <el-tooltip
+        :content="$t('rootPage.newQueryWindow')"
+        :visible-arrow="false"
+        effect="light"
+      >
+        <div class="icon-1">
+          <svg
+            class="icon"
+            aria-hidden="true"
+            @click="btnClick1"
+            v-icon="`#icon-xinjianchaxun-color`"
+          >
+            <use xlink:href="#icon-xinjianchaxun"></use>
+          </svg>
+        </div>
+      </el-tooltip>
+      <el-tooltip
+        :content="$t('rootPage.newdatasource')"
+        :visible-arrow="false"
+        effect="light"
+      >
+        <div class="icon-2">
+          <svg
+            v-icon="`#icon-xinzengshujulianjie-color`"
+            class="icon"
+            aria-hidden="true"
+            @click="btnClick2"
+            title="1212"
+          >
+            <use xlink:href="#icon-xinzengshujulianjie"></use>
+          </svg>
+        </div>
+      </el-tooltip>
     </div>
     <div class="data-list-input">
       <el-input size="small" placeholder="" v-model="searchVal">
@@ -31,7 +58,7 @@
 </template>
 
 <script>
-import { ElTree, ElInput } from "element-plus";
+import { ElTree, ElInput, ElTooltip } from "element-plus";
 import { reactive, ref } from "vue";
 
 export default {
@@ -58,6 +85,42 @@ export default {
     const loadNode = (node, resolve) => {
       if (node.level === 0) {
         return resolve([{ name: "region", id: "1" }]);
+      }
+      if (node.level === 3) {
+        setTimeout(() => {
+          const data = [
+            {
+              name: "leaf",
+              id: "8",
+            },
+            {
+              name: "leaf",
+              id: "17",
+            },
+            {
+              name: "leafdsssssssssssssssssssssssssssskkkk",
+              id: "16",
+            },
+            {
+              name: "leaf",
+              id: "15",
+            },
+            {
+              name: "leaf",
+              id: "13",
+            },
+            {
+              name: "leaf",
+              leaf: true,
+              id: "18",
+            },
+            {
+              name: "zone",
+              id: "9",
+            },
+          ];
+          resolve(data);
+        }, 500);
       }
       if (node.level === 2) {
         setTimeout(() => {
@@ -107,6 +170,7 @@ export default {
   components: {
     ElTree,
     ElInput,
+    ElTooltip,
   },
 };
 </script>
@@ -114,6 +178,8 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .data-list-tree {
+  height: 100%;
+  overflow: auto;
   .data-list-top {
     color: rgba(34, 34, 34, 0.65);
     font-size: 12px;
@@ -123,20 +189,32 @@ export default {
     position: relative;
     .icon {
       font-size: 16px;
-      position: absolute;
       cursor: pointer;
     }
     .icon-1 {
       top: 2px;
-      right: 30px;
+      right: 0px;
+      position: absolute;
     }
     .icon-2 {
       top: 2px;
-      right: 0;
+      right: 30px;
+      position: absolute;
     }
   }
   .data-list-input {
     margin: 0 20px 15px;
+  }
+  &::v-deep .el-tree {
+    height: calc(100% - 97px);
+    width: 100%;
+    overflow: auto;
+    .el-tree-node {
+      min-width: fit-content;
+    }
+    .el-tree-node__content {
+      min-width: fit-content;
+    }
   }
 }
 </style>

@@ -13,6 +13,9 @@ const cn = {
       about: "关于我们",
       help: "帮助手册",
       databaseManagement: "数据库管理",
+      dataList: "数据列表",
+      newdatasource: "新建数据源",
+      newQueryWindow: "新建查询窗口",
     },
     loginPage: {
       account: "账号",
