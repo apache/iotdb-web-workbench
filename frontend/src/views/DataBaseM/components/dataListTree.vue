@@ -29,7 +29,6 @@
             class="icon"
             aria-hidden="true"
             @click="btnClick2"
-            title="1212"
           >
             <use xlink:href="#icon-xinzengshujulianjie"></use>
           </svg>
@@ -52,7 +51,23 @@
       @node-click="nodeClick"
       :load="loadNode"
       lazy
+      :current-node-key="nodekey"
     >
+      <template #default="{ node, data }">
+        <span class="custom-tree-node">
+          <span v-if="data.type !== 1" class="custom-tree-node-icon"
+            ><svg class="icon" aria-hidden="true">
+              <use
+                :xlink:href="
+                  nodekey == data.id
+                    ? '#icon-xinzengshujulianjie-color'
+                    : '#icon-xinzengshujulianjie'
+                "
+              ></use></svg
+          ></span>
+          <span>{{ node.label }} </span>
+        </span>
+      </template>
     </el-tree>
   </div>
 </template>
@@ -63,7 +78,7 @@ import { reactive, ref } from "vue";
 
 export default {
   name: "DataListTree",
-  props: ["handleNodeClick"],
+  props: ["handleNodeClick", "nodekey"],
   setup(props) {
     const treeProps = reactive({
       label: "name",
@@ -72,6 +87,7 @@ export default {
     });
     const searchVal = ref("");
     const treeRef = ref(null);
+
     const searchClick = () => {
       console.log("jj");
     };
@@ -129,10 +145,12 @@ export default {
               name: "leaf",
               leaf: true,
               id: "5",
+              type: 1,
             },
             {
               name: "zone",
               id: "6",
+              type: 1,
             },
           ];
           resolve(data);
@@ -204,6 +222,11 @@ export default {
   }
   .data-list-input {
     margin: 0 20px 15px;
+  }
+  .custom-tree-node {
+    .custom-tree-node-icon {
+      margin-right: 8px;
+    }
   }
   &::v-deep .el-tree {
     height: calc(100% - 97px);

@@ -3,6 +3,7 @@
     <el-container class="content-container">
       <el-aside :width="dividerWidth + 'px'"
         ><data-list-tree
+          :nodekey="nodekey"
           ref="treeRef"
           :handleNodeClick="handleNodeClick"
         ></data-list-tree
@@ -20,9 +21,22 @@
             <el-tab-pane
               v-for="item in urlTabs"
               :key="item.name"
-              :label="item.title"
               :name="item.name"
             >
+              <template #label>
+                <span
+                  ><svg class="icon" aria-hidden="true">
+                    <use
+                      :xlink:href="
+                        urlTabsValue == item.name
+                          ? '#icon-xinzengshujulianjie-color'
+                          : '#icon-xinzengshujulianjie'
+                      "
+                    ></use>
+                  </svg>
+                  {{ item.title }}</span
+                >
+              </template>
             </el-tab-pane>
           </el-tabs>
           <div class="router-container">
@@ -47,6 +61,7 @@ export default {
     const dividerRef = ref(null);
     let dividerWidth = ref(300);
     let urlTabsValue = ref("2");
+    const nodekey = ref("");
     let treeRef = ref(null);
     let urlTabs = ref([
       {
@@ -65,10 +80,11 @@ export default {
       console.log(tab.props.name);
       console.log(treeRef.value, "pppww");
       treeRef.value.treeRef.setCurrentKey(null);
+      nodekey.value = "";
     };
 
     const handleNodeClick = (data) => {
-      console.log(data);
+      nodekey.value = data.id;
     };
 
     const removeTab = (targetName) => {
@@ -95,6 +111,7 @@ export default {
     return {
       urlTabsValue,
       dividerRef,
+      nodekey,
       dividerWidth,
       urlTabs,
       treeRef,
@@ -129,6 +146,8 @@ export default {
   }
   .router-container {
     height: calc(100% - 42px);
+    width: 100%;
+    overflow: auto;
   }
   &::v-deep .content-container {
     height: 100%;
