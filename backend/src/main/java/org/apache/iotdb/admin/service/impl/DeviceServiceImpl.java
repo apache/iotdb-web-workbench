@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.mapper.DeviceMapper;
-import org.apache.iotdb.admin.model.dto.DeviceDTO;
+import org.apache.iotdb.admin.model.dto.DeviceInfoDTO;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.entity.Device;
 import org.apache.iotdb.admin.model.vo.DeviceVO;
@@ -46,8 +46,9 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.like("device_name",groupName);
-        int flag = deviceMapper.delete(queryWrapper);
-        if (flag <= 0) {
+        try {
+            deviceMapper.delete(queryWrapper);
+        } catch (Exception e) {
             throw new BaseException(ErrorCode.DELETE_DEVICE_INFO_FAIL,ErrorCode.DELETE_DEVICE_INFO_FAIL_MSG);
         }
     }
@@ -57,32 +58,33 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.eq("device_name",deviceName);
-        int flag = deviceMapper.delete(queryWrapper);
-        if (flag <= 0) {
+        try {
+            deviceMapper.delete(queryWrapper);
+        } catch (Exception e) {
             throw new BaseException(ErrorCode.DELETE_DEVICE_INFO_FAIL,ErrorCode.DELETE_DEVICE_INFO_FAIL_MSG);
         }
     }
 
     @Override
-    public void setDeviceInfo(Connection connection, DeviceDTO deviceDTO) throws BaseException {
+    public void setDeviceInfo(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("connection_id",connection.getId());
-        queryWrapper.eq("device_name",deviceDTO.getDeviceName());
+        queryWrapper.eq("device_name", deviceInfoDTO.getDeviceName());
         Device existDevice = deviceMapper.selectOne(queryWrapper);
         if (existDevice == null) {
             Device device = new Device();
             device.setCreator(connection.getUsername());
-            device.setDeviceName(deviceDTO.getDeviceName());
+            device.setDeviceName(deviceInfoDTO.getDeviceName());
             device.setCreateTime(System.currentTimeMillis());
             device.setConnectionId(connection.getId());
-            device.setDescription(deviceDTO.getDescription());
+            device.setDescription(deviceInfoDTO.getDescription());
             int flag = deviceMapper.insert(device);
             if (flag <= 0) {
                 throw new BaseException(ErrorCode.SET_DEVICE_INFO_FAIL,ErrorCode.SET_DEVICE_INFO_FAIL_MSG);
             }
             return;
         }
-        existDevice.setDescription(deviceDTO.getDescription());
+        existDevice.setDescription(deviceInfoDTO.getDescription());
         int flag = deviceMapper.updateById(existDevice);
         if (flag <= 0) {
             throw new BaseException(ErrorCode.SET_DEVICE_INFO_FAIL,ErrorCode.SET_DEVICE_INFO_FAIL_MSG);

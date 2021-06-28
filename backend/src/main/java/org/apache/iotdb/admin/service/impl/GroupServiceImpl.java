@@ -77,10 +77,19 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.eq("group_name",groupName);
-        int flag = groupMapper.delete(queryWrapper);
-        if (flag <= 0) {
+        try {
+            groupMapper.delete(queryWrapper);
+        } catch (Exception e) {
             throw new BaseException(ErrorCode.DELETE_GROUP_INFO_FAIL,ErrorCode.DELETE_GROUP_INFO_FAIL_MSG);
         }
+    }
+
+    @Override
+    public StorageGroup getGroupInfo(Integer serverId, String groupName) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("connection_id",serverId);
+        queryWrapper.eq("group_name",groupName);
+        return groupMapper.selectOne(queryWrapper);
     }
 
     private String getDescription(Integer serverId, String groupName) throws BaseException {

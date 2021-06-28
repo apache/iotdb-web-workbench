@@ -15,11 +15,9 @@ import org.apache.iotdb.tsfile.file.metadata.enums.CompressionType;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
-import org.apache.naming.EjbRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import sun.reflect.annotation.TypeNotPresentExceptionProxy;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -34,29 +32,51 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public List<String> getAllStorageGroups(Connection connection) throws BaseException {
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String sql = "show storage group";
-        List<String> users = customExecuteQuery(conn, sql);
-        closeConnection(conn);
+        List<String> users = executeQueryOneColumn(sessionPool, sql);
+        sessionPool.close();
         return users;
     }
 
     @Override
     public void saveStorageGroup(Connection connection, String groupName) throws BaseException {
         paramValid(groupName);
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String sql = "set storage group to " + groupName;
-        customExecute(conn, sql);
-        closeConnection(conn);
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_GROUP_FAIL,ErrorCode.SET_GROUP_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_GROUP_FAIL,ErrorCode.SET_GROUP_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
     }
 
     @Override
     public void deleteStorageGroup(Connection connection, String groupName) throws BaseException {
         paramValid(groupName);
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String sql = "delete storage group " + groupName;
-        customExecute(conn, sql);
-        closeConnection(conn);
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_GROUP_FAIL,ErrorCode.DELETE_GROUP_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_GROUP_FAIL,ErrorCode.DELETE_GROUP_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
     }
 
     @Override
@@ -67,11 +87,6 @@ public class IotDBServiceImpl implements IotDBService {
         List<String> devices = executeQueryOneColumn(sessionPool, sql, pageSize, pageNum);
         sessionPool.close();
         return devices;
-//        java.sql.Connection conn = getConnection(connection);
-//        String sql = "show devices " + groupName;
-//        List<String> devices = customExecuteQuery(conn, sql);
-//        closeConnection(conn);
-//        return devices;
     }
 
     @Override
@@ -90,19 +105,19 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public List<String> getIotDBUserList(Connection connection) throws BaseException {
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String sql = "list user";
-        List<String> users = customExecuteQuery(conn, sql);
-        closeConnection(conn);
+        List<String> users = executeQueryOneColumn(sessionPool, sql);
+        sessionPool.close();
         return users;
     }
 
     @Override
     public List<String> getIotDBRoleList(Connection connection) throws BaseException {
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String sql = "list role";
-        List<String> roles = customExecuteQuery(conn, sql);
-        closeConnection(conn);
+        List<String> roles = executeQueryOneColumn(sessionPool, sql);
+        sessionPool.close();
         return roles;
     }
 
@@ -146,28 +161,62 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public void deleteIotDBUser(Connection connection, String userName) throws BaseException {
         paramValid(userName);
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String sql = "drop user " + userName;
-        customExecute(conn, sql);
-        closeConnection(conn);
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_DB_USER_FAIL,ErrorCode.DELETE_DB_USER_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_DB_USER_FAIL,ErrorCode.DELETE_DB_USER_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
     }
 
     @Override
     public void deleteIotDBRole(Connection connection, String roleName) throws BaseException {
         paramValid(roleName);
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String sql = "drop role " + roleName;
-        customExecute(conn, sql);
-        closeConnection(conn);
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_DB_ROLE_FAIL,ErrorCode.DELETE_DB_ROLE_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_DB_ROLE_FAIL,ErrorCode.DELETE_DB_ROLE_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
     }
 
     @Override
     public void setIotDBUser(Connection connection, IotDBUser iotDBUser) throws BaseException {
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String userName = iotDBUser.getUserName();
         String password = iotDBUser.getPassword();
         String sql = "create user " + userName + " '" + password + "'";
-        customExecute(conn, sql);
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_DB_USER_FAIL,ErrorCode.SET_DB_USER_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_DB_USER_FAIL,ErrorCode.SET_DB_USER_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
 //        // 用户角色
 //        for (String role : iotDBUser.getRoles()) {
 //            paramValid(role);
@@ -182,23 +231,33 @@ public class IotDBServiceImpl implements IotDBService {
 //                customExecute(conn, sql);
 //            }
 //        }
-        closeConnection(conn);
     }
 
     @Override
     public void setIotDBRole(Connection connection, IotDBRole iotDBRole) throws BaseException {
-        java.sql.Connection conn = getConnection(connection);
+        SessionPool sessionPool = getSessionPool(connection);
         String roleName = iotDBRole.getRoleName();
         String sql = "create role " + roleName;
-        customExecute(conn, sql);
-        List<String> privileges = iotDBRole.getPrivileges();
-        for (String privilege : privileges) {
-            sql = handlerPrivilegeStrToSql(privilege, null, roleName);
-            if (sql != null) {
-                customExecute(conn, sql);
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+            List<String> privileges = iotDBRole.getPrivileges();
+            for (String privilege : privileges) {
+                sql = handlerPrivilegeStrToSql(privilege, null, roleName);
+                if (sql != null) {
+                    sessionPool.executeNonQueryStatement(sql);
+                }
+            }
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL,ErrorCode.SET_DB_ROLE_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL,ErrorCode.SET_DB_ROLE_FAIL_MSG);
+        }finally {
+            if (sessionPool != null) {
+                sessionPool.close();
             }
         }
-        closeConnection(conn);
     }
 
     @Override
@@ -352,11 +411,18 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public void createDeviceWithMeasurements(Connection connection, DeviceDTO deviceDTO) throws BaseException {
+    public void createDeviceWithMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
-        List<TSDataType> types = handleTypeStr(deviceDTO.getTypes());
-        List<TSEncoding> encodings = handleEncodingStr(deviceDTO.getEncoding());
-        List<String> measurements = deviceDTO.getMeasurements();
+        List<String> typesStr = new ArrayList<>();
+        List<String> encodingsStr = new ArrayList<>();
+        List<String> measurements = new ArrayList<>();
+        for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
+            typesStr.add(deviceDTO.getType());
+            encodingsStr.add(deviceDTO.getEncoding());
+            measurements.add(deviceDTO.getMeasurement());
+        }
+        List<TSDataType> types = handleTypeStr(typesStr);
+        List<TSEncoding> encodings = handleEncodingStr(encodingsStr);
         List<CompressionType> compressionTypes = new ArrayList<>();
         for (int i = 0; i < types.size(); i++) {
             compressionTypes.add(CompressionType.SNAPPY);
@@ -425,6 +491,45 @@ public class IotDBServiceImpl implements IotDBService {
             }
         }
         return null;
+    }
+
+    @Override
+    public String getGroupTTL(Connection connection, String groupName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        String sql = "show ttl on " + groupName;
+        String queryField = "ttl";
+        String ttl = executeQueryOneLine(sessionPool,sql,queryField);
+        return ttl;
+    }
+
+    private String executeQueryOneLine(SessionPool sessionPool, String sql, String queryField) throws BaseException {
+        try {
+            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+            int index = -1;
+            for (int i = 0; i < columnNames.size(); i++) {
+                if (queryField.equals(columnNames.get(i))) {
+                    index = i;
+                }
+            }
+            if (index == -1) {
+                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
+            }
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            if (batchSize > 0) {
+                if (sessionDataSetWrapper.hasNext()) {
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    return rowRecord.getFields().get(index).toString();
+                }
+            }
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
+        }
+        throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
     }
 
     private <T> List<T> executeQuery(Class<T> clazz, SessionPool sessionPool, String sql, Integer pageSize, Integer pageNum) throws BaseException {
@@ -518,6 +623,33 @@ public class IotDBServiceImpl implements IotDBService {
                     if (count > pageSize * pageNum) {
                         break;
                     }
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                    values.add(fields.get(0).toString());
+                }
+            }
+            return values;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL,ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL,ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
+            }
+        }
+    }
+
+    private List<String> executeQueryOneColumn(SessionPool sessionPool,String sql) throws BaseException {
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            List<String> values = new ArrayList<>();
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
                     List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
                     values.add(fields.get(0).toString());
                 }
@@ -648,7 +780,7 @@ public class IotDBServiceImpl implements IotDBService {
         String url = "jdbc:iotdb://" + connection.getHost() + ":" + connection.getPort() + "/";
         String username = connection.getUsername();
         String password = connection.getPassword();
-        java.sql.Connection conn = null;
+        java.sql.Connection conn;
         try {
             Class.forName(driver);
             conn = DriverManager.getConnection(url, username, password);
@@ -821,7 +953,10 @@ public class IotDBServiceImpl implements IotDBService {
         }
     }
 
-    private SqlResultVO sqlQuery(java.sql.Connection conn, String sql) throws BaseException {
+
+
+
+        private SqlResultVO sqlQuery(java.sql.Connection conn, String sql) throws BaseException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {

@@ -54,9 +54,11 @@ public interface IotDBService {
 
     void deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException;
 
-    void createDeviceWithMeasurements(Connection connection, DeviceDTO deviceDTO) throws BaseException;
+    void createDeviceWithMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 
     Integer getMeasurementsCount(Connection connection, String deviceName) throws BaseException;
 
     String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException;
+
+    String getGroupTTL(Connection connection, String groupName) throws BaseException;
 }

@@ -29,6 +29,9 @@ public class ConnectionController {
     @ApiOperation("保存或更新连接")
     public BaseVO saveOrUpdateConnection(@RequestBody Connection connection, HttpServletRequest request) throws BaseException {
         AuthenticationUtils.userAuthentication(connection.getUserId(),request);
+        if (connection.getId() != null){
+            connectionService.update(connection);
+        }
         connectionService.insert(connection);
         return BaseVO.success("更新成功",null);
     }

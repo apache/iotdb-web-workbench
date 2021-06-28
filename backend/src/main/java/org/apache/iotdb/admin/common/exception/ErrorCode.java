@@ -58,6 +58,9 @@ public class ErrorCode {
     public static final String Token_Err = "USER-0009";
     public static final String Token_Err_MSG = "请登录或token失效";
 
+    public static final String GET_TOKEN_FAIL = "USER-0010";
+    public static final String GET_TOKEN_FAIL_MSG = "获取token失败";
+
     // iotDB相关
     public static final String INSERT_TS_FAIL = "IOTDB-0001";
     public static final String INSERT_TS_FAIL_MSG = "插入时间序列失败";
@@ -121,6 +124,24 @@ public class ErrorCode {
 
     public static final String GET_LAST_VALUE_FAIL = "IOTDB-0021";
     public static final String GET_LAST_VALUE_FAIL_MSG = "获取测点最新值失败";
+
+    public static final String SET_GROUP_FAIL = "IOTDB-0022";
+    public static final String SET_GROUP_FAIL_MSG = "创建存储组失败";
+
+    public static final String DELETE_GROUP_FAIL = "IOTDB-0023";
+    public static final String DELETE_GROUP_FAIL_MSG = "删除存储组失败";
+
+    public static final String DELETE_DB_USER_FAIL = "IOTDB-0024";
+    public static final String DELETE_DB_USER_FAIL_MSG = "删除数据库用户失败";
+
+    public static final String DELETE_DB_ROLE_FAIL = "IOTDB-0025";
+    public static final String DELETE_DB_ROLE_FAIL_MSG = "删除数据库角色失败";
+
+    public static final String SET_DB_USER_FAIL = "IOTDB-0026";
+    public static final String SET_DB_USER_FAIL_MSG = "创建数据库用户失败";
+
+    public static final String SET_DB_ROLE_FAIL = "IOTDB-0027";
+    public static final String SET_DB_ROLE_FAIL_MSG = "创建数据库角色或对应权限时失败";
 
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";

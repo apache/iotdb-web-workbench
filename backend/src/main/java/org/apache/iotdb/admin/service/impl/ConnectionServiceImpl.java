@@ -41,20 +41,13 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("user_id",userId);
         queryWrapper.eq("alias",alias);
-        List list = connectionMapper.selectList(queryWrapper);
+        Connection existConnection = connectionMapper.selectOne(queryWrapper);
         // 别名唯一
-        if (list != null && list.size() > 0) {
+        if (existConnection != null) {
             throw new BaseException(ErrorCode.ALIAS_REPEAT,ErrorCode.ALIAS_REPEAT_MSG);
         }
-        Integer id = connection.getId();
-        //已有连接更新
-        try {
-            if (id != null) {
-                connectionMapper.updateById(connection);
-                return;
-            }
-            connectionMapper.insert(connection);
-        } catch (Exception e) {
+        int flag = connectionMapper.insert(connection);
+        if (flag <= 0) {
             throw new BaseException(ErrorCode.INSERT_CONN_FAIL,ErrorCode.INSERT_CONN_FAIL_MSG);
         }
     }
@@ -94,5 +87,22 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
         }
     }
 
+    @Override
+    public void update(Connection connection) throws BaseException {
+        String alias = connection.getAlias();
+        Integer userId = connection.getUserId();
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("user_id",userId);
+        queryWrapper.eq("alias",alias);
+        Connection existConnection = connectionMapper.selectOne(queryWrapper);
+        // 别名唯一
+        if (existConnection != null) {
+            throw new BaseException(ErrorCode.ALIAS_REPEAT,ErrorCode.ALIAS_REPEAT_MSG);
+        }
+        int flag = connectionMapper.updateById(connection);
+        if (flag <= 0) {
+            throw new BaseException(ErrorCode.INSERT_CONN_FAIL,ErrorCode.INSERT_CONN_FAIL_MSG);
+        }
+    }
 
 }

@@ -52,29 +52,34 @@ public class UserController {
     }
 
     @PostMapping("/save")
-    @ApiOperation("创建或修改用户")
+    @ApiOperation("创建用户  (未使用)")
     public BaseVO save(@RequestBody User user) throws BaseException {
         userService.insert(user);
         return BaseVO.success("保存成功",null);
     }
 
     @DeleteMapping("/delete")
-    @ApiOperation("删除用户")
+    @ApiOperation("删除用户  (未使用)")
     public BaseVO delete(@RequestParam("userId") Integer userId, HttpServletRequest request) throws BaseException {
         AuthenticationUtils.userAuthentication(userId,request);
         userService.delete(userId);
-        return BaseVO.success("保存成功",null);
+        return BaseVO.success("删除成功",null);
     }
 
-    private String getToken(User user) {
+    private String getToken(User user) throws BaseException {
         Calendar instance = Calendar.getInstance();
-        instance.add(Calendar.HOUR,24);
-        String token  = JWT.create()
-                .withClaim("userId", user.getId())
-                .withClaim("name", user.getName())
-                .withExpiresAt(instance.getTime())
-                .sign(Algorithm.HMAC256("IOTDB"));
-        logger.info(user.getName()+"登录成功");
-        return token;
+        try {
+            instance.add(Calendar.HOUR,24);
+            String token  = JWT.create()
+                    .withClaim("userId", user.getId())
+                    .withClaim("name", user.getName())
+                    .withExpiresAt(instance.getTime())
+                    .sign(Algorithm.HMAC256("IOTDB:"+InetAddress.getLocalHost().getHostAddress()));
+            logger.info(user.getName()+"登录成功");
+            return token;
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            throw new BaseException(ErrorCode.GET_TOKEN_FAIL,ErrorCode.GET_TOKEN_FAIL_MSG);
+        }
     }
 }

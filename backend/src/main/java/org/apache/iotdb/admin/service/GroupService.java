@@ -3,6 +3,7 @@ package org.apache.iotdb.admin.service;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.dto.GroupDTO;
 import org.apache.iotdb.admin.model.entity.Connection;
+import org.apache.iotdb.admin.model.entity.StorageGroup;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface GroupService {
     boolean isExist(Integer serverId, String groupName);
 
     void deleteGroupInfo(Integer serverId, String groupName) throws BaseException;
+
+    StorageGroup getGroupInfo(Integer serverId, String groupName);
 }

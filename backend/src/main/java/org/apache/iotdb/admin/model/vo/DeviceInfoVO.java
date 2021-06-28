@@ -10,10 +10,7 @@ import java.util.List;
  */
 @Data
 public class DeviceInfoVO implements Serializable {
-    private List<String> deviceNames;
-    private List<String> descriptions;
-    private List<String> creators;
+    private List<DeviceInfo> deviceInfos;
     private Integer totalCount;
     private Integer totalPage;
-    private List<Integer> lines;
 }

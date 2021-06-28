@@ -18,4 +18,6 @@ public interface ConnectionService {
     Connection getById(Integer serverId) throws BaseException;
 
     void check(Integer serverId, Integer userId) throws BaseException;
+
+    void update(Connection connection) throws BaseException;
 }

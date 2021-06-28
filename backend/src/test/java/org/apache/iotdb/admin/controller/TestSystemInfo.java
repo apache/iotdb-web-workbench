@@ -15,6 +15,7 @@ public class TestSystemInfo {
     @Test
     public void getCpuInfo() throws UnknownHostException {
         InetAddress ia = InetAddress.getLocalHost();
+        System.out.println(ia.getHostAddress());
         System.out.println(ia.getHostName());
         OperatingSystemMXBean osmxb =
                 (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();

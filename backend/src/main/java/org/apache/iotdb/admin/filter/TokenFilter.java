@@ -9,6 +9,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.InetAddress;
 
 /**
  * 拦截器
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 public class TokenFilter implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256("IOTDB")).build();
+        JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress())).build();
         try {
             String authorization = request.getHeader("Authorization");
             jwtVerifier.verify(authorization);

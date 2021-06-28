@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupInfoVO implements Serializable {
-    List<String> groupNames;
-    List<Integer> deviceCounts;
-    List<String> descriptions;
+    private String groupName;
+    private Integer deviceCount;
+    private String description;
 }

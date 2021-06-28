@@ -37,7 +37,7 @@ public class swagger2Config {
     private ApiInfo apiinfo() {
         return new ApiInfoBuilder()
                 .title("IOTDB接口文档")
-                .description("接口说明")
+                .description("iotDB层级关系 存储组 -> 实体(设备) -> 测点(时间序列)")
                 .build();
     }
 
