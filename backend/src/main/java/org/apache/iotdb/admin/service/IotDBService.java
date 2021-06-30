@@ -5,6 +5,7 @@ import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
+import org.apache.iotdb.session.pool.SessionPool;
 
 import java.util.List;
 
@@ -61,4 +62,8 @@ public interface IotDBService {
     String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException;
 
     String getGroupTTL(Connection connection, String groupName) throws BaseException;
+
+    List<String> getDevices(Connection connection, String groupName) throws BaseException;
+
+    List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
 }
