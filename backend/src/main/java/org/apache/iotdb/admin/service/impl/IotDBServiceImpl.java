@@ -1,5 +1,6 @@
 package org.apache.iotdb.admin.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.*;
@@ -159,6 +160,8 @@ public class IotDBServiceImpl implements IotDBService {
                         privileges.add(field.toString());
                     }
                 }
+                // privileges String内容形式 "path : 权限1 权限2 权限3"
+                // 组装成权限信息集合
                 List<PrivilegeInfo> privilegeInfos = privilegesStrSwitchToObject(sessionpool,privileges);
                 iotDBUserVO.setPrivilegesInfo(privilegeInfos);
             }
@@ -552,6 +555,121 @@ public class IotDBServiceImpl implements IotDBService {
         return timeseries;
     }
 
+    @Override
+    public void setUserPrivileges(Connection connection, String userName,IotDBUserDTO iotDBUserDTO) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<PrivilegeInfoDTO> privilegesInfos = iotDBUserDTO.getPrivilegesInfos();
+        if (notNullAndNotZero(privilegesInfos)) {
+            for (PrivilegeInfoDTO privilegesInfo : privilegesInfos) {
+                // 授权
+                List<String> privileges = privilegesInfo.getPrivileges();
+                if (notNullAndNotZero(privileges)) {
+                    grantOrRevoke("grant",privileges,userName,privilegesInfo,sessionPool);
+                }
+                // 取消授权
+                List<String> cancelPrivileges = privilegesInfo.getCancelPrivileges();
+                if (notNullAndNotZero(cancelPrivileges)) {
+                    grantOrRevoke("revoke",cancelPrivileges,userName,privilegesInfo,sessionPool);
+                }
+            }
+        }
+    }
+
+    private void grantOrRevoke(String word, List<String> privileges,String userName,PrivilegeInfoDTO privilegesInfo,SessionPool sessionPool) throws BaseException {
+        Integer type = privilegesInfo.getType();
+        String privilegesStr = String.join(",", privileges);
+        if (type == 0) {
+            String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root";
+            try {
+                sessionPool.executeNonQueryStatement(sql);
+            } catch (StatementExecutionException e) {
+                logger.error(e.getMessage());
+                throw new BaseException(ErrorCode.PRIV_ROOT_FAIL,ErrorCode.PRIV_ROOT_FAIL_MSG);
+            } catch (IoTDBConnectionException e) {
+                logger.error(e.getMessage());
+                throw new BaseException(ErrorCode.PRIV_ROOT_FAIL,ErrorCode.PRIV_ROOT_FAIL_MSG);
+            }
+            return;
+        }
+        if (type == 1) {
+            List<String> groupPaths = privilegesInfo.getGroupPaths();
+            if (notNullAndNotZero(groupPaths)) {
+                for (String groupPath : groupPaths) {
+                    String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
+                            + groupPath;
+                    try {
+                        sessionPool.executeNonQueryStatement(sql);
+                    } catch (StatementExecutionException e) {
+                        logger.error(e.getMessage());
+                        throw new BaseException(ErrorCode.PRIV_GROUP_FAIL,ErrorCode.PRIV_GROUP_FAIL_MSG);
+                    } catch (IoTDBConnectionException e) {
+                        logger.error(e.getMessage());
+                        throw new BaseException(ErrorCode.PRIV_GROUP_FAIL,ErrorCode.PRIV_GROUP_FAIL_MSG);
+                    }
+                }
+            }
+            return;
+        }
+        if (type == 2) {
+            List<String> groupPaths = privilegesInfo.getGroupPaths();
+            List<String> devicePaths = privilegesInfo.getDevicePaths();
+            if (notNullAndNotZero(groupPaths) && groupPaths.size() == 1 && notNullAndNotZero(devicePaths)){
+                String onlyGroupPath = groupPaths.get(0);
+                for (String devicePath : devicePaths) {
+                    String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
+                            + onlyGroupPath + "." + devicePath;
+                    try {
+                        sessionPool.executeNonQueryStatement(sql);
+                    } catch (StatementExecutionException e) {
+                        logger.error(e.getMessage());
+                        throw new BaseException(ErrorCode.PRIV_DEVICE_FAIL,ErrorCode.PRIV_DEVICE_FAIL_MSG);
+                    } catch (IoTDBConnectionException e) {
+                        logger.error(e.getMessage());
+                        throw new BaseException(ErrorCode.PRIV_DEVICE_FAIL,ErrorCode.PRIV_DEVICE_FAIL_MSG);
+                    }
+                }
+            }
+            return;
+        }
+        if (type == 3) {
+            List<String> groupPaths = privilegesInfo.getGroupPaths();
+            List<String> devicePaths = privilegesInfo.getDevicePaths();
+            List<String> timeseriesPaths = privilegesInfo.getTimeseriesPaths();
+            if (notNullAndNotZero(groupPaths) && groupPaths.size() == 1 && notNullAndNotZero(devicePaths)
+                    && devicePaths.size() == 1 && notNullAndNotZero(timeseriesPaths)){
+                String onlyGroupPath = groupPaths.get(0);
+                String onlyDevicePath = devicePaths.get(0);
+                for (String timeseriesPath : timeseriesPaths) {
+                    String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
+                            + onlyGroupPath + "." + onlyDevicePath + "." + timeseriesPath;
+                    try {
+                        sessionPool.executeNonQueryStatement(sql);
+                    } catch (StatementExecutionException e) {
+                        logger.error(e.getMessage());
+                        throw new BaseException(ErrorCode.PRIV_TIMESERIES_FAIL,ErrorCode.PRIV_TIMESERIES_FAIL_MSG);
+                    } catch (IoTDBConnectionException e) {
+                        logger.error(e.getMessage());
+                        throw new BaseException(ErrorCode.PRIV_TIMESERIES_FAIL,ErrorCode.PRIV_TIMESERIES_FAIL_MSG);
+
+                    }
+                }
+            }
+           return;
+        }
+        throw new BaseException(ErrorCode.NO_TYPE,ErrorCode.NO_TYPE_MSG);
+    }
+
+
+    /**
+     * 判断集合不为空且长度大于0
+     */
+    private boolean notNullAndNotZero(List list) {
+        if (list != null && list.size() > 0) {
+            return true;
+        }
+        return false;
+    }
+
     private String executeQueryOneLine(SessionPool sessionPool, String sql, String queryField) throws BaseException {
         try {
             SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
@@ -760,11 +878,13 @@ public class IotDBServiceImpl implements IotDBService {
         }
     }
 
+
     private List<PrivilegeInfo> privilegesStrSwitchToObject(SessionPool sessionPool,List<String> privileges) throws BaseException {
         List<PrivilegeInfo> results = new ArrayList<>();
         List<String> pathStr = new ArrayList<>();
         List<List<String>> privilegeStr = new ArrayList<>();
         HashMap<String,Boolean> rootPrivileges = new HashMap();
+        // 遍历集合 将路径和权限集合分别装 过程中 将root相关内容处理
         for (int i = 0; i < privileges.size(); i++) {
             String[] split = privileges.get(i).split(":");
             String[] s = split[1].trim().split(" ");
@@ -780,6 +900,7 @@ public class IotDBServiceImpl implements IotDBService {
             }
             List<String> list = new ArrayList<>();
             pathStr.add(split[0].trim());
+            // 其他粒度下 只需要存储SPECIAL_PRIVILEGES四种权限
             for (String s1 : s) {
                 if (SPECIAL_PRIVILEGES.containsKey(s1)) {
                     list.add(s1);
@@ -796,14 +917,14 @@ public class IotDBServiceImpl implements IotDBService {
             }
             privilegeStr.add(list);
         }
-        // 先处理root
+        // 先处理root 生成对象
         Set<String> strings = rootPrivileges.keySet();
         List<String> rootPrivilege = Arrays.asList(strings.toArray(new String[0]));
         PrivilegeInfo privilegeInfo = new PrivilegeInfo();
         privilegeInfo.setType(0);
         privilegeInfo.setPrivileges(rootPrivilege);
         results.add(privilegeInfo);
-        // 处理非root
+        // 处理非root  String存储形式 "权限1 权限2 权限3.." List存储相同并集下的path路径
         Map<String,List<String>> privilegeOne = new HashMap<>();
         Map<String,List<String>> privilegeTwo = new HashMap<>();
         Map<String,List<String>> privilegeThree = new HashMap<>();
@@ -811,12 +932,13 @@ public class IotDBServiceImpl implements IotDBService {
             String s = pathStr.get(i);
             List<String> list = privilegeStr.get(i);
             String str = String.join(" ", list);
+            // 通过路径获取所属粒度
             int type = findType(sessionPool,s);
             if (type == 1) {
                 // 判断相同的权限集合 放入同一list
                 if (privilegeOne.containsKey(str)) {
                     List<String> typeList = privilegeOne.get(str);
-                    // 如果不仅要相同粒度 还要同一范围下,加pathStr的判断
+                    // 相同粒度 同一范围下做前缀判断 相同则为一个并集
                     int existEnd = typeList.get(0).lastIndexOf(".");
                     int end = s.lastIndexOf(".");
                     if (typeList.get(0).substring(0,existEnd).equals(s.substring(0,end))) {
@@ -862,7 +984,7 @@ public class IotDBServiceImpl implements IotDBService {
         Set<String> oneKeys = privilegeOne.keySet();
         Set<String> twoKeys = privilegeTwo.keySet();
         Set<String> threeKeys = privilegeThree.keySet();
-        // 将path处理成Path 并封装成PrivilegeInfo返回
+        // 封装成PrivilegeInfo返回 字符串处理
         for (String oneKey : oneKeys) {
             PrivilegeInfo oneInfo = new PrivilegeInfo();
             List<String> groupPath = new ArrayList<>();
@@ -879,8 +1001,10 @@ public class IotDBServiceImpl implements IotDBService {
                 String field = s.replaceFirst("root.", "");
                 allGroupPaths.add(field);
             }
+            // 展示数据
             oneInfo.setType(1);
             oneInfo.setPrivileges(privilegesOne);
+            // allxxx内容为前端编辑修改时需要的数据
             oneInfo.setGroupPaths(groupPath);
             oneInfo.setAllGroupPaths(allGroupPaths);
             results.add(oneInfo);
@@ -890,6 +1014,7 @@ public class IotDBServiceImpl implements IotDBService {
             List<String> groupPath = new ArrayList<>();
             List<String> devicePath = new ArrayList<>();
             List<String> list = privilegeTwo.get(twoKey);
+            // 得到 组名、设备名、测点名  便于后续字符串操作
             PathVO pathVO = splitPathToPathVO(sessionPool,list.get(0));
             groupPath.add(pathVO.getGroupName());
             for (String s : list) {
@@ -912,10 +1037,12 @@ public class IotDBServiceImpl implements IotDBService {
                 String field = s.replaceFirst(list.get(0).substring(0,end)+".", "");
                 allDevicePaths.add(field);
             }
+            // 展示数据
             twoInfo.setType(2);
             twoInfo.setPrivileges(privilegesTwo);
             twoInfo.setGroupPaths(groupPath);
             twoInfo.setDevicePaths(devicePath);
+            // allxxx内容为前端编辑修改时需要的数据
             twoInfo.setAllGroupPaths(allGroupPaths);
             twoInfo.setAllDevicePaths(allDevicePaths);
             results.add(twoInfo);
@@ -926,6 +1053,7 @@ public class IotDBServiceImpl implements IotDBService {
             List<String> devicePath = new ArrayList<>();
             List<String> timeseriesPath = new ArrayList<>();
             List<String> list = privilegeThree.get(threeKey);
+            // 得到 组名、设备名、测点名  便于后续字符串操作
             PathVO pathVO = splitPathToPathVO(sessionPool,list.get(0));
             groupPath.add(pathVO.getGroupName());
             devicePath.add(pathVO.getDeviceName());
@@ -956,11 +1084,13 @@ public class IotDBServiceImpl implements IotDBService {
                 String field = s.replaceFirst(list.get(0).substring(0,end)+".", "");
                 allTimeseriesPaths.add(field);
             }
+            // 展示数据
             threeInfo.setType(3);
             threeInfo.setPrivileges(privilegesOne);
             threeInfo.setGroupPaths(groupPath);
             threeInfo.setDevicePaths(devicePath);
             threeInfo.setTimeseriesPaths(timeseriesPath);
+            // allxxx内容为前端编辑修改时需要的数据
             threeInfo.setAllGroupPaths(allGroupPaths);
             threeInfo.setAllDevicePaths(allDevicePaths);
             threeInfo.setAllTimeseriesPaths(allTimeseriesPaths);

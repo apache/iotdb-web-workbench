@@ -66,4 +66,6 @@ public interface IotDBService {
     List<String> getDevices(Connection connection, String groupName) throws BaseException;
 
     List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
+
+    void setUserPrivileges(Connection connection, String userName,IotDBUserDTO iotDBUserDTO) throws BaseException;
 }

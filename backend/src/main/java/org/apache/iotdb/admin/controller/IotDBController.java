@@ -438,17 +438,21 @@ public class IotDBController<T> {
     }
 
     @PostMapping("/users/{userName}")
-    @ApiOperation("数据库用户的具体信息")
-    public BaseVO<IotDBUserVO> setIotDBUser(@PathVariable("serverId") Integer serverId,
+    @ApiOperation("数据库用户赋权")
+    public BaseVO setUserPrivileges(@PathVariable("serverId") Integer serverId,
                                             @PathVariable("userName") String userName,
+                                            @RequestBody IotDBUserDTO iotDBUserDTO,
                                             HttpServletRequest request) throws BaseException {
         if (userName == null || !userName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
+        if (iotDBUserDTO == null) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
-        IotDBUserVO iotDBUserVO = iotDBService.getIotDBUser(connection, userName);
-        return BaseVO.success("获取成功", iotDBUserVO);
+        iotDBService.setUserPrivileges(connection,userName,iotDBUserDTO);
+        return BaseVO.success("操作成功", null);
     }
 
 
