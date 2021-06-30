@@ -8,7 +8,9 @@
       <div class="right">
         <div class="login-block">
           <div class="login-img"></div>
-          <div class="login-title">{{ $t("loginPage.welcomeLogin") }}</div>
+          <div class="login-title">
+            {{ $t("loginPage.welcomeLogin") }}
+          </div>
           <el-form
             label-position="left"
             :model="ruleForm"
@@ -56,7 +58,9 @@
       v-model="dialogVisible"
       width="30%"
     >
-      <div class="forget-tip">{{ $t(`loginPage.forgetPasswordTip`) }}</div>
+      <div class="forget-tip">
+        {{ $t(`loginPage.forgetPasswordTip`) }}
+      </div>
     </el-dialog>
   </div>
 </template>
