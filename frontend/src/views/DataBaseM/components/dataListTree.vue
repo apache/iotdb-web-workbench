@@ -1,35 +1,17 @@
 <template>
   <div class="data-list-tree">
     <div class="data-list-top">
-      <span>{{ $t("rootPage.dataList") }}</span>
-      <el-tooltip
-        :content="$t('rootPage.newQueryWindow')"
-        :visible-arrow="false"
-        effect="light"
-      >
+      <span>{{ $t('rootPage.dataList') }}</span>
+      <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
         <div class="icon-1">
-          <svg
-            class="icon"
-            aria-hidden="true"
-            @click="btnClick1"
-            v-icon="`#icon-xinjianchaxun-color`"
-          >
+          <svg class="icon" aria-hidden="true" @click="btnClick1" v-icon="`#icon-xinjianchaxun-color`">
             <use xlink:href="#icon-xinjianchaxun"></use>
           </svg>
         </div>
       </el-tooltip>
-      <el-tooltip
-        :content="$t('rootPage.newdatasource')"
-        :visible-arrow="false"
-        effect="light"
-      >
+      <el-tooltip :content="$t('rootPage.newdatasource')" :visible-arrow="false" effect="light">
         <div class="icon-2">
-          <svg
-            v-icon="`#icon-xinzengshujulianjie-color`"
-            class="icon"
-            aria-hidden="true"
-            @click="btnClick2"
-          >
+          <svg v-icon="`#icon-xinzengshujulianjie-color`" class="icon" aria-hidden="true" @click="btnClick2">
             <use xlink:href="#icon-xinzengshujulianjie"></use>
           </svg>
         </div>
@@ -42,28 +24,12 @@
         </template>
       </el-input>
     </div>
-    <el-tree
-      ref="treeRef"
-      highlight-current
-      node-key="id"
-      :indent="20"
-      :props="treeProps"
-      @node-click="nodeClick"
-      :load="loadNode"
-      lazy
-      :current-node-key="nodekey"
-    >
+    <el-tree ref="treeRef" highlight-current node-key="id" :indent="20" :props="treeProps" @node-click="nodeClick" :load="loadNode" lazy :current-node-key="nodekey">
       <template #default="{ node, data }">
         <span class="custom-tree-node">
           <span v-if="data.type !== 1" class="custom-tree-node-icon"
             ><svg class="icon" aria-hidden="true">
-              <use
-                :xlink:href="
-                  nodekey == data.id
-                    ? '#icon-xinzengshujulianjie-color'
-                    : '#icon-xinzengshujulianjie'
-                "
-              ></use></svg
+              <use :xlink:href="nodekey == data.id ? '#icon-xinzengshujulianjie-color' : '#icon-xinzengshujulianjie'"></use></svg
           ></span>
           <span>{{ node.label }} </span>
         </span>
@@ -73,23 +39,23 @@
 </template>
 
 <script>
-import { ElTree, ElInput, ElTooltip } from "element-plus";
-import { reactive, ref } from "vue";
+import { ElTree, ElInput, ElTooltip } from 'element-plus';
+import { reactive, ref } from 'vue';
 
 export default {
-  name: "DataListTree",
-  props: ["handleNodeClick", "nodekey"],
+  name: 'DataListTree',
+  props: ['handleNodeClick', 'nodekey'],
   setup(props) {
     const treeProps = reactive({
-      label: "name",
-      children: "zones",
-      isLeaf: "leaf",
+      label: 'name',
+      children: 'zones',
+      isLeaf: 'leaf',
     });
-    const searchVal = ref("");
+    const searchVal = ref('');
     const treeRef = ref(null);
 
     const searchClick = () => {
-      console.log("jj");
+      console.log('jj');
     };
 
     const nodeClick = (data) => {
@@ -100,39 +66,39 @@ export default {
 
     const loadNode = (node, resolve) => {
       if (node.level === 0) {
-        return resolve([{ name: "region", id: "1" }]);
+        return resolve([{ name: 'region', id: '1' }]);
       }
       if (node.level === 3) {
         setTimeout(() => {
           const data = [
             {
-              name: "leaf",
-              id: "8",
+              name: 'leaf',
+              id: '8',
             },
             {
-              name: "leaf",
-              id: "17",
+              name: 'leaf',
+              id: '17',
             },
             {
-              name: "leafdsssssssssssssssssssssssssssskkkk",
-              id: "16",
+              name: 'leafdsssssssssssssssssssssssssssskkkk',
+              id: '16',
             },
             {
-              name: "leaf",
-              id: "15",
+              name: 'leaf',
+              id: '15',
             },
             {
-              name: "leaf",
-              id: "13",
+              name: 'leaf',
+              id: '13',
             },
             {
-              name: "leaf",
+              name: 'leaf',
               leaf: true,
-              id: "18",
+              id: '18',
             },
             {
-              name: "zone",
-              id: "9",
+              name: 'zone',
+              id: '9',
             },
           ];
           resolve(data);
@@ -142,14 +108,14 @@ export default {
         setTimeout(() => {
           const data = [
             {
-              name: "leaf",
+              name: 'leaf',
               leaf: true,
-              id: "5",
+              id: '5',
               type: 1,
             },
             {
-              name: "zone",
-              id: "6",
+              name: 'zone',
+              id: '6',
               type: 1,
             },
           ];
@@ -157,17 +123,17 @@ export default {
         }, 500);
       }
       if (node.level > 1) return resolve([]);
-      console.log("kkkkkkkkkkkk");
+      console.log('kkkkkkkkkkkk');
       setTimeout(() => {
         const data = [
           {
-            name: "leaf",
+            name: 'leaf',
             leaf: true,
-            id: "2",
+            id: '2',
           },
           {
-            name: "zone",
-            id: "3",
+            name: 'zone',
+            id: '3',
           },
         ];
         resolve(data);

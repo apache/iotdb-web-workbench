@@ -3,9 +3,9 @@
 </template>
 
 <script>
-import { ElButton } from "element-plus";
+import { ElButton } from 'element-plus';
 export default {
-  name: "IotButton",
+  name: 'IotButton',
   inheritAttrs: false,
   setup() {},
   props: [],
