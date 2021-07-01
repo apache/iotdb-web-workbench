@@ -12,4 +12,6 @@ import java.util.List;
 public class SqlResultVO implements Serializable {
     private List<String> metaDataList;
     private List<List<String>> valueList;
+    private String queryTime;
+    private Long line;
 }

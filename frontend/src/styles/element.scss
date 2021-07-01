@@ -1,34 +1,89 @@
 .el-button--primary {
-  background-color: $theme-color;
-  span {
-    color: #fff;
-  }
+    background-color: $theme-color;
+    span {
+        color: #fff;
+    }
+}
+.el-button {
+    height: 30px;
+    line-height: 30px;
+    min-height: 30px;
+    padding: 0 12px;
+}
+.el-button--text {
+    color: $theme-color;
+}
+.el-button-delete {
+    color: #d32d2fff;
+    &:hover {
+        color: #f56c6c;
+    }
 }
 .el-tree--highlight-current .el-tree-node {
-  &.is-current {
-    & > .el-tree-node__content {
-      border-style: solid;
-      border-color: transparent;
-      border-width: 10px 16px;
-      color: $theme-color;
-      background-color: rgba(69, 117, 246, 0.04);
-      position: relative;
-      &::after {
-        content: "";
-        width: 4px;
-        background-color: $theme-color;
-        position: absolute;
-        left: -16px;
-        top: -10px;
-        bottom:-10px;
-      }
+    &.is-current {
+        & > .el-tree-node__content {
+            border-style: solid;
+            border-color: transparent;
+            border-width: 10px 16px;
+            color: $theme-color;
+            background-color: rgba(69, 117, 246, 0.04);
+            position: relative;
+            &::after {
+                content: "";
+                width: 4px;
+                background-color: $theme-color;
+                position: absolute;
+                left: -16px;
+                top: -10px;
+                bottom: -10px;
+            }
+        }
     }
-  }
-  .el-tree-node__content {
-    border-style: solid;
-    border-color: transparent;
-    border-width: 10px 16px;
-  }
+    .el-tree-node__content {
+        border-style: solid;
+        border-color: transparent;
+        border-width: 10px 16px;
+    }
+}
+.el-dialog {
+    margin: 0 auto;
+    .el-dialog__header {
+        padding: 10px 20px;
+        text-align: left;
+        .el-dialog__title {
+            font-size: 16px;
+        }
+        .el-dialog__headerbtn {
+            top: 10px;
+        }
+    }
+    .el-dialog__body {
+        text-align: left;
+        padding: 6px 20px;
+    }
+}
+
+.el-input {
+    .el-input__inner {
+        height: 32px;
+        line-height: 32px;
+    }
+}
+.el-form {
+    .el-form-item {
+        margin-bottom: 12px;
+        .el-form-item__label {
+            line-height: 28px;
+        }
+    }
+}
+.el-table th,
+.el-table td {
+    padding: 3px 0 !important;
+    font-size: 12px !important;
+}
+.el-table th {
+    color: #222222 !important;
 }
 
 .el-form-item{

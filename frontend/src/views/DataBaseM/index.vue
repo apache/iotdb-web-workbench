@@ -1,38 +1,16 @@
 <template>
   <div class="databasem">
     <el-container class="content-container">
-      <el-aside :width="dividerWidth + 'px'"
-        ><data-list-tree
-          :nodekey="nodekey"
-          ref="treeRef"
-          :handleNodeClick="handleNodeClick"
-        ></data-list-tree
-      ></el-aside>
+      <el-aside :width="dividerWidth + 'px'"><data-list-tree :nodekey="nodekey" ref="treeRef" :handleNodeClick="handleNodeClick"></data-list-tree></el-aside>
       <div class="divider" ref="dividerRef"></div>
       <el-main>
         <template v-if="urlTabs.length !== 0">
-          <el-tabs
-            v-model="urlTabsValue"
-            type="card"
-            @tab-click="handleClick"
-            @tab-remove="removeTab"
-            closable
-          >
-            <el-tab-pane
-              v-for="item in urlTabs"
-              :key="item.name"
-              :name="item.name"
-            >
+          <el-tabs v-model="urlTabsValue" type="card" @tab-click="handleClick" @tab-remove="removeTab" closable>
+            <el-tab-pane v-for="item in urlTabs" :key="item.name" :name="item.name">
               <template #label>
                 <span
                   ><svg class="icon" aria-hidden="true">
-                    <use
-                      :xlink:href="
-                        urlTabsValue == item.name
-                          ? '#icon-xinzengshujulianjie-color'
-                          : '#icon-xinzengshujulianjie'
-                      "
-                    ></use>
+                    <use :xlink:href="urlTabsValue == item.name ? '#icon-xinzengshujulianjie-color' : '#icon-xinzengshujulianjie'"></use>
                   </svg>
                   {{ item.title }}</span
                 >
@@ -50,37 +28,37 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref } from "vue";
-import useElementResize from "./hooks/useElementResize.js";
-import DataListTree from "./components/dataListTree.vue";
-import { ElContainer, ElAside, ElMain, ElTabs, ElTabPane } from "element-plus";
+import { onMounted, ref } from 'vue';
+import useElementResize from './hooks/useElementResize.js';
+import DataListTree from './components/dataListTree.vue';
+import { ElContainer, ElAside, ElMain, ElTabs, ElTabPane } from 'element-plus';
 
 export default {
-  name: "Root",
+  name: 'Root',
   setup() {
     const dividerRef = ref(null);
     let dividerWidth = ref(300);
-    let urlTabsValue = ref("2");
-    const nodekey = ref("");
+    let urlTabsValue = ref('2');
+    const nodekey = ref('');
     let treeRef = ref(null);
     let urlTabs = ref([
       {
-        title: "Tab 1",
-        name: "1",
-        content: "Tab 1 content",
+        title: 'Tab 1',
+        name: '1',
+        content: 'Tab 1 content',
       },
       {
-        title: "Tab 2",
-        name: "2",
-        content: "Tab 2 content",
+        title: 'Tab 2',
+        name: '2',
+        content: 'Tab 2 content',
       },
     ]);
 
     const handleClick = (tab) => {
       console.log(tab.props.name);
-      console.log(treeRef.value, "pppww");
+      console.log(treeRef.value, 'pppww');
       treeRef.value.treeRef.setCurrentKey(null);
-      nodekey.value = "";
+      nodekey.value = '';
     };
 
     const handleNodeClick = (data) => {

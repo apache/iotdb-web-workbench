@@ -1,13 +1,11 @@
-const path = require("path");
+const path = require('path');
 function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
 module.exports = {
   chainWebpack: (config) => {
-    config.resolve.alias
-      .set("@", resolve("./src"))
-      .set("components", resolve("./src/components"));
+    config.resolve.alias.set('@', resolve('./src')).set('components', resolve('./src/components'));
   },
   css: {
     loaderOptions: {
@@ -18,8 +16,8 @@ module.exports = {
   },
   devServer: {
     proxy: {
-      "/data": {
-        target: "http://www.weather.com.cn",
+      '/.*': {
+        target: 'http://10.76.50.123:8081',
         changeOrigin: true,
       },
     },

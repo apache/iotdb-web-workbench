@@ -114,7 +114,7 @@ public class ErrorCode {
     public static final String GET_SQL_SET_FAIL_MSG = "获取列表集合失败";
 
     public static final String INSERT_DEV_FAIL = "IOTDB-0018";
-    public static final String INSERT_DEV_FAIL_MSG = "插入设备失败";
+    public static final String INSERT_DEV_FAIL_MSG = "插入实体失败";
 
     public static final String GET_MSM_FAIL = "IOTDB-0019";
     public static final String GET_MSM_FAIL_MSG = "获取测点数据信息失败";
@@ -143,6 +143,27 @@ public class ErrorCode {
     public static final String SET_DB_ROLE_FAIL = "IOTDB-0027";
     public static final String SET_DB_ROLE_FAIL_MSG = "创建数据库角色或对应权限时失败";
 
+    public static final String NO_TYPE = "IOTDB-0028";
+    public static final String NO_TYPE_MSG = "粒度类型不存在";
+
+    public static final String PRIV_ROOT_FAIL = "IOTDB-0029";
+    public static final String PRIV_ROOT_FAIL_MSG = "根路径权限操作失败";
+    
+    public static final String PRIV_GROUP_FAIL = "IOTDB-0030";
+    public static final String PRIV_GROUP_FAIL_MSG = "组路径权限操作失败";
+    
+    public static final String PRIV_DEVICE_FAIL = "IOTDB-0031";
+    public static final String PRIV_DEVICE_FAIL_MSG = "实体路径权限操作失败";
+    
+    public static final String PRIV_TIMESERIES_FAIL = "IOTDB-0032";
+    public static final String PRIV_TIMESERIES_FAIL_MSG = "测点路径权限操作失败";
+
+    public static final String GET_RECORD_FAIL = "IOTDB-0033";
+    public static final String GET_RECORD_FAIL_MSG = "获取测点记录失败";
+
+    public static final String NO_SQL = "IOTDB-0034";
+    public static final String NO_SQL_MSG = "没有sql执行语句";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
@@ -150,12 +171,12 @@ public class ErrorCode {
     public static final String DELETE_GROUP_INFO_FAIL = "GROUP-0002";
     public static final String DELETE_GROUP_INFO_FAIL_MSG = "删除存储组信息失败";
 
-    // 设备表相关
+    // 实体表相关
     public static final String DELETE_DEVICE_INFO_FAIL = "DEV-0001";
-    public static final String DELETE_DEVICE_INFO_FAIL_MSG = "删除设备信息失败";
+    public static final String DELETE_DEVICE_INFO_FAIL_MSG = "删除实体信息失败";
 
     public static final String SET_DEVICE_INFO_FAIL = "DEV-0002";
-    public static final String SET_DEVICE_INFO_FAIL_MSG = "插入设备信息失败";
+    public static final String SET_DEVICE_INFO_FAIL_MSG = "插入实体信息失败";
 
     // 测点表相关
     public static final String DELETE_MEASUREMENT_INFO_FAIL = "MEASU-0001";
@@ -166,6 +187,13 @@ public class ErrorCode {
 
     public static final String GET_MSM_DES_FAIL = "MEASU-0003";
     public static final String GET_MSM_DES_FAIL_MSG = "获取测点描述信息失败";
+
+    // 查询表相关
+    public static final String QUERY_EXIST = "QUERY-0001";
+    public static final String QUERY_EXIST_MSG = "脚本名已存在";
+
+    public static final String QUERY_NOT_EXIST = "QUERY-0002";;
+    public static final String QUERY_NOT_EXIST_MSG = "脚本不存在";
 
     // 参数校验相关
     public static final String WRONG_PARAM = "PARAM-0001";

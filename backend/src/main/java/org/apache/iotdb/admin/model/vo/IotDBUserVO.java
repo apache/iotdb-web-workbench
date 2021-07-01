@@ -12,6 +12,6 @@ import java.util.List;
 public class IotDBUserVO implements Serializable {
     private String userName;
     private String password;
-    private List<String> privileges;
+    private List<PrivilegeInfo> privilegesInfo;
 //    private List<RoleWithPrivilegesVO> roleWithPrivileges;
 }
