@@ -1,21 +1,21 @@
-import { createStore } from "vuex";
-import moduleA from "./moduleA";
+import { createStore } from 'vuex';
+import moduleA from './moduleA';
 
 export default createStore({
-  state: () => ({
-    isLogin: true,
-  }),
-  mutations: {
-    setLogin(state, islogin) {
-      state.isLogin = islogin;
+    state: () => ({
+        isLogin: true,
+    }),
+    mutations: {
+        setLogin(state, islogin) {
+            state.isLogin = islogin;
+        },
     },
-  },
-  actions: {
-    async fetchIsLogin({ commit }) {
-      commit("setLogin", true);
+    actions: {
+        async fetchIsLogin({ commit }) {
+            commit('setLogin', true);
+        },
     },
-  },
-  modules: {
-    a: moduleA,
-  },
+    modules: {
+        a: moduleA,
+    },
 });
