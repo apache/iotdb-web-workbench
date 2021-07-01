@@ -7,32 +7,16 @@
       :height="Height"
       tooltip-effect="light"
       :cell-style="{
-        padding: `${lineHeight ? lineHeight : 0}px ${
-          lineWidth ? lineWidth : 0
-        }px`,
+        padding: `${lineHeight ? lineHeight : 0}px ${lineWidth ? lineWidth : 0}px`,
       }"
       :header-cell-style="{
         color: 'black',
-        padding: `${lineHeight ? lineHeight : 0}px ${
-          lineWidth ? lineWidth : 0
-        }px`,
+        padding: `${lineHeight ? lineHeight : 0}px ${lineWidth ? lineWidth : 0}px`,
       }"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column
-        v-if="selectData"
-        type="selection"
-        width="80"
-        align="center"
-      >
-      </el-table-column>
-      <el-table-column
-        :key="item.prop"
-        v-for="item of columns"
-        :width="item.width + 'px'"
-        :align="item.align"
-        show-overflow-tooltip
-      >
+      <el-table-column v-if="selectData" type="selection" width="80" align="center"> </el-table-column>
+      <el-table-column :key="item.prop" v-for="item of columns" :width="item.width + 'px'" :align="item.align" show-overflow-tooltip>
         <template #header>
           <span :class="{ spanbox: item.required }"></span>
           <span>{{ $t(item.label) }}</span>
@@ -47,43 +31,17 @@
             @blur="checkInput(scope.row[item.prop], item.required)"
           >
           </el-input>
-          <el-input
-            v-if="item.type === 'TEXT'"
-            v-model="scope.row[item.prop]"
-            :size="item.size"
-            :placeholder="$t(item.label)"
-            @blur="checkInput(scope.row[item.prop], item.required)"
-          >
-          </el-input>
-          <el-select
-            v-model="scope.row[item.prop]"
-            :placeholder="$t(item.label)"
-            v-if="item.type === 'SELECT' && !scope.row[item.prop]"
-            :size="item.size"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
+          <el-input v-if="item.type === 'TEXT'" v-model="scope.row[item.prop]" :size="item.size" :placeholder="$t(item.label)" @blur="checkInput(scope.row[item.prop], item.required)"> </el-input>
+          <el-select v-model="scope.row[item.prop]" :placeholder="$t(item.label)" v-if="item.type === 'SELECT' && !scope.row[item.prop]" :size="item.size">
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
               <span style="float: left">{{ item.label }}</span>
             </el-option>
           </el-select>
-          <span
-            v-if="item.type && scope.row[item.prop] && item.type !== 'TEXT'"
-            >{{ scope.row[item.prop] }}</span
-          >
-          <span v-if="!item.type">{{
-            scope.row[item.prop] || item.value
-          }}</span>
+          <span v-if="item.type && scope.row[item.prop] && item.type !== 'TEXT'">{{ scope.row[item.prop] }}</span>
+          <span v-if="!item.type">{{ scope.row[item.prop] || item.value }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="actionO"
-        :label="$t(actionO.label)"
-        :align="actionO.align"
-      >
+      <el-table-column v-if="actionO" :label="$t(actionO.label)" :align="actionO.align">
         <template #default="scope">
           <slot :scope="scope"></slot>
         </template>
@@ -108,19 +66,10 @@
 </template>
 
 <script>
-import {
-  ElTable,
-  ElTableColumn,
-  ElInput,
-  ElSelect,
-  ElOption,
-  ElMessage,
-  ElButton,
-  ElPagination,
-} from "element-plus";
-import { reactive } from "vue";
+import { ElTable, ElTableColumn, ElInput, ElSelect, ElOption, ElMessage, ElButton, ElPagination } from 'element-plus';
+import { reactive } from 'vue';
 export default {
-  name: "StandTable",
+  name: 'StandTable',
   props: {
     column: Array,
     tableData: Array,
@@ -133,9 +82,9 @@ export default {
     exportData: Function,
   },
   setup(props) {
-    const actionA = props.column.filter((item) => item.prop === "action");
-    const columns = props.column.filter((item) => item.prop !== "action");
-    const actionO = actionA.length > 0 ? reactive(actionA[0]) : "";
+    const actionA = props.column.filter((item) => item.prop === 'action');
+    const columns = props.column.filter((item) => item.prop !== 'action');
+    const actionO = actionA.length > 0 ? reactive(actionA[0]) : '';
     const tableDatas = reactive(props.tableData);
     const paginations = reactive(props.pagination);
     function handleSelectionChange(val) {
@@ -145,8 +94,8 @@ export default {
       if (!val && flag) {
         ElMessage({
           showClose: true,
-          message: "该项值不能为空，请填写",
-          type: "error",
+          message: '该项值不能为空，请填写',
+          type: 'error',
         });
       }
     }
@@ -177,7 +126,7 @@ export default {
 
 <style lang="scss" scoped>
 .spanbox::before {
-  content: "*";
+  content: '*';
   color: #f56c6c;
   margin-right: 4px;
 }

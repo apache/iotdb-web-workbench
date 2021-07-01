@@ -1,18 +1,6 @@
 <template>
-  <el-form
-    :model="formData"
-    :rules="rules"
-    :inline="inline"
-    :label-position="labelPosition"
-    :class="inline ? 'demo-form-inline' : ''"
-  >
-    <el-form-item
-      v-for="item of formItem"
-      :key="item.itemID"
-      :label="$t(item.label)"
-      :prop="item.itemID"
-      :style="{ width: item.labelWidth }"
-    >
+  <el-form :model="formData" :rules="rules" :inline="inline" :label-position="labelPosition" :class="(inline ? 'demo-form-inline' : '', 'form_style')">
+    <el-form-item v-for="item of formItem" :key="item.itemID" :label="$t(item.label)" :prop="item.itemID" :style="{ width: item.labelWidth }">
       <el-input
         v-if="item.type === 'INPUT'"
         v-model="formData[item.itemID]"
@@ -24,16 +12,7 @@
         :prefix-icon="item.prefixIcon"
       >
       </el-input>
-      <el-input
-        :size="item.size"
-        v-if="item.type === 'TEXT'"
-        v-model="formData[item.itemID]"
-        class="input-inner"
-        :suffix-icon="item.suffixIcon"
-        :prefix-icon="item.prefixIcon"
-        readonly
-      >
-      </el-input>
+      <el-input :size="item.size" v-if="item.type === 'TEXT'" v-model="formData[item.itemID]" class="input-inner" :suffix-icon="item.suffixIcon" :prefix-icon="item.prefixIcon" readonly> </el-input>
       <el-date-picker
         v-model="formData[item.itemID]"
         v-if="item.type === 'DATE'"
@@ -50,10 +29,10 @@
 </template>
 
 <script>
-import { ElForm, ElFormItem, ElInput, ElDatePicker } from "element-plus";
-import { reactive, toRefs } from "vue";
+import { ElForm, ElFormItem, ElInput, ElDatePicker } from 'element-plus';
+import { reactive, toRefs } from 'vue';
 export default {
-  name: "FormTable",
+  name: 'FormTable',
   props: {
     form: Array,
   },
@@ -67,7 +46,7 @@ export default {
           {
             required: true,
             message: item.message,
-            trigger: item.type === "INPUT" ? "blur" : "change",
+            trigger: item.type === 'INPUT' ? 'blur' : 'change',
           },
         ];
       });
@@ -94,5 +73,13 @@ export default {
 <style lang="scss" scoped>
 .demo-form-inline {
   display: flex;
+}
+</style>
+<style lang="scss">
+.form_style {
+  .el-form-item__content {
+    vertical-align: middle;
+    line-height: 30px;
+  }
 }
 </style>

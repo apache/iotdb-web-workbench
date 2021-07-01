@@ -1,27 +1,16 @@
 <template>
   <div>
     <div class="serch_div">
-      <el-input
-        v-model="input"
-        :placeholder="placeholder"
-        class="elinput"
-        suffix-icon="el-icon-search"
-      ></el-input>
+      <el-input v-model="input" :placeholder="placeholder" class="elinput" suffix-icon="el-icon-search"></el-input>
     </div>
     <div class="serch_div">
-      <el-tree
-        :data="data"
-        :props="defaultProps"
-        accordion
-        @node-click="handleNodeClick"
-      >
-      </el-tree>
+      <el-tree :data="data" :props="defaultProps" accordion @node-click="handleNodeClick"> </el-tree>
     </div>
   </div>
 </template>
 
 <script>
-import { ElInput, ElTree } from "element-plus";
+import { ElInput, ElTree } from 'element-plus';
 export default {
   props: {
     placeholder: String,
@@ -29,55 +18,55 @@ export default {
   setup() {
     const data = [
       {
-        label: "一级 1",
+        label: '一级 1',
         children: [
           {
-            label: "二级 1-1",
+            label: '二级 1-1',
             children: [
               {
-                label: "三级 1-1-1",
+                label: '三级 1-1-1',
               },
             ],
           },
         ],
       },
       {
-        label: "一级 2",
+        label: '一级 2',
         children: [
           {
-            label: "二级 2-1",
+            label: '二级 2-1',
             children: [
               {
-                label: "三级 2-1-1",
+                label: '三级 2-1-1',
               },
             ],
           },
           {
-            label: "二级 2-2",
+            label: '二级 2-2',
             children: [
               {
-                label: "三级 2-2-1",
+                label: '三级 2-2-1',
               },
             ],
           },
         ],
       },
       {
-        label: "一级 3",
+        label: '一级 3',
         children: [
           {
-            label: "二级 3-1",
+            label: '二级 3-1',
             children: [
               {
-                label: "三级 3-1-1",
+                label: '三级 3-1-1',
               },
             ],
           },
           {
-            label: "二级 3-2",
+            label: '二级 3-2',
             children: [
               {
-                label: "三级 3-2-1",
+                label: '三级 3-2-1',
               },
             ],
           },
@@ -85,8 +74,8 @@ export default {
       },
     ];
     const defaultProps = {
-      children: "children",
-      label: "label",
+      children: 'children',
+      label: 'label',
     };
     return { data, defaultProps };
   },

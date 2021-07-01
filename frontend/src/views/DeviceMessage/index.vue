@@ -25,29 +25,16 @@
       <form-table :form="form"></form-table>
       <el-button class="creatButton">新建设备</el-button>
     </div>
-    <stand-table
-      :column="column"
-      :tableData="tableData"
-      :selectData="selectData"
-      :lineHeight="5"
-      :maxHeight="250"
-      :exportData="() => {}"
-    >
+    <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="250" :exportData="() => {}">
       <template #default="{ scope }">
-        <el-button @click="searchRow(scope.row)" type="text" size="small">
-          查看
-        </el-button>
+        <el-button @click="searchRow(scope.row)" type="text" size="small"> 查看 </el-button>
       </template>
     </stand-table>
     <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px' }">
       <div class="drawertitle">
         <div>xxxxx测试点数据趋势</div>
         <div>
-          <i
-            class="el-icon-close"
-            style="cursor: pointer"
-            @click="closeDrawer"
-          ></i>
+          <i class="el-icon-close" style="cursor: pointer" @click="closeDrawer"></i>
         </div>
       </div>
       <div style="padding: 10px 30px">
@@ -61,13 +48,13 @@
 </template>
 
 <script>
-import { ElButton } from "element-plus";
-import StandTable from "@/components/StandTable";
-import FormTable from "@/components/FormTable";
-import { reactive, ref } from "vue";
-import Echarts from "@/components/Echarts";
+import { ElButton } from 'element-plus';
+import StandTable from '@/components/StandTable';
+import FormTable from '@/components/FormTable';
+import { reactive, ref } from 'vue';
+import Echarts from '@/components/Echarts';
 export default {
-  name: "DeviceMessage",
+  name: 'DeviceMessage',
   setup() {
     let drawer = ref(0);
     let drawerFlag = ref(false);
@@ -80,92 +67,89 @@ export default {
       formData: {},
       formItem: [
         {
-          label: "测点名称：", //名称
-          type: "INPUT", //控件类型
-          size: "small", //element尺寸
-          width: "400px",
-          itemID: "name", //数据字段名
-          suffixIcon: "el-icon-search", // 后图标样式
-          placeholder: "请输入测点名称", //灰色提示文字
+          label: '测点名称：', //名称
+          type: 'INPUT', //控件类型
+          size: 'small', //element尺寸
+          width: '400px',
+          itemID: 'name', //数据字段名
+          suffixIcon: 'el-icon-search', // 后图标样式
+          placeholder: '请输入测点名称', //灰色提示文字
         },
       ],
     });
     const formdate = reactive({
       inline: true, //横向
       formData: {
-        time: [
-          new Date("2021-05-09 23:59:59"),
-          new Date("2021-05-10 23:59:59"),
-        ],
+        time: [new Date('2021-05-09 23:59:59'), new Date('2021-05-10 23:59:59')],
       },
       formItem: [
         {
-          label: "时间：", //名称
-          type: "DATE", //控件类型
-          size: "small", //element尺寸
-          width: "400px",
-          itemID: "time", //数据字段名
+          label: '时间：', //名称
+          type: 'DATE', //控件类型
+          size: 'small', //element尺寸
+          width: '400px',
+          itemID: 'time', //数据字段名
           // suffixIcon: "el-icon-search", // 后图标样式
-          startPlaceholder: "开始日期", //灰色提示文字
-          endPlaceholder: "结束日期", //灰色提示文字
+          startPlaceholder: '开始日期', //灰色提示文字
+          endPlaceholder: '结束日期', //灰色提示文字
         },
       ],
     });
     const column = [
       {
-        label: "测点名称",
-        prop: "name",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '测点名称',
+        prop: 'name',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "数据类型",
-        prop: "type",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '数据类型',
+        prop: 'type',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "编码方式",
-        prop: "func",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '编码方式',
+        prop: 'func',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "测点描述",
-        prop: "mess",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '测点描述',
+        prop: 'mess',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "最新值",
-        prop: "num",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '最新值',
+        prop: 'num',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "数据趋势",
-        prop: "action",
+        label: '数据趋势',
+        prop: 'action',
       },
     ];
     const tableData = [
       {
-        name: "A111",
-        type: "string",
-        func: "",
-        mess: "设备",
+        name: 'A111',
+        type: 'string',
+        func: '',
+        mess: '设备',
       },
       {
-        name: "A111",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A111',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A111",
-        type: "string",
-        func: "utf",
-        mess: "设备111111111111111111111111111111111111111111111111111111111111",
+        name: 'A111',
+        type: 'string',
+        func: 'utf',
+        mess: '设备111111111111111111111111111111111111111111111111111111111111',
       },
       {
-        name: "A222",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A222',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
     ];
     function searchRow(a) {

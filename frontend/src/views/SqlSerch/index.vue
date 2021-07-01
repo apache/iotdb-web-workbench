@@ -10,24 +10,14 @@
           <div class="rightIcon flex">
             <eltooltip label="保存">
               <span>
-                <svg
-                  class="icon icon-1"
-                  aria-hidden="true"
-                  @click="btnClick1"
-                  v-icon="`#icon-baocun-color`"
-                >
+                <svg class="icon icon-1" aria-hidden="true" @click="btnClick1" v-icon="`#icon-baocun-color`">
                   <use xlink:href="#icon-baocun"></use>
                 </svg>
               </span>
             </eltooltip>
             <eltooltip label="运行">
               <span>
-                <svg
-                  class="icon icon-1"
-                  aria-hidden="true"
-                  @click="btnClick1"
-                  v-icon="`#icon-yunhang-color`"
-                >
+                <svg class="icon icon-1" aria-hidden="true" @click="btnClick1" v-icon="`#icon-yunhang-color`">
                   <use xlink:href="#icon-yunhang"></use>
                 </svg>
               </span>
@@ -37,40 +27,22 @@
       </el-header>
       <el-main class="backcolor">
         <div :style="{ height: `calc(100vh - ${143 + divwerHeight}px)` }">
-          <codemirror
-            ref="codemirror"
-            :codes="code"
-            :sqlheight="sqlheight"
-            @getCode="getCode"
-          ></codemirror>
+          <codemirror ref="codemirror" :codes="code" :sqlheight="sqlheight" @getCode="getCode"></codemirror>
         </div>
       </el-main>
-      <el-footer
-        class="footer"
-        :style="{ display: divwerHeight > 30 ? '' : 'none' }"
-      >
+      <el-footer class="footer" :style="{ display: divwerHeight > 30 ? '' : 'none' }">
         <div class="divider" ref="dividerRef"></div>
         <div :style="{ height: divwerHeight + 'px', overflow: 'auto' }">
           <div class="tabs">
-            <el-tabs
-              v-model="activeName"
-              @tab-click="handleClick"
-              class="tabs_nav"
-            >
+            <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav">
               <el-tab-pane label="运行结果1" name="first">
                 <template #label>
-                  <span
-                    >运行结果1<i class="el-icon-more iconmore green"></i>
-                  </span>
+                  <span>运行结果1<i class="el-icon-more iconmore green"></i> </span>
                 </template>
                 <div class="header_messge flex">
                   <div>
                     <span>
-                      <svg
-                        class="icon icon-1 icon-color"
-                        aria-hidden="true"
-                        @click="btnClick1"
-                      >
+                      <svg class="icon icon-1 icon-color" aria-hidden="true" @click="btnClick1">
                         <use xlink:href="#icon-se-icon-download"></use>
                       </svg>
                       <span class="downloadchart">下载</span>
@@ -83,22 +55,12 @@
                   </div>
                 </div>
                 <div class="tab_table">
-                  <stand-table
-                    :column="column"
-                    :tableData="tableData"
-                    :lineHeight="5"
-                    :lineWidth="13"
-                    :maxHeight="400"
-                    :pagination="pagination"
-                  >
-                  </stand-table>
+                  <stand-table :column="column" :tableData="tableData" :lineHeight="5" :lineWidth="13" :maxHeight="400" :pagination="pagination"> </stand-table>
                 </div>
               </el-tab-pane>
               <el-tab-pane label="运行结果2" name="second">
                 <template #label>
-                  <span
-                    >运行结果2<i class="el-icon-more iconmore red"></i>
-                  </span>
+                  <span>运行结果2<i class="el-icon-more iconmore red"></i> </span>
                 </template>
               </el-tab-pane>
             </el-tabs>
@@ -109,11 +71,7 @@
     <el-aside width="300px">
       <div class="el_aside_div">
         <div class="tabgad">
-          <el-tabs
-            v-model="activeName"
-            @tab-click="handleClick"
-            class="tabs_nav_aside"
-          >
+          <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav_aside">
             <el-tab-pane label="函数" name="first">
               <formserch :placeholder="'请输入函数名称'"></formserch>
             </el-tab-pane>
@@ -126,122 +84,114 @@
 </template>
 
 <script>
-import {
-  ElContainer,
-  ElMain,
-  ElAside,
-  ElHeader,
-  ElFooter,
-  ElTabs,
-  ElTabPane,
-} from "element-plus";
-import StandTable from "@/components/StandTable";
-import formserch from "./components/formserch";
-import useElementResize from "./hooks/useElementResize.js";
-import codemirror from "./components/codemirror";
-import eltooltip from "./components/eltooltip";
-import { onMounted, ref, computed, nextTick } from "vue";
+import { ElContainer, ElMain, ElAside, ElHeader, ElFooter, ElTabs, ElTabPane } from 'element-plus';
+import StandTable from '@/components/StandTable';
+import formserch from './components/formserch';
+import useElementResize from './hooks/useElementResize.js';
+import codemirror from './components/codemirror';
+import eltooltip from './components/eltooltip';
+import { onMounted, ref, computed, nextTick } from 'vue';
 export default {
-  name: "Sqlserch",
+  name: 'Sqlserch',
   setup() {
     let divwerHeight = ref(0);
     let dividerRef = ref(null);
     let codemirror = ref(null);
-    let activeName = ref("first");
+    let activeName = ref('first');
     let sqlheight = computed(() => {
       nextTick(() => {
         codemirror.value.codemrriorHeight(divwerHeight.value);
       });
       return divwerHeight.value;
     });
-    let code = "select from 1";
+    let code = 'select from 1';
     const column = [
       {
-        label: "测点名称",
-        prop: "name",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '测点名称',
+        prop: 'name',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "数据类型",
-        prop: "type",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '数据类型',
+        prop: 'type',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "编码方式",
-        prop: "func",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '编码方式',
+        prop: 'func',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "测点描述",
-        prop: "mess",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '测点描述',
+        prop: 'mess',
+        value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: "最新值",
-        prop: "num",
-        value: "——", //默认值，该项如果没有数据显示
+        label: '最新值',
+        prop: 'num',
+        value: '——', //默认值，该项如果没有数据显示
       },
     ];
     const tableData = [
       {
-        name: "A111",
-        type: "string",
-        func: "",
-        mess: "设备",
+        name: 'A111',
+        type: 'string',
+        func: '',
+        mess: '设备',
       },
       {
-        name: "A111",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A111',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A111",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A111',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A222",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A222',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A222",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A222',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A222",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A222',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A222",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A222',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A222",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A222',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A222",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A222',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
       {
-        name: "A222",
-        type: "string",
-        func: "utf",
-        mess: "设备",
+        name: 'A222',
+        type: 'string',
+        func: 'utf',
+        mess: '设备',
       },
     ];
     function getCode(val) {
@@ -252,7 +202,7 @@ export default {
     function btnClick1() {
       divwerHeight.value = 300;
       useElementResize(dividerRef, divwerHeight);
-      codemirror.value.onCmCodeChange("插入函数");
+      codemirror.value.onCmCodeChange('插入函数');
     }
     onMounted(() => {
       useElementResize(dividerRef, divwerHeight);

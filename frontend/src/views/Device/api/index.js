@@ -1,5 +1,5 @@
-import axios from "@/util/axios.js";
+import axios from '@/util/axios.js';
 
-export function getDeviceDate(serverId, groupName) {
-  return axios.post(`/servers/${serverId}/storageGroups/${groupName}/devices`);
+export function getDeviceDate(serverId, groupName, deviceName) {
+  return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}`);
 }

@@ -5,22 +5,22 @@
 </template>
 
 <script>
-import "codemirror/theme/idea.css";
-import "codemirror/mode/sql/sql.js";
-import "codemirror/addon/hint/show-hint.css";
-import "codemirror/addon/hint/show-hint";
-import "codemirror/addon/hint/sql-hint";
-import _CodeMirror from "codemirror";
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/cobalt.css";
-import "codemirror/mode/css/css.js";
-import "codemirror/mode/xml/xml.js";
-import "codemirror/addon/selection/active-line";
-import "codemirror/addon/selection/selection-pointer";
-import "codemirror/addon/edit/matchbrackets";
+import 'codemirror/theme/idea.css';
+import 'codemirror/mode/sql/sql.js';
+import 'codemirror/addon/hint/show-hint.css';
+import 'codemirror/addon/hint/show-hint';
+import 'codemirror/addon/hint/sql-hint';
+import _CodeMirror from 'codemirror';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/cobalt.css';
+import 'codemirror/mode/css/css.js';
+import 'codemirror/mode/xml/xml.js';
+import 'codemirror/addon/selection/active-line';
+import 'codemirror/addon/selection/selection-pointer';
+import 'codemirror/addon/edit/matchbrackets';
 const CodeMirror = window.CodeMirror || _CodeMirror;
 export default {
-  name: "Sqlserch",
+  name: 'Sqlserch',
   props: {
     codes: String,
     divwerHeight: Number,
@@ -28,11 +28,11 @@ export default {
   data() {
     return {
       code: this.codes,
-      mode: { name: "text/x-mysql" },
+      mode: { name: 'text/x-mysql' },
       options: {
-        mode: { name: "text/x-mysql" },
+        mode: { name: 'text/x-mysql' },
         tabSize: 1,
-        theme: "idea",
+        theme: 'idea',
         lineNumbers: true,
         line: true,
         lineWrapping: true, // 自动换行
@@ -41,14 +41,14 @@ export default {
         matchBrackets: true,
         hintOptions: { completeSingle: false },
         indentUnit: 4, // 缩进单位为4
-        extraKeys: { Ctrl: "autocomplete" },
+        extraKeys: { Ctrl: 'autocomplete' },
         // styleActiveLine: true,
       },
     };
   },
   mounted() {
     this._initialize();
-    this.coder.on("keypress", () => {
+    this.coder.on('keypress', () => {
       //编译器内容更改事件
       this.coder.showHint();
     });
@@ -61,7 +61,7 @@ export default {
       console.log(this.coder.getCursor());
     },
     codemrriorHeight(val) {
-      this.coder.setSize("auto", `calc(100vh - ${143 + val}px)`);
+      this.coder.setSize('auto', `calc(100vh - ${143 + val}px)`);
     },
     _initialize() {
       // 初始化编辑器实例，传入需要被实例化的文本域对象和默认配置
@@ -70,9 +70,9 @@ export default {
       this.coder.setValue(this.value || this.code);
       // this.coder.setSize("auto", `calc(100vh - 443px)`);
       // 支持双向绑定
-      this.coder.on("change", (coder) => {
+      this.coder.on('change', (coder) => {
         this.code = coder.getValue();
-        this.$emit("getCode", this.code);
+        this.$emit('getCode', this.code);
       });
 
       // 尝试从父容器获取语法类型
@@ -95,9 +95,7 @@ export default {
         let currentLabel = mode.label.toLowerCase();
         let currentValue = mode.value.toLowerCase();
         // 由于真实值可能不规范，例如 java 的真实值是 x-java ，所以讲 value 和 label 同时和传入语法进行比较
-        return (
-          currentLabel === currentLanguage || currentValue === currentLanguage
-        );
+        return currentLabel === currentLanguage || currentValue === currentLanguage;
       });
     },
   },

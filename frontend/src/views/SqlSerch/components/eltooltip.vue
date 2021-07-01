@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { ElTooltip } from "element-plus";
+import { ElTooltip } from 'element-plus';
 export default {
   props: {
     label: String,

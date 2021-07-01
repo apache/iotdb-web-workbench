@@ -2,27 +2,27 @@
   <div id="myChart" class="echartsBox"></div>
 </template>
 <script>
-import * as echarts from "echarts/core";
-import { GridComponent } from "echarts/components";
-import { LineChart } from "echarts/charts";
-import { CanvasRenderer } from "echarts/renderers";
-import { onMounted } from "@vue/runtime-core";
+import * as echarts from 'echarts/core';
+import { GridComponent } from 'echarts/components';
+import { LineChart } from 'echarts/charts';
+import { CanvasRenderer } from 'echarts/renderers';
+import { onMounted } from '@vue/runtime-core';
 echarts.use([GridComponent, LineChart, CanvasRenderer]);
 export default {
-  name: "Echarts",
+  name: 'Echarts',
   setup() {
     onMounted(() => {
-      let myChart = echarts.init(document.getElementById("myChart"));
+      let myChart = echarts.init(document.getElementById('myChart'));
       myChart.setOption({
-        title: { text: "总用户量" },
+        title: { text: '总用户量' },
         tooltip: {},
         grid: {
-          left: "30px",
-          top: "10px",
-          width: "100%",
+          left: '30px',
+          top: '10px',
+          width: '100%',
         },
         xAxis: {
-          data: ["12-3", "12-4", "12-5", "12-6", "12-7", "12-8"],
+          data: ['12-3', '12-4', '12-5', '12-6', '12-7', '12-8'],
           boundaryGap: false,
           axisTick: {
             show: false,
@@ -30,17 +30,17 @@ export default {
           axisLine: {
             show: true,
             onZero: true,
-            lineStyle: { color: "#ebeef5" },
+            lineStyle: { color: '#ebeef5' },
           },
           axisLabel: {
             show: true,
             textStyle: {
-              color: "black",
+              color: 'black',
             },
           },
         },
         yAxis: {
-          type: "value",
+          type: 'value',
           max: 150,
           min: 0,
           splitNumber: 3,
@@ -50,27 +50,27 @@ export default {
           axisLabel: {
             show: true,
             textStyle: {
-              color: "black",
+              color: 'black',
             },
           },
           axisLine: {
             show: true,
-            lineStyle: { color: "#ebeef5" },
+            lineStyle: { color: '#ebeef5' },
           },
           splitLine: {
             show: false,
-            interval: "auto",
+            interval: 'auto',
           },
         },
         series: [
           {
-            type: "line",
+            type: 'line',
             data: [50, 120, 76, 100, 100, 120],
-            symbol: "none",
+            symbol: 'none',
             itemStyle: {
               normal: {
                 lineStyle: {
-                  color: "#0cc100",
+                  color: '#0cc100',
                 },
               },
             },
