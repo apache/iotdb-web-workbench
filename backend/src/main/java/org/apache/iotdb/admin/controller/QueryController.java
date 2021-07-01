@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
-import org.apache.iotdb.admin.model.dto.QueryDTO;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.entity.Query;
 import org.apache.iotdb.admin.model.vo.BaseVO;

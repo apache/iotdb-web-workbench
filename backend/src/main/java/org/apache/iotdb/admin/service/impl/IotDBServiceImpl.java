@@ -1,7 +1,5 @@
 package org.apache.iotdb.admin.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
-import com.baomidou.mybatisplus.extension.api.R;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.*;
@@ -10,7 +8,6 @@ import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.IotDBService;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
-import org.apache.iotdb.session.SessionDataSet;
 import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.tsfile.file.metadata.enums.CompressionType;
@@ -19,13 +16,12 @@ import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 
 
 @Service
@@ -37,12 +33,35 @@ public class IotDBServiceImpl implements IotDBService {
 
     private static final String NO_NEED_PRIVILEGES = "SET_STORAGE_GROUP";
 
+    private static final List<String> PRIVILEGES = new ArrayList<>();
+
     static {
         SPECIAL_PRIVILEGES.put("CREATE_TIMESERIES",true);
         SPECIAL_PRIVILEGES.put("INSERT_TIMESERIES",true);
         SPECIAL_PRIVILEGES.put("READ_TIMESERIES",true);
         SPECIAL_PRIVILEGES.put("DELETE_TIMESERIES",true);
     }
+
+    static {
+        PRIVILEGES.add("SET_STORAGE_GROUP");
+        PRIVILEGES.add("CREATE_TIMESERIES");
+        PRIVILEGES.add("INSERT_TIMESERIES");
+        PRIVILEGES.add("READ_TIMESERIES");
+        PRIVILEGES.add("DELETE_TIMESERIES");
+        PRIVILEGES.add("CREATE_USER");
+        PRIVILEGES.add("DELETE_USER");
+        PRIVILEGES.add("MODIFY_PASSWORD");
+        PRIVILEGES.add("LIST_USER");
+        PRIVILEGES.add("GRANT_USER_PRIVILEGE");
+        PRIVILEGES.add("REVOKE_USER_PRIVILEGE");
+        PRIVILEGES.add("CREATE_FUNCTION");
+        PRIVILEGES.add("DROP_FUNCTION");
+        PRIVILEGES.add("CREATE_TRIGGER");
+        PRIVILEGES.add("DROP_TRIGGER");
+        PRIVILEGES.add("START_TRIGGER");
+        PRIVILEGES.add("STOP_TRIGGER");
+    }
+
 
     @Override
     public List<String> getAllStorageGroups(Connection connection) throws BaseException {
@@ -137,10 +156,19 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException {
         paramValid(userName);
-        SessionPool sessionpool = getSessionPool(connection);
         IotDBUserVO iotDBUserVO = new IotDBUserVO();
         iotDBUserVO.setUserName(connection.getUsername());
         iotDBUserVO.setPassword(connection.getPassword());
+        if ("root".equalsIgnoreCase(userName)) {
+            List<PrivilegeInfo> privilegeInfos = new ArrayList<>();
+            PrivilegeInfo privilegeInfo = new PrivilegeInfo();
+            privilegeInfo.setType(0);
+            privilegeInfo.setPrivileges(PRIVILEGES);
+            privilegeInfos.add(privilegeInfo);
+            iotDBUserVO.setPrivilegesInfo(privilegeInfos);
+            return iotDBUserVO;
+        }
+        SessionPool sessionpool = getSessionPool(connection);
         String sql = "list user privileges " + userName;
         try {
             SessionDataSetWrapper sessionDataSetWrapper =  sessionpool.executeQueryStatement(sql);
