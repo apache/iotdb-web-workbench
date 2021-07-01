@@ -1,17 +1,16 @@
 package org.apache.iotdb.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
+import com.baomidou.mybatisplus.extension.api.R;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
-import org.apache.iotdb.admin.model.vo.IotDBUserVO;
-import org.apache.iotdb.admin.model.vo.PathVO;
-import org.apache.iotdb.admin.model.vo.PrivilegeInfo;
-import org.apache.iotdb.admin.model.vo.SqlResultVO;
+import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.IotDBService;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.SessionDataSet;
 import org.apache.iotdb.session.pool.SessionDataSetWrapper;
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.iotdb.tsfile.file.metadata.enums.CompressionType;
@@ -20,11 +19,13 @@ import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 
 @Service
@@ -533,7 +534,7 @@ public class IotDBServiceImpl implements IotDBService {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
         String sql = "show timeseries " + deviceName;
-        SqlResultVO sqlResultVO = executeQuery(sessionPool, sql);
+        SqlResultVO sqlResultVO = executeQuery(sessionPool, sql,true);
         List<String> metaDataList = sqlResultVO.getMetaDataList();
         int index = -1;
         if (metaDataList != null) {
@@ -573,6 +574,74 @@ public class IotDBServiceImpl implements IotDBService {
                 }
             }
         }
+    }
+
+    @Override
+    public RecordVO getRecords(Connection connection, String deviceName, String timeseriesName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        RecordVO recordVO = new RecordVO();
+        List<Date> timeList = new ArrayList<>();
+        List<Long> valueList = new ArrayList<>();
+        String sql = "select time," + timeseriesName + " from " +  deviceName + " order by time desc limit 200 offset 0";
+        try {
+            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord next = sessionDataSetWrapper.next();
+                    Date date = new Date(next.getTimestamp());
+                    timeList.add(date);
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
+                    Long value = Long.valueOf(fields.get(0).toString());
+                    valueList.add(value);
+                }
+            }
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_RECORD_FAIL,ErrorCode.GET_RECORD_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_RECORD_FAIL,ErrorCode.GET_RECORD_FAIL_MSG);
+        }
+        recordVO.setTimeList(timeList);
+        recordVO.setValueList(valueList);
+        return recordVO;
+    }
+
+    @Override
+    public SqlResultVO queryAll(Connection connection, List<String> sqls) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<String> querySqls = new ArrayList<>();
+        String hasResultSql = null;
+        for (String sql : sqls) {
+            int firstSpaceIndex = sql.indexOf(" ");
+            String judge = sql.substring(0, firstSpaceIndex);
+            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge)) {
+                hasResultSql = sql;
+                continue;
+            }
+            querySqls.add(sql);
+        }
+        SqlResultVO sqlResultVO = new SqlResultVO();
+        if (hasResultSql != null) {
+            sqlResultVO = executeQuery(sessionPool, hasResultSql,false);
+        }
+        for (String querySql : querySqls) {
+            try {
+                sessionPool.executeNonQueryStatement(querySql);
+            } catch (StatementExecutionException e) {
+                logger.error(e.getMessage());
+                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG + ":" + querySql +"执行出错,错误信息["+e.getMessage()+"]");
+            } catch (IoTDBConnectionException e) {
+                logger.error(e.getMessage());
+                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG + ":" + querySql +"执行出错,错误信息["+e.getMessage()+"]");
+            } finally {
+                if (sessionPool != null) {
+                    sessionPool.close();
+                }
+            }
+        }
+        return sqlResultVO;
     }
 
     private void grantOrRevoke(String word, List<String> privileges,String userName,PrivilegeInfoDTO privilegesInfo,SessionPool sessionPool) throws BaseException {
@@ -700,7 +769,7 @@ public class IotDBServiceImpl implements IotDBService {
         throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
     }
 
-    private SqlResultVO executeQuery(SessionPool sessionPool, String sql) throws BaseException {
+    private SqlResultVO executeQuery(SessionPool sessionPool, String sql,Boolean closePool) throws BaseException {
         SqlResultVO sqlResultVO = new SqlResultVO();
         List<List<String>> valuelist = new ArrayList<>();
         try {
@@ -722,7 +791,8 @@ public class IotDBServiceImpl implements IotDBService {
                     valuelist.add(strList);
                 }
                 long end = System.currentTimeMillis();
-                String queryTime = (end - start) / 1000  + "." + (end - start) % 1000 + "s";
+                double time = (end - start + 0.0d) / 1000;
+                String queryTime = time + "s";
                 sqlResultVO.setQueryTime(queryTime);
                 sqlResultVO.setLine(count);
             }
@@ -733,7 +803,7 @@ public class IotDBServiceImpl implements IotDBService {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
         } finally {
-            if (sessionPool != null) {
+            if (sessionPool != null && closePool) {
                 sessionPool.close();
             }
         }
