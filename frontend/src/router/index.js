@@ -21,6 +21,21 @@ const routes = [
             component: () =>
               import(/* webpackChunkName: "about" */ "../views/About"),
           },
+          {
+            path: "device",
+            name: "Device",
+            component: () => import("../views/Device"),
+          },
+          {
+            path: "devicemessage",
+            name: "DeviceMessage",
+            component: () => import("../views/DeviceMessage"),
+          },
+          {
+            path: "sqlserch",
+            name: "SqlSerch",
+            component: () => import("../views/SqlSerch"),
+          },
         ],
       },
     ],

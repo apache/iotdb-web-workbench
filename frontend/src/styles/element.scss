@@ -30,3 +30,17 @@
     border-width: 10px 16px;
   }
 }
+
+.el-form-item{
+  margin-right: 10px !important;
+  margin-bottom: 10px !important;
+}
+.input-inner {
+  .el-input__inner {
+    padding: 0 !important;
+    border:none;
+  }
+}
+.el-input__icon{
+  cursor: pointer;
+}

@@ -30,6 +30,21 @@ const en = {
       passwordEmptyTip: "password can not be empty",
       welcomeLogin: "log in to iotdb database management",
     },
+    device: {
+      devicename: "device name",
+      description: "device description",
+      group: "storage group",
+      physical: "physical quantity",
+      addphysical: "add physical quantity",
+      delete: "delete",
+      cencel: "cencel",
+      ok: "ok",
+      physicalname: "physical name",
+      datatype: "data type",
+      codingmode: "coding mode",
+      physicaldescr: "description of physical quantity",
+      action: "operation",
+    },
   },
 };
 
