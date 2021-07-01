@@ -59,7 +59,7 @@ public class ConnectionController {
     public BaseVO<ConnectionVO> getAllConnections(@RequestParam("userId") Integer userId, HttpServletRequest request) throws BaseException {
         AuthenticationUtils.userAuthentication(userId,request);
         List<ConnVO> connVOs = connectionService.getAllConnections(userId);
-        ConnectionVO connectionVO = new ConnectionVO(connVOs,userId);
+        ConnectionVO connectionVO = new ConnectionVO(connVOs,userId,null);
         return BaseVO.success("获取成功",connectionVO);
     }
 

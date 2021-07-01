@@ -111,6 +111,21 @@ const en = {
       tips: 'tips:it means that ttl will infinite if you do not fill',
       ttlErrTips: 'ttl and ttl unit must be exist at the same time',
     },
+    device: {
+      devicename: 'device name',
+      description: 'device description',
+      group: 'storage group',
+      physical: 'physical quantity',
+      addphysical: 'add physical quantity',
+      delete: 'delete',
+      cencel: 'cencel',
+      ok: 'ok',
+      physicalname: 'physical name',
+      datatype: 'data type',
+      codingmode: 'coding mode',
+      physicaldescr: 'description of physical quantity',
+      action: 'operation',
+    },
   },
 };
 

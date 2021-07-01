@@ -143,20 +143,26 @@ public class IotDBController<T> {
         groupName = "root." + groupName;
         StorageGroup group = groupService.getGroupInfo(serverId, groupName);
         String ttl = iotDBService.getGroupTTL(connection, groupName);
-        Long totalTime = Long.valueOf(ttl);
-        String ttlUnit = getTTL(totalTime);
-        Long times = switchTime(ttlUnit);
-        ttl = String.valueOf(totalTime / times);
+        String ttlUnit;
         GroupVO groupVO = new GroupVO();
-        groupVO.setCreator(group.getCreator());
-        groupVO.setDescription(group.getDescription());
-        Date date = new Date(group.getCreateTime());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        String createTime = simpleDateFormat.format(date);
-        groupVO.setCreateTime(createTime);
-        groupVO.setTtl(ttl);
-        groupVO.setTtiUnit(ttlUnit);
-        groupVO.setGroupName(groupName);
+        if (ttl != null && !"null".equalsIgnoreCase(ttl)) {
+            Long totalTime = Long.valueOf(ttl);
+            ttlUnit = getTTL(totalTime);
+            Long times = switchTime(ttlUnit);
+            ttl = String.valueOf(totalTime / times);
+            groupVO.setTtl(ttl);
+        } else {
+            groupVO.setTtl(null);
+        }
+        if (group != null) {
+            groupVO.setCreator(group.getCreator());
+            groupVO.setDescription(group.getDescription());
+            Date date = new Date(group.getCreateTime());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String createTime = simpleDateFormat.format(date);
+            groupVO.setCreateTime(createTime);
+        }
+        groupVO.setGroupName(groupName.replaceFirst("root.",""));
         groupVO.setAlias(connection.getAlias());
         // 描述 创建人 创建时间
         return BaseVO.success("获取成功", groupVO);
@@ -327,6 +333,27 @@ public class IotDBController<T> {
         measuremtnInfoVO.setTotalPage(totalPage);
         // 11.测点列表加分页
         return BaseVO.success("获取成功", measuremtnInfoVO);
+    }
+
+    @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/{timeseriesName}")
+    @ApiOperation("获取指定测点的最新两百条数据记录")
+    public BaseVO<RecordVO> getMeasurementInfo(@PathVariable("serverId") Integer serverId,
+                                                                @PathVariable("groupName") String groupName,
+                                                                @PathVariable("deviceName") String deviceName,
+                                                                @PathVariable("timeseriesName") String timeseriesName,
+                                                                HttpServletRequest request) throws BaseException {
+        if (groupName == null || !groupName.matches("^[^ ]+$")) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        groupName = "root." + groupName;
+        deviceName = groupName + "." + deviceName;
+        RecordVO recordVO = iotDBService.getRecords(connection,deviceName,timeseriesName);
+        return BaseVO.success("获取成功", recordVO);
     }
 
     @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries")
@@ -508,30 +535,11 @@ public class IotDBController<T> {
     }
 
 
-    @PostMapping("/query")
-    @ApiOperation("用于查询器查询  (未完成)")
-    public BaseVO<SqlResultVO> query(@PathVariable("serverId") Integer serverId,
-                                     @RequestParam("sql") String sql,
-                                     HttpServletRequest request) throws BaseException {
-        if (sql == null) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        check(request, serverId);
-        Connection connection = connectionService.getById(serverId);
-        SqlResultVO sqlResultVO = iotDBService.query(connection, sql);
-        return BaseVO.success("查询成功", sqlResultVO);
-    }
-
-    @PostMapping("/stop")
-    @ApiOperation("用于查询终止  (未完成)")
-    public BaseVO query(@PathVariable("serverId") Integer serverId) {
-        return BaseVO.success("查询成功", null);
-    }
-
     private void check(HttpServletRequest request, Integer serverId) throws BaseException {
         Integer userId = AuthenticationUtils.getUserId(request);
         connectionService.check(serverId, userId);
     }
+
 
     private Long switchTime(String ttlUnit) throws BaseException {
         Long time = 0L;

@@ -111,6 +111,21 @@ const cn = {
       tips: '注:不填代表无限大',
       ttlErrTips: '存活时间和存活时间单位必须同时填写',
     },
+    device: {
+      devicename: '实体名称',
+      description: '实体描述',
+      group: '所属存储组',
+      physical: '实体物理量',
+      addphysical: '添加物理量',
+      delete: '删除',
+      cencel: '取消',
+      ok: '确定',
+      physicalname: '物理量名称',
+      datatype: '数据类型',
+      codingmode: '编码方式',
+      physicaldescr: '物理量描述',
+      action: '操作',
+    },
   },
 };
 

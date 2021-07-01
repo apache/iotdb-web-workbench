@@ -158,6 +158,12 @@ public class ErrorCode {
     public static final String PRIV_TIMESERIES_FAIL = "IOTDB-0032";
     public static final String PRIV_TIMESERIES_FAIL_MSG = "测点路径权限操作失败";
 
+    public static final String GET_RECORD_FAIL = "IOTDB-0033";
+    public static final String GET_RECORD_FAIL_MSG = "获取测点记录失败";
+
+    public static final String NO_SQL = "IOTDB-0034";
+    public static final String NO_SQL_MSG = "没有sql执行语句";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
@@ -181,6 +187,13 @@ public class ErrorCode {
 
     public static final String GET_MSM_DES_FAIL = "MEASU-0003";
     public static final String GET_MSM_DES_FAIL_MSG = "获取测点描述信息失败";
+
+    // 查询表相关
+    public static final String QUERY_EXIST = "QUERY-0001";
+    public static final String QUERY_EXIST_MSG = "脚本名已存在";
+
+    public static final String QUERY_NOT_EXIST = "QUERY-0002";;
+    public static final String QUERY_NOT_EXIST_MSG = "脚本不存在";
 
     // 参数校验相关
     public static final String WRONG_PARAM = "PARAM-0001";

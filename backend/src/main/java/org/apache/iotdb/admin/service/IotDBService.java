@@ -4,6 +4,7 @@ import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
+import org.apache.iotdb.admin.model.vo.RecordVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
 import org.apache.iotdb.session.pool.SessionPool;
 
@@ -68,4 +69,8 @@ public interface IotDBService {
     List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
 
     void setUserPrivileges(Connection connection, String userName,IotDBUserDTO iotDBUserDTO) throws BaseException;
+
+    RecordVO getRecords(Connection connection, String deviceName, String timeseriesName) throws BaseException;
+
+    SqlResultVO queryAll(Connection connection, List<String> sqls) throws BaseException;
 }
