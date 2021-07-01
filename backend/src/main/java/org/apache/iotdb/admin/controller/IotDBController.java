@@ -143,20 +143,26 @@ public class IotDBController<T> {
         groupName = "root." + groupName;
         StorageGroup group = groupService.getGroupInfo(serverId, groupName);
         String ttl = iotDBService.getGroupTTL(connection, groupName);
-        Long totalTime = Long.valueOf(ttl);
-        String ttlUnit = getTTL(totalTime);
-        Long times = switchTime(ttlUnit);
-        ttl = String.valueOf(totalTime / times);
+        String ttlUnit;
         GroupVO groupVO = new GroupVO();
-        groupVO.setCreator(group.getCreator());
-        groupVO.setDescription(group.getDescription());
-        Date date = new Date(group.getCreateTime());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        String createTime = simpleDateFormat.format(date);
-        groupVO.setCreateTime(createTime);
-        groupVO.setTtl(ttl);
-        groupVO.setTtiUnit(ttlUnit);
-        groupVO.setGroupName(groupName);
+        if (ttl != null && !"null".equalsIgnoreCase(ttl)) {
+            Long totalTime = Long.valueOf(ttl);
+            ttlUnit = getTTL(totalTime);
+            Long times = switchTime(ttlUnit);
+            ttl = String.valueOf(totalTime / times);
+            groupVO.setTtl(ttl);
+        } else {
+            groupVO.setTtl(null);
+        }
+        if (group != null) {
+            groupVO.setCreator(group.getCreator());
+            groupVO.setDescription(group.getDescription());
+            Date date = new Date(group.getCreateTime());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String createTime = simpleDateFormat.format(date);
+            groupVO.setCreateTime(createTime);
+        }
+        groupVO.setGroupName(groupName.replaceFirst("root.",""));
         groupVO.setAlias(connection.getAlias());
         // 描述 创建人 创建时间
         return BaseVO.success("获取成功", groupVO);
