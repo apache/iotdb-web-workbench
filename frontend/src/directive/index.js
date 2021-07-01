@@ -1,4 +1,4 @@
-import icon from "./icon.js";
+import icon from './icon.js';
 
 export default (app) => {
   icon(app);
