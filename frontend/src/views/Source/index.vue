@@ -126,12 +126,12 @@
                                         ></el-input>
 
                                         <div>
-                                            <el-button @click="cancelNew()"
-                                                >取消</el-button
-                                            >
-                                            <el-button type="primary"
-                                                >确定</el-button
-                                            >
+                                            <el-button @click="cancelNew()">{{
+                                                $t("common.cancel")
+                                            }}</el-button>
+                                            <el-button type="primary">{{
+                                                $t("common.submit")
+                                            }}</el-button>
                                         </div>
                                     </el-form-item>
                                 </el-form>
@@ -141,8 +141,74 @@
                             v-if="!isNew"
                             :label="$t('sourcePage.accountPermit')"
                             name="2"
-                            >dsdsd</el-tab-pane
                         >
+                            <el-table :data="authTableData" style="width: 100%">
+                                <el-table-column
+                                    show-overflow-tooltip
+                                    :label="$t('sourcePage.path')"
+                                    width="180"
+                                >
+                                    <template #default="scope">
+                                        <span v-if="!scope.row.edit">{{
+                                            pathMap[scope.row.type]
+                                        }}</span>
+                                        <el-select
+                                            v-if="scope.row.edit"
+                                            v-model="scope.row.type"
+                                        >
+                                            <el-option
+                                                v-for="item in pathList"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value"
+                                            ></el-option>
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                    show-overflow-tooltip
+                                    prop="range"
+                                    :label="$t('sourcePage.range')"
+                                >
+                                </el-table-column>
+                                <el-table-column :label="$t('sourcePage.func')">
+                                    <template #default="scope">
+                                        <el-checkbox-group
+                                            v-model="scope.row.privileges"
+                                        >
+                                            <el-checkbox
+                                                v-for="item in funcList[
+                                                    scope.row.type
+                                                ]"
+                                                :label="item.label"
+                                                :key="item.id"
+                                            ></el-checkbox>
+                                        </el-checkbox-group>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column
+                                    :label="$t('common.operation')"
+                                >
+                                    <template #default="scope">
+                                        <!-- @click="handleClick(scope.row)" -->
+
+                                        <el-button type="text" size="small"
+                                            >{{ $t("common.edit")
+                                            }}{{ scope.row.ttl }}</el-button
+                                        >
+                                        <el-button
+                                            type="text"
+                                            size="small"
+                                            class="el-button-delete"
+                                            >{{
+                                                $t("common.delete")
+                                            }}</el-button
+                                        >
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-tab-pane>
                     </el-tabs>
                 </div>
             </div>
@@ -207,10 +273,15 @@ import {
     ElForm,
     ElFormItem,
     ElInput,
+    ElSelect,
+    ElOption,
+    ElCheckbox,
+    ElCheckboxGroup,
 } from "element-plus";
 import NewSource from "./components/newSource.vue";
 import { useI18n } from "vue-i18n";
-
+import axios from "@/util/axios.js";
+import { useRouter } from "vue-router";
 export default {
     name: "Source",
     setup() {
@@ -218,6 +289,19 @@ export default {
         let showDialog = ref(false);
         let types = ref(0);
         let activeName = ref("1");
+        const router = useRouter();
+        const pathList = reactive([
+            { label: t("sourcePage.selectAlias"), value: 0 },
+            { label: t("sourcePage.selectGroup"), value: 1 },
+            { label: t("sourcePage.selectDevice"), value: 2 },
+            { label: t("sourcePage.selectTime"), value: 3 },
+        ]);
+        const pathMap = reactive({
+            0: t("sourcePage.selectAlias"),
+            1: t("sourcePage.selectGroup"),
+            2: t("sourcePage.selectDevice"),
+            3: t("sourcePage.selectTime"),
+        });
         let userList = reactive([
             { name: "ewew" },
             { name: "dsdsd" },
@@ -257,9 +341,69 @@ export default {
                 },
             ],
         });
+        let authTableData = reactive([
+            { type: 0, edit: false, privileges: [] },
+            { type: 2, edit: true, privileges: [] },
+        ]);
         let activeIndex = ref(null);
         let edit = ref(false);
         let isNew = ref(false);
+
+        const funcTypeOne = reactive([
+            { id: "SET_STORAGE_GROUP", label: t("sourcePage.createGroup") },
+            { id: "CREATE_USER", label: t("sourcePage.createUser") },
+            { id: "DELETE_USER", label: t("sourcePage.deleteUser") },
+            { id: "MODIFY_PASSWORD", label: t("sourcePage.editPassword") },
+            { id: "LIST_USER", label: t("sourcePage.listUser") },
+            {
+                id: "GRANT_USER_PRIVILEGE",
+                label: t("sourcePage.grantPrivilege"),
+            },
+            {
+                id: "REVOKE_USER_PRIVILEGE",
+                label: t("sourcePage.revertPrivilege"),
+            },
+            {
+                id: "CREATE_TIMESERIES",
+                label: t("sourcePage.createTimeSeries"),
+            },
+            {
+                id: "INSERT_TIMESERIES",
+                label: t("sourcePage.insertTimeSeries"),
+            },
+            { id: "READ_TIMESERIES", label: t("sourcePage.readTimeSeries") },
+            {
+                id: "DELETE_TIMESERIES",
+                label: t("sourcePage.deleteTimeSeries"),
+            },
+            { id: "CREATE_TRIGGER", label: t("sourcePage.createTrigger") },
+            { id: "DROP_TRIGGER", label: t("sourcePage.uninstallTrigger") },
+            { id: "START_TRIGGER", label: t("sourcePage.startTrigger") },
+            { id: "STOP_TRIGGER", label: t("sourcePage.stopTrigger") },
+            { id: "CREATE_FUNCTION", label: t("sourcePage.createFunction") },
+            { id: "DROP_FUNCTION", label: t("sourcePage.uninstallFunction") },
+        ]);
+        const funcTypeTwo = reactive([
+            {
+                id: "CREATE_TIMESERIES",
+                label: t("sourcePage.createTimeSeries"),
+            },
+            {
+                id: "INSERT_TIMESERIES",
+                label: t("sourcePage.insertTimeSeries"),
+            },
+            { id: "READ_TIMESERIES", label: t("sourcePage.readTimeSeries") },
+            {
+                id: "DELETE_TIMESERIES",
+                label: t("sourcePage.deleteTimeSeries"),
+            },
+        ]);
+        const funcList = reactive({
+            0: funcTypeOne,
+            1: funcTypeTwo,
+            2: funcTypeTwo,
+            3: funcTypeTwo,
+        });
         const newSource = () => {
             showDialog.value = true;
             types.value = 0;
@@ -291,7 +435,16 @@ export default {
         const cancelNew = () => {
             isNew.value = false;
         };
-        onMounted(() => {});
+        onMounted(() => {
+            axios
+                .get(
+                    `/servers/${router.currentRoute.value.params.serverid}`,
+                    {}
+                )
+                .then((res) => {
+                    console.log(res, "kk");
+                });
+        });
 
         return {
             newSource,
@@ -315,6 +468,12 @@ export default {
             newUser,
             isNew,
             cancelNew,
+            authTableData,
+            pathList,
+            pathMap,
+            funcTypeOne,
+            funcTypeTwo,
+            funcList,
         };
     },
     components: {
@@ -327,6 +486,10 @@ export default {
         ElForm,
         ElFormItem,
         ElInput,
+        ElSelect,
+        ElOption,
+        ElCheckbox,
+        ElCheckboxGroup,
     },
 };
 </script>
