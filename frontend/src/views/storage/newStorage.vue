@@ -1,6 +1,6 @@
 <template>
   <div class="new-storage-container">
-    <p>{{ $t('storagePage.alias') }}:ccccccccc</p>
+    <p>{{ $t('storagePage.alias') }}:{{ alias }}</p>
     <el-form ref="formRef" :model="form" :rules="rules" class="source-form" label-position="top">
       <el-form-item :label="$t('storagePage.groupName')" prop="groupName" class="form-input-item">
         <el-input v-model="form.groupName"></el-input>
@@ -43,6 +43,7 @@ export default {
     const { t } = useI18n();
     const router = useRouter();
     let formRef = ref(null);
+    let alias = ref(null);
     const rules = reactive({
       groupName: [
         {
@@ -76,6 +77,7 @@ export default {
           form.ttl = res.data.ttl;
           form.ttlUnit = res.data.ttlUnit;
           form.description = res.data.description;
+          alias.value = res.data.alias;
         }
       });
     };
@@ -102,9 +104,18 @@ export default {
         }
       });
     };
+    const getServerName = () => {
+      axios.get(`/servers/${router.currentRoute.value.params.serverid}`, {}).then((res) => {
+        if (res && res.code == 0) {
+          alias.value = res.data.alias;
+        }
+      });
+    };
     onMounted(() => {
       if (router.currentRoute.value.params.groupname) {
         getGroupDetail();
+      } else {
+        getServerName();
       }
     });
 
@@ -115,6 +126,7 @@ export default {
       form,
       submit,
       cancel,
+      alias,
     };
   },
   components: {

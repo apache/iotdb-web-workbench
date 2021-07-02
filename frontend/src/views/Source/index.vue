@@ -121,10 +121,10 @@
         </svg>
         {{ $t('sourcePage.groupInfo') }}
       </div>
-      <el-table :data="tableData" style="width: 100%">
-        <el-table-column prop="groupName" :label="$t('sourcePage.groupName')" width="180"> </el-table-column>
+      <el-table :data="tableData" class="group-table">
+        <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
         <el-table-column prop="description" :label="$t('sourcePage.description')"> </el-table-column>
-        <el-table-column prop="ttl" :label="$t('sourcePage.line')"> </el-table-column>
+        <el-table-column prop="deviceCount" :label="$t('sourcePage.line')"> </el-table-column>
         <el-table-column :label="$t('common.operation')">
           <template #default="scope">
             <!-- @click="handleClick(scope.row)" -->
@@ -132,7 +132,7 @@
             <el-button type="text" size="small">
               {{ $t('common.edit') }}
             </el-button>
-            <el-button type="text" size="small">
+            <el-button type="text" size="small" class="el-button-delete">
               {{ $t('common.delete') }}
             </el-button>
           </template>
@@ -178,13 +178,7 @@ export default {
       port: '',
       alias: '',
     });
-    let tableData = reactive([
-      {
-        groupName: '2016-05-02',
-        ttl: '王小虎',
-        description: '上海市普陀区金沙江路 1518 弄',
-      },
-    ]);
+    let tableData = ref([]);
     let baseInfoForm = reactive({
       userName: 'dsdsds',
       password: '123456',
@@ -353,7 +347,7 @@ export default {
       });
     };
     const getUserAuth = (data) => {
-        console.log(data)
+      console.log(data);
       //   axios.get(`/servers/${router.currentRoute.value.params.serverid}/users/${data.username}`, {}).then((res) => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/users/test`, {}).then((res) => {
         if (res && res.code == 0) {
@@ -361,10 +355,18 @@ export default {
         }
       });
     };
+    const getGroupList = () => {
+      axios.get(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/info`, {}).then((res) => {
+        if (res && res.code == 0) {
+          tableData.value = res.data;
+        }
+      });
+    };
     onMounted(() => {
       getBaseInfo((data) => {
         getUserAuth(data);
       });
+      getGroupList();
     });
 
     return {
@@ -470,6 +472,7 @@ export default {
             float: right;
             font-size: 12px;
             margin-top: -7px;
+            padding-right: 0;
           }
         }
         .user-list {
@@ -554,6 +557,21 @@ export default {
       font-size: 16px;
       cursor: pointer;
       margin-right: 4px;
+    }
+  }
+  .storage-box {
+    .group-table {
+      width: 100%;
+      padding: 10px;
+      max-height: 250px;
+      overflow: auto;
+      // &::v-deep .el-table__body-wrapper {
+      //   max-height: 30vh;
+      //   overflow: auto !important;
+      // }
+      .el-button {
+        padding-left: 0;
+      }
     }
   }
 }
