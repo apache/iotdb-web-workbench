@@ -36,6 +36,26 @@ const routes = [
             name: 'NewStorage',
             component: () => import(/* webpackChunkName: "NewStorage" */ '../views/storage/newStorage.vue'),
           },
+          {
+            path: 'storage/edit/:serverid/:groupname',
+            name: 'EditStorage',
+            component: () => import(/* webpackChunkName: "EditStorage" */ '../views/storage/newStorage.vue'),
+          },
+          {
+            path: 'device',
+            name: 'Device',
+            component: () => import('../views/Device'),
+          },
+          {
+            path: 'devicemessage',
+            name: 'DeviceMessage',
+            component: () => import('../views/DeviceMessage'),
+          },
+          {
+            path: 'sqlserch',
+            name: 'SqlSerch',
+            component: () => import('../views/SqlSerch'),
+          },
         ],
       },
     ],

@@ -86,6 +86,7 @@ export default {
             if (res?.data?.code === '0') {
               localStorage.setItem('authorization', res?.headers?.authorization);
               store.commit('setLogin', true);
+              store.commit('setUserInfo', res.data || {});
               router.push({ name: 'Root' });
             }
           });
