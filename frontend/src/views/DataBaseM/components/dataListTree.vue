@@ -24,7 +24,18 @@
         </template>
       </el-input>
     </div>
-    <el-tree ref="treeRef" highlight-current node-key="id" :indent="20" :props="treeProps" @node-click="nodeClick" :load="loadNode" lazy :current-node-key="nodekey">
+    <el-tree
+      v-if="store.state?.userInfo?.userId !== undefined"
+      ref="treeRef"
+      highlight-current
+      node-key="id"
+      :indent="20"
+      :props="treeProps"
+      @node-click="nodeClick"
+      :load="loadNode"
+      lazy
+      :current-node-key="nodekey"
+    >
       <template #default="{ node, data }">
         <span class="custom-tree-node">
           <span v-if="data.type !== 1" class="custom-tree-node-icon"
@@ -41,6 +52,8 @@
 <script>
 import { ElTree, ElInput, ElTooltip } from 'element-plus';
 import { reactive, ref } from 'vue';
+import { useStore } from 'vuex';
+import axios from '@/util/axios.js';
 
 export default {
   name: 'DataListTree',
@@ -53,7 +66,7 @@ export default {
     });
     const searchVal = ref('');
     const treeRef = ref(null);
-
+    const store = useStore();
     const searchClick = () => {
       console.log('jj');
     };
@@ -66,6 +79,12 @@ export default {
 
     const loadNode = (node, resolve) => {
       if (node.level === 0) {
+        axios.get('/servers', { params: { userId: store.state?.userInfo?.userId } }).then((res) => {
+          if (res?.data?.code === '0') {
+            console.log(11);
+          }
+        });
+
         return resolve([{ name: 'region', id: '1' }]);
       }
       if (node.level === 3) {
@@ -141,6 +160,7 @@ export default {
     };
 
     return {
+      store,
       loadNode,
       searchClick,
       nodeClick,
