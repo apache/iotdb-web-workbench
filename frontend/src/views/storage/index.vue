@@ -47,10 +47,11 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { ElDescriptions, ElDescriptionsItem, ElInput, ElButton, ElTable, ElTableColumn, ElPagination } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import axios from '@/util/axios.js';
 
 export default {
   name: 'Storage',
@@ -58,22 +59,9 @@ export default {
     const { t } = useI18n();
     const router = useRouter();
 
-    let baseInfo = reactive({
-      groupName: 'dsdsdsddsdsdsd',
-      creator: 'dsds',
-      createTime: 'dsdsd',
-      ttl: '34',
-      ttlUnit: '秒',
-      description: 'ewewewewe',
-      alias: 'ewewewewewewewewewewewewewewewew',
-    });
+    let baseInfo = ref({});
     let searchVal = ref(null);
-    let tableData = reactive([
-      { deviceName: '1s', creator: 'ds', line: 'ds' },
-      { deviceName: '2s', creator: 'ds', line: 'ds' },
-      { deviceName: '3s', creator: 'ds', line: 'ds' },
-      { deviceName: '4s', creator: 'ds', line: 'ds' },
-    ]);
+    let tableData = ref([]);
     let currentPage = ref(1);
     const pageSize = ref(15);
     let total = ref(0);
@@ -89,7 +77,45 @@ export default {
         params: { serverid: router.currentRoute.value.params.serverid },
       });
     };
-    onMounted(() => {});
+    /**
+     * 获取存储组详情
+     * serverid: 连接id
+     * groupname:存储组名
+     */
+    const getGroupDetail = () => {
+      axios.get(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${router.currentRoute.value.params.groupname}`, {}).then((res) => {
+        if (res && res.code == 0) {
+          baseInfo.value = res.data;
+        }
+      });
+    };
+    /**
+     * 获取存储组下面的实体列表
+     * serverid: 连接id
+     * groupname:存储组名
+     */
+    const getDeviceList = () => {
+      axios
+        .get(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${router.currentRoute.value.params.groupname}/devices/info`, {
+          params: {
+            pageSize: pageSize.value,
+            pageNum: currentPage.value,
+          },
+        })
+        .then((res) => {
+          if (res && res.code == 0) {
+            tableData.value = res.data.deviceInfos || [];
+            total.value = res.data.totalCount || 0;
+          } else {
+            tableData.value = [];
+            total.value = 0;
+          }
+        });
+    };
+    onMounted(() => {
+      getGroupDetail();
+      getDeviceList();
+    });
 
     return {
       t,
@@ -102,6 +128,8 @@ export default {
       handleSelectionChange,
       handleCurrentChange,
       editGroup,
+      getGroupDetail,
+      getDeviceList,
     };
   },
   components: {

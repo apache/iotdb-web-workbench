@@ -1,6 +1,7 @@
 import { createStore } from 'vuex';
 import moduleA from './moduleA';
 import axios from '@/util/axios.js';
+// import storage from './storage';
 
 export default createStore({
   state: () => ({
@@ -32,5 +33,6 @@ export default createStore({
   },
   modules: {
     a: moduleA,
+    // storage,
   },
 });

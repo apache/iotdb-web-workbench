@@ -17,4 +17,5 @@ public class ConnectionVO implements Serializable {
 
     List<ConnVO> aliasList;
     Integer userId;
+    String name;
 }

@@ -46,7 +46,7 @@ public class UserController {
         User user = userService.login(name, password);
         int userId = user.getId();
         List<ConnVO> connVOs = connectionService.getAllConnections(userId);
-        ConnectionVO connectionVO = new ConnectionVO(connVOs,userId);
+        ConnectionVO connectionVO = new ConnectionVO(connVOs,userId,name);
         response.addHeader("Authorization",getToken(user));
         return BaseVO.success("登录成功",connectionVO);
     }

@@ -1,14 +1,10 @@
 package org.apache.iotdb.admin.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
-import org.apache.iotdb.admin.model.vo.IotDBUserVO;
-import org.apache.iotdb.admin.model.vo.PathVO;
-import org.apache.iotdb.admin.model.vo.PrivilegeInfo;
-import org.apache.iotdb.admin.model.vo.SqlResultVO;
+import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.IotDBService;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
@@ -24,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.util.Date;
 import java.util.*;
 
 
@@ -36,12 +33,35 @@ public class IotDBServiceImpl implements IotDBService {
 
     private static final String NO_NEED_PRIVILEGES = "SET_STORAGE_GROUP";
 
+    private static final List<String> PRIVILEGES = new ArrayList<>();
+
     static {
         SPECIAL_PRIVILEGES.put("CREATE_TIMESERIES",true);
         SPECIAL_PRIVILEGES.put("INSERT_TIMESERIES",true);
         SPECIAL_PRIVILEGES.put("READ_TIMESERIES",true);
         SPECIAL_PRIVILEGES.put("DELETE_TIMESERIES",true);
     }
+
+    static {
+        PRIVILEGES.add("SET_STORAGE_GROUP");
+        PRIVILEGES.add("CREATE_TIMESERIES");
+        PRIVILEGES.add("INSERT_TIMESERIES");
+        PRIVILEGES.add("READ_TIMESERIES");
+        PRIVILEGES.add("DELETE_TIMESERIES");
+        PRIVILEGES.add("CREATE_USER");
+        PRIVILEGES.add("DELETE_USER");
+        PRIVILEGES.add("MODIFY_PASSWORD");
+        PRIVILEGES.add("LIST_USER");
+        PRIVILEGES.add("GRANT_USER_PRIVILEGE");
+        PRIVILEGES.add("REVOKE_USER_PRIVILEGE");
+        PRIVILEGES.add("CREATE_FUNCTION");
+        PRIVILEGES.add("DROP_FUNCTION");
+        PRIVILEGES.add("CREATE_TRIGGER");
+        PRIVILEGES.add("DROP_TRIGGER");
+        PRIVILEGES.add("START_TRIGGER");
+        PRIVILEGES.add("STOP_TRIGGER");
+    }
+
 
     @Override
     public List<String> getAllStorageGroups(Connection connection) throws BaseException {
@@ -136,10 +156,19 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException {
         paramValid(userName);
-        SessionPool sessionpool = getSessionPool(connection);
         IotDBUserVO iotDBUserVO = new IotDBUserVO();
         iotDBUserVO.setUserName(connection.getUsername());
         iotDBUserVO.setPassword(connection.getPassword());
+        if ("root".equalsIgnoreCase(userName)) {
+            List<PrivilegeInfo> privilegeInfos = new ArrayList<>();
+            PrivilegeInfo privilegeInfo = new PrivilegeInfo();
+            privilegeInfo.setType(0);
+            privilegeInfo.setPrivileges(PRIVILEGES);
+            privilegeInfos.add(privilegeInfo);
+            iotDBUserVO.setPrivilegesInfo(privilegeInfos);
+            return iotDBUserVO;
+        }
+        SessionPool sessionpool = getSessionPool(connection);
         String sql = "list user privileges " + userName;
         try {
             SessionDataSetWrapper sessionDataSetWrapper =  sessionpool.executeQueryStatement(sql);
@@ -533,7 +562,7 @@ public class IotDBServiceImpl implements IotDBService {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
         String sql = "show timeseries " + deviceName;
-        SqlResultVO sqlResultVO = executeQuery(sessionPool, sql);
+        SqlResultVO sqlResultVO = executeQuery(sessionPool, sql,true);
         List<String> metaDataList = sqlResultVO.getMetaDataList();
         int index = -1;
         if (metaDataList != null) {
@@ -573,6 +602,74 @@ public class IotDBServiceImpl implements IotDBService {
                 }
             }
         }
+    }
+
+    @Override
+    public RecordVO getRecords(Connection connection, String deviceName, String timeseriesName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        RecordVO recordVO = new RecordVO();
+        List<Date> timeList = new ArrayList<>();
+        List<Long> valueList = new ArrayList<>();
+        String sql = "select time," + timeseriesName + " from " +  deviceName + " order by time desc limit 200 offset 0";
+        try {
+            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord next = sessionDataSetWrapper.next();
+                    Date date = new Date(next.getTimestamp());
+                    timeList.add(date);
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
+                    Long value = Long.valueOf(fields.get(0).toString());
+                    valueList.add(value);
+                }
+            }
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_RECORD_FAIL,ErrorCode.GET_RECORD_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_RECORD_FAIL,ErrorCode.GET_RECORD_FAIL_MSG);
+        }
+        recordVO.setTimeList(timeList);
+        recordVO.setValueList(valueList);
+        return recordVO;
+    }
+
+    @Override
+    public SqlResultVO queryAll(Connection connection, List<String> sqls) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<String> querySqls = new ArrayList<>();
+        String hasResultSql = null;
+        for (String sql : sqls) {
+            int firstSpaceIndex = sql.indexOf(" ");
+            String judge = sql.substring(0, firstSpaceIndex);
+            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge)) {
+                hasResultSql = sql;
+                continue;
+            }
+            querySqls.add(sql);
+        }
+        SqlResultVO sqlResultVO = new SqlResultVO();
+        if (hasResultSql != null) {
+            sqlResultVO = executeQuery(sessionPool, hasResultSql,false);
+        }
+        for (String querySql : querySqls) {
+            try {
+                sessionPool.executeNonQueryStatement(querySql);
+            } catch (StatementExecutionException e) {
+                logger.error(e.getMessage());
+                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG + ":" + querySql +"执行出错,错误信息["+e.getMessage()+"]");
+            } catch (IoTDBConnectionException e) {
+                logger.error(e.getMessage());
+                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG + ":" + querySql +"执行出错,错误信息["+e.getMessage()+"]");
+            } finally {
+                if (sessionPool != null) {
+                    sessionPool.close();
+                }
+            }
+        }
+        return sqlResultVO;
     }
 
     private void grantOrRevoke(String word, List<String> privileges,String userName,PrivilegeInfoDTO privilegesInfo,SessionPool sessionPool) throws BaseException {
@@ -700,7 +797,7 @@ public class IotDBServiceImpl implements IotDBService {
         throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
     }
 
-    private SqlResultVO executeQuery(SessionPool sessionPool, String sql) throws BaseException {
+    private SqlResultVO executeQuery(SessionPool sessionPool, String sql,Boolean closePool) throws BaseException {
         SqlResultVO sqlResultVO = new SqlResultVO();
         List<List<String>> valuelist = new ArrayList<>();
         try {
@@ -722,7 +819,8 @@ public class IotDBServiceImpl implements IotDBService {
                     valuelist.add(strList);
                 }
                 long end = System.currentTimeMillis();
-                String queryTime = (end - start) / 1000  + "." + (end - start) % 1000 + "s";
+                double time = (end - start + 0.0d) / 1000;
+                String queryTime = time + "s";
                 sqlResultVO.setQueryTime(queryTime);
                 sqlResultVO.setLine(count);
             }
@@ -733,7 +831,7 @@ public class IotDBServiceImpl implements IotDBService {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
         } finally {
-            if (sessionPool != null) {
+            if (sessionPool != null && closePool) {
                 sessionPool.close();
             }
         }
