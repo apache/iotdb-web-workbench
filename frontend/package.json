@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "codemirror": "^5.62.0",
     "core-js": "^3.6.5",
     "echarts": "^5.1.2",
     "element-plus": "^1.0.2-beta.45",
