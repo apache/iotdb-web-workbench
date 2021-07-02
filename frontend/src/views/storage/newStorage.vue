@@ -97,7 +97,6 @@ export default {
             ttl: +form.ttl,
             ttlUnit: form.ttlUnit,
           };
-          console.log(reqObj);
           axios.post(`/servers/${router.currentRoute.value.params.serverid}/storageGroups`, { ...reqObj }).then((res) => {
             console.log(res, 'kk');
           });

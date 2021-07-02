@@ -41,9 +41,11 @@
 <script>
 // @ is an alias to /src
 import { onMounted, reactive, ref } from 'vue';
-import { ElDialog, ElButton, ElForm, ElInput, ElFormItem } from 'element-plus';
+import { ElDialog, ElButton, ElForm, ElInput, ElFormItem, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
+import { useStore } from 'vuex';
+// import { useRoute } from 'vue-router';
 
 export default {
   name: 'NewSource',
@@ -55,9 +57,14 @@ export default {
     types: {
       type: Number,
     },
+    serverId: {
+      type: Number,
+    },
   },
-  setup() {
+  setup(props) {
     const { t } = useI18n();
+    const store = useStore();
+    // const router = useRoute();
     let form = reactive({
       alias: '',
       host: '',
@@ -105,20 +112,46 @@ export default {
     });
     const submit = () => {
       formRef.value.validate((valid) => {
+        let connection = {
+          alias: form.alias,
+          host: form.host,
+          port: form.port,
+          username: form.username,
+          password: form.password,
+          userId: store.state.userInfo.userId || null,
+        };
         if (valid) {
-          axios.post('/servers', {}).then((res) => {
-            console.log(res, 'kk');
+          axios.post('/servers', { ...connection }).then((res) => {
+            if (res && res.code == 0) {
+              ElMessage.success('新增数据连接成功');
+            }
           });
         }
       });
     };
-    onMounted(() => {});
+    const getBaseInfo = () => {
+      axios.get(`/servers/${props.serverId}`, {}).then((res) => {
+        if (res && res.code == 0) {
+          form.alias = res.data.alias;
+          form.host = res.data.host;
+          form.port = res.data.port;
+          form.username = res.data.username;
+          form.password = res.data.password;
+        }
+      });
+    };
+    onMounted(() => {
+      if (props.types == 1) {
+        getBaseInfo();
+      }
+    });
 
     return {
       form,
       formRef,
       rules,
       submit,
+      getBaseInfo,
     };
   },
   components: {

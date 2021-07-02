@@ -21,8 +21,8 @@
             <el-button type="text" @click="newUser()">{{ $t('sourcePage.newAccount') }}</el-button>
           </p>
           <ul class="user-list">
-            <li v-for="(item, index) in userList" :class="activeIndex == index ? 'active' : ''" :key="index" @click="handleUser(index)">
-              <span class="content">{{ item.name }}</span>
+            <li v-for="(item, index) in userList" :class="activeIndex == index ? 'active' : ''" :key="index" @click="handleUser(index, item)">
+              <span class="content">{{ item.username }}</span>
               <svg v-if="activeIndex == index" class="icon" aria-hidden="true" @click="deleteUser()">
                 <use xlink:href="#icon-se-icon-delete"></use>
               </svg>
@@ -74,23 +74,59 @@
                 <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
                   <template #default="scope">
                     <span v-if="!scope.row.edit">{{ pathMap[scope.row.type] }}</span>
-                    <el-select v-if="scope.row.edit" v-model="scope.row.type">
+                    <el-select v-if="scope.row.edit" v-model="scope.row.type" disabled>
                       <el-option v-for="item in pathList" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                   </template>
                 </el-table-column>
-                <el-table-column show-overflow-tooltip prop="range" :label="$t('sourcePage.range')"> </el-table-column>
+                <el-table-column show-overflow-tooltip :label="$t('sourcePage.range')">
+                  <template #default="scope">
+                    <div v-if="scope.row.type == 0">-</div>
+                    <div v-else-if="scope.row.type == 1">
+                      <div v-if="scope.row.edit">
+                        <el-select v-model="scope.row.groupPaths" multiple>
+                          <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                        </el-select>
+                      </div>
+                      <div v-else>
+                        <span v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</span>
+                      </div>
+                    </div>
+                    <div v-else-if="scope.row.type == 2">
+                      <div v-if="scope.row.edit">
+                        <el-select class="row-select-range" v-model="scope.row.groupPaths[0]">
+                          <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                        </el-select>
+                        <el-select class="row-select-range" v-model="scope.row.devicePaths" multiple>
+                          <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
+                        </el-select>
+                      </div>
+                      <div v-else>
+                        <span v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</span>
+                      </div>
+                    </div>
+                    <div v-else-if="scope.row.type == 3">
+                      <div v-if="scope.row.edit">
+                        <el-select class="row-select-range" v-model="scope.row.groupPaths[0]">
+                          <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                        </el-select>
+                        <el-select class="row-select-range" v-model="scope.row.devicePaths[0]">
+                          <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
+                        </el-select>
+                        <el-select class="row-select-range" v-model="scope.row.timeseriesPaths" multiple>
+                          <el-option v-for="item in scope.row.allTimeseriesPaths" :key="item" :value="item" :label="item"></el-option>
+                        </el-select>
+                      </div>
+                      <div v-else>
+                        <span v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</span>
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
                 <el-table-column :label="$t('sourcePage.func')">
                   <template #default="scope">
-                    <el-checkbox-group v-model="scope.row.privileges">
-                      <el-checkbox
-                        :class="scope.row.edit ? '' : 'show-only'"
-                        v-for="item in funcList[scope.row.type]"
-                        :label="item.label"
-                        :key="item.id"
-                        :disabled="!scope.row.edit"
-                        @change="changeCheckItem(scope)"
-                      ></el-checkbox>
+                    <el-checkbox-group v-model="scope.row.privileges" :class="scope.row.edit ? '' : 'show-only'">
+                      <el-checkbox :disabled="!scope.row.edit" v-for="item in funcList[scope.row.type]" :label="item.id" :key="item.id" @change="changeCheckItem(scope)">{{ item.label }}</el-checkbox>
                     </el-checkbox-group>
                   </template>
                 </el-table-column>
@@ -121,7 +157,7 @@
         </svg>
         {{ $t('sourcePage.groupInfo') }}
       </div>
-      <el-table :data="tableData" class="group-table">
+      <el-table :data="tableData" class="group-table" max-height="250">
         <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
         <el-table-column prop="description" :label="$t('sourcePage.description')"> </el-table-column>
         <el-table-column prop="deviceCount" :label="$t('sourcePage.line')"> </el-table-column>
@@ -140,7 +176,7 @@
       </el-table>
     </div>
     <el-button @click="newSource()">新建数据源</el-button>
-    <NewSource v-if="showDialog" :showDialog="showDialog" :types="types" @close="close()" />
+    <NewSource v-if="showDialog" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" />
   </div>
 </template>
 
@@ -172,17 +208,14 @@ export default {
       2: t('sourcePage.selectDevice'),
       3: t('sourcePage.selectTime'),
     });
-    let userList = reactive([{ name: 'ewew' }, { name: 'dsdsd' }, { name: 'ewew' }, { name: 'dsdsd' }]);
+    let userList = ref([]);
     let baseInfo = ref({
       host: '',
       port: '',
       alias: '',
     });
     let tableData = ref([]);
-    let baseInfoForm = reactive({
-      userName: 'dsdsds',
-      password: '123456',
-    });
+    let baseInfoForm = reactive({});
     const baseInfoFormRef = ref(null);
     const baseRules = reactive({
       password: [
@@ -200,14 +233,11 @@ export default {
         },
       ],
     });
-    let authTableData = reactive([
-      { type: 0, edit: false, privileges: [] },
-      { type: 2, edit: true, privileges: [] },
-    ]);
-    let activeIndex = ref(null);
+    let authTableData = ref([]);
+    let activeIndex = ref(0);
     let edit = ref(false);
     let isNew = ref(false);
-
+    const serverId = ref(null);
     const funcTypeOne = reactive([
       { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
       { id: 'CREATE_USER', label: t('sourcePage.createUser') },
@@ -264,11 +294,15 @@ export default {
       3: funcTypeTwo,
     });
     /**
+     * 用户基本信息及所有权限列表
+     */
+    let userAuthInfo = ref({});
+    /**
      * 新增或编辑数据连接
      */
     const newSource = () => {
       showDialog.value = true;
-      types.value = 0;
+      types.value = 1;
     };
     /**
      * 关闭或者取消新增/编辑数据连接操作
@@ -285,9 +319,12 @@ export default {
     };
     /**
      * 选中用户列表某一个用户
+     * index: 用户下标
+     * item:当前选中用户信息
      */
-    const handleUser = (index) => {
+    const handleUser = (index, item) => {
       activeIndex.value = index;
+      getUserAuth(item);
     };
     /**
      * 编辑用户基本信息(密码)
@@ -312,7 +349,8 @@ export default {
      */
     const newUser = () => {
       isNew.value = true;
-      userList.unshift({ name: 'new' });
+
+      userList.value.unshift({ username: 'new' });
     };
     /**
      * 取消新建用户
@@ -336,7 +374,7 @@ export default {
      */
     const changeEditState = (scope) => {
       console.log(scope.$index);
-      authTableData[scope.$index].edit = true;
+      authTableData.value[scope.$index].edit = true;
     };
     const getBaseInfo = (func) => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}`, {}).then((res) => {
@@ -346,12 +384,21 @@ export default {
         }
       });
     };
-    const getUserAuth = (data) => {
-      console.log(data);
-      //   axios.get(`/servers/${router.currentRoute.value.params.serverid}/users/${data.username}`, {}).then((res) => {
-      axios.get(`/servers/${router.currentRoute.value.params.serverid}/users/test`, {}).then((res) => {
+    /**
+     * 获取某一个用户权限
+     * userinfo:用户信息
+     */
+    const getUserAuth = (userinfo) => {
+      axios.get(`/servers/${router.currentRoute.value.params.serverid}/users/${userinfo.username}`, {}).then((res) => {
+        // axios.get(`/servers/${router.currentRoute.value.params.serverid}/users/test`, {}).then((res) => {
         if (res && res.code == 0) {
           console.log(res);
+          userAuthInfo.value = res.data;
+          baseInfoForm.userName = res.data.userName;
+          baseInfoForm.password = res.data.password;
+          authTableData.value = res.data.privilegesInfo;
+        } else {
+          userAuthInfo = {};
         }
       });
     };
@@ -362,11 +409,25 @@ export default {
         }
       });
     };
+    const getUserList = () => {
+      axios.get(`/servers/${router.currentRoute.value.params.serverid}/users`, {}).then((res) => {
+        if (res && res.code == 0) {
+          let temp = [];
+          for (let i = 0; i < res.data.length; i++) {
+            temp.push({ username: res.data[i] });
+          }
+          userList.value = temp;
+        }
+      });
+    };
     onMounted(() => {
+      serverId.value = router.currentRoute.value.params.serverid;
+
       getBaseInfo((data) => {
         getUserAuth(data);
       });
       getGroupList();
+      getUserList();
     });
 
     return {
@@ -385,6 +446,7 @@ export default {
       baseInfoFormRef,
       baseRules,
       edit,
+      serverId,
       editBaseInfo,
       cancelEdit,
       deleteUser,
@@ -400,6 +462,8 @@ export default {
       getBaseInfo,
       changeCheckItem,
       changeEditState,
+      userAuthInfo,
+      getUserList,
     };
   },
   components: {
@@ -459,7 +523,7 @@ export default {
       flex-direction: row;
       .left-part {
         width: 240px;
-        margin-top: 16px;
+        margin-top: 12px;
         border-right: 1px solid #f0f0f0ff;
         .title {
           height: 17px;
@@ -511,6 +575,18 @@ export default {
           // margin-left: 14px;
         }
         .show-only {
+          // &::v-deep .el-checkbox__input {
+          //   display: none;
+          // }
+          &::v-deep .el-checkbox {
+            display: none;
+          }
+          &::v-deep .is-checked {
+            display: inline-block !important;
+            .is-checked {
+              display: none !important;
+            }
+          }
           &::v-deep .el-checkbox__input {
             display: none;
           }
@@ -518,6 +594,15 @@ export default {
         &::v-deep .el-checkbox__input.is-disabled + span.el-checkbox__label {
           color: #606266;
           cursor: default;
+        }
+        .el-select {
+          width: 100%;
+        }
+        .device-path {
+          margin-right: 10px;
+        }
+        .row-select-range {
+          display: block;
         }
         .tab-content {
           padding: 10px 30px;
@@ -563,7 +648,6 @@ export default {
     .group-table {
       width: 100%;
       padding: 10px;
-      max-height: 250px;
       overflow: auto;
       // &::v-deep .el-table__body-wrapper {
       //   max-height: 30vh;
