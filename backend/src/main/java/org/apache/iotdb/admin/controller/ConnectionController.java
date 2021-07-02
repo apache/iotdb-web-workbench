@@ -80,4 +80,5 @@ public class ConnectionController {
         }
         throw new BaseException(ErrorCode.TEST_CONN_FAIL,ErrorCode.TEST_CONN_FAIL_MSG);
     }
+
 }

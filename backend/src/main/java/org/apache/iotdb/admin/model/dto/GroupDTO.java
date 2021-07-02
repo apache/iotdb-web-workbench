@@ -18,6 +18,7 @@ public class GroupDTO implements Serializable {
     private String description;
     private Long ttl;
     private String ttlUnit;
+    private Integer groupId;
 
 }
 

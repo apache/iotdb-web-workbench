@@ -80,6 +80,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
         try {
             groupMapper.delete(queryWrapper);
         } catch (Exception e) {
+//            e.printStackTrace();
             throw new BaseException(ErrorCode.DELETE_GROUP_INFO_FAIL,ErrorCode.DELETE_GROUP_INFO_FAIL_MSG);
         }
     }
@@ -90,6 +91,34 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
         queryWrapper.eq("connection_id",serverId);
         queryWrapper.eq("group_name",groupName);
         return groupMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public void updateStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("connection_id",connection.getId());
+        queryWrapper.eq("group_name",groupDTO.getGroupName());
+        StorageGroup storageGroup = groupMapper.selectOne(queryWrapper);
+        if (storageGroup != null) {
+            storageGroup.setDescription(groupDTO.getDescription());
+            int flag = groupMapper.updateById(storageGroup);
+            if (flag <= 0) {
+                throw new BaseException(ErrorCode.UPDATE_GROUP_INFO_FAIL,ErrorCode.UPDATE_GROUP_INFO_FAIL_MSG);
+            }
+        }
+        throw new BaseException(ErrorCode.NO_GROUP_INFO,ErrorCode.NO_GROUP_INFO_MSG);
+    }
+
+    @Override
+    public Integer getGroupId(Integer serverId, String groupName) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("connection_id",serverId);
+        queryWrapper.eq("group_name",groupName);
+        StorageGroup group = groupMapper.selectOne(queryWrapper);
+        if (group != null) {
+            return group.getId();
+        }
+        return null;
     }
 
     private String getDescription(Integer serverId, String groupName) throws BaseException {

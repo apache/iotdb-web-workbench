@@ -13,6 +13,7 @@ import org.apache.iotdb.admin.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.xml.ws.EndpointReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -102,6 +103,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
         if (device != null) {
             deviceVO.setCreator(device.getCreator());
             deviceVO.setDescription(device.getDescription());
+            deviceVO.setDeviceId(device.getId());
             Long createTime = device.getCreateTime();
             Date date = new Date(createTime);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -110,5 +112,18 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
             return deviceVO;
         }
         return deviceVO;
+    }
+
+    @Override
+    public void updateDeviceInfo(DeviceInfoDTO deviceInfoDTO) throws BaseException {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("id",deviceInfoDTO.getDeviceId());
+        Device existDevice = deviceMapper.selectOne(queryWrapper);
+        if (existDevice != null) {
+            existDevice.setDescription(deviceInfoDTO.getDescription());
+            deviceMapper.updateById(existDevice);
+            return;
+        }
+        throw new BaseException(ErrorCode.NO_DEVICE_INFO,ErrorCode.NO_DEVICE_INFO_MSG);
     }
 }
