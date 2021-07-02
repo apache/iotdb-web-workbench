@@ -39,7 +39,6 @@ instance.interceptors.request.use((request) => {
 
 instance.interceptors.response.use(
   (response) => {
-    console.log(response.data, 'response.data');
     if (response.data.code === 'USER-0009') {
       router.push('/login');
       return {};

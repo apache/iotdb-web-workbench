@@ -20,7 +20,7 @@
         <div class="user-btn">
           <el-dropdown @command="handleLoginCommand">
             <span class="el-dropdown-link">
-              {{ userName }}
+              {{ store.state.userInfo.name }}
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <template #dropdown>
@@ -46,7 +46,6 @@ import { onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useLangSwitch from './hooks/useLangSwitch.js';
-
 import { ElContainer, ElHeader, ElMenu, ElMenuItem, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
 
 export default {
@@ -55,8 +54,6 @@ export default {
     const router = useRouter();
     const store = useStore();
     const menuIndex = ref('1');
-    const userName = ref('admin');
-
     const { langIndex, handleLangCommand } = useLangSwitch();
     const handleMenuSelect = (key) => {
       menuIndex.value = key;
@@ -77,24 +74,22 @@ export default {
       //   router.push({ name: "Root" });
       //   return "";
       // };
-      // store.dispatch('fetchIsLogin');
+      store.dispatch('fetchIsLogin');
     });
 
     watch(
       () => {
-        return store.state.isLogin;
+        return store.state.userInfo;
       },
       (newValue) => {
-        if (!newValue) {
-          router.push({ name: 'Login' });
-        }
+        console.log(newValue, 'kkk');
       }
     );
 
     return {
+      store,
       menuIndex,
       langIndex,
-      userName,
       handleMenuSelect,
       handleLangCommand,
       handleLoginCommand,

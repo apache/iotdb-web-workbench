@@ -32,11 +32,13 @@ import { onMounted, ref } from 'vue';
 import useElementResize from './hooks/useElementResize.js';
 import DataListTree from './components/dataListTree.vue';
 import { ElContainer, ElAside, ElMain, ElTabs, ElTabPane } from 'element-plus';
+import { useStore } from 'vuex';
 
 export default {
   name: 'Root',
   setup() {
     const dividerRef = ref(null);
+    const store = useStore();
     let dividerWidth = ref(300);
     let urlTabsValue = ref('2');
     const nodekey = ref('');
@@ -87,6 +89,7 @@ export default {
     });
 
     return {
+      store,
       urlTabsValue,
       dividerRef,
       nodekey,
