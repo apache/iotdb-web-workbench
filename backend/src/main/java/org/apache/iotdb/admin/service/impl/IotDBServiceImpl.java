@@ -462,9 +462,9 @@ public class IotDBServiceImpl implements IotDBService {
         List<String> encodingsStr = new ArrayList<>();
         List<String> measurements = new ArrayList<>();
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
-            typesStr.add(deviceDTO.getType());
+            typesStr.add(deviceDTO.getDataType());
             encodingsStr.add(deviceDTO.getEncoding());
-            measurements.add(deviceDTO.getMeasurement());
+            measurements.add(deviceDTO.getTimeseries());
         }
         List<TSDataType> types = handleTypeStr(typesStr);
         List<TSEncoding> encodings = handleEncodingStr(encodingsStr);

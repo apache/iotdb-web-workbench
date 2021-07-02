@@ -11,11 +11,14 @@ import org.apache.iotdb.admin.model.entity.Device;
 import org.apache.iotdb.admin.model.entity.StorageGroup;
 import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.*;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,23 +73,18 @@ public class IotDBController<T> {
     public BaseVO<List<StorageGroupVO>> getAllStorageGroups(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
-//        StorageGroupsVO storageGroupVO = new StorageGroupsVO();
         List<StorageGroupVO> storageGroupVOList = new ArrayList<>();
         List<String> groupNames = iotDBService.getAllStorageGroups(connection);
         if (groupNames == null || groupNames.size() == 0) {
             return BaseVO.success("获取成功", storageGroupVOList);
         }
-//        List<Integer> groupIds = new ArrayList<>();
         for (String groupName : groupNames) {
             StorageGroupVO storageGroupVO = new StorageGroupVO();
             Integer id = groupService.getGroupId(serverId,groupName);
-//            groupIds.add(id);
             storageGroupVO.setGroupId(id);
+            groupName = groupName.replaceFirst("root.","");
             storageGroupVO.setGroupName(groupName);
             storageGroupVOList.add(storageGroupVO);
-        }
-        for (int i = 0; i < groupNames.size(); i++) {
-            groupNames.set(i,groupNames.get(i).replaceFirst("root.",""));
         }
         return BaseVO.success("获取成功", storageGroupVOList);
     }
@@ -235,7 +233,8 @@ public class IotDBController<T> {
         List<String> deviceNamesStr = iotDBService.getDevices(connection, groupName);
         List<String> deviceNames = new ArrayList<>();
         for (String s : deviceNamesStr) {
-            deviceNames.add(s.replaceFirst(groupName+".",""));
+            String deviceName = s.replaceFirst(groupName + ".", "");
+            deviceNames.add(deviceName);
         }
         return BaseVO.success("获取成功", deviceNames);
     }
@@ -259,7 +258,7 @@ public class IotDBController<T> {
         groupName = "root." + groupName;
         deviceInfoDTO.setDeviceName(groupName + "." + deviceInfoDTO.getDeviceName());
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
-            deviceDTO.setMeasurement(deviceInfoDTO.getDeviceName() + "." + deviceDTO.getMeasurement());
+            deviceDTO.setTimeseries(deviceInfoDTO.getDeviceName() + "." + deviceDTO.getTimeseries());
         }
         iotDBService.createDeviceWithMeasurements(connection, deviceInfoDTO);
         // 新增
@@ -336,7 +335,9 @@ public class IotDBController<T> {
         for (MeasurementDTO measurementDTO : measurementDTOList) {
             MeasurementVO measurementVO = new MeasurementVO();
             BeanUtils.copyProperties(measurementDTO, measurementVO);
-            measurementVO.setTimeseries(measurementVO.getTimeseries().replaceFirst(deviceName + ".",""));
+            if (measurementVO.getTimeseries() != null) {
+                measurementVO.setTimeseries(measurementVO.getTimeseries().replaceFirst(deviceName + ".",""));
+            }
             String description = measurementService.getDescription(serverId, measurementDTO.getTimeseries());
             String newValue = iotDBService.getLastMeasurementValue(connection, measurementDTO.getTimeseries());
             measurementVO.setNewValue(newValue);
@@ -456,7 +457,22 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         List<String> users = iotDBService.getIotDBUserList(connection);
-        return BaseVO.success("获取成功", users);
+        String username = connection.getUsername();
+        if (users == null) {
+            users = new ArrayList<>();
+            users.add(username);
+            return BaseVO.success("获取成功", users);
+        }
+        // 前端需要将当前用户处于列表第一位
+        List<String> newUsers = new ArrayList<>();
+        newUsers.add(username);
+        for (String user : users) {
+            if (username.equalsIgnoreCase(user)) {
+                continue;
+            }
+            newUsers.add(user);
+        }
+        return BaseVO.success("获取成功", newUsers);
     }
 
     @GetMapping("/roles")

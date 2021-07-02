@@ -10,9 +10,9 @@ import java.io.Serializable;
 @Data
 public class DeviceDTO implements Serializable {
 
-    private String measurement;
+    private String timeseries;
 
-    private String type;
+    private String dataType;
 
     private String encoding;
 

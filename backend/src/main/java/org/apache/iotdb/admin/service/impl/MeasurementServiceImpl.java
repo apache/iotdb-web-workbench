@@ -58,7 +58,7 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
         List<String> measurements = new ArrayList<>();
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
             descriptions.add(deviceDTO.getDescription());
-            measurements.add(deviceDTO.getMeasurement());
+            measurements.add(deviceDTO.getTimeseries());
         }
         for (int i = 0; i < measurements.size(); i++) {
             Measurement mea = new Measurement();
@@ -96,7 +96,7 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
         List<String> measurements = new ArrayList<>();
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
             descriptions.add(deviceDTO.getDescription());
-            measurements.add(deviceDTO.getMeasurement());
+            measurements.add(deviceDTO.getTimeseries());
         }
         for (int i = 0; i < measurements.size(); i++) {
             QueryWrapper queryWrapper = new QueryWrapper();
