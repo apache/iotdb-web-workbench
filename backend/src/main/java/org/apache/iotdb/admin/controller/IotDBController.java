@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,17 +67,28 @@ public class IotDBController<T> {
 
     @GetMapping("/storageGroups")
     @ApiOperation("获得存储组列表")
-    public BaseVO<List<String>> getAllStorageGroups(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+    public BaseVO<List<StorageGroupVO>> getAllStorageGroups(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
+//        StorageGroupsVO storageGroupVO = new StorageGroupsVO();
+        List<StorageGroupVO> storageGroupVOList = new ArrayList<>();
         List<String> groupNames = iotDBService.getAllStorageGroups(connection);
         if (groupNames == null || groupNames.size() == 0) {
-            return BaseVO.success("获取成功", groupNames);
+            return BaseVO.success("获取成功", storageGroupVOList);
+        }
+//        List<Integer> groupIds = new ArrayList<>();
+        for (String groupName : groupNames) {
+            StorageGroupVO storageGroupVO = new StorageGroupVO();
+            Integer id = groupService.getGroupId(serverId,groupName);
+//            groupIds.add(id);
+            storageGroupVO.setGroupId(id);
+            storageGroupVO.setGroupName(groupName);
+            storageGroupVOList.add(storageGroupVO);
         }
         for (int i = 0; i < groupNames.size(); i++) {
             groupNames.set(i,groupNames.get(i).replaceFirst("root.",""));
         }
-        return BaseVO.success("获取成功", groupNames);
+        return BaseVO.success("获取成功", storageGroupVOList);
     }
 
     @PostMapping("/storageGroups")
@@ -89,24 +99,26 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         groupDTO.setGroupName("root." + groupDTO.getGroupName());
-        boolean flag = groupService.isExist(serverId, groupDTO.getGroupName());
-        if (!flag) {
-            iotDBService.saveStorageGroup(connection, groupDTO.getGroupName());
+        iotDBService.saveStorageGroup(connection, groupDTO.getGroupName());
+        if (groupDTO.getGroupId() == null) {
+            // 新增
+            groupService.setStorageGroupInfo(connection, groupDTO);
+        } else {
+            // 更新
+            groupService.updateStorageGroupInfo(connection,groupDTO);
         }
-        // 5. 新增存储组时添加描述和ttl
         if (groupDTO.getTtl() != null && groupDTO.getTtlUnit() != null) {
             if (groupDTO.getTtl() >= 0) {
                 Long times = switchTime(groupDTO.getTtlUnit());
                 iotDBService.saveGroupTtl(connection, groupDTO.getGroupName(), groupDTO.getTtl() * times);
+            }
+        }else {
+            if (groupDTO.getTtl() == null && groupDTO.getTtlUnit() == null) {
+                iotDBService.cancelGroupTtl(connection, groupDTO.getGroupName());
             } else {
                 throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
             }
-        } else {
-            if (flag) {
-                iotDBService.cancelGroupTtl(connection, groupDTO.getGroupName());
-            }
         }
-        groupService.setStorageGroupInfo(connection, groupDTO);
         // 8. 存储组的编辑
         return BaseVO.success("新增或更新成功", null);
     }
@@ -199,6 +211,7 @@ public class IotDBController<T> {
             deviceInfo.setDeviceName(deviceNames.get(i).replaceFirst(groupName+".",""));
             deviceInfo.setLine(lines.get(i));
             if (devices.get(i) != null) {
+                deviceInfo.setDeviceId(devices.get(i).getId());
                 deviceInfo.setCreator(devices.get(i).getCreator());
                 deviceInfo.setDescription(devices.get(i).getDescription());
             }
@@ -249,9 +262,14 @@ public class IotDBController<T> {
             deviceDTO.setMeasurement(deviceInfoDTO.getDeviceName() + "." + deviceDTO.getMeasurement());
         }
         iotDBService.createDeviceWithMeasurements(connection, deviceInfoDTO);
-        deviceService.setDeviceInfo(connection, deviceInfoDTO);
-        measurementService.setMeasurementsInfo(serverId, deviceInfoDTO);
-        //新增设备时 添加描述
+        // 新增
+        if (deviceInfoDTO.getDeviceId() == null) {
+            deviceService.setDeviceInfo(connection, deviceInfoDTO);
+            measurementService.setMeasurementsInfo(serverId, deviceInfoDTO);
+        } else {
+            deviceService.updateDeviceInfo(deviceInfoDTO);
+            measurementService.updateMeasurementsInfo(serverId,deviceInfoDTO);
+        }
         return BaseVO.success("新增或更新成功", null);
     }
 

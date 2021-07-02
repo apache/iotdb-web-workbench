@@ -21,4 +21,6 @@ public interface DeviceService  {
     void setDeviceInfo(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 
     DeviceVO getDevice(Integer serverId, String deviceName);
+
+    void updateDeviceInfo(DeviceInfoDTO deviceInfoDTO) throws BaseException;
 }

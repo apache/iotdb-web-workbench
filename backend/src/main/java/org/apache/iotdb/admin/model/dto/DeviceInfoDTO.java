@@ -1,7 +1,6 @@
 package org.apache.iotdb.admin.model.dto;
 
 import lombok.Data;
-import org.apache.iotdb.admin.model.vo.DeviceInfo;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -22,4 +21,5 @@ public class DeviceInfoDTO implements Serializable {
 
     private String description;
 
+    private Integer deviceId;
 }

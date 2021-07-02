@@ -1,7 +1,9 @@
 package org.apache.iotdb.admin.controller;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -58,12 +61,28 @@ public class UserController {
         return BaseVO.success("保存成功",null);
     }
 
+
     @DeleteMapping("/delete")
     @ApiOperation("删除用户  (未使用)")
     public BaseVO delete(@RequestParam("userId") Integer userId, HttpServletRequest request) throws BaseException {
         AuthenticationUtils.userAuthentication(userId,request);
         userService.delete(userId);
         return BaseVO.success("删除成功",null);
+    }
+
+    @GetMapping("/get")
+    @ApiOperation("二次登录获取用户信息")
+    public BaseVO<User> getUser(HttpServletRequest request){
+        String authorization = request.getHeader("Authorization");
+        DecodedJWT decode = JWT.decode(authorization);
+        User user = new User();
+        if (decode != null) {
+            Integer userId = decode.getClaim("userId").asInt();
+            String name = decode.getClaim("name").asString();
+            user.setId(userId);
+            user.setName(name);
+        }
+        return BaseVO.success("获取成功",user);
     }
 
     private String getToken(User user) throws BaseException {

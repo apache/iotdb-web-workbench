@@ -14,4 +14,6 @@ public interface MeasurementService {
     void setMeasurementsInfo(Integer serverId, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 
     String getDescription(Integer serverId, String timeseries) throws BaseException;
+
+    void updateMeasurementsInfo(Integer serverId, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 }
