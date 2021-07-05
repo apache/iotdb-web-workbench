@@ -16,11 +16,10 @@
             </el-tab-pane>
           </el-tabs>
           <div class="router-container">
-            <router-view v-slot="{ Component }">
+            <router-view v-slot="{ Component, route }">
               <keep-alive>
-                <component v-if="!route.params.forceupdate" :key="route.fullPath" :is="Component" :data="tabData" />
+                <component :key="route.fullPath" :is="Component" :data="tabData" />
               </keep-alive>
-              <component v-if="route.params.forceupdate" :is="Component" :data="tabData" />
             </router-view>
           </div>
         </template>
@@ -80,19 +79,19 @@ export default {
       });
     });
 
-    const urlSkipMap = (data) => {
+    const urlSkipMap = (data, forceupdate) => {
       // console.log(data, 'ppppppp');
       if (data.type === 'connection') {
         //数据连接
-        router.push({ name: 'Source', params: { serverid: data.connectionid } });
+        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate } });
       } else if (data.type === 'newstorageGroup') {
         //新建存储组
-        router.push({ name: 'NewStorage', params: { serverid: data.connectionid } });
+        router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate } });
       } else if (data.type === 'querylist') {
         //查询列表
       } else if (data.type === 'storageGroup') {
         //存储组
-        router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name } });
+        router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate } });
       } else if (data.type === 'newdevice') {
         //新建实体
       } else if (data.type === 'device') {
@@ -105,7 +104,6 @@ export default {
     };
 
     const handleNodeClick = (data) => {
-      router.push({ name: 'About', params: { aa: 1 } });
       nodekey.value = data.id;
       if (data.type === 'querylist') {
         return;
@@ -119,8 +117,10 @@ export default {
       ) {
         list.push({ node: data, title: data.name, name: data.id + '', id: data.id + '', type: data.type });
         urlTabs.value = list;
+        urlSkipMap(data, true);
+      } else {
+        urlSkipMap(data);
       }
-      urlSkipMap(data);
     };
 
     const removeTab = (targetName) => {
