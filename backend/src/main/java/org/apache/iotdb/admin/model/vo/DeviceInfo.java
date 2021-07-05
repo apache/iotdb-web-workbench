@@ -13,4 +13,5 @@ public class DeviceInfo implements Serializable {
     private String description;
     private String creator;
     private Integer line;
+    private Integer deviceId;
 }

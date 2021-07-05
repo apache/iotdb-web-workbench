@@ -61,6 +61,9 @@ public class ErrorCode {
     public static final String GET_TOKEN_FAIL = "USER-0010";
     public static final String GET_TOKEN_FAIL_MSG = "获取token失败";
 
+    public static final String SET_JWT_FAIL = "USER-0011";
+    public static final String SET_JWT_FAIL_MSG = "JWT编解码失败";
+
     // iotDB相关
     public static final String INSERT_TS_FAIL = "IOTDB-0001";
     public static final String INSERT_TS_FAIL_MSG = "插入时间序列失败";
@@ -163,6 +166,18 @@ public class ErrorCode {
 
     public static final String NO_SQL = "IOTDB-0034";
     public static final String NO_SQL_MSG = "没有sql执行语句";
+
+    public static final String UPDATE_GROUP_INFO_FAIL = "IOTDB-0035";
+    public static final String UPDATE_GROUP_INFO_FAIL_MSG = "更新组信息失败";
+
+    public static final String NO_GROUP_INFO = "IOTDB-0036";
+    public static final String NO_GROUP_INFO_MSG = "不存在存储组信息";
+
+    public static final String NO_GROUP = "IOTDB-0037";
+    public static final String NO_GROUP_MSG = "不存在存储组";
+
+    public static final String NO_DEVICE_INFO = "IOTDB-0038";
+    public static final String NO_DEVICE_INFO_MSG = "不存在设备信息";
 
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";

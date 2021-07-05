@@ -14,7 +14,7 @@
         <el-descriptions-item :label="$t('storagePage.creator') + ':'">{{ baseInfo.creator }}</el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.createTime')">{{ baseInfo.createTime }}</el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }} {{ baseInfo.ttlUnit }} </el-descriptions-item>
-        <el-descriptions-item :label="$t('storagePage.description') + ':'">江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item>
+        <el-descriptions-item :label="$t('storagePage.description') + ':'">{{ baseInfo.description }}</el-descriptions-item>
       </el-descriptions>
     </div>
     <div class="device-content">

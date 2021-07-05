@@ -80,11 +80,10 @@ public class IotDBServiceImpl implements IotDBService {
         try {
             sessionPool.executeNonQueryStatement(sql);
         } catch (StatementExecutionException e) {
+            // 捕获异常代表存储组已有
             logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.SET_GROUP_FAIL,ErrorCode.SET_GROUP_FAIL_MSG);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.SET_GROUP_FAIL,ErrorCode.SET_GROUP_FAIL_MSG);
         } finally {
             if (sessionPool != null) {
                 sessionPool.close();
@@ -463,9 +462,9 @@ public class IotDBServiceImpl implements IotDBService {
         List<String> encodingsStr = new ArrayList<>();
         List<String> measurements = new ArrayList<>();
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
-            typesStr.add(deviceDTO.getType());
+            typesStr.add(deviceDTO.getDataType());
             encodingsStr.add(deviceDTO.getEncoding());
-            measurements.add(deviceDTO.getMeasurement());
+            measurements.add(deviceDTO.getTimeseries());
         }
         List<TSDataType> types = handleTypeStr(typesStr);
         List<TSEncoding> encodings = handleEncodingStr(encodingsStr);
@@ -794,7 +793,7 @@ public class IotDBServiceImpl implements IotDBService {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
         }
-        throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
+        throw new BaseException(ErrorCode.NO_GROUP,ErrorCode.NO_GROUP_MSG);
     }
 
     private SqlResultVO executeQuery(SessionPool sessionPool, String sql,Boolean closePool) throws BaseException {

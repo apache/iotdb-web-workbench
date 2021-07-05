@@ -1,10 +1,5 @@
-import axios from '@/util/axios.js';
-
 const storage = {
-  state: () => {
-    groupDetailInfo: {
-    }
-  },
+  state: () => {},
   mutations: {
     setGroupDetail(state, data) {
       state.groupDetailInfo = data;

@@ -20,4 +20,8 @@ public interface GroupService {
     void deleteGroupInfo(Integer serverId, String groupName) throws BaseException;
 
     StorageGroup getGroupInfo(Integer serverId, String groupName);
+
+    void updateStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException;
+
+    Integer getGroupId(Integer serverId, String groupName);
 }
