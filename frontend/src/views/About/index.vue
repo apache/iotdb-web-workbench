@@ -8,12 +8,12 @@ import { onUpdated, onMounted } from 'vue';
 export default {
   name: 'About',
   props: ['data'],
-  setup(props) {
+  setup() {
     onMounted(() => {
-      console.log(props.data, 'yyy');
+      // console.log(props.data, 'yyy');
     });
     onUpdated(() => {
-      console.log(props.data, 'yyy');
+      // console.log(props.data, 'yyy');
     });
     return {};
   },

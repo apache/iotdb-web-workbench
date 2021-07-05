@@ -18,8 +18,9 @@
           <div class="router-container">
             <router-view v-slot="{ Component }">
               <keep-alive>
-                <component :is="Component" :data="tabData" />
+                <component v-if="!route.params.forceupdate" :key="route.fullPath" :is="Component" :data="tabData" />
               </keep-alive>
+              <component v-if="route.params.forceupdate" :is="Component" :data="tabData" />
             </router-view>
           </div>
         </template>
@@ -36,7 +37,7 @@ import DataListTree from './components/dataListTree.vue';
 import IconTypes from './components/iconTypes.vue';
 import { ElContainer, ElAside, ElMain, ElTabs, ElTabPane } from 'element-plus';
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 export default {
   name: 'Root',
@@ -50,6 +51,7 @@ export default {
     const nodekey = ref('');
     let treeRef = ref(null);
     const router = useRouter();
+    const route = useRoute();
 
     const handleClick = (tab) => {
       let data = urlTabs.value[tab.index];
@@ -103,7 +105,7 @@ export default {
     };
 
     const handleNodeClick = (data) => {
-      router.push({ name: 'About' });
+      router.push({ name: 'About', params: { aa: 1 } });
       nodekey.value = data.id;
       if (data.type === 'querylist') {
         return;
@@ -150,6 +152,7 @@ export default {
 
     return {
       store,
+      route,
       tabData,
       urlTabsValue,
       dividerRef,
