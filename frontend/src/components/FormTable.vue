@@ -82,4 +82,9 @@ export default {
     line-height: 30px;
   }
 }
+.input-inner {
+  .el-input__inner {
+    border: none !important;
+  }
+}
 </style>

@@ -42,7 +42,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useLangSwitch from './hooks/useLangSwitch.js';
@@ -77,14 +77,14 @@ export default {
       store.dispatch('fetchIsLogin');
     });
 
-    watch(
-      () => {
-        return store.state.userInfo;
-      },
-      (newValue) => {
-        console.log(newValue, 'kkk');
-      }
-    );
+    // watch(
+    //   () => {
+    //     return store.state.userInfo;
+    //   },
+    //   (newValue) => {
+    //     console.log(newValue, 'kkk');
+    //   }
+    // );
 
     return {
       store,

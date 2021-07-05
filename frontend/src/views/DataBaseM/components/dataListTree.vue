@@ -17,13 +17,13 @@
         </div>
       </el-tooltip>
     </div>
-    <div class="data-list-input">
+    <!-- <div class="data-list-input">
       <el-input size="small" placeholder="" v-model="searchVal">
         <template #suffix>
           <i @click="searchClick" class="el-icon-search"></i>
         </template>
       </el-input>
-    </div>
+    </div> -->
     <el-tree
       v-if="store.state?.userInfo?.userId !== undefined"
       ref="treeRef"
@@ -38,11 +38,8 @@
     >
       <template #default="{ node, data }">
         <span class="custom-tree-node">
-          <span v-if="data.type !== 1" class="custom-tree-node-icon"
-            ><svg class="icon" aria-hidden="true">
-              <use :xlink:href="nodekey == data.id ? '#icon-xinzengshujulianjie-color' : '#icon-xinzengshujulianjie'"></use></svg
-          ></span>
-          <span>{{ node.label }} </span>
+          <icon-types :data="data" :nodekey="nodekey" />
+          <span>{{ node.label }}</span>
         </span>
       </template>
     </el-tree>
@@ -50,9 +47,10 @@
 </template>
 
 <script>
-import { ElTree, ElInput, ElTooltip } from 'element-plus';
+import { ElTree, ElTooltip } from 'element-plus';
 import { reactive, ref } from 'vue';
 import { useStore } from 'vuex';
+import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
 
 export default {
@@ -63,6 +61,7 @@ export default {
       label: 'name',
       children: 'zones',
       isLeaf: 'leaf',
+      disabled: 'disabled',
     });
     const searchVal = ref('');
     const treeRef = ref(null);
@@ -71,8 +70,8 @@ export default {
       console.log('jj');
     };
 
-    const nodeClick = (data) => {
-      props.handleNodeClick(data);
+    const nodeClick = (data, node) => {
+      props.handleNodeClick(data, node);
     };
     const btnClick1 = () => {};
     const btnClick2 = () => {};
@@ -80,83 +79,118 @@ export default {
     const loadNode = (node, resolve) => {
       if (node.level === 0) {
         axios.get('/servers', { params: { userId: store.state?.userInfo?.userId } }).then((res) => {
-          if (res?.data?.code === '0') {
-            console.log(11);
+          if (res?.code === '0') {
+            let data = (res.data.aliasList || []).map((e) => {
+              return {
+                name: e.alias,
+                id: e.id + 'connection',
+                type: 'connection',
+                rawid: e.id,
+                connectionid: e.id,
+              };
+            });
+            return resolve(data);
           }
         });
-
-        return resolve([{ name: 'region', id: '1' }]);
       }
-      if (node.level === 3) {
-        setTimeout(() => {
-          const data = [
-            {
-              name: 'leaf',
-              id: '8',
-            },
-            {
-              name: 'leaf',
-              id: '17',
-            },
-            {
-              name: 'leafdsssssssssssssssssssssssssssskkkk',
-              id: '16',
-            },
-            {
-              name: 'leaf',
-              id: '15',
-            },
-            {
-              name: 'leaf',
-              id: '13',
-            },
-            {
-              name: 'leaf',
-              leaf: true,
-              id: '18',
-            },
-            {
-              name: 'zone',
-              id: '9',
-            },
-          ];
-          resolve(data);
-        }, 500);
-      }
-      if (node.level === 2) {
-        setTimeout(() => {
-          const data = [
-            {
-              name: 'leaf',
-              leaf: true,
-              id: '5',
-              type: 1,
-            },
-            {
-              name: 'zone',
-              id: '6',
-              type: 1,
-            },
-          ];
-          resolve(data);
-        }, 500);
-      }
-      if (node.level > 1) return resolve([]);
-      console.log('kkkkkkkkkkkk');
-      setTimeout(() => {
-        const data = [
-          {
-            name: 'leaf',
+      if (node.level === 1) {
+        axios.get(`/servers/${node.data.rawid}/storageGroups`, {}).then((res) => {
+          let newStorageGroup = {
+            id: node.data.id + ':newstoragegroup',
+            name: '新建存储组',
+            parent: node.data,
+            type: 'newstorageGroup',
             leaf: true,
-            id: '2',
-          },
-          {
-            name: 'zone',
-            id: '3',
-          },
-        ];
-        resolve(data);
-      }, 500);
+            connectionid: node.data.connectionid,
+          };
+          let queryList = {
+            id: node.data.id + ':querylist',
+            name: '查询',
+            parent: node.data,
+            type: 'querylist',
+            connectionid: node.data.connectionid,
+          };
+          if (res?.code === '0') {
+            let data = (res.data || []).map((e) => {
+              return {
+                parent: node.data,
+                name: e.groupName,
+                id: e.groupName + 'storageGroup',
+                type: 'storageGroup',
+                rawid: e.groupName,
+                storagegroupid: e.groupName,
+                connectionid: node.data.connectionid,
+              };
+            });
+            data.unshift(queryList);
+            data.unshift(newStorageGroup);
+            return resolve(data);
+          }
+        });
+      }
+      if (node.level === 2 && node.data.type === 'storageGroup') {
+        let groupName = node.data.rawid;
+        let serverId = node.data.parent.rawid;
+        axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices`, {}).then((res) => {
+          let newDevice = {
+            id: node.data.id + ':newdevice',
+            name: '新建实体',
+            type: 'newdevice',
+            leaf: true,
+            parent: node.data,
+            connectionid: node.data.connectionid,
+            storagegroupid: node.data.storagegroupid,
+          };
+          if (res?.code === '0') {
+            let data = (res.data || []).map((e) => {
+              return {
+                parent: node.data,
+                name: e,
+                id: e + 'device',
+                type: 'device',
+                leaf: true,
+                rawid: e,
+                storagegroupid: node.data.storagegroupid,
+                connectionid: node.data.connectionid,
+                deviceid: e,
+              };
+            });
+            data.unshift(newDevice);
+            return resolve(data);
+          }
+        });
+      }
+      if (node.level === 2 && node.data.type === 'querylist') {
+        let serverId = node.data.parent.rawid;
+        axios.get(`/servers/${serverId}/query`, {}).then((res) => {
+          let newQuery = {
+            id: node.data.id + ':newquery',
+            name: '新建查询',
+            type: 'newquery',
+            leaf: true,
+            parent: node.data,
+            storagegroupid: node.data.storagegroupid,
+            connectionid: node.data.connectionid,
+          };
+          if (res?.code === '0') {
+            let data = (res.data || []).map((e) => {
+              return {
+                parent: node.data,
+                name: e.queryName,
+                id: e.id + 'query',
+                type: 'query',
+                leaf: true,
+                rawid: e.id,
+                storagegroupid: node.data.storagegroupid,
+                connectionid: node.data.connectionid,
+                queryid: e.id,
+              };
+            });
+            data.unshift(newQuery);
+            return resolve(data);
+          }
+        });
+      }
     };
 
     return {
@@ -173,7 +207,8 @@ export default {
   },
   components: {
     ElTree,
-    ElInput,
+    IconTypes,
+    // ElInput,
     ElTooltip,
   },
 };
@@ -209,13 +244,8 @@ export default {
   .data-list-input {
     margin: 0 20px 15px;
   }
-  .custom-tree-node {
-    .custom-tree-node-icon {
-      margin-right: 8px;
-    }
-  }
   &::v-deep .el-tree {
-    height: calc(100% - 97px);
+    height: calc(100% - 50px);
     width: 100%;
     overflow: auto;
     .el-tree-node {

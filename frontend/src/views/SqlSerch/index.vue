@@ -195,9 +195,9 @@ export default {
       },
     ];
     function getCode(val) {
-      console.log(typeof val);
+      // console.log(typeof val);
       code = val;
-      console.log(code);
+      // console.log(code);
     }
     function btnClick1() {
       divwerHeight.value = 300;

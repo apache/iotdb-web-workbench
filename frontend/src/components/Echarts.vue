@@ -6,82 +6,112 @@ import * as echarts from 'echarts/core';
 import { GridComponent } from 'echarts/components';
 import { LineChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
-import { onMounted } from '@vue/runtime-core';
+import { onMounted, reactive } from '@vue/runtime-core';
+import { getData } from '../views/DeviceMessage/api';
 echarts.use([GridComponent, LineChart, CanvasRenderer]);
 export default {
   name: 'Echarts',
-  setup() {
+  props: {
+    echartsData: Object,
+  },
+  setup(props) {
+    const data = reactive(props.echartsData);
     onMounted(() => {
-      let myChart = echarts.init(document.getElementById('myChart'));
-      myChart.setOption({
-        title: { text: '总用户量' },
-        tooltip: {},
-        grid: {
-          left: '30px',
-          top: '10px',
-          width: '100%',
-        },
-        xAxis: {
-          data: ['12-3', '12-4', '12-5', '12-6', '12-7', '12-8'],
-          boundaryGap: false,
-          axisTick: {
-            show: false,
+      getehartsData(data);
+    });
+    function getehartsData(data) {
+      getData(data.id, data.groupName, data.deviceName, data.timeseries).then((res) => {
+        let length = res.data.timeList.length / 5;
+        for (let i = 0; i < 5; i++) {
+          res.data.timeList[i * length] = formatDate(res.data.timeList[i * length]);
+        }
+        console.log(length);
+        let myChart = echarts.init(document.getElementById('myChart'));
+        myChart.setOption({
+          title: { text: '总用户量' },
+          tooltip: {},
+          grid: {
+            left: '30px',
+            top: '10px',
+            width: '100%',
           },
-          axisLine: {
-            show: true,
-            onZero: true,
-            lineStyle: { color: '#ebeef5' },
-          },
-          axisLabel: {
-            show: true,
-            textStyle: {
-              color: 'black',
+          xAxis: {
+            // type: 'category',
+            data: res.data.timeList,
+            boundaryGap: false,
+            axisTick: {
+              show: false,
+            },
+            axisLine: {
+              show: true,
+              onZero: true,
+              lineStyle: { color: '#ebeef5' },
+            },
+            axisLabel: {
+              show: true,
+              textStyle: {
+                color: 'black',
+              },
+              interval: length - 1,
             },
           },
-        },
-        yAxis: {
-          type: 'value',
-          max: 150,
-          min: 0,
-          splitNumber: 3,
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: true,
-            textStyle: {
-              color: 'black',
+          yAxis: {
+            type: 'value',
+            max: 200,
+            min: 0,
+            splitNumber: 4,
+            axisTick: {
+              show: false,
+            },
+            axisLabel: {
+              show: true,
+              textStyle: {
+                color: 'black',
+              },
+            },
+            axisLine: {
+              show: true,
+              lineStyle: { color: '#ebeef5' },
+            },
+            splitLine: {
+              show: false,
+              interval: 'auto',
             },
           },
-          axisLine: {
-            show: true,
-            lineStyle: { color: '#ebeef5' },
-          },
-          splitLine: {
-            show: false,
-            interval: 'auto',
-          },
-        },
-        series: [
-          {
-            type: 'line',
-            data: [50, 120, 76, 100, 100, 120],
-            symbol: 'none',
-            itemStyle: {
-              normal: {
-                lineStyle: {
-                  color: '#0cc100',
+          series: [
+            {
+              type: 'line',
+              data: res.data.valueList,
+              symbol: 'none',
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    color: '#0cc100',
+                  },
                 },
               },
             },
-          },
-        ],
+          ],
+        });
+        window.onresize = function () {
+          //自适应大小
+          myChart.resize();
+        };
       });
-      window.onresize = function () {
-        //自适应大小
-        myChart.resize();
-      };
-    });
+    }
+    function formatDate(datec) {
+      var date = new Date(datec);
+      var YY = date.getFullYear() + '-';
+      var MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+      var DD = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+      var hh = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+      var mm = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+      var ss = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+      return YY + MM + DD + ' ' + hh + mm + ss;
+    }
+    return {
+      getehartsData,
+    };
   },
 };
 </script>
