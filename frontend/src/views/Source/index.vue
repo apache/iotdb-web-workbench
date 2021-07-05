@@ -6,6 +6,12 @@
         <span>{{ $t('sourcePage.host') + ':' }}{{ baseInfo.host }}</span>
         <span>{{ $t('sourcePage.port') + ':' }}{{ baseInfo.port }}</span>
       </p>
+      <svg class="icon icon-edit" aria-hidden="true" @click="editSource()">
+        <use xlink:href="#icon-se-icon-f-edit"></use>
+      </svg>
+      <svg class="icon icon-del" aria-hidden="true">
+        <use xlink:href="#icon-se-icon-delete"></use>
+      </svg>
     </div>
     <div class="permission-box">
       <div class="info-head">
@@ -21,130 +27,136 @@
             <el-button type="text" @click="newUser()">{{ $t('sourcePage.newAccount') }}</el-button>
           </p>
           <ul class="user-list">
-            <li v-for="(item, index) in userList" :class="activeIndex == index ? 'active' : ''" :key="index" @click="handleUser(index, item)">
+            <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
               <span class="content">{{ item.username }}</span>
-              <svg v-if="activeIndex == index" class="icon" aria-hidden="true" @click="deleteUser()">
+              <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true" @click="deleteUser(item)">
                 <use xlink:href="#icon-se-icon-delete"></use>
               </svg>
             </li>
           </ul>
         </div>
         <div class="right-part">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-button class="auth-add-btn" type="text" v-if="activeName == '2'" @click="authAdd()">添加权限</el-button>
+          <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs">
             <el-tab-pane :label="$t('sourcePage.baseConfig')" name="1">
-              <div v-if="!isNew" class="tab-content left-base-content">
-                <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
-                  <el-form-item :label="$t('sourcePage.userNameTitle')">
-                    <div>{{ baseInfoForm.userName }}</div>
-                  </el-form-item>
-                  <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
-                    <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
+              <template v-if="activeIndex !== null">
+                <div v-if="!isNew" class="tab-content left-base-content">
+                  <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
+                    <el-form-item :label="$t('sourcePage.userNameTitle')">
+                      <div>{{ baseInfoForm.userName }}</div>
+                    </el-form-item>
+                    <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
+                      <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
 
-                    <svg v-if="!edit" class="icon" aria-hidden="true" @click="editBaseInfo()">
-                      <use xlink:href="#icon-se-icon-f-edit"></use>
-                    </svg>
-                    <div v-if="!edit">
-                      {{ baseInfoForm.password }}
-                    </div>
-                    <div v-if="edit">
-                      <el-button @click="cancelEdit()">{{ $t('common.cancel') }}</el-button>
-                      <el-button type="primary">{{ $t('common.submit') }}</el-button>
-                    </div>
-                  </el-form-item>
-                </el-form>
-              </div>
-              <div v-else class="tab-content left-base-content">
-                <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
-                  <el-form-item prop="userName" :label="$t('sourcePage.userNameTitle')" class="userName-form-item">
-                    <el-input v-model="baseInfoForm.userName"></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
-                    <el-input show-password v-model="baseInfoForm.password"></el-input>
+                      <svg v-if="!edit" class="icon" aria-hidden="true" @click="editBaseInfo()">
+                        <use xlink:href="#icon-se-icon-f-edit"></use>
+                      </svg>
+                      <div v-if="!edit">
+                        {{ baseInfoForm.password }}
+                      </div>
+                      <div v-if="edit">
+                        <el-button @click="cancelEdit()">{{ $t('common.cancel') }}</el-button>
+                        <el-button type="primary" @click="doEdit()">{{ $t('common.submit') }}</el-button>
+                      </div>
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div v-else class="tab-content left-base-content">
+                  <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
+                    <el-form-item prop="userName" :label="$t('sourcePage.userNameTitle')" class="userName-form-item">
+                      <el-input v-model="baseInfoForm.userName"></el-input>
+                    </el-form-item>
+                    <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
+                      <el-input show-password v-model="baseInfoForm.password"></el-input>
 
-                    <div>
-                      <el-button @click="cancelNew()">{{ $t('common.cancel') }}</el-button>
-                      <el-button type="primary">{{ $t('common.submit') }}</el-button>
-                    </div>
-                  </el-form-item>
-                </el-form>
-              </div>
+                      <div>
+                        <el-button @click="cancelNew()">{{ $t('common.cancel') }}</el-button>
+                        <el-button type="primary" @click="doCreate()">{{ $t('common.submit') }}</el-button>
+                      </div>
+                    </el-form-item>
+                  </el-form>
+                </div>
+              </template>
             </el-tab-pane>
             <el-tab-pane v-if="!isNew" :label="$t('sourcePage.accountPermit')" name="2">
-              <el-table :data="authTableData" style="width: 100%">
-                <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
-                  <template #default="scope">
-                    <span v-if="!scope.row.edit">{{ pathMap[scope.row.type] }}</span>
-                    <el-select v-if="scope.row.edit" v-model="scope.row.type" disabled>
-                      <el-option v-for="item in pathList" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                    </el-select>
-                  </template>
-                </el-table-column>
-                <el-table-column show-overflow-tooltip :label="$t('sourcePage.range')">
-                  <template #default="scope">
-                    <div v-if="scope.row.type == 0">-</div>
-                    <div v-else-if="scope.row.type == 1">
-                      <div v-if="scope.row.edit">
-                        <el-select v-model="scope.row.groupPaths" multiple>
-                          <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                        </el-select>
+              <template v-if="activeIndex !== null">
+                <el-table :data="authTableData" style="width: 100%">
+                  <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
+                    <template #default="scope">
+                      <span v-if="!scope.row.edit">{{ pathMap[scope.row.type] }}</span>
+                      <el-select v-if="scope.row.edit" v-model="scope.row.type" :disabled="!scope.row.new" @change="changeType(scope.row.type, scope)">
+                        <el-option v-for="item in pathList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                      </el-select>
+                    </template>
+                  </el-table-column>
+                  <el-table-column show-overflow-tooltip :label="$t('sourcePage.range')">
+                    <template #default="scope">
+                      <div v-if="scope.row.type == 0">-</div>
+                      <div v-else-if="scope.row.type == 1">
+                        <div v-if="scope.row.edit">
+                          <el-select v-model="scope.row.groupPaths" multiple>
+                            <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                          </el-select>
+                        </div>
+                        <div v-else>
+                          <span v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</span>
+                        </div>
                       </div>
-                      <div v-else>
-                        <span v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</span>
+                      <div v-else-if="scope.row.type == 2">
+                        <div v-if="scope.row.edit">
+                          <el-select class="row-select-range" v-model="scope.row.groupPaths[0]" @change="getDeviceByGroupName(scope.row.groupPaths[0], scope)">
+                            <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                          </el-select>
+                          <el-select class="row-select-range" v-model="scope.row.devicePaths" multiple>
+                            <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
+                          </el-select>
+                        </div>
+                        <div v-else>
+                          <span v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</span>
+                        </div>
                       </div>
-                    </div>
-                    <div v-else-if="scope.row.type == 2">
-                      <div v-if="scope.row.edit">
-                        <el-select class="row-select-range" v-model="scope.row.groupPaths[0]">
-                          <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                        </el-select>
-                        <el-select class="row-select-range" v-model="scope.row.devicePaths" multiple>
-                          <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
-                        </el-select>
+                      <div v-else-if="scope.row.type == 3">
+                        <div v-if="scope.row.edit">
+                          <el-select class="row-select-range" v-model="scope.row.groupPaths[0]" @change="getDeviceByGroupName(scope.row.groupPaths[0], scope)">
+                            <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                          </el-select>
+                          <el-select class="row-select-range" v-model="scope.row.devicePaths[0]" @change="getTimeSeriesByDeviceName(scope.row.devicePaths[0], scope)">
+                            <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
+                          </el-select>
+                          <el-select class="row-select-range" v-model="scope.row.timeseriesPaths" multiple>
+                            <el-option v-for="item in scope.row.allTimeseriesPaths" :key="item" :value="item" :label="item"></el-option>
+                          </el-select>
+                        </div>
+                        <div v-else>
+                          <span v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</span>
+                        </div>
                       </div>
-                      <div v-else>
-                        <span v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</span>
-                      </div>
-                    </div>
-                    <div v-else-if="scope.row.type == 3">
-                      <div v-if="scope.row.edit">
-                        <el-select class="row-select-range" v-model="scope.row.groupPaths[0]">
-                          <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                        </el-select>
-                        <el-select class="row-select-range" v-model="scope.row.devicePaths[0]">
-                          <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
-                        </el-select>
-                        <el-select class="row-select-range" v-model="scope.row.timeseriesPaths" multiple>
-                          <el-option v-for="item in scope.row.allTimeseriesPaths" :key="item" :value="item" :label="item"></el-option>
-                        </el-select>
-                      </div>
-                      <div v-else>
-                        <span v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</span>
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column :label="$t('sourcePage.func')">
-                  <template #default="scope">
-                    <el-checkbox-group v-model="scope.row.privileges" :class="scope.row.edit ? '' : 'show-only'">
-                      <el-checkbox :disabled="!scope.row.edit" v-for="item in funcList[scope.row.type]" :label="item.id" :key="item.id" @change="changeCheckItem(scope)">{{ item.label }}</el-checkbox>
-                    </el-checkbox-group>
-                  </template>
-                </el-table-column>
+                    </template>
+                  </el-table-column>
+                  <el-table-column :label="$t('sourcePage.func')">
+                    <template #default="scope">
+                      <el-checkbox-group v-model="scope.row.privileges" :class="scope.row.edit ? '' : 'show-only'">
+                        <el-checkbox :disabled="!scope.row.edit" v-for="item in funcList[scope.row.type]" :label="item.id" :key="item.id" @change="changeCheckItem(scope)">{{
+                          item.label
+                        }}</el-checkbox>
+                      </el-checkbox-group>
+                    </template>
+                  </el-table-column>
 
-                <el-table-column :label="$t('common.operation')">
-                  <template #default="scope">
-                    <!-- @click="handleClick(scope.row)" -->
-                    <div v-if="scope.row.edit">
-                      <el-button type="text" size="small">{{ $t('common.save') }}</el-button>
-                      <el-button type="text" size="small" class="el-button-delete">{{ $t('common.cancel') }}</el-button>
-                    </div>
-                    <div v-else>
-                      <el-button type="text" size="small" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
-                      <el-button type="text" size="small" class="el-button-delete">{{ $t('common.delete') }}</el-button>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
+                  <el-table-column :label="$t('common.operation')">
+                    <template #default="scope">
+                      <div v-if="scope.row.edit">
+                        <el-button type="text" size="small" @click="saveRowAuth(scope)">{{ $t('common.save') }}</el-button>
+                        <el-button type="text" size="small" class="el-button-delete" @click="cancelRowAuth()">{{ $t('common.cancel') }}</el-button>
+                      </div>
+                      <div v-else>
+                        <el-button type="text" size="small" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
+                        <el-button type="text" size="small" class="el-button-delete" @click="deleteRowAuth(scope)">{{ $t('common.delete') }}</el-button>
+                      </div>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </template>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -168,14 +180,14 @@
             <el-button type="text" size="small">
               {{ $t('common.edit') }}
             </el-button>
-            <el-button type="text" size="small" class="el-button-delete">
+            <el-button type="text" size="small" class="el-button-delete" @click="deleteGroup(scope)">
               {{ $t('common.delete') }}
             </el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <el-button @click="newSource()">新建数据源</el-button>
+    <el-button @click="editSource()">新建数据源</el-button>
     <NewSource v-if="showDialog" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" />
   </div>
 </template>
@@ -183,18 +195,32 @@
 <script>
 // @ is an alias to /src
 import { onMounted, reactive, ref } from 'vue';
-import { ElButton, ElTable, ElTableColumn, ElTabs, ElTabPane, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElCheckbox, ElCheckboxGroup } from 'element-plus';
+import { ElButton, ElTable, ElTableColumn, ElTabs, ElTabPane, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElCheckbox, ElCheckboxGroup, ElMessage } from 'element-plus';
 import NewSource from './components/newSource.vue';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
+// import { useStore } from 'vuex';
+
 import { useRouter } from 'vue-router';
 export default {
   name: 'Source',
   setup() {
     const { t } = useI18n();
+    // const store = useStore();
+
     let showDialog = ref(false);
     let types = ref(0);
     let activeName = ref('1');
+    // 是否可以创建用户
+    let canCreateUser = ref(false);
+    // 是否可以删除用户
+    let canDeleteUser = ref(false);
+    // 是否可以修改密码
+    let canModifyPassword = ref(false);
+    // 是否可以查看用户
+    let canShowUser = ref(false);
+    // 是否可以用户赋权
+    let canAuth = ref(false);
     const router = useRouter();
     const pathList = reactive([
       { label: t('sourcePage.selectAlias'), value: 0 },
@@ -234,7 +260,11 @@ export default {
       ],
     });
     let authTableData = ref([]);
-    let activeIndex = ref(0);
+    /**
+     * 当前连接下所有存储组信息
+     */
+    let allGroupPaths = ref([]);
+    let activeIndex = ref(null);
     let edit = ref(false);
     let isNew = ref(false);
     const serverId = ref(null);
@@ -297,10 +327,11 @@ export default {
      * 用户基本信息及所有权限列表
      */
     let userAuthInfo = ref({});
+    let userAuthInfoTemp = ref({});
     /**
      * 新增或编辑数据连接
      */
-    const newSource = () => {
+    const editSource = () => {
       showDialog.value = true;
       types.value = 1;
     };
@@ -323,13 +354,17 @@ export default {
      * item:当前选中用户信息
      */
     const handleUser = (index, item) => {
-      activeIndex.value = index;
+      activeIndex.value = item.username;
       getUserAuth(item);
     };
     /**
      * 编辑用户基本信息(密码)
      */
     const editBaseInfo = () => {
+      if (!canModifyPassword.value) {
+        ElMessage.error('您当前没有权限操作');
+        return false;
+      }
       edit.value = true;
     };
     /**
@@ -339,24 +374,90 @@ export default {
       edit.value = false;
     };
     /**
-     * 删除用户操作
+     * 修改用户密码
      */
-    const deleteUser = () => {
-      console.log(1);
+    const doEdit = () => {
+      if (!baseInfoForm.password) {
+        ElMessage.error('请填写密码');
+        return false;
+      }
+      let reqObj = {
+        userName: baseInfoForm.userName,
+        password: baseInfoForm.password,
+      };
+      axios.post(`/servers/${serverId.value}/users/pwd`, { ...reqObj }).then((rs) => {
+        if (rs && rs.code == 0) {
+          ElMessage.success('修改用户密码成功');
+          edit.value = false;
+        }
+      });
+    };
+    /**
+     * 创建用户
+     */
+    const doCreate = () => {
+      baseInfoFormRef.value.validate((valid) => {
+        let reqObj = {
+          userName: baseInfoForm.userName,
+          password: baseInfoForm.password,
+        };
+        if (valid) {
+          axios.post(`/servers/${serverId.value}/users/`, { ...reqObj }).then((rs) => {
+            if (rs && rs.code == 0) {
+              ElMessage.success('新建用户成功');
+              cancelNew();
+            }
+          });
+        }
+      });
+    };
+    /**
+     * 删除用户操作
+     * item: 当前被删除的数据
+     */
+    const deleteUser = (item) => {
+      if (!canDeleteUser.value) {
+        ElMessage.error('您当前没有权限操作');
+        return false;
+      }
+      axios.delete(`/servers/${serverId.value}/users/${item.username}`).then((rs) => {
+        if (rs && rs.code == 0) {
+          ElMessage.success('删除用户成功');
+          activeIndex.value = null;
+          getUserList();
+        }
+      });
     };
     /**
      * 新建用户操作
      */
     const newUser = () => {
-      isNew.value = true;
+      if (!canCreateUser.value) {
+        ElMessage.error('您当前没有权限操作');
+        return false;
+      }
+      for (let i = 0; i < userList.value.length; i++) {
+        if (userList.value[i].username == 'new') {
+          ElMessage.error('请先完成当前新增账号的操作');
+          return false;
+        }
+      }
 
+      isNew.value = true;
+      activeName.value = '1';
+      baseInfoForm.password = null;
+      baseInfoForm.userName = null;
       userList.value.unshift({ username: 'new' });
+      activeIndex.value = 'new';
     };
     /**
      * 取消新建用户
      */
     const cancelNew = () => {
       isNew.value = false;
+      activeIndex.value == 'new' && (activeIndex.value = null);
+      userList.value.shift();
+      getUserList(1);
     };
     /**
      * 监听多选框change事件
@@ -376,8 +477,11 @@ export default {
       console.log(scope.$index);
       authTableData.value[scope.$index].edit = true;
     };
+    /**
+     * 获取头部数据连接基本信息
+     */
     const getBaseInfo = (func) => {
-      axios.get(`/servers/${router.currentRoute.value.params.serverid}`, {}).then((res) => {
+      axios.get(`/servers/${serverId.value}`, {}).then((res) => {
         if (res && res.code == 0) {
           baseInfo.value = res.data;
           func && func(res.data);
@@ -385,53 +489,219 @@ export default {
       });
     };
     /**
+     * 添加权限按钮
+     */
+    const authAdd = () => {
+      if (!canAuth.value) {
+        ElMessage.error('您当前没有权限操作');
+        return false;
+      }
+      authTableData.value.push({
+        edit: true,
+        new: true,
+        privileges: [],
+        groupPaths: [],
+        allGroupPaths: allGroupPaths.value,
+        allDevicePaths: [],
+        devicePaths: [],
+        allTimeseriesPaths: [],
+        timeseriesPaths: [],
+        type: null,
+      });
+    };
+    /**
      * 获取某一个用户权限
      * userinfo:用户信息
+     * type: 1用户本身信息
      */
-    const getUserAuth = (userinfo) => {
-      axios.get(`/servers/${router.currentRoute.value.params.serverid}/users/${userinfo.username}`, {}).then((res) => {
-        // axios.get(`/servers/${router.currentRoute.value.params.serverid}/users/test`, {}).then((res) => {
+    const getUserAuth = (userinfo, type) => {
+      axios.get(`/servers/${serverId.value}/users/${userinfo.username}`, {}).then((res) => {
         if (res && res.code == 0) {
-          console.log(res);
           userAuthInfo.value = res.data;
+          userAuthInfoTemp.value = JSON.parse(JSON.stringify(res.data));
           baseInfoForm.userName = res.data.userName;
           baseInfoForm.password = res.data.password;
           authTableData.value = res.data.privilegesInfo;
+          baseInfo.value.privilegesInfo = res.data.privilegesInfo;
+          if (type == 1) {
+            checkAuth(res.data.privilegesInfo);
+          }
         } else {
           userAuthInfo = {};
         }
       });
     };
+    /**
+     * 检查登入用户是否有各项操作权限
+     * data:权限数组
+     */
+    const checkAuth = (data) => {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].type == 0) {
+          canCreateUser.value = data[i].privileges.indexOf('CREATE_USER') >= 0 ? true : false;
+          canDeleteUser.value = data[i].privileges.indexOf('DELETE_USER') >= 0 ? true : false;
+          canModifyPassword.value = data[i].privileges.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
+          canShowUser.value = data[i].privileges.indexOf('LIST_USER') >= 0 ? true : false;
+          canAuth.value = data[i].privileges.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
+          console.log(canCreateUser.value);
+          console.log(canDeleteUser.value);
+          console.log(canModifyPassword.value);
+          console.log(canShowUser.value);
+          console.log(canAuth.value);
+        }
+      }
+    };
+    /**
+     * 获取当前数据连接的所有存储组
+     */
     const getGroupList = () => {
-      axios.get(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/info`, {}).then((res) => {
+      axios.get(`/servers/${serverId.value}/storageGroups/info`, {}).then((res) => {
         if (res && res.code == 0) {
           tableData.value = res.data;
+          let temp = [];
+          for (let i = 0; i < res.data.length; i++) {
+            temp.push(res.data[i].groupName);
+          }
+          allGroupPaths.value = temp;
         }
       });
     };
-    const getUserList = () => {
-      axios.get(`/servers/${router.currentRoute.value.params.serverid}/users`, {}).then((res) => {
+    /**
+     * 获取用户列表
+     * type：1初始化列表时默认选中第一个并且请求相关用户的权限列表
+     */
+    const getUserList = (type) => {
+      axios.get(`/servers/${serverId.value}/users`, {}).then((res) => {
         if (res && res.code == 0) {
           let temp = [];
           for (let i = 0; i < res.data.length; i++) {
             temp.push({ username: res.data[i] });
           }
           userList.value = temp;
+          if (type == 1) {
+            activeIndex.value = userList.value.length && userList.value[0].username;
+            getUserAuth(userList.value[0]);
+          }
+        }
+      });
+    };
+    /**
+     * 删除某一行权限
+     * scope当前行数据
+     */
+    const deleteRowAuth = (scope) => {
+      let reqObj = scope.row;
+      reqObj.cancelPrivileges = scope.row.privileges;
+      reqObj.privileges = [];
+      axios.post(`/servers/${serverId.value}/users/${activeIndex.value}`, { ...reqObj }).then((rs) => {
+        if (rs && rs.code == 0) {
+          ElMessage.success('删除权限成功');
+          getUserAuth({ username: activeIndex.value });
+        }
+      });
+    };
+    /**
+     * 编辑某一行权限
+     * scope当前行数据
+     */
+    const saveRowAuth = (scope) => {
+      let reqObj = scope.row;
+
+      if (scope.row.new) {
+        //用户新增权限
+        reqObj.cancelPrivileges = [];
+      } else {
+        // 缓存权限信息
+        let tempRow = userAuthInfoTemp.value.privilegesInfo[scope.$index].privileges;
+        // 用户删除的权限
+        let deleteArr = tempRow.filter(function (val) {
+          return scope.row.privileges.indexOf(val) === -1;
+        });
+        // 用户新增的权限
+        let newArr = scope.row.privileges.filter(function (val) {
+          return tempRow.indexOf(val) === -1;
+        });
+
+        reqObj.privileges = newArr;
+        reqObj.cancelPrivileges = deleteArr;
+      }
+
+      axios.post(`/servers/${serverId.value}/users/${activeIndex.value}`, { ...reqObj }).then((rs) => {
+        if (rs && rs.code == 0) {
+          ElMessage.success('操作权限成功');
+          getUserAuth({ username: activeIndex.value });
+        }
+      });
+    };
+    /**
+     * 取消当前行新增或编辑
+     * scope:当前行数据
+     */
+    const cancelRowAuth = () => {
+      getUserAuth({ username: activeIndex.value });
+    };
+    /**
+     * 修改当前行type时触发
+     * val:当前type值
+     * scope:当前行数据
+     *
+     */
+    const changeType = (val, scope) => {
+      scope.row.groupPaths = [];
+      scope.row.devicePaths = [];
+      scope.row.timeseriesPaths = [];
+    };
+    /**
+     * 根据groupName获取该存储组下的实体
+     * val存储组名称
+     * scope当前行数据
+     */
+    const getDeviceByGroupName = (val, scope) => {
+      scope.row.devicePaths = [];
+      scope.row.timeseriesPaths = [];
+      console.log(val);
+      axios.get(`/servers/${serverId.value}/storageGroups/${val}/devices`).then((rs) => {
+        if (rs && rs.code == 0) {
+          scope.row.allDevicePaths = rs.data || [];
+        }
+      });
+    };
+    /**
+     * 根据deviceName获取该设备下的测点
+     * val设备名称
+     * scope当前行数据
+     */
+    const getTimeSeriesByDeviceName = (val, scope) => {
+      scope.row.timeseriesPaths = [];
+      axios.get(`/servers/${serverId.value}/storageGroups/${scope.row.groupPaths[0]}/devices/${val}/timeseries`).then((rs) => {
+        if (rs && rs.code == 0) {
+          scope.row.allTimeseriesPaths = rs.data || [];
+        }
+      });
+    };
+    /**
+     * 删除某一行存储组信息
+     */
+    const deleteGroup = (scope) => {
+      axios.delete(`/servers/${serverId.value}/storageGroups/${scope.row.groupName}`).then((rs) => {
+        if (rs && rs.code == 0) {
+          ElMessage.success('删除存储组成功');
+          getGroupList();
         }
       });
     };
     onMounted(() => {
       serverId.value = router.currentRoute.value.params.serverid;
-
       getBaseInfo((data) => {
-        getUserAuth(data);
+        //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
+        getUserAuth(data, 1);
       });
       getGroupList();
-      getUserList();
+      getUserList(1);
     });
 
     return {
-      newSource,
+      editSource,
       close,
       showDialog,
       types,
@@ -451,6 +721,7 @@ export default {
       cancelEdit,
       deleteUser,
       newUser,
+      doCreate,
       isNew,
       cancelNew,
       authTableData,
@@ -464,6 +735,15 @@ export default {
       changeEditState,
       userAuthInfo,
       getUserList,
+      saveRowAuth,
+      cancelRowAuth,
+      authAdd,
+      doEdit,
+      deleteRowAuth,
+      changeType,
+      getDeviceByGroupName,
+      getTimeSeriesByDeviceName,
+      deleteGroup,
     };
   },
   components: {
@@ -497,6 +777,20 @@ export default {
   }
   .info-box {
     padding: 10px 20px;
+    position: relative;
+    .icon {
+      position: absolute;
+      top: 19px;
+    }
+    .icon-del {
+      right: 20px;
+      color: #D32D2FFF;
+    }
+    .icon-edit {
+      right: 60px;
+      color: $theme-color;
+
+    }
   }
   .info-box {
     font-size: 16px;
@@ -570,9 +864,19 @@ export default {
       }
       .right-part {
         flex: 1;
+        position: relative;
+        .auth-add-btn {
+          position: absolute;
+          right: 10px;
+          top: 6px;
+          z-index: 10000;
+        }
         &::v-deep .el-tabs__active-bar {
           // width: 23px !important;
           // margin-left: 14px;
+        }
+        .tabs {
+          position: relative;
         }
         .show-only {
           // &::v-deep .el-checkbox__input {

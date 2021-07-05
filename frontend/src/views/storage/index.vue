@@ -73,8 +73,8 @@ export default {
     };
     const editGroup = () => {
       router.push({
-        name: 'NewStorage',
-        params: { serverid: router.currentRoute.value.params.serverid },
+        name: 'EditStorage',
+        params: { serverid: router.currentRoute.value.params.serverid, groupname: baseInfo.value.groupName },
       });
     };
     /**

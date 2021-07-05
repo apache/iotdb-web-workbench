@@ -94,11 +94,13 @@ export default {
           const reqObj = {
             groupName: form.groupName,
             description: form.description,
-            ttl: +form.ttl,
-            ttlUnit: form.ttlUnit,
+            ttl: form.ttl == '' ? null : +form.ttl,
+            ttlUnit: form.ttlUnit || null,
           };
           axios.post(`/servers/${router.currentRoute.value.params.serverid}/storageGroups`, { ...reqObj }).then((res) => {
-            console.log(res, 'kk');
+            if (res && res.code == 0) {
+              ElMessage.success('新增或编辑存储组成功');
+            }
           });
         }
       });

@@ -11,7 +11,7 @@
       </el-tooltip>
       <el-tooltip :content="$t('rootPage.newdatasource')" :visible-arrow="false" effect="light">
         <div class="icon-2">
-          <svg v-icon="`#icon-xinzengshujulianjie-color`" class="icon" aria-hidden="true" @click="btnClick2">
+          <svg v-icon="`#icon-xinzengshujulianjie-color`" class="icon" aria-hidden="true" @click="newSource">
             <use xlink:href="#icon-xinzengshujulianjie"></use>
           </svg>
         </div>
@@ -43,6 +43,7 @@
         </span>
       </template>
     </el-tree>
+    <NewSource v-if="showDialog" :serverId="null" :showDialog="showDialog" :types="types" @close="close()" />
   </div>
 </template>
 
@@ -52,6 +53,7 @@ import { reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
+import NewSource from '../../Source/components/newSource';
 
 export default {
   name: 'DataListTree',
@@ -66,6 +68,8 @@ export default {
     const searchVal = ref('');
     const treeRef = ref(null);
     const store = useStore();
+    const showDialog = ref(false);
+    const types = ref(null);
     const searchClick = () => {
       console.log('jj');
     };
@@ -73,7 +77,20 @@ export default {
     const nodeClick = (data, node) => {
       props.handleNodeClick(data, node);
     };
-    const btnClick1 = () => {};
+    /**
+     * 新建数据源
+     */
+    const newSource = () => {
+      showDialog.value = true;
+      types.value = 0;
+    };
+    /**
+     * 关闭或者取消新增/编辑数据连接操作
+     */
+    const close = () => {
+      showDialog.value = false;
+      types.value = 0;
+    };
     const btnClick2 = () => {};
 
     const loadNode = (node, resolve) => {
@@ -198,11 +215,14 @@ export default {
       loadNode,
       searchClick,
       nodeClick,
-      btnClick1,
+      newSource,
       btnClick2,
       treeProps,
       searchVal,
       treeRef,
+      close,
+      showDialog,
+      types,
     };
   },
   components: {
@@ -210,6 +230,7 @@ export default {
     IconTypes,
     // ElInput,
     ElTooltip,
+    NewSource,
   },
 };
 </script>
