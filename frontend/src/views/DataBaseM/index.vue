@@ -8,17 +8,19 @@
           <el-tabs v-model="urlTabsValue" type="card" @tab-click="handleClick" @tab-remove="removeTab" closable>
             <el-tab-pane v-for="item in urlTabs" :key="item.name" :name="item.name">
               <template #label>
-                <span
-                  ><svg class="icon" aria-hidden="true">
-                    <use :xlink:href="urlTabsValue == item.name ? '#icon-xinzengshujulianjie-color' : '#icon-xinzengshujulianjie'"></use>
-                  </svg>
-                  {{ item.title }}</span
-                >
+                <span>
+                  <icon-types :data="item" :nodekey="urlTabsValue" />
+                  <span>{{ item.title }}</span>
+                </span>
               </template>
             </el-tab-pane>
           </el-tabs>
           <div class="router-container">
-            <router-view></router-view>
+            <router-view v-slot="{ Component }">
+              <keep-alive>
+                <component :is="Component" :data="tabData" />
+              </keep-alive>
+            </router-view>
           </div>
         </template>
       </el-main>
@@ -28,11 +30,13 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import useElementResize from './hooks/useElementResize.js';
 import DataListTree from './components/dataListTree.vue';
+import IconTypes from './components/iconTypes.vue';
 import { ElContainer, ElAside, ElMain, ElTabs, ElTabPane } from 'element-plus';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'Root',
@@ -40,31 +44,78 @@ export default {
     const dividerRef = ref(null);
     const store = useStore();
     let dividerWidth = ref(300);
-    let urlTabsValue = ref('2');
+    let urlTabsValue = ref('');
+    let urlTabs = ref([]);
+    let tabData = ref({});
     const nodekey = ref('');
     let treeRef = ref(null);
-    let urlTabs = ref([
-      {
-        title: 'Tab 1',
-        name: '1',
-        content: 'Tab 1 content',
-      },
-      {
-        title: 'Tab 2',
-        name: '2',
-        content: 'Tab 2 content',
-      },
-    ]);
+    const router = useRouter();
 
     const handleClick = (tab) => {
-      console.log(tab.props.name);
-      console.log(treeRef.value, 'pppww');
-      treeRef.value.treeRef.setCurrentKey(null);
-      nodekey.value = '';
+      let data = urlTabs.value[tab.index];
+      urlTabsValue.value = data.name;
+      treeRef.value.treeRef.setCurrentKey(data.id);
+      nodekey.value = data.id;
+      urlSkipMap(data.node);
+
+      // let node = treeRef.value.treeRef.getCurrentNode();
+      // treeRef.value.treeRef.insertAfter(
+      //   {
+      //     id: 'test:newquery',
+      //     name: '新建查询ffffff',
+      //     type: 'newquery',
+      //     leaf: true,
+      //   },
+      //   node
+      // );
+    };
+
+    watch(urlTabsValue, (newValue) => {
+      urlTabs.value.forEach((e) => {
+        if (e.name === newValue) {
+          tabData.value = e.node;
+        }
+      });
+    });
+
+    const urlSkipMap = (data) => {
+      // console.log(data, 'ppppppp');
+      if (data.type === 'connection') {
+        //数据连接
+      } else if (data.type === 'newstorageGroup') {
+        //新建存储组
+      } else if (data.type === 'querylist') {
+        //查询列表
+      } else if (data.type === 'storageGroup') {
+        //存储组
+      } else if (data.type === 'newdevice') {
+        //新建实体
+      } else if (data.type === 'device') {
+        //实体
+      } else if (data.type === 'newquery') {
+        //新建查询
+      } else if (data.type === 'query') {
+        //查询
+      }
     };
 
     const handleNodeClick = (data) => {
+      router.push({ name: 'About' });
       nodekey.value = data.id;
+      if (data.type === 'querylist') {
+        return;
+      }
+      urlTabsValue.value = data.id + '';
+      let list = urlTabs.value;
+      if (
+        !list.some((e) => {
+          return e.id === data.id + '';
+        })
+      ) {
+        list.push({ node: data, title: data.name, name: data.id + '', id: data.id + '', type: data.type });
+        urlTabs.value = list;
+      }
+      urlSkipMap(data);
     };
 
     const removeTab = (targetName) => {
@@ -75,7 +126,13 @@ export default {
           if (tab.name === targetName) {
             let nextTab = tabs[index + 1] || tabs[index - 1];
             if (nextTab) {
+              urlSkipMap(nextTab.node);
               activeName = nextTab.name;
+              nodekey.value = nextTab.id;
+              treeRef.value.treeRef.setCurrentKey(activeName);
+            } else {
+              nodekey.value = null;
+              treeRef.value.treeRef.setCurrentKey(null);
             }
           }
         });
@@ -90,6 +147,7 @@ export default {
 
     return {
       store,
+      tabData,
       urlTabsValue,
       dividerRef,
       nodekey,
@@ -108,6 +166,7 @@ export default {
     DataListTree,
     ElTabs,
     ElTabPane,
+    IconTypes,
   },
 };
 </script>
