@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-table
-      :data="tableDatas"
+      :data="tableDatas.list"
       style="width: 100%"
       :max-height="maxHeight"
       :height="Height"
@@ -24,20 +24,33 @@
         </template>
         <template #default="scope">
           <el-input
-            v-if="item.type === 'INPUT' && !scope.row[item.prop]"
+            v-if="item.type === 'INPUT' && (!scope.row[item.prop] || scope.row.display)"
             v-model="scope.row[item.prop]"
+            :size="item.size"
+            :placeholder="$t(item.label)"
+            @blur="item.event(scope.row[item.prop], $event)"
+          >
+          </el-input>
+          <el-input
+            v-if="item.type === 'TEXT'"
+            v-model="scope.row[item.prop]"
+            :maxlength="item.maxlength"
             :size="item.size"
             :placeholder="$t(item.label)"
             @blur="checkInput(scope.row[item.prop], item.required)"
           >
           </el-input>
-          <el-input v-if="item.type === 'TEXT'" v-model="scope.row[item.prop]" :size="item.size" :placeholder="$t(item.label)" @blur="checkInput(scope.row[item.prop], item.required)"> </el-input>
-          <el-select v-model="scope.row[item.prop]" :placeholder="$t(item.label)" v-if="item.type === 'SELECT' && !scope.row[item.prop]" :size="item.size">
-            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+          <el-select v-model="scope.row[item.prop]" :placeholder="$t(item.label)" v-if="item.type === 'SELECT' && (!scope.row[item.prop] || scope.row.display)" :size="item.size">
+            <el-option v-for="item in item.options" :key="item.value" :label="item.label" :value="item.value" @click="selectEncoding(item.value, scope.row)">
               <span style="float: left">{{ item.label }}</span>
             </el-option>
           </el-select>
-          <span v-if="item.type && scope.row[item.prop] && item.type !== 'TEXT'">{{ scope.row[item.prop] }}</span>
+          <el-select v-model="scope.row[item.prop]" :placeholder="$t(item.label)" v-if="item.type === 'SELECTCH' && (!scope.row[item.prop] || scope.row.display)" :size="item.size">
+            <el-option v-for="item in scope.row.options" :key="item.value" :label="item.label" :value="item.value">
+              <span style="float: left">{{ item.label }}</span>
+            </el-option>
+          </el-select>
+          <span v-if="item.type && scope.row[item.prop] && !scope.row.display && item.type !== 'TEXT'">{{ scope.row[item.prop] }}</span>
           <span v-if="!item.type">{{ scope.row[item.prop] || item.value }}</span>
         </template>
       </el-table-column>
@@ -80,13 +93,15 @@ export default {
     lineWidth: Number,
     pagination: Object,
     exportData: Function,
+    encoding: Object,
   },
   setup(props) {
     const actionA = props.column.filter((item) => item.prop === 'action');
     const columns = props.column.filter((item) => item.prop !== 'action');
     const actionO = actionA.length > 0 ? reactive(actionA[0]) : '';
-    const tableDatas = reactive(props.tableData);
     const paginations = reactive(props.pagination);
+    const tableDatas = reactive(props.tableData);
+    const encodings = reactive(props.encoding);
     function handleSelectionChange(val) {
       props.selectData(val);
     }
@@ -99,17 +114,30 @@ export default {
         });
       }
     }
+    function getlist(val) {
+      console.log(11111);
+      console.log(val);
+    }
     function handleCurrentChange(val) {
       console.log(val);
     }
+    function selectEncoding(val, row) {
+      row.options = encodings[val];
+      if (!row.options) {
+        row.options = encodings.DEFAULT;
+      }
+      row.encoding = row.options[0].value;
+    }
     return {
       columns,
-      tableDatas,
       actionO,
       paginations,
+      tableDatas,
       checkInput,
       handleSelectionChange,
       handleCurrentChange,
+      selectEncoding,
+      getlist,
     };
   },
   components: {

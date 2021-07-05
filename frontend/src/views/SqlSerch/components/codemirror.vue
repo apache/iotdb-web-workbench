@@ -9,7 +9,7 @@ import 'codemirror/theme/idea.css';
 import 'codemirror/mode/sql/sql.js';
 import 'codemirror/addon/hint/show-hint.css';
 import 'codemirror/addon/hint/show-hint';
-import 'codemirror/addon/hint/sql-hint';
+// import 'codemirror/addon/hint/sql-hint';
 import _CodeMirror from 'codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/cobalt.css';
@@ -18,6 +18,8 @@ import 'codemirror/mode/xml/xml.js';
 import 'codemirror/addon/selection/active-line';
 import 'codemirror/addon/selection/selection-pointer';
 import 'codemirror/addon/edit/matchbrackets';
+import handleShowHint from '../hooks/codemirror';
+import keywords from '../hooks/keywords';
 const CodeMirror = window.CodeMirror || _CodeMirror;
 export default {
   name: 'Sqlserch',
@@ -39,7 +41,10 @@ export default {
         styleActiveLine: true, // 当前行背景高亮
         smartIndent: true,
         matchBrackets: true,
-        hintOptions: { completeSingle: false },
+        hintOptions: {
+          completeSingle: false,
+          hint: handleShowHint,
+        },
         indentUnit: 4, // 缩进单位为4
         extraKeys: { Ctrl: 'autocomplete' },
         // styleActiveLine: true,
@@ -49,6 +54,7 @@ export default {
   mounted() {
     this._initialize();
     this.coder.on('keypress', () => {
+      handleShowHint(this.coder);
       //编译器内容更改事件
       this.coder.showHint();
     });
@@ -74,7 +80,9 @@ export default {
         this.code = coder.getValue();
         this.$emit('getCode', this.code);
       });
-
+      keywords.forEach((words) => {
+        CodeMirror.resolveMode('text/x-mysql').keywords[words.toLowerCase()] = true;
+      });
       // 尝试从父容器获取语法类型
       if (this.language) {
         // 获取具体的语法类型对象

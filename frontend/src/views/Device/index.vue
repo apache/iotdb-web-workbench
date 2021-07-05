@@ -3,14 +3,14 @@
     <form-table :form="form"></form-table>
     <div class="addbox">
       {{ $t('device.physical') }}
-      <el-button type="primary" class="addbutton" size="small">
+      <el-button type="primary" class="addbutton" size="small" @click="addItem">
         {{ $t('device.addphysical') }}
       </el-button>
     </div>
     <div class="tableBox">
-      <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="250">
+      <stand-table ref="standtable" :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :encoding="encoding" :maxHeight="460">
         <template #default="{ scope }">
-          <el-button @click="deleteRow(scope.row)" type="text" size="small" style="color: red">
+          <el-button @click="deleteRow(scope.row, scope.$index)" type="text" size="small" style="color: red">
             {{ $t('device.delete') }}
           </el-button>
         </template>
@@ -18,7 +18,7 @@
     </div>
     <div class="footer">
       <el-button type="info">{{ $t('device.cencel') }}</el-button>
-      <el-button type="primary">{{ $t('device.ok') }}</el-button>
+      <el-button type="primary" @click="sumbitData">{{ $t('device.ok') }}</el-button>
     </div>
   </div>
 </template>
@@ -26,33 +26,58 @@
 <script>
 import FormTable from '@/components/FormTable';
 import StandTable from '@/components/StandTable';
-import { ElButton } from 'element-plus';
-import { onMounted, reactive } from 'vue';
-import { getDeviceDate } from './api';
+import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
+import { onMounted, reactive, ref } from 'vue';
+import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
+import { useI18n } from 'vue-i18n';
 export default {
   name: 'DeviceAddEidt',
   setup() {
+    const standtable = ref(null);
+    const { t } = useI18n();
+    const encoding = {
+      BOOLEAN: [
+        { label: 'PLAIN', value: 'PLAIN' },
+        { label: 'RLE', value: 'RLE' },
+      ],
+      TEXT: [{ label: 'PLAIN', value: 'PLAIN' }],
+      DEFAULT: [
+        { label: 'PLAIN', value: 'PLAIN' },
+        { label: 'RLE', value: 'RLE' },
+        { label: 'TS_2DIFF', value: 'TS_2DIFF' },
+        { label: 'GORILLA', value: 'GORILLA' },
+      ],
+    };
     const column = reactive([
       {
         label: 'device.physicalname',
-        prop: 'name',
+        prop: 'timeseries',
         type: 'INPUT', //控件类型
         width: 350,
         required: true, //必填标志
         size: 'small',
+        event: checkVal,
       },
       {
         label: 'device.datatype',
-        prop: 'type',
+        prop: 'dataType',
         type: 'SELECT',
         width: 200,
+        options: [
+          { label: 'BOOLEAN', value: 'BOOLEAN' },
+          { label: 'INT32', value: 'INT32' },
+          { label: 'INT64', value: 'INT64' },
+          { label: 'FLOAT', value: 'FLOAT' },
+          { label: 'DOUBLE', value: 'DOUBLE' },
+          { label: 'TEXT', value: 'TEXT' },
+        ],
         required: true,
         size: 'small',
       },
       {
         label: 'device.codingmode',
-        prop: 'func',
-        type: 'SELECT',
+        prop: 'encoding',
+        type: 'SELECTCH',
         width: 200,
         required: true,
         size: 'small',
@@ -60,9 +85,10 @@ export default {
       },
       {
         label: 'device.physicaldescr',
-        prop: 'mess',
+        prop: 'description',
         type: 'TEXT',
         width: 700,
+        maxlength: 255,
         size: 'small',
       },
       {
@@ -71,34 +97,28 @@ export default {
         align: 'center',
       },
     ]);
-    const tableData = [
-      {
-        name: 'data_test',
-        mess: '1234214',
-      },
-      {
-        name: 'data_test',
-      },
-      {
-        name: 'data_test',
-      },
-    ];
+    let tableData = reactive({
+      list: [
+        {
+          timeseries: null,
+          dataType: null,
+          encoding: null,
+          description: null,
+          display: true,
+        },
+      ],
+    });
     const form = reactive({
       // inline: true, //横向
       labelPosition: 'left', //文本对齐方式
-      formData: {
-        name: 'data',
-        mess: '描述',
-        date: '1997.12.10',
-        save: 'xxxxx/thjt_test',
-      },
+      formData: {},
       formItem: [
         {
           label: 'device.devicename', //名称
           type: 'INPUT', //控件类型
           size: 'small', //element尺寸
           labelWidth: '40%', //块宽度 px 或 %
-          itemID: 'name', //数据字段名
+          itemID: 'deviceName', //数据字段名
           placeholder: '请输入设备名称', //灰色提示文字
           required: true, //是否必填
           message: '请输入设备名称', //报错提示信息
@@ -108,8 +128,7 @@ export default {
           type: 'INPUT', //控件类型
           size: 'small', //尺寸
           labelWidth: '40%', //块宽度 px 或 %
-          // width: "200px", //表单控件宽度 px 或 %
-          itemID: 'mess', //数据字段名
+          itemID: 'description', //数据字段名
           placeholder: '请输入设备描述', //灰色提示文字
           required: false, //是否必填
           message: '请输入设备描述', //报错提示信息
@@ -119,29 +138,106 @@ export default {
           type: 'TEXT', //控件类型
           size: 'small', //尺寸
           labelWidth: '40%', //块宽度 px 或 %
-          // width: "200px", //表单控件宽度 px 或 %
-          itemID: 'save', //数据字段名
+          itemID: 'groupName', //数据字段名
           placeholder: '', //灰色提示文字
           required: false, //是否必填
           message: '', //报错提示信息
         },
       ],
     });
-    function deleteRow(a) {
-      console.log(a);
-      console.log(a.name);
+    function checkVal(val, ev) {
+      if (!/^\w+$/.test(val)) {
+        ElMessage.error(`"${val}"物理量必须由字⺟、数字、下划线组成`);
+        ev.target.focus();
+      } else if (val === null || val.length > 255) {
+        ElMessage.error(`"${val}"物理量必须⼤于0⼤字符，⼩于255个字符`);
+        ev.target.focus();
+      }
+    }
+    function deleteRow(row, index) {
+      console.log(row.timeseries);
+      console.log(index);
+      ElMessageBox.confirm(`${t('device.deletecontent1')}"${row.timeseries}"？${t('device.deletecontent2')}`, '提示', {
+        confirmButtonText: t('device.ok'),
+        cancelButtonText: t('device.cencel'),
+        type: 'warning',
+      })
+        .then(() => {
+          deleteData(9, 'mytest', 'test1', row.timeseries).then(() => {
+            tableData.list.splice(index, 1);
+            ElMessage({
+              type: 'success',
+              message: '删除成功!',
+            });
+          });
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消删除',
+          });
+        });
+      // deleteData(9, 'mytest', 'test1',row.timeseries)
+    }
+    function addItem() {
+      tableData.list.unshift({
+        timeseries: null,
+        dataType: null,
+        encoding: null,
+        description: null,
+        display: true,
+      });
+    }
+    function sumbitData() {
+      let checkfalg = true;
+      try {
+        tableData.list.forEach((item) => {
+          if (item.timeseries === null || item.dataType === null) {
+            item.timeseries === null ? ElMessage.error(`请填写物理量名称`) : ElMessage.error(`${item.timeseries}物理量必须选择数据类型`);
+            checkfalg = false;
+            throw Error();
+          }
+        });
+      } catch (e) {
+        console.log(e);
+      }
+      if (checkfalg) {
+        deviceAddEdite(9, 'mytest', { ...form.formData, deviceDTOList: tableData.list }).then(() => {
+          ElMessage({
+            type: 'success',
+            message: '保存成功!',
+          });
+          getListData();
+        });
+      }
+    }
+    function getListData() {
+      getList(9, 'mytest', 'test1', { pageSize: 10, pageNum: 1 }).then((res) => {
+        console.log(res);
+        tableData.list = res.data.measurementVOList;
+        console.log(standtable);
+      });
     }
     onMounted(() => {
-      getDeviceDate(9, 'mytest', 'test').then((res) => {
-        console.log(res);
+      getDeviceDate(9, 'mytest', 'test1').then((res) => {
+        form.formData = reactive({
+          description: res.data.description,
+          deviceName: 'test1',
+          groupName: 'mytest',
+          deviceId: res.data.deviceId,
+        });
       });
-      console.log(111);
+      getListData();
     });
     return {
+      sumbitData,
       deleteRow,
+      addItem,
+      encoding,
       form,
       tableData,
       column,
+      standtable,
     };
   },
   components: {

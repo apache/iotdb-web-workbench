@@ -2,7 +2,7 @@
   <div>
     <div class="headerbox">
       <div class="flexBox" style="padding: 30px 0 10px 0">
-        <div class="headerSpan">设备名称</div>
+        <div class="headerSpan">{{ $t('device.devicename') }}</div>
         <div class="flexBox headerIcon">
           <i class="el-icon-edit edit"></i>
           <i class="el-icon-delete delete"></i>
@@ -11,21 +11,21 @@
       <div class="messageBox">
         <span>数据链接：</span>
         <span>xxxxxxxxxxxxxxxxx</span>
-        <span class="spanmargin">所属存储组：</span>
+        <span class="spanmargin">{{ $t('device.group') }}：</span>
         <span>xxxxxxxx</span>
-        <span class="spanmargin">设备描述：</span>
-        <span>xxxxxxxx</span>
-        <span class="spanmargin">创建人：</span>
-        <span>xxxxxxxx</span>
-        <span class="spanmargin">创建时间：</span>
-        <span>xxxxxxxx</span>
+        <span class="spanmargin">{{ $t('device.physicaldescr') }}：</span>
+        <span>{{ deviceObj.deviceData.description }}</span>
+        <span class="spanmargin">{{ $t('device.creator') }}：</span>
+        <span>{{ deviceObj.deviceData.creator }}</span>
+        <span class="spanmargin">{{ $t('device.createTime') }}：</span>
+        <span>{{ deviceObj.deviceData.time }}</span>
       </div>
     </div>
     <div style="padding: 20px 30px" class="flexBox">
       <form-table :form="form"></form-table>
-      <el-button class="creatButton">新建设备</el-button>
+      <el-button class="creatButton">{{ $t('storagePage.newDevice') }}</el-button>
     </div>
-    <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="250" :exportData="() => {}">
+    <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="450" :exportData="() => {}">
       <template #default="{ scope }">
         <el-button @click="searchRow(scope.row)" type="text" size="small"> 查看 </el-button>
       </template>
@@ -37,11 +37,11 @@
           <i class="el-icon-close" style="cursor: pointer" @click="closeDrawer"></i>
         </div>
       </div>
-      <div style="padding: 10px 30px">
+      <div class="formtable">
         <form-table :form="formdate"></form-table>
       </div>
       <div>
-        <echarts></echarts>
+        <echarts ref="drawerRef" :echartsData="echartsData"></echarts>
       </div>
     </div>
   </div>
@@ -51,7 +51,8 @@
 import { ElButton } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import { getList, getDeviceDate } from './api';
 import Echarts from '@/components/Echarts';
 export default {
   name: 'DeviceMessage',
@@ -62,6 +63,16 @@ export default {
     //   total: 50,
     //   currentPage: 1,
     // });
+    const drawerRef = ref(null);
+    let deviceObj = reactive({
+      deviceData: 0,
+    });
+    const echartsData = reactive({
+      id: null,
+      timeseries: null,
+      deviceName: null,
+      groupName: null,
+    });
     const form = reactive({
       inline: true, //横向
       formData: {},
@@ -80,7 +91,7 @@ export default {
     const formdate = reactive({
       inline: true, //横向
       formData: {
-        time: [new Date('2021-05-09 23:59:59'), new Date('2021-05-10 23:59:59')],
+        time: [new Date('2021-07-02T08:40:07.348Z'), new Date('2021-07-02T08:45:07.348Z')],
       },
       formItem: [
         {
@@ -97,83 +108,84 @@ export default {
     });
     const column = [
       {
-        label: '测点名称',
-        prop: 'name',
+        label: 'device.physicalname',
+        prop: 'timeseries',
         value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: '数据类型',
-        prop: 'type',
+        label: 'device.datatype',
+        prop: 'dataType',
         value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: '编码方式',
-        prop: 'func',
+        label: 'device.codingmode',
+        prop: 'encoding',
         value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: '测点描述',
-        prop: 'mess',
+        label: 'device.physicaldescr',
+        prop: 'description',
         value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: '最新值',
-        prop: 'num',
+        label: 'device.newValue',
+        prop: 'newValue',
         value: '——', //默认值，该项如果没有数据显示
       },
       {
-        label: '数据趋势',
+        label: 'device.datatrends',
         prop: 'action',
       },
     ];
-    const tableData = [
-      {
-        name: 'A111',
-        type: 'string',
-        func: '',
-        mess: '设备',
-      },
-      {
-        name: 'A111',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A111',
-        type: 'string',
-        func: 'utf',
-        mess: '设备111111111111111111111111111111111111111111111111111111111111',
-      },
-      {
-        name: 'A222',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-    ];
-    function searchRow(a) {
-      drawerFlag.value = true;
+    const tableData = reactive({
+      list: [],
+    });
+    function searchRow(val) {
+      echartsData.id = 9;
+      echartsData.timeseries = val.timeseries;
+      echartsData.deviceName = 'd1';
+      echartsData.groupName = 'turbine';
+      if (!drawerFlag.value) {
+        drawerFlag.value = true;
+      } else {
+        drawerFlag.value = false;
+        setTimeout(() => {
+          drawerFlag.value = true;
+          drawerRef.value.getehartsData(echartsData);
+        }, 10);
+      }
       setTimeout(() => {
         drawer.value = 400;
       }, 10);
-      console.log(a);
-      console.log(a.name);
     }
     function closeDrawer() {
       drawer.value = 0;
       setTimeout(() => {
-        drawerFlag.value = true;
+        drawerFlag.value = false;
       }, 400);
     }
     function selectData(val) {
       console.log(1);
       console.log(val);
     }
+    function getListData() {
+      getList(9, 'turbine', 'd1', { pageSize: 10, pageNum: 1 }).then((res) => {
+        tableData.list = res.data.measurementVOList;
+      });
+    }
+    onMounted(() => {
+      getDeviceDate(9, 'turbine', 'd1').then((res) => {
+        deviceObj.deviceData = res.data;
+      });
+      getListData();
+    });
     return {
       form,
       column,
       drawer,
+      drawerRef,
+      deviceObj,
+      echartsData,
       drawerFlag,
       tableData,
       formdate,
@@ -193,6 +205,10 @@ export default {
 
 <style lang="scss" scoped>
 $cursor: pointer;
+.formtable {
+  padding: 10px 30px;
+  text-align: initial;
+}
 .drawertitle {
   height: 35px;
   background: rgb(227, 227, 227);
