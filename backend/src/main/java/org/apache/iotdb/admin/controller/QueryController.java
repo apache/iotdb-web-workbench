@@ -40,13 +40,14 @@ public class QueryController {
     @ApiOperation("用于查询器查询")
     public BaseVO<SqlResultVO> query(@PathVariable("serverId") Integer serverId,
                                      @RequestParam("sqls") List<String> sqls,
+                                     @RequestParam("timestamp") Long timestamp,
                                      HttpServletRequest request) throws BaseException {
         if (sqls == null || sqls.size() == 0) {
             throw new BaseException(ErrorCode.NO_SQL, ErrorCode.NO_SQL_MSG);
         }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
-        SqlResultVO sqlResultVO = iotDBService.queryAll(connection, sqls);
+        SqlResultVO sqlResultVO = iotDBService.queryAll(connection, sqls,timestamp);
         return BaseVO.success("查询成功", sqlResultVO);
     }
 
@@ -98,9 +99,11 @@ public class QueryController {
     }
 
     @GetMapping("/stop")
-    @ApiOperation("用于查询终止  (未完成)")
-    public BaseVO query(@PathVariable("serverId") Integer serverId) {
-        return BaseVO.success("查询成功", null);
+    @ApiOperation("用于查询终止")
+    public BaseVO query(@PathVariable("serverId") Integer serverId,@RequestParam("timestamp") Long timestamp, HttpServletRequest request) throws BaseException {
+        check(request, serverId);
+        iotDBService.stopQuery(serverId,timestamp);
+        return BaseVO.success("停止成功", null);
     }
 
     public void check(HttpServletRequest request, Integer serverId) throws BaseException {

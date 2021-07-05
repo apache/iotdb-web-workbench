@@ -502,20 +502,39 @@ public class IotDBController<T> {
     @ApiOperation("数据库用户赋权")
     public BaseVO setUserPrivileges(@PathVariable("serverId") Integer serverId,
                                             @PathVariable("userName") String userName,
-                                            @RequestBody IotDBUserDTO iotDBUserDTO,
+                                            @RequestBody PrivilegeInfoDTO privilegeInfoDTO,
                                             HttpServletRequest request) throws BaseException {
         if (userName == null || !userName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
-        if (iotDBUserDTO == null) {
+        if (privilegeInfoDTO == null) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
-        iotDBService.setUserPrivileges(connection,userName,iotDBUserDTO);
+        iotDBService.setUserPrivileges(connection,userName,privilegeInfoDTO);
         return BaseVO.success("操作成功", null);
     }
 
+//    @DeleteMapping("/users/{userName}")
+//    @ApiOperation("数据库用户删除对应路径全部权限")
+//    public BaseVO deleteUserPrivileges(@PathVariable("serverId") Integer serverId,
+//                                    @PathVariable("userName") String userName,
+//                                    @RequestBody PrivilegeInfoDTO privilegeInfoDTO,
+//                                    HttpServletRequest request) throws BaseException {
+//
+//    }
+
+    @PostMapping("/users/pwd")
+    @ApiOperation("改变用户密码")
+    public BaseVO updatePassword(@PathVariable("serverId") Integer serverId,
+                                  @RequestBody IotDBUser iotDBUser,
+                                  HttpServletRequest request) throws BaseException {
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        iotDBService.updatePwd(connection, iotDBUser);
+        return BaseVO.success("删除成功", null);
+    }
 
     @DeleteMapping("/users/{userName}")
     @ApiOperation("删除数据库用户")

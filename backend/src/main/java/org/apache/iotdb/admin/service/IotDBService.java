@@ -68,9 +68,13 @@ public interface IotDBService {
 
     List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
 
-    void setUserPrivileges(Connection connection, String userName,IotDBUserDTO iotDBUserDTO) throws BaseException;
+    void setUserPrivileges(Connection connection, String userName,PrivilegeInfoDTO privilegeInfoDTO) throws BaseException;
 
     RecordVO getRecords(Connection connection, String deviceName, String timeseriesName) throws BaseException;
 
-    SqlResultVO queryAll(Connection connection, List<String> sqls) throws BaseException;
+    SqlResultVO queryAll(Connection connection, List<String> sqls,Long timestamp) throws BaseException;
+
+    void updatePwd(Connection connection, IotDBUser iotDBUser) throws BaseException;
+
+    void stopQuery(Integer serverId, Long timestamp) throws BaseException;
 }
