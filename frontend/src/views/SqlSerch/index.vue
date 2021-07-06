@@ -8,16 +8,16 @@
             <span>存储组：</span>
           </div>
           <div class="rightIcon flex">
-            <eltooltip label="保存">
+            <eltooltip label="sqlserch.save">
               <span>
                 <svg class="icon icon-1" aria-hidden="true" @click="btnClick1" v-icon="`#icon-baocun-color`">
                   <use xlink:href="#icon-baocun"></use>
                 </svg>
               </span>
             </eltooltip>
-            <eltooltip label="运行">
+            <eltooltip label="sqlserch.run">
               <span>
-                <svg class="icon icon-1" aria-hidden="true" @click="btnClick1" v-icon="`#icon-yunhang-color`">
+                <svg class="icon icon-1" aria-hidden="true" @click="querySqlRun" v-icon="`#icon-yunhang-color`">
                   <use xlink:href="#icon-yunhang"></use>
                 </svg>
               </span>
@@ -73,7 +73,7 @@
         <div class="tabgad">
           <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav_aside">
             <el-tab-pane label="函数" name="first">
-              <formserch :placeholder="'请输入函数名称'"></formserch>
+              <formserch :placeholder="'请输入函数名称'" @getFunction="getFunction"></formserch>
             </el-tab-pane>
             <el-tab-pane label="数据" name="second"></el-tab-pane>
           </el-tabs>
@@ -91,6 +91,7 @@ import useElementResize from './hooks/useElementResize.js';
 import codemirror from './components/codemirror';
 import eltooltip from './components/eltooltip';
 import { onMounted, ref, computed, nextTick } from 'vue';
+import { querySql } from './api/index';
 export default {
   name: 'Sqlserch',
   setup() {
@@ -104,7 +105,7 @@ export default {
       });
       return divwerHeight.value;
     });
-    let code = 'select from 1';
+    let code = 'show storage group';
     const column = [
       {
         label: '测点名称',
@@ -194,15 +195,22 @@ export default {
         mess: '设备',
       },
     ];
-    function getCode(val) {
-      // console.log(typeof val);
-      code = val;
-      // console.log(code);
+    function getFunction(val) {
+      codemirror.value.onCmCodeChange(val);
     }
-    function btnClick1() {
+    function getCode(val) {
+      code = val;
+    }
+    function querySqlRun() {
       divwerHeight.value = 300;
       useElementResize(dividerRef, divwerHeight);
-      codemirror.value.onCmCodeChange('插入函数');
+      querySql(9, { sqls: [code], timestamp: new Date() }).then((res) => {
+        console.log(res);
+      });
+    }
+    function btnClick1() {
+      // divwerHeight.value = 300;
+      // useElementResize(dividerRef, divwerHeight);
     }
     onMounted(() => {
       useElementResize(dividerRef, divwerHeight);
@@ -218,6 +226,8 @@ export default {
       dividerRef,
       sqlheight,
       activeName,
+      getFunction,
+      querySqlRun,
     };
   },
   components: {
