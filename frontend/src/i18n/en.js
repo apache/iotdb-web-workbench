@@ -42,7 +42,7 @@ const en = {
 
     sourcePage: {
       alias: 'alias',
-      host: 'hist',
+      host: 'host',
       port: 'port',
       username: 'username',
       password: 'password',
@@ -51,6 +51,8 @@ const en = {
       eg: 'example:127.0.0.1',
       aliasEmptyTip: 'alias can not be empty',
       hostEmptyTip: 'host can not be empty',
+      hostErrorTip: 'host pattern is incorrect',
+      portErrorTip: 'port pattern is incorrect',
       portEmptyTip: 'port can not be empty',
       usernameEmptyTip: 'username can not be empty',
       passwordEmptyTip: 'password can not be empty',
@@ -88,6 +90,9 @@ const en = {
       stopTrigger: 'STOP_TRIGGER',
       createFunction: 'CREATE_FUNCTION',
       uninstallFunction: 'DROP_FUNCTION',
+      test: 'connection test',
+      testBtnLabel: 'test',
+      testResult: 'connection test passed',
     },
     storagePage: {
       alias: 'alias',

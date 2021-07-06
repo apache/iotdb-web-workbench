@@ -9,7 +9,7 @@
       <svg class="icon icon-edit" aria-hidden="true" @click="editSource()">
         <use xlink:href="#icon-se-icon-f-edit"></use>
       </svg>
-      <svg class="icon icon-del" aria-hidden="true">
+      <svg class="icon icon-del" aria-hidden="true" @click="deleteSource()">
         <use xlink:href="#icon-se-icon-delete"></use>
       </svg>
     </div>
@@ -43,7 +43,7 @@
                 <div v-if="!isNew" class="tab-content left-base-content">
                   <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
                     <el-form-item :label="$t('sourcePage.userNameTitle')">
-                      <div>{{ baseInfoForm.userName }}</div>
+                      <div class="user-name">{{ baseInfoForm.userName }}</div>
                     </el-form-item>
                     <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
                       <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
@@ -169,7 +169,7 @@
         </svg>
         {{ $t('sourcePage.groupInfo') }}
       </div>
-      <el-table :data="tableData" class="group-table" max-height="250">
+      <el-table :data="tableData" class="group-table" max-height="280" height="280">
         <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
         <el-table-column prop="description" :label="$t('sourcePage.description')"> </el-table-column>
         <el-table-column prop="deviceCount" :label="$t('sourcePage.line')"> </el-table-column>
@@ -180,15 +180,12 @@
             <el-button type="text" size="small">
               {{ $t('common.edit') }}
             </el-button>
-            <el-button type="text" size="small" class="el-button-delete" @click="deleteGroup(scope)">
-              {{ $t('common.delete') }}
-            </el-button>
+            <el-button type="text" size="small" class="el-button-delete" :disable="canGroupSet" @click="deleteGroup(scope)"> {{ $t('common.delete') }} </el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <el-button @click="editSource()">新建数据源</el-button>
-    <NewSource v-if="showDialog" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" />
+    <NewSource v-if="showDialog" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
   </div>
 </template>
 
@@ -213,6 +210,8 @@ export default {
     let activeName = ref('1');
     // 是否可以创建用户
     let canCreateUser = ref(false);
+    //是否可以创建存储组，用于判断是否可以删除存储组
+    let canGroupSet = ref(false);
     // 是否可以删除用户
     let canDeleteUser = ref(false);
     // 是否可以修改密码
@@ -336,9 +335,27 @@ export default {
       types.value = 1;
     };
     /**
+     * 删除数据源
+     */
+    const deleteSource = () => {
+      axios.delete(`/servers/${serverId.value}`).then((rs) => {
+        if (rs && rs.code == 0) {
+          ElMessage.success('删除连接成功');
+        }
+      });
+    };
+    /**
      * 关闭或者取消新增/编辑数据连接操作
      */
     const close = () => {
+      showDialog.value = false;
+      types.value = 0;
+    };
+    /**
+     * 新增或编辑数据源成功回调
+     */
+    const successFunc = (data) => {
+      console.log(data);
       showDialog.value = false;
       types.value = 0;
     };
@@ -543,11 +560,7 @@ export default {
           canModifyPassword.value = data[i].privileges.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
           canShowUser.value = data[i].privileges.indexOf('LIST_USER') >= 0 ? true : false;
           canAuth.value = data[i].privileges.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
-          console.log(canCreateUser.value);
-          console.log(canDeleteUser.value);
-          console.log(canModifyPassword.value);
-          console.log(canShowUser.value);
-          console.log(canAuth.value);
+          canGroupSet.value = data[i].privileges.indexOf('SET_STORAGE_GROUP') >= 0 ? true : false;
         }
       }
     };
@@ -703,6 +716,8 @@ export default {
     return {
       editSource,
       close,
+      deleteSource,
+      successFunc,
       showDialog,
       types,
       baseInfo,
@@ -744,6 +759,12 @@ export default {
       getDeviceByGroupName,
       getTimeSeriesByDeviceName,
       deleteGroup,
+      canCreateUser,
+      canGroupSet,
+      canDeleteUser,
+      canModifyPassword,
+      canShowUser,
+      canAuth,
     };
   },
   components: {
@@ -784,12 +805,11 @@ export default {
     }
     .icon-del {
       right: 20px;
-      color: #D32D2FFF;
+      color: #d32d2fff;
     }
     .icon-edit {
       right: 60px;
       color: $theme-color;
-
     }
   }
   .info-box {
@@ -857,7 +877,7 @@ export default {
             .icon {
               position: absolute;
               right: 16px;
-              top: 10px;
+              top: 12px;
             }
           }
         }
@@ -910,7 +930,12 @@ export default {
         }
         .tab-content {
           padding: 10px 30px;
-
+          .user-name {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
           .password-form-item {
             position: relative;
 
@@ -952,7 +977,7 @@ export default {
     .group-table {
       width: 100%;
       padding: 10px;
-      overflow: auto;
+      // overflow: auto;
       // &::v-deep .el-table__body-wrapper {
       //   max-height: 30vh;
       //   overflow: auto !important;

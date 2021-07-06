@@ -43,7 +43,7 @@
         </span>
       </template>
     </el-tree>
-    <NewSource v-if="showDialog" :serverId="null" :showDialog="showDialog" :types="types" @close="close()" />
+    <NewSource v-if="showDialog" :serverId="null" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
   </div>
 </template>
 
@@ -88,6 +88,14 @@ export default {
      * 关闭或者取消新增/编辑数据连接操作
      */
     const close = () => {
+      showDialog.value = false;
+      types.value = 0;
+    };
+    /**
+     * 新增或编辑数据源成功回调
+     */
+    const successFunc = (data) => {
+      console.log(data);
       showDialog.value = false;
       types.value = 0;
     };
@@ -221,6 +229,7 @@ export default {
       searchVal,
       treeRef,
       close,
+      successFunc,
       showDialog,
       types,
     };

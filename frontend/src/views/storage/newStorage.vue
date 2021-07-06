@@ -39,6 +39,7 @@ import axios from '@/util/axios.js';
 
 export default {
   name: 'NewStorages',
+
   setup() {
     const { t } = useI18n();
     const router = useRouter();
@@ -94,7 +95,7 @@ export default {
           const reqObj = {
             groupName: form.groupName,
             description: form.description,
-            ttl: form.ttl == '' ? null : +form.ttl,
+            ttl: form.ttl == '' || form.ttl == null ? null : +form.ttl,
             ttlUnit: form.ttlUnit || null,
           };
           axios.post(`/servers/${router.currentRoute.value.params.serverid}/storageGroups`, { ...reqObj }).then((res) => {

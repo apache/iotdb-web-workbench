@@ -51,6 +51,8 @@ const cn = {
       eg: '示例:127.0.0.1',
       aliasEmptyTip: '数据源名称不能为空',
       hostEmptyTip: 'IP地址不能为空',
+      hostErrorTip: '请正确填写IP地址',
+      portErrorTip: '请正确填写端口号',
       portEmptyTip: '端口号不能为空',
       usernameEmptyTip: '用户名不能为空',
       passwordEmptyTip: '密码不能为空',
@@ -88,6 +90,9 @@ const cn = {
       stopTrigger: '停止触发器',
       createFunction: '注册UDF',
       uninstallFunction: '卸载UDF',
+      test: '测试连通性',
+      testBtnLabel: '连接测试',
+      testResult: '连接测试通过',
     },
     storagePage: {
       alias: '数据连接',
