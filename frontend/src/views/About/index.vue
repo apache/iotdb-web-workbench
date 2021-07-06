@@ -4,16 +4,24 @@
   </div>
 </template>
 <script>
-import { onUpdated, onMounted } from 'vue';
+import { onUpdated, onMounted, onActivated } from 'vue';
+import { useRoute } from 'vue-router';
 export default {
   name: 'About',
   props: ['data', 'func'],
-  setup(props) {
+  setup() {
+    const route = useRoute();
     onMounted(() => {
-      console.log(props.func, 'yyy');
+      // console.log(props.func, 'yyy');
     });
     onUpdated(() => {
       // console.log(props.data, 'yyy');
+    });
+
+    onActivated(() => {
+      if (route.params.forceupdate) {
+        console.log(route.params, 'update');
+      }
     });
     return {};
   },
