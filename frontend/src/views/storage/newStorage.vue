@@ -104,7 +104,7 @@ export default {
               ElMessage.success('新增或编辑存储组成功');
               props.func.removeTab(props.data.id);
               props.func.updateTree();
-              props.func.addTab(form.groupName + 'storageGroup');
+              props.func.addTab(router.currentRoute.value.params.serverid + 'connection' + form.groupName + 'storageGroup');
             }
           });
         }

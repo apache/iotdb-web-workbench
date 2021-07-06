@@ -708,7 +708,7 @@ export default {
      * 查看存储组详情
      */
     const goGroupDetail = (scope) => {
-      props.func.addTab(scope.row.groupName + 'storageGroup');
+      props.func.addTab(serverId.value + scope.row.groupName + 'storageGroup');
     };
     onMounted(() => {
       serverId.value = router.currentRoute.value.params.serverid;
