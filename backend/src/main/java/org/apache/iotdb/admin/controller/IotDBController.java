@@ -588,6 +588,11 @@ public class IotDBController<T> {
     }
 
 
+//    @Scheduled(fixedRate = 1000 * 60 * 10)
+//    public void update(){
+//
+//    }
+
     private void check(HttpServletRequest request, Integer serverId) throws BaseException {
         Integer userId = AuthenticationUtils.getUserId(request);
         connectionService.check(serverId, userId);

@@ -4,7 +4,7 @@
       <span>{{ $t('rootPage.dataList') }}</span>
       <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
         <div class="icon-1">
-          <svg class="icon" aria-hidden="true" @click="btnClick1" v-icon="`#icon-xinjianchaxun-color`">
+          <svg class="icon" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
             <use xlink:href="#icon-xinjianchaxun"></use>
           </svg>
         </div>
@@ -35,6 +35,7 @@
       :load="loadNode"
       lazy
       :current-node-key="nodekey"
+      :key="treeKey"
     >
       <template #default="{ node, data }">
         <span class="custom-tree-node">
@@ -70,6 +71,7 @@ export default {
     const store = useStore();
     const showDialog = ref(false);
     const types = ref(null);
+    const treeKey = ref(1);
     const searchClick = () => {
       console.log('jj');
     };
@@ -100,6 +102,10 @@ export default {
       types.value = 0;
     };
     const btnClick2 = () => {};
+
+    const treeInsertRootBefore = () => {
+      treeKey.value += 1;
+    };
 
     const loadNode = (node, resolve) => {
       if (node.level === 0) {
@@ -219,6 +225,7 @@ export default {
     };
 
     return {
+      treeKey,
       store,
       loadNode,
       searchClick,
@@ -232,6 +239,7 @@ export default {
       successFunc,
       showDialog,
       types,
+      treeInsertRootBefore,
     };
   },
   components: {
