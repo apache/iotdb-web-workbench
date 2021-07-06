@@ -74,6 +74,7 @@ export default {
     const showDialog = ref(false);
     const types = ref(null);
     const treeKey = ref(1);
+
     const searchClick = () => {
       console.log('jj');
     };
@@ -159,7 +160,7 @@ export default {
               return {
                 parent: node.data,
                 name: e.groupName,
-                id: e.groupName + 'storageGroup',
+                id: node.data.id + e.groupName + 'storageGroup',
                 type: 'storageGroup',
                 rawid: e.groupName,
                 storagegroupid: e.groupName,
@@ -190,7 +191,7 @@ export default {
               return {
                 parent: node.data,
                 name: e,
-                id: e + 'device',
+                id: node.data.id + e + 'device',
                 type: 'device',
                 leaf: true,
                 rawid: e,
@@ -221,7 +222,7 @@ export default {
               return {
                 parent: node.data,
                 name: e.queryName,
-                id: e.id + 'query',
+                id: node.data.id + e.id + 'query',
                 type: 'query',
                 leaf: true,
                 rawid: e.id,
