@@ -27,7 +27,8 @@
                     treeInsertAfter,
                     treeInsertBefore,
                     removeTab,
-                    addTab: handleNodeClick,
+                    addTab,
+                    updateTree,
                   }"
                 />
               </keep-alive>
@@ -69,6 +70,11 @@ export default {
       treeRef.value.treeRef.setCurrentKey(data.id);
       nodekey.value = data.id;
       urlSkipMap(data.node);
+      // addTab('myteststorageGroup');
+    };
+
+    const updateTree = () => {
+      treeRef.value.updateTree();
     };
 
     const treeAppend = (id, data) => {
@@ -81,6 +87,17 @@ export default {
 
     const treeInsertBefore = (id, data) => {
       treeRef.value.treeRef.insertBefore(data, id);
+    };
+
+    const addTab = (id) => {
+      updateTree();
+      let stop = setInterval(() => {
+        let node = treeRef.value.treeRef.getNode(id);
+        if (node) {
+          handleNodeClick(node.data);
+          stop();
+        }
+      }, 300);
     };
 
     watch(urlTabsValue, (newValue) => {
@@ -179,6 +196,8 @@ export default {
       treeAppend,
       treeInsertBefore,
       treeInsertAfter,
+      updateTree,
+      addTab,
     };
   },
   components: {

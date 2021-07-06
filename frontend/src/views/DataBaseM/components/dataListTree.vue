@@ -4,7 +4,7 @@
       <span>{{ $t('rootPage.dataList') }}</span>
       <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
         <div class="icon-1">
-          <svg class="icon" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
+          <svg class="icon" @click="updateTree" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
             <use xlink:href="#icon-xinjianchaxun"></use>
           </svg>
         </div>
@@ -25,6 +25,7 @@
       </el-input>
     </div> -->
     <el-tree
+      :default-expanded-keys="treeExpandKey"
       v-if="store.state?.userInfo?.userId !== undefined"
       ref="treeRef"
       highlight-current
@@ -68,6 +69,7 @@ export default {
     });
     const searchVal = ref('');
     const treeRef = ref(null);
+    const treeExpandKey = ref([]);
     const store = useStore();
     const showDialog = ref(false);
     const types = ref(null);
@@ -77,6 +79,19 @@ export default {
     };
 
     const nodeClick = (data, node) => {
+      let arr = treeExpandKey.value;
+      setTimeout(() => {
+        if (node.expanded) {
+          arr.push(node.data.id);
+        } else {
+          let index = arr.indexOf(node.data.id);
+          if (index !== -1) {
+            arr.splice(index, 1);
+          }
+        }
+        treeExpandKey.value = arr;
+      }, 1000);
+
       props.handleNodeClick(data, node);
     };
     /**
@@ -101,9 +116,8 @@ export default {
       showDialog.value = false;
       types.value = 0;
     };
-    const btnClick2 = () => {};
 
-    const treeInsertRootBefore = () => {
+    const updateTree = () => {
       treeKey.value += 1;
     };
 
@@ -225,13 +239,13 @@ export default {
     };
 
     return {
+      treeExpandKey,
       treeKey,
       store,
       loadNode,
       searchClick,
       nodeClick,
       newSource,
-      btnClick2,
       treeProps,
       searchVal,
       treeRef,
@@ -239,7 +253,7 @@ export default {
       successFunc,
       showDialog,
       types,
-      treeInsertRootBefore,
+      updateTree,
     };
   },
   components: {
