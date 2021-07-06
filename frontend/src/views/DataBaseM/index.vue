@@ -133,15 +133,13 @@ export default {
       } else if (data.type === 'querylist') {
         //查询列表
       } else if (data.type === 'storageGroup') {
-        // if (1 == data) {
-        // let data = JSON.parse(router.currentRoute.value.params.extraParams);
-        // if (data.type && data.type == 'edit') {
-        //   router.push({ name: 'EditStorage', params: { serverid: data.serverId, groupName: data.groupName } });
-        // }
-        // } else {
-        //存储组
-        router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
-        // }
+        //判断是进入存储组详情还是编辑存储组
+        if (data.extraParams && data.extraParams.type == 'edit') {
+          router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name } });
+        } else {
+          //存储组
+          router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
+        }
       } else if (data.type === 'newdevice') {
         //新建实体
       } else if (data.type === 'device') {
