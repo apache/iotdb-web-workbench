@@ -14,15 +14,14 @@ import org.apache.iotdb.admin.service.*;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -44,6 +43,10 @@ public class IotDBController<T> {
 
     @Autowired
     private MeasurementService measurementService;
+
+    static Set<String> searchGroupSet;
+
+    static Set<String> searchDeviceSet;
 
     @GetMapping("/storageGroups/info")
     @ApiOperation("获得存储组信息列表")
@@ -184,6 +187,7 @@ public class IotDBController<T> {
                                                       @PathVariable("groupName") String groupName,
                                                       @RequestParam("pageSize") Integer pageSize,
                                                       @RequestParam("pageNum") Integer pageNum,
+                                                      @RequestParam("keyword") String keyword,
                                                       HttpServletRequest request) throws BaseException {
         if (groupName == null || !groupName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
@@ -194,26 +198,29 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         groupName = "root." + groupName;
-        List<String> deviceNames = iotDBService.getDevicesByGroup(connection, groupName, pageSize, pageNum);
+        CountDTO countDTO =  iotDBService.getDevicesByGroup(connection, groupName, pageSize, pageNum,keyword);
         // 7.设备列表分页
-        Integer count = iotDBService.getDeviceCount(connection, groupName);
+        List<String> deviceNames = countDTO.getObjects();
+        DeviceInfoVO deviceInfoVO = new DeviceInfoVO();
+        Integer totalPage = countDTO.getTotalPage();
+        Integer totalCount = countDTO.getTotalCount();
+        deviceInfoVO.setTotalCount(totalCount);
+        deviceInfoVO.setTotalPage(totalPage);
         List<Integer> lines = iotDBService.getTimeseriesCount(connection, deviceNames);
         List<Device> devices = deviceService.getDevices(serverId, deviceNames);
-        DeviceInfoVO deviceInfoVO = new DeviceInfoVO();
-        deviceInfoVO.setTotalCount(count);
-        Integer totalPage = count % pageSize == 0 ? count / pageSize : count / pageSize + 1;
-        deviceInfoVO.setTotalPage(totalPage);
         List<DeviceInfo> deviceInfos = new ArrayList<>();
-        for (int i = 0; i < deviceNames.size(); i++) {
-            DeviceInfo deviceInfo = new DeviceInfo();
-            deviceInfo.setDeviceName(deviceNames.get(i).replaceFirst(groupName+".",""));
-            deviceInfo.setLine(lines.get(i));
-            if (devices.get(i) != null) {
-                deviceInfo.setDeviceId(devices.get(i).getId());
-                deviceInfo.setCreator(devices.get(i).getCreator());
-                deviceInfo.setDescription(devices.get(i).getDescription());
+        if (deviceNames != null) {
+            for (int i = 0; i < deviceNames.size(); i++) {
+                DeviceInfo deviceInfo = new DeviceInfo();
+                deviceInfo.setDeviceName(deviceNames.get(i).replaceFirst(groupName+".",""));
+                deviceInfo.setLine(lines.get(i));
+                if (devices.get(i) != null) {
+                    deviceInfo.setDeviceId(devices.get(i).getId());
+                    deviceInfo.setCreator(devices.get(i).getCreator());
+                    deviceInfo.setDescription(devices.get(i).getDescription());
+                }
+                deviceInfos.add(deviceInfo);
             }
-            deviceInfos.add(deviceInfo);
         }
         deviceInfoVO.setDeviceInfos(deviceInfos);
         return BaseVO.success("获取成功", deviceInfoVO);
@@ -319,6 +326,7 @@ public class IotDBController<T> {
                                                                 @PathVariable("deviceName") String deviceName,
                                                                 @RequestParam("pageSize") Integer pageSize,
                                                                 @RequestParam("pageNum") Integer pageNum,
+                                                                @RequestParam("keyword") String keyword,
                                                                 HttpServletRequest request) throws BaseException {
         if (groupName == null || !groupName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
@@ -330,26 +338,27 @@ public class IotDBController<T> {
         Connection connection = connectionService.getById(serverId);
         groupName = "root." + groupName;
         deviceName = groupName + "." + deviceName;
-        List<MeasurementDTO> measurementDTOList = iotDBService.getMeasurementsByDevice(connection, deviceName, pageSize, pageNum);
+        CountDTO countDTO = iotDBService.getMeasurementsByDevice(connection, deviceName, pageSize, pageNum,keyword);
+        List<MeasurementDTO> measurementDTOList = countDTO.getObjects();
         List<MeasurementVO> measurementVOList = new ArrayList<>();
-        for (MeasurementDTO measurementDTO : measurementDTOList) {
-            MeasurementVO measurementVO = new MeasurementVO();
-            BeanUtils.copyProperties(measurementDTO, measurementVO);
-            if (measurementVO.getTimeseries() != null) {
-                measurementVO.setTimeseries(measurementVO.getTimeseries().replaceFirst(deviceName + ".",""));
+        if (measurementDTOList != null) {
+            for (MeasurementDTO measurementDTO : measurementDTOList) {
+                MeasurementVO measurementVO = new MeasurementVO();
+                BeanUtils.copyProperties(measurementDTO, measurementVO);
+                if (measurementVO.getTimeseries() != null) {
+                    measurementVO.setTimeseries(measurementVO.getTimeseries().replaceFirst(deviceName + ".",""));
+                }
+                String description = measurementService.getDescription(serverId, measurementDTO.getTimeseries());
+                String newValue = iotDBService.getLastMeasurementValue(connection, measurementDTO.getTimeseries());
+                measurementVO.setNewValue(newValue);
+                measurementVO.setDescription(description);
+                measurementVOList.add(measurementVO);
             }
-            String description = measurementService.getDescription(serverId, measurementDTO.getTimeseries());
-            String newValue = iotDBService.getLastMeasurementValue(connection, measurementDTO.getTimeseries());
-            measurementVO.setNewValue(newValue);
-            measurementVO.setDescription(description);
-            measurementVOList.add(measurementVO);
         }
-        Integer totalCount = iotDBService.getMeasurementsCount(connection, deviceName);
-        Integer totalPage = totalCount % pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
         MeasuremtnInfoVO measuremtnInfoVO = new MeasuremtnInfoVO();
+        measuremtnInfoVO.setTotalCount(countDTO.getTotalCount());
+        measuremtnInfoVO.setTotalPage(countDTO.getTotalPage());
         measuremtnInfoVO.setMeasurementVOList(measurementVOList);
-        measuremtnInfoVO.setTotalCount(totalCount);
-        measuremtnInfoVO.setTotalPage(totalPage);
         // 11.测点列表加分页
         return BaseVO.success("获取成功", measuremtnInfoVO);
     }
@@ -590,7 +599,11 @@ public class IotDBController<T> {
 
 //    @Scheduled(fixedRate = 1000 * 60 * 10)
 //    public void update(){
-//
+//        for (String s : searchGroupSet) {
+//            String[] ip_groupPath = s.split(":");
+//            String ip = ip_groupPath[0];
+//            String groupPath = ip_groupPath[1];
+//        }
 //    }
 
     private void check(HttpServletRequest request, Integer serverId) throws BaseException {
