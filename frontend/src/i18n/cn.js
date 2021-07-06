@@ -37,7 +37,7 @@ const cn = {
       forgetPasswordTip: '请联系系统管理员',
       accountEmptyTip: '账号不能为空',
       passwordEmptyTip: '密码不能为空',
-      welcomeLogin: '登录IOTDB数据库管理',
+      welcomeLogin: '登录IotDB数据库管理',
     },
 
     sourcePage: {

@@ -37,7 +37,7 @@ const en = {
       forgetPasswordTip: 'please contact system administrator',
       accountEmptyTip: 'account can not be empty',
       passwordEmptyTip: 'password can not be empty',
-      welcomeLogin: 'log in to iotdb database management',
+      welcomeLogin: 'log in to IotDB database management',
     },
 
     sourcePage: {
