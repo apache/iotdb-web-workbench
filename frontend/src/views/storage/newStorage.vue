@@ -39,7 +39,8 @@ import axios from '@/util/axios.js';
 
 export default {
   name: 'NewStorages',
-  setup() {
+  props: ['func', 'data'],
+  setup(props) {
     const { t } = useI18n();
     const router = useRouter();
     let formRef = ref(null);
@@ -63,7 +64,8 @@ export default {
      * 取消新增存储组
      */
     const cancel = () => {
-      console.log(1);
+      props.func.removeTab(props.data.id);
+      // props.func.addTab(router.currentRoute.value.params.serverid + 'connection');
     };
     /**
      * 获取存储组详情
@@ -94,11 +96,16 @@ export default {
           const reqObj = {
             groupName: form.groupName,
             description: form.description,
-            ttl: +form.ttl,
-            ttlUnit: form.ttlUnit,
+            ttl: form.ttl == '' || form.ttl == null ? null : +form.ttl,
+            ttlUnit: form.ttlUnit || null,
           };
           axios.post(`/servers/${router.currentRoute.value.params.serverid}/storageGroups`, { ...reqObj }).then((res) => {
-            console.log(res, 'kk');
+            if (res && res.code == 0) {
+              ElMessage.success('新增或编辑存储组成功');
+              props.func.removeTab(props.data.id);
+              props.func.updateTree();
+              props.func.addTab(router.currentRoute.value.params.serverid + 'connection' + form.groupName + 'storageGroup');
+            }
           });
         }
       });

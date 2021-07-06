@@ -16,7 +16,7 @@ const routes = [
         component: DataBaseM,
         children: [
           {
-            path: 'about',
+            path: 'about/:serverid/:groupname',
             name: 'About',
             component: () => import(/* webpackChunkName: "about" */ '../views/About'),
           },

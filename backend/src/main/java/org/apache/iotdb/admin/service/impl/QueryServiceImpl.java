@@ -90,4 +90,5 @@ public class QueryServiceImpl extends ServiceImpl<QueryMapper, Query> implements
         }
         return query;
     }
+
 }

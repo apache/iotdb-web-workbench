@@ -179,6 +179,12 @@ public class ErrorCode {
     public static final String NO_DEVICE_INFO = "IOTDB-0038";
     public static final String NO_DEVICE_INFO_MSG = "不存在设备信息";
 
+    public static final String UPDATE_PWD_FAIL = "IOTDB-0039";
+    public static final String UPDATE_PWD_FAIL_MSG = "修改账号密码失败";
+
+    public static final String No_QUERY = "IOTDB-0040";
+    public static final String NO_QUERY_MSG = "不存在此查询";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
@@ -212,4 +218,5 @@ public class ErrorCode {
 
     // 参数校验相关
     public static final String WRONG_PARAM = "PARAM-0001";
+
 }

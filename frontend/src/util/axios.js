@@ -46,10 +46,11 @@ instance.interceptors.response.use(
     if (headerUrls.indexOf(response.config.url) !== -1) {
       return response;
     }
-    if (response && response.data) {
+    // if (response && response.data) {
+    if (response && response.data && response.data.code == '0') {
       return response.data;
     } else {
-      ElMessage.error(response.data);
+      ElMessage.error(response.data.message);
       return {};
     }
   },

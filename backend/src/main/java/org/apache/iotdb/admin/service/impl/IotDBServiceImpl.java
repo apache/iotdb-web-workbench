@@ -35,6 +35,8 @@ public class IotDBServiceImpl implements IotDBService {
 
     private static final List<String> PRIVILEGES = new ArrayList<>();
 
+    private static final HashMap<String,Boolean> QUERY_STOP = new HashMap<>();
+
     static {
         SPECIAL_PRIVILEGES.put("CREATE_TIMESERIES",true);
         SPECIAL_PRIVILEGES.put("INSERT_TIMESERIES",true);
@@ -80,7 +82,7 @@ public class IotDBServiceImpl implements IotDBService {
         try {
             sessionPool.executeNonQueryStatement(sql);
         } catch (StatementExecutionException e) {
-            // 捕获异常代表存储组已有
+            // 捕获异常代表存储组已有或输入错误
             logger.error(e.getMessage());
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
@@ -156,8 +158,12 @@ public class IotDBServiceImpl implements IotDBService {
     public IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException {
         paramValid(userName);
         IotDBUserVO iotDBUserVO = new IotDBUserVO();
-        iotDBUserVO.setUserName(connection.getUsername());
-        iotDBUserVO.setPassword(connection.getPassword());
+        iotDBUserVO.setUserName(userName);
+        if (userName.equals(connection.getUsername())) {
+            iotDBUserVO.setPassword(connection.getPassword());
+        } else {
+            iotDBUserVO.setPassword(null);
+        }
         if ("root".equalsIgnoreCase(userName)) {
             List<PrivilegeInfo> privilegeInfos = new ArrayList<>();
             PrivilegeInfo privilegeInfo = new PrivilegeInfo();
@@ -584,22 +590,17 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public void setUserPrivileges(Connection connection, String userName,IotDBUserDTO iotDBUserDTO) throws BaseException {
+    public void setUserPrivileges(Connection connection, String userName,PrivilegeInfoDTO privilegeInfoDTO) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
-        List<PrivilegeInfoDTO> privilegesInfos = iotDBUserDTO.getPrivilegesInfos();
-        if (notNullAndNotZero(privilegesInfos)) {
-            for (PrivilegeInfoDTO privilegesInfo : privilegesInfos) {
-                // 授权
-                List<String> privileges = privilegesInfo.getPrivileges();
-                if (notNullAndNotZero(privileges)) {
-                    grantOrRevoke("grant",privileges,userName,privilegesInfo,sessionPool);
-                }
-                // 取消授权
-                List<String> cancelPrivileges = privilegesInfo.getCancelPrivileges();
-                if (notNullAndNotZero(cancelPrivileges)) {
-                    grantOrRevoke("revoke",cancelPrivileges,userName,privilegesInfo,sessionPool);
-                }
-            }
+        // 授权
+        List<String> privileges = privilegeInfoDTO.getPrivileges();
+        if (notNullAndNotZero(privileges)) {
+            grantOrRevoke("grant",privileges,userName,privilegeInfoDTO,sessionPool);
+        }
+        // 取消授权
+        List<String> cancelPrivileges = privilegeInfoDTO.getCancelPrivileges();
+        if (notNullAndNotZero(cancelPrivileges)) {
+            grantOrRevoke("revoke",cancelPrivileges,userName,privilegeInfoDTO,sessionPool);
         }
     }
 
@@ -636,44 +637,69 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public SqlResultVO queryAll(Connection connection, List<String> sqls) throws BaseException {
+    public SqlResultVO queryAll(Connection connection, List<String> sqls,Long timestamp) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
-        List<String> querySqls = new ArrayList<>();
-        String hasResultSql = null;
+        SqlResultVO sqlResultVO = new SqlResultVO();
+        Integer id = connection.getId();
+        String id_plus_timestamp = id + ":" + timestamp;
+        QUERY_STOP.put(id_plus_timestamp,true);
         for (String sql : sqls) {
             int firstSpaceIndex = sql.indexOf(" ");
             String judge = sql.substring(0, firstSpaceIndex);
             if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge)) {
-                hasResultSql = sql;
+                sqlResultVO = executeQuery(sessionPool, sql,false,id_plus_timestamp);
                 continue;
             }
-            querySqls.add(sql);
-        }
-        SqlResultVO sqlResultVO = new SqlResultVO();
-        if (hasResultSql != null) {
-            sqlResultVO = executeQuery(sessionPool, hasResultSql,false);
-        }
-        for (String querySql : querySqls) {
             try {
-                sessionPool.executeNonQueryStatement(querySql);
+                if (QUERY_STOP.get(id_plus_timestamp)) {
+                    sessionPool.executeNonQueryStatement(sql);
+                }
             } catch (StatementExecutionException e) {
                 logger.error(e.getMessage());
-                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG + ":" + querySql +"执行出错,错误信息["+e.getMessage()+"]");
+                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG + ":" + sql +"执行出错,错误信息["+e.getMessage()+"]");
             } catch (IoTDBConnectionException e) {
                 logger.error(e.getMessage());
-                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG + ":" + querySql +"执行出错,错误信息["+e.getMessage()+"]");
+                throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG + ":" + sql +"执行出错,错误信息["+e.getMessage()+"]");
             } finally {
                 if (sessionPool != null) {
                     sessionPool.close();
                 }
             }
         }
+        QUERY_STOP.remove(id_plus_timestamp);
         return sqlResultVO;
     }
 
+    @Override
+    public void updatePwd(Connection connection,IotDBUser iotDBUser) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        String userName = iotDBUser.getUserName();
+        String newPWD = iotDBUser.getPassword();
+        String sql = "alter user " + userName + " set password '" + newPWD+"'";
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.UPDATE_PWD_FAIL,ErrorCode.UPDATE_PWD_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void stopQuery(Integer serverId, Long timestamp) throws BaseException {
+        String notStopKey = serverId + ":" + timestamp;
+        if (QUERY_STOP.containsKey(notStopKey)) {
+            QUERY_STOP.put(notStopKey,false);
+            return;
+        }
+        throw new BaseException(ErrorCode.No_QUERY,ErrorCode.NO_QUERY_MSG);
+    }
+
+
     private void grantOrRevoke(String word, List<String> privileges,String userName,PrivilegeInfoDTO privilegesInfo,SessionPool sessionPool) throws BaseException {
         Integer type = privilegesInfo.getType();
-        String privilegesStr = String.join(",", privileges);
+        String privilegesStr = String.join("','", privileges);
         if (type == 0) {
             String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root";
             try {
@@ -809,6 +835,48 @@ public class IotDBServiceImpl implements IotDBService {
             long count = 0;
             if (batchSize > 0) {
                 while (sessionDataSetWrapper.hasNext()) {
+                    List<String> strList = new ArrayList<>();
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    count ++;
+                    for (org.apache.iotdb.tsfile.read.common.Field field : rowRecord.getFields()) {
+                        strList.add(field.toString());
+                    }
+                    valuelist.add(strList);
+                }
+                long end = System.currentTimeMillis();
+                double time = (end - start + 0.0d) / 1000;
+                String queryTime = time + "s";
+                sqlResultVO.setQueryTime(queryTime);
+                sqlResultVO.setLine(count);
+            }
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SQL_EP,ErrorCode.SQL_EP_MSG);
+        } finally {
+            if (sessionPool != null && closePool) {
+                sessionPool.close();
+            }
+        }
+        sqlResultVO.setValueList(valuelist);
+        return sqlResultVO;
+    }
+
+    private SqlResultVO executeQuery(SessionPool sessionPool, String sql,Boolean closePool,String notStopKey) throws BaseException {
+        SqlResultVO sqlResultVO = new SqlResultVO();
+        List<List<String>> valuelist = new ArrayList<>();
+        try {
+            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            long start = System.currentTimeMillis();
+            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+            sqlResultVO.setMetaDataList(columnNames);
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            // 记录行数
+            long count = 0;
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext() && QUERY_STOP.get(notStopKey)) {
                     List<String> strList = new ArrayList<>();
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     count ++;
@@ -985,8 +1053,9 @@ public class IotDBServiceImpl implements IotDBService {
         for (int i = 0; i < privileges.size(); i++) {
             String[] split = privileges.get(i).split(":");
             String[] s = split[1].trim().split(" ");
-            // i = 0 时为root特殊处理
-            if (i == 0) {
+            String path = split[0].trim();
+            //为root特殊处理
+            if ("root".equals(path)) {
                 for (String s1 : s) {
                     if (rootPrivileges.containsKey(s1)) {
                         continue;
@@ -996,7 +1065,7 @@ public class IotDBServiceImpl implements IotDBService {
                 continue;
             }
             List<String> list = new ArrayList<>();
-            pathStr.add(split[0].trim());
+            pathStr.add(path);
             // 其他粒度下 只需要存储SPECIAL_PRIVILEGES四种权限
             for (String s1 : s) {
                 if (SPECIAL_PRIVILEGES.containsKey(s1)) {

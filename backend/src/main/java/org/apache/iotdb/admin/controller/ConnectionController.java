@@ -31,9 +31,10 @@ public class ConnectionController {
         AuthenticationUtils.userAuthentication(connection.getUserId(),request);
         if (connection.getId() != null){
             connectionService.update(connection);
+            return BaseVO.success("更新成功",null);
         }
         connectionService.insert(connection);
-        return BaseVO.success("更新成功",null);
+        return BaseVO.success("保存成功",null);
     }
 
     @DeleteMapping("/servers/{serverId}")
