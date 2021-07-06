@@ -2,9 +2,9 @@
   <div>
     <div class="headerbox">
       <div class="flexBox" style="padding: 30px 0 10px 0">
-        <div class="headerSpan">{{ $t('device.devicename') }}</div>
+        <div class="headerSpan">{{ routeData.obj.name }}</div>
         <div class="flexBox headerIcon">
-          <i class="el-icon-edit edit"></i>
+          <i class="el-icon-edit edit" @click="editDevce"></i>
           <i class="el-icon-delete delete"></i>
         </div>
       </div>
@@ -12,7 +12,7 @@
         <span>数据链接：</span>
         <span>xxxxxxxxxxxxxxxxx</span>
         <span class="spanmargin">{{ $t('device.group') }}：</span>
-        <span>xxxxxxxx</span>
+        <span>{{ routeData.obj.storagegroupid }}</span>
         <span class="spanmargin">{{ $t('device.physicaldescr') }}：</span>
         <span>{{ deviceObj.deviceData.description }}</span>
         <span class="spanmargin">{{ $t('device.creator') }}：</span>
@@ -23,7 +23,7 @@
     </div>
     <div style="padding: 20px 30px" class="flexBox">
       <form-table :form="form"></form-table>
-      <el-button class="creatButton">{{ $t('storagePage.newDevice') }}</el-button>
+      <el-button class="creatButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
     </div>
     <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="450" :exportData="() => {}">
       <template #default="{ scope }">
@@ -41,7 +41,7 @@
         <form-table :form="formdate"></form-table>
       </div>
       <div>
-        <echarts ref="drawerRef" :echartsData="echartsData"></echarts>
+        <echarts ref="drawerRef" :echartsData="echartsData" :getDate="getDate"></echarts>
       </div>
     </div>
   </div>
@@ -51,28 +51,36 @@
 import { ElButton } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { getList, getDeviceDate } from './api';
 import Echarts from '@/components/Echarts';
+import { useRoute, useRouter } from 'vue-router';
 export default {
   name: 'DeviceMessage',
   setup() {
+    const router = useRouter();
+    const route = useRoute();
     let drawer = ref(0);
     let drawerFlag = ref(false);
     // const pagination = reactive({
     //   total: 50,
     //   currentPage: 1,
     // });
+    const routeData = reactive({
+      obj: route.params,
+    });
     const drawerRef = ref(null);
     let deviceObj = reactive({
       deviceData: 0,
     });
-    const echartsData = reactive({
-      id: null,
-      timeseries: null,
-      deviceName: null,
-      groupName: null,
-    });
+    watch(
+      () => route.params,
+      () => {
+        routeData.obj = route.params;
+        getdData();
+        getListData();
+      }
+    );
     const form = reactive({
       inline: true, //横向
       formData: {},
@@ -91,7 +99,7 @@ export default {
     const formdate = reactive({
       inline: true, //横向
       formData: {
-        time: [new Date('2021-07-02T08:40:07.348Z'), new Date('2021-07-02T08:45:07.348Z')],
+        time: [],
       },
       formItem: [
         {
@@ -141,17 +149,14 @@ export default {
       list: [],
     });
     function searchRow(val) {
-      echartsData.id = 9;
-      echartsData.timeseries = val.timeseries;
-      echartsData.deviceName = 'd1';
-      echartsData.groupName = 'turbine';
+      routeData.obj.timeseries = val.timeseries;
       if (!drawerFlag.value) {
         drawerFlag.value = true;
       } else {
         drawerFlag.value = false;
         setTimeout(() => {
           drawerFlag.value = true;
-          drawerRef.value.getehartsData(echartsData);
+          drawerRef.value.getehartsData(routeData.obj);
         }, 10);
       }
       setTimeout(() => {
@@ -168,30 +173,47 @@ export default {
       console.log(1);
       console.log(val);
     }
+    function getDate(timeS, timeE) {
+      formdate.formData.time = [new Date(timeS), new Date(timeE)];
+    }
+    function creatDevice() {
+      console.log('xinjia');
+      router.push({ name: 'Device', params: { deviceName: null } });
+    }
+    function editDevce() {
+      router.push({ name: 'Device', params: { ...routeData.obj } });
+    }
     function getListData() {
-      getList(9, 'turbine', 'd1', { pageSize: 10, pageNum: 1 }).then((res) => {
+      getList(routeData.obj, { pageSize: 10, pageNum: 1 }).then((res) => {
         tableData.list = res.data.measurementVOList;
       });
     }
-    onMounted(() => {
-      getDeviceDate(9, 'turbine', 'd1').then((res) => {
+    function getdData() {
+      getDeviceDate(routeData.obj).then((res) => {
         deviceObj.deviceData = res.data;
       });
+    }
+    onMounted(() => {
+      getdData();
       getListData();
     });
     return {
       form,
       column,
       drawer,
+      getDate,
       drawerRef,
       deviceObj,
-      echartsData,
+      routeData,
+      // echartsData,
       drawerFlag,
       tableData,
       formdate,
       searchRow,
       selectData,
+      editDevce,
       closeDrawer,
+      creatDevice,
     };
   },
   components: {

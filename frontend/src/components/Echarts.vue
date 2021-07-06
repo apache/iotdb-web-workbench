@@ -13,6 +13,7 @@ export default {
   name: 'Echarts',
   props: {
     echartsData: Object,
+    getDate: Function,
   },
   setup(props) {
     const data = reactive(props.echartsData);
@@ -20,12 +21,12 @@ export default {
       getehartsData(data);
     });
     function getehartsData(data) {
-      getData(data.id, data.groupName, data.deviceName, data.timeseries).then((res) => {
+      getData(data.connectionid, data.storagegroupid, data.name, data.timeseries).then((res) => {
         let length = res.data.timeList.length / 5;
         for (let i = 0; i < 5; i++) {
           res.data.timeList[i * length] = formatDate(res.data.timeList[i * length]);
         }
-        console.log(length);
+        props.getDate(res.data.timeList[0], res.data.timeList[res.data.timeList.length - 1]);
         let myChart = echarts.init(document.getElementById('myChart'));
         myChart.setOption({
           title: { text: '总用户量' },
@@ -36,7 +37,6 @@ export default {
             width: '100%',
           },
           xAxis: {
-            // type: 'category',
             data: res.data.timeList,
             boundaryGap: false,
             axisTick: {
@@ -49,6 +49,7 @@ export default {
             },
             axisLabel: {
               show: true,
+              align: 'left',
               textStyle: {
                 color: 'black',
               },

@@ -146,8 +146,11 @@ export default {
         //新建实体
       } else if (data.type === 'device') {
         //实体
+        console.log(data);
+        router.push({ name: 'DeviceMessage', params: { ...data } });
       } else if (data.type === 'newquery') {
         //新建查询
+        router.push({ name: 'SqlSerch' });
       } else if (data.type === 'query') {
         //查询
       }
