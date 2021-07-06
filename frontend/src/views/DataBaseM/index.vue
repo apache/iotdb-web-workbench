@@ -109,7 +109,7 @@ export default {
         let node = treeRef.value.treeRef.getNode(id);
         if (node) {
           handleNodeClick({ ...node.data, extraParams: extraParams });
-          stop();
+          clearInterval(stop);
         }
       }, 300);
     };
