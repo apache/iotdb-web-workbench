@@ -18,7 +18,18 @@
           <div class="router-container">
             <router-view v-slot="{ Component, route }">
               <keep-alive>
-                <component :key="route.fullPath" :is="Component" :data="tabData" />
+                <component
+                  :key="route.fullPath"
+                  :is="Component"
+                  :data="tabData"
+                  :func="{
+                    treeAppend,
+                    treeInsertAfter,
+                    treeInsertBefore,
+                    removeTab,
+                    addTab: handleNodeClick,
+                  }"
+                />
               </keep-alive>
             </router-view>
           </div>
@@ -58,17 +69,18 @@ export default {
       treeRef.value.treeRef.setCurrentKey(data.id);
       nodekey.value = data.id;
       urlSkipMap(data.node);
+    };
 
-      // let node = treeRef.value.treeRef.getCurrentNode();
-      // treeRef.value.treeRef.insertAfter(
-      //   {
-      //     id: 'test:newquery',
-      //     name: '新建查询ffffff',
-      //     type: 'newquery',
-      //     leaf: true,
-      //   },
-      //   node
-      // );
+    const treeAppend = (id, data) => {
+      treeRef.value.treeRef.append(data, id);
+    };
+
+    const treeInsertAfter = (id, data) => {
+      treeRef.value.treeRef.insertAfter(data, id);
+    };
+
+    const treeInsertBefore = (id, data) => {
+      treeRef.value.treeRef.insertBefore(data, id);
     };
 
     watch(urlTabsValue, (newValue) => {
@@ -105,6 +117,7 @@ export default {
 
     const handleNodeClick = (data) => {
       nodekey.value = data.id;
+      treeRef.value.treeRef.setCurrentKey(data.id);
       if (data.type === 'querylist') {
         return;
       }
@@ -163,6 +176,9 @@ export default {
       handleClick,
       removeTab,
       handleNodeClick,
+      treeAppend,
+      treeInsertBefore,
+      treeInsertAfter,
     };
   },
   components: {

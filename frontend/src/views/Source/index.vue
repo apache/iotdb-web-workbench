@@ -784,12 +784,11 @@ export default {
     }
     .icon-del {
       right: 20px;
-      color: #D32D2FFF;
+      color: #d32d2fff;
     }
     .icon-edit {
       right: 60px;
       color: $theme-color;
-
     }
   }
   .info-box {
