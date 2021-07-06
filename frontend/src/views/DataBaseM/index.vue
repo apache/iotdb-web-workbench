@@ -123,7 +123,6 @@ export default {
     });
 
     const urlSkipMap = (data, forceupdate) => {
-      debugger;
       // console.log(data, 'ppppppp');
       let extraParams = data.extraParams;
       if (data.type === 'connection') {
