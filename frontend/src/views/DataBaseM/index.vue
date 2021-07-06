@@ -123,19 +123,26 @@ export default {
     });
 
     const urlSkipMap = (data, forceupdate) => {
+      debugger;
       // console.log(data, 'ppppppp');
       let extraParams = data.extraParams;
       if (data.type === 'connection') {
         //数据连接
-        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, extraParams } });
+        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'newstorageGroup') {
-        //新建存储组
-        router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate, extraParams } });
+        router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'querylist') {
         //查询列表
       } else if (data.type === 'storageGroup') {
+        // if (1 == data) {
+        // let data = JSON.parse(router.currentRoute.value.params.extraParams);
+        // if (data.type && data.type == 'edit') {
+        //   router.push({ name: 'EditStorage', params: { serverid: data.serverId, groupName: data.groupName } });
+        // }
+        // } else {
         //存储组
-        router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, extraParams } });
+        router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
+        // }
       } else if (data.type === 'newdevice') {
         //新建实体
       } else if (data.type === 'device') {

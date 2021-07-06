@@ -43,12 +43,12 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, onActivated } from 'vue';
 import { ElDialog, ElButton, ElForm, ElInput, ElFormItem, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
 import { useStore } from 'vuex';
-// import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 export default {
   name: 'NewSource',
@@ -73,7 +73,7 @@ export default {
   setup(props, context) {
     const { t } = useI18n();
     const store = useStore();
-    // const router = useRoute();
+    const router = useRoute();
     let form = reactive({
       alias: '',
       host: '',
@@ -200,7 +200,11 @@ export default {
         getBaseInfo();
       }
     });
-
+    onActivated(() => {
+      if (router.params.forceupdate) {
+        console.log(router.params, 'update');
+      }
+    });
     return {
       form,
       formRef,

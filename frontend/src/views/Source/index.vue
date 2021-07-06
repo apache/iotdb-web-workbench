@@ -177,7 +177,7 @@
           <template #default="scope">
             <!-- @click="handleClick(scope.row)" -->
             <el-button type="text" size="small" @click="goGroupDetail(scope)">{{ $t('common.detail') }}</el-button>
-            <el-button type="text" size="small">
+            <el-button type="text" size="small" @click="goEditGroup(scope)">
               {{ $t('common.edit') }}
             </el-button>
             <el-button type="text" size="small" class="el-button-delete" :disable="canGroupSet" @click="deleteGroup(scope)"> {{ $t('common.delete') }} </el-button>
@@ -705,10 +705,17 @@ export default {
       });
     };
     /**
+     * 跳转编辑存储组
+     */
+    const goEditGroup = (scope) => {
+      debugger;
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' });
+    };
+    /**
      * 查看存储组详情
      */
     const goGroupDetail = (scope) => {
-      props.func.addTab(serverId.value + scope.row.groupName + 'storageGroup');
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup');
     };
     onMounted(() => {
       serverId.value = router.currentRoute.value.params.serverid;
@@ -773,6 +780,7 @@ export default {
       canShowUser,
       canAuth,
       goGroupDetail,
+      goEditGroup,
     };
   },
   components: {

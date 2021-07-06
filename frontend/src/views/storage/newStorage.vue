@@ -31,10 +31,10 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref, reactive } from 'vue';
+import { onMounted, ref, reactive, onActivated } from 'vue';
 import { ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import axios from '@/util/axios.js';
 
 export default {
@@ -43,6 +43,7 @@ export default {
   setup(props) {
     const { t } = useI18n();
     const router = useRouter();
+    const route = useRoute();
     let formRef = ref(null);
     let alias = ref(null);
     const rules = reactive({
@@ -50,7 +51,7 @@ export default {
         {
           required: true,
           message: t(`storagePage.aliasEmptyTip`),
-          trigger: 'change',
+          trigger: 'blur',
         },
       ],
     });
@@ -122,6 +123,15 @@ export default {
         getGroupDetail();
       } else {
         getServerName();
+      }
+    });
+    onActivated(() => {
+      if (route.params.forceupdate) {
+        console.log(route.params, 'update');
+        form.groupName = null;
+        form.ttl = null;
+        form.ttlUnit = null;
+        form.description = null;
       }
     });
 
