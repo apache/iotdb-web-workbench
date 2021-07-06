@@ -5,7 +5,7 @@
         <svg class="icon" aria-hidden="true" @click="editGroup()">
           <use xlink:href="#icon-se-icon-f-edit"></use>
         </svg>
-        <svg class="icon" aria-hidden="true">
+        <svg class="icon" aria-hidden="true" @click="deleteGroup()">
           <use xlink:href="#icon-se-icon-delete"></use>
         </svg>
       </div>
@@ -24,8 +24,9 @@
         <el-button type="primary" class="search-btn">{{ $t('storagePage.newDevice') }}</el-button>
       </div>
       <div class="device-list">
-        <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55"> </el-table-column>
+        <!-- @selection-change="handleSelectionChange" -->
+        <el-table :data="tableData" style="width: 100%">
+          <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
           <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('storagePage.alias')" width="180" sortable> </el-table-column>
           <el-table-column show-overflow-tooltip prop="description" :label="$t('storagePage.description')"> </el-table-column>
           <el-table-column prop="line" :label="$t('storagePage.line')"> </el-table-column>
@@ -48,13 +49,14 @@
 <script>
 // @ is an alias to /src
 import { onMounted, ref } from 'vue';
-import { ElDescriptions, ElDescriptionsItem, ElInput, ElButton, ElTable, ElTableColumn, ElPagination } from 'element-plus';
+import { ElDescriptions, ElDescriptionsItem, ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import axios from '@/util/axios.js';
 
 export default {
   name: 'Storage',
+  props: ['data', 'func'],
   setup() {
     const { t } = useI18n();
     const router = useRouter();
@@ -63,18 +65,32 @@ export default {
     let searchVal = ref(null);
     let tableData = ref([]);
     let currentPage = ref(1);
-    const pageSize = ref(15);
+    const pageSize = ref(10);
     let total = ref(0);
-    const handleSelectionChange = (selection) => {
-      console.log(selection);
-    };
+    // const handleSelectionChange = (selection) => {
+    //   console.log(selection);
+    // };
     const handleCurrentChange = (val) => {
-      console.log(val);
+      currentPage.value = val;
+      getDeviceList();
     };
+    /**
+     * 编辑存储组信息
+     */
     const editGroup = () => {
       router.push({
         name: 'EditStorage',
         params: { serverid: router.currentRoute.value.params.serverid, groupname: baseInfo.value.groupName },
+      });
+    };
+    /**
+     * 删除存储组信息
+     */
+    const deleteGroup = () => {
+      axios.delete(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${baseInfo.value.groupName}`).then((rs) => {
+        if (rs && rs.code == 0) {
+          ElMessage.success('删除存储组成功');
+        }
       });
     };
     /**
@@ -125,9 +141,10 @@ export default {
       currentPage,
       pageSize,
       total,
-      handleSelectionChange,
+      // handleSelectionChange,
       handleCurrentChange,
       editGroup,
+      deleteGroup,
       getGroupDetail,
       getDeviceList,
     };

@@ -16,7 +16,7 @@ const routes = [
         component: DataBaseM,
         children: [
           {
-            path: 'about',
+            path: 'about/:serverid/:groupname',
             name: 'About',
             component: () => import(/* webpackChunkName: "about" */ '../views/About'),
           },
@@ -42,12 +42,12 @@ const routes = [
             component: () => import(/* webpackChunkName: "EditStorage" */ '../views/storage/newStorage.vue'),
           },
           {
-            path: 'device',
+            path: 'device/:storagegroupid/:name',
             name: 'Device',
             component: () => import('../views/Device'),
           },
           {
-            path: 'devicemessage',
+            path: 'devicemessage/:storagegroupid/:name',
             name: 'DeviceMessage',
             component: () => import('../views/DeviceMessage'),
           },

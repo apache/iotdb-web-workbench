@@ -46,14 +46,25 @@ export default {
           hint: handleShowHint,
         },
         indentUnit: 4, // 缩进单位为4
-        extraKeys: { Ctrl: 'autocomplete' },
+        extraKeys: {
+          Ctrl: 'autocomplete',
+          Tab: (cmInstance) => {
+            let cursor = cmInstance.getCursor();
+            let cursorLine = cmInstance.getLine(cursor.line);
+            let end = cursor.ch;
+            let start = end;
+            let token = cmInstance.getTokenAt(cursor);
+            console.log(cmInstance, cursor, cursorLine, start, end, token);
+            this.coder.markText({ line: cursor.line, ch: 5 }, { line: cursor.line, ch: 0 });
+          },
+        },
         // styleActiveLine: true,
       },
     };
   },
   mounted() {
     this._initialize();
-    this.coder.on('keypress', () => {
+    this.coder.on('change', () => {
       handleShowHint(this.coder);
       //编译器内容更改事件
       this.coder.showHint();

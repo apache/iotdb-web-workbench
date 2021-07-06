@@ -9,7 +9,7 @@
       <svg class="icon icon-edit" aria-hidden="true" @click="editSource()">
         <use xlink:href="#icon-se-icon-f-edit"></use>
       </svg>
-      <svg class="icon icon-del" aria-hidden="true">
+      <svg class="icon icon-del" aria-hidden="true" @click="deleteSource()">
         <use xlink:href="#icon-se-icon-delete"></use>
       </svg>
     </div>
@@ -36,14 +36,14 @@
           </ul>
         </div>
         <div class="right-part">
-          <el-button class="auth-add-btn" type="text" v-if="activeName == '2'" @click="authAdd()">添加权限</el-button>
+          <el-button class="auth-add-btn" type="text" v-if="activeName == '2'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
           <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs">
             <el-tab-pane :label="$t('sourcePage.baseConfig')" name="1">
               <template v-if="activeIndex !== null">
                 <div v-if="!isNew" class="tab-content left-base-content">
                   <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
                     <el-form-item :label="$t('sourcePage.userNameTitle')">
-                      <div>{{ baseInfoForm.userName }}</div>
+                      <div class="user-name">{{ baseInfoForm.userName }}</div>
                     </el-form-item>
                     <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
                       <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
@@ -169,26 +169,23 @@
         </svg>
         {{ $t('sourcePage.groupInfo') }}
       </div>
-      <el-table :data="tableData" class="group-table" max-height="250">
+      <el-table :data="tableData" class="group-table" max-height="280" height="280">
         <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
         <el-table-column prop="description" :label="$t('sourcePage.description')"> </el-table-column>
         <el-table-column prop="deviceCount" :label="$t('sourcePage.line')"> </el-table-column>
         <el-table-column :label="$t('common.operation')">
           <template #default="scope">
             <!-- @click="handleClick(scope.row)" -->
-            <el-button type="text" size="small">{{ $t('common.detail') }}{{ scope.row.ttl }}</el-button>
-            <el-button type="text" size="small">
+            <el-button type="text" size="small" @click="goGroupDetail(scope)">{{ $t('common.detail') }}</el-button>
+            <el-button type="text" size="small" @click="goEditGroup(scope)">
               {{ $t('common.edit') }}
             </el-button>
-            <el-button type="text" size="small" class="el-button-delete" @click="deleteGroup(scope)">
-              {{ $t('common.delete') }}
-            </el-button>
+            <el-button type="text" size="small" class="el-button-delete" :disable="canGroupSet" @click="deleteGroup(scope)"> {{ $t('common.delete') }} </el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <el-button @click="editSource()">新建数据源</el-button>
-    <NewSource v-if="showDialog" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" />
+    <NewSource v-if="showDialog" :func="func" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
   </div>
 </template>
 
@@ -204,7 +201,8 @@ import axios from '@/util/axios.js';
 import { useRouter } from 'vue-router';
 export default {
   name: 'Source',
-  setup() {
+  props: ['func', 'data'],
+  setup(props) {
     const { t } = useI18n();
     // const store = useStore();
 
@@ -213,6 +211,8 @@ export default {
     let activeName = ref('1');
     // 是否可以创建用户
     let canCreateUser = ref(false);
+    //是否可以创建存储组，用于判断是否可以删除存储组
+    let canGroupSet = ref(false);
     // 是否可以删除用户
     let canDeleteUser = ref(false);
     // 是否可以修改密码
@@ -336,9 +336,27 @@ export default {
       types.value = 1;
     };
     /**
+     * 删除数据源
+     */
+    const deleteSource = () => {
+      axios.delete(`/servers/${serverId.value}`).then((rs) => {
+        if (rs && rs.code == 0) {
+          ElMessage.success(t('souragePage.successDeleteLabel'));
+        }
+      });
+    };
+    /**
      * 关闭或者取消新增/编辑数据连接操作
      */
     const close = () => {
+      showDialog.value = false;
+      types.value = 0;
+    };
+    /**
+     * 新增或编辑数据源成功回调
+     */
+    const successFunc = (data) => {
+      console.log(data);
       showDialog.value = false;
       types.value = 0;
     };
@@ -362,7 +380,7 @@ export default {
      */
     const editBaseInfo = () => {
       if (!canModifyPassword.value) {
-        ElMessage.error('您当前没有权限操作');
+        ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
       edit.value = true;
@@ -378,7 +396,7 @@ export default {
      */
     const doEdit = () => {
       if (!baseInfoForm.password) {
-        ElMessage.error('请填写密码');
+        ElMessage.error(t(`sourcePage.passwordEmptyTip`));
         return false;
       }
       let reqObj = {
@@ -387,7 +405,7 @@ export default {
       };
       axios.post(`/servers/${serverId.value}/users/pwd`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('修改用户密码成功');
+          ElMessage.success(t('sourcePage.modifySuccessLabel'));
           edit.value = false;
         }
       });
@@ -404,7 +422,7 @@ export default {
         if (valid) {
           axios.post(`/servers/${serverId.value}/users/`, { ...reqObj }).then((rs) => {
             if (rs && rs.code == 0) {
-              ElMessage.success('新建用户成功');
+              ElMessage.success(t('sourcePage.addSuccessLabel'));
               cancelNew();
             }
           });
@@ -417,12 +435,12 @@ export default {
      */
     const deleteUser = (item) => {
       if (!canDeleteUser.value) {
-        ElMessage.error('您当前没有权限操作');
+        ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
       axios.delete(`/servers/${serverId.value}/users/${item.username}`).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('删除用户成功');
+          ElMessage.success(t('sourcePage.deleteUserSuccessLabel'));
           activeIndex.value = null;
           getUserList();
         }
@@ -433,12 +451,12 @@ export default {
      */
     const newUser = () => {
       if (!canCreateUser.value) {
-        ElMessage.error('您当前没有权限操作');
+        ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
       for (let i = 0; i < userList.value.length; i++) {
         if (userList.value[i].username == 'new') {
-          ElMessage.error('请先完成当前新增账号的操作');
+          ElMessage.error(t(`sourcePage.addFirstLabel`));
           return false;
         }
       }
@@ -493,7 +511,7 @@ export default {
      */
     const authAdd = () => {
       if (!canAuth.value) {
-        ElMessage.error('您当前没有权限操作');
+        ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
       authTableData.value.push({
@@ -543,11 +561,7 @@ export default {
           canModifyPassword.value = data[i].privileges.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
           canShowUser.value = data[i].privileges.indexOf('LIST_USER') >= 0 ? true : false;
           canAuth.value = data[i].privileges.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
-          console.log(canCreateUser.value);
-          console.log(canDeleteUser.value);
-          console.log(canModifyPassword.value);
-          console.log(canShowUser.value);
-          console.log(canAuth.value);
+          canGroupSet.value = data[i].privileges.indexOf('SET_STORAGE_GROUP') >= 0 ? true : false;
         }
       }
     };
@@ -595,7 +609,7 @@ export default {
       reqObj.privileges = [];
       axios.post(`/servers/${serverId.value}/users/${activeIndex.value}`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('删除权限成功');
+          ElMessage.success(t('sourcePage.deleteAuthLabel'));
           getUserAuth({ username: activeIndex.value });
         }
       });
@@ -628,7 +642,7 @@ export default {
 
       axios.post(`/servers/${serverId.value}/users/${activeIndex.value}`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('操作权限成功');
+          ElMessage.success(t('sourcePage.operateAuthLabel'));
           getUserAuth({ username: activeIndex.value });
         }
       });
@@ -685,10 +699,23 @@ export default {
     const deleteGroup = (scope) => {
       axios.delete(`/servers/${serverId.value}/storageGroups/${scope.row.groupName}`).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('删除存储组成功');
+          ElMessage.success(t('sourcePage.deleteGroupLabel'));
           getGroupList();
         }
       });
+    };
+    /**
+     * 跳转编辑存储组
+     */
+    const goEditGroup = (scope) => {
+      debugger;
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' });
+    };
+    /**
+     * 查看存储组详情
+     */
+    const goGroupDetail = (scope) => {
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup');
     };
     onMounted(() => {
       serverId.value = router.currentRoute.value.params.serverid;
@@ -703,6 +730,8 @@ export default {
     return {
       editSource,
       close,
+      deleteSource,
+      successFunc,
       showDialog,
       types,
       baseInfo,
@@ -744,6 +773,14 @@ export default {
       getDeviceByGroupName,
       getTimeSeriesByDeviceName,
       deleteGroup,
+      canCreateUser,
+      canGroupSet,
+      canDeleteUser,
+      canModifyPassword,
+      canShowUser,
+      canAuth,
+      goGroupDetail,
+      goEditGroup,
     };
   },
   components: {
@@ -784,12 +821,11 @@ export default {
     }
     .icon-del {
       right: 20px;
-      color: #D32D2FFF;
+      color: #d32d2fff;
     }
     .icon-edit {
       right: 60px;
       color: $theme-color;
-
     }
   }
   .info-box {
@@ -857,7 +893,7 @@ export default {
             .icon {
               position: absolute;
               right: 16px;
-              top: 10px;
+              top: 12px;
             }
           }
         }
@@ -910,7 +946,12 @@ export default {
         }
         .tab-content {
           padding: 10px 30px;
-
+          .user-name {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
           .password-form-item {
             position: relative;
 
@@ -952,7 +993,7 @@ export default {
     .group-table {
       width: 100%;
       padding: 10px;
-      overflow: auto;
+      // overflow: auto;
       // &::v-deep .el-table__body-wrapper {
       //   max-height: 30vh;
       //   overflow: auto !important;

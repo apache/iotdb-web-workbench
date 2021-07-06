@@ -27,6 +27,9 @@
         <el-form-item :label="$t('sourcePage.password')" prop="password">
           <el-input v-model="form.password" show-password></el-input>
         </el-form-item>
+        <el-form-item :label="$t('sourcePage.test')">
+          <el-button @click="testConnect()">{{ $t('sourcePage.testBtnLabel') }}</el-button>
+        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -40,12 +43,12 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, onActivated } from 'vue';
 import { ElDialog, ElButton, ElForm, ElInput, ElFormItem, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
 import { useStore } from 'vuex';
-// import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 export default {
   name: 'NewSource',
@@ -60,11 +63,17 @@ export default {
     serverId: {
       type: Number,
     },
+    data: {
+      type: Object,
+    },
+    func: {
+      type: Object,
+    },
   },
-  setup(props) {
+  setup(props, context) {
     const { t } = useI18n();
     const store = useStore();
-    // const router = useRoute();
+    const router = useRoute();
     let form = reactive({
       alias: '',
       host: '',
@@ -94,11 +103,21 @@ export default {
           message: t(`sourcePage.hostEmptyTip`),
           trigger: 'change',
         },
+        {
+          pattern: /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/,
+          message: t(`sourcePage.hostErrorTip`),
+          trigger: 'change',
+        },
       ],
       port: [
         {
           required: true,
           message: t(`sourcePage.portEmptyTip`),
+          trigger: 'change',
+        },
+        {
+          pattern: /^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
+          message: t(`sourcePage.portErrorTip`),
           trigger: 'change',
         },
       ],
@@ -110,6 +129,15 @@ export default {
         },
       ],
     });
+    // const isHost = (rule, value, callback) => {
+    //   let reg = /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/;
+    //   console.log(rule);
+    //   if (!reg.test(value)) {
+    //     return callback(new Error('请输入0-100的整数'));
+    //   } else {
+    //     callback();
+    //   }
+    // };
     const submit = () => {
       formRef.value.validate((valid) => {
         let connection = {
@@ -118,12 +146,15 @@ export default {
           port: form.port,
           username: form.username,
           password: form.password,
+          id: form.id || null,
           userId: store.state.userInfo.userId || null,
         };
         if (valid) {
           axios.post('/servers', { ...connection }).then((res) => {
             if (res && res.code == 0) {
-              ElMessage.success('新增数据连接成功');
+              ElMessage.success('新增或数据连接成功');
+              context.emit('successFunc', res);
+              props.func.updateTree();
             }
           });
         }
@@ -137,21 +168,50 @@ export default {
           form.port = res.data.port;
           form.username = res.data.username;
           form.password = res.data.password;
+          form.id = res.data.id || null;
         }
       });
+    };
+    const testConnect = () => {
+      let patternReg = /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/;
+      if (!form.host) {
+        ElMessage.error(t(`sourcePage.hostEmptyTip`));
+        return false;
+      }
+      if (!patternReg.test(form.host)) {
+        ElMessage.error(t(`sourcePage.hostErrorTip`));
+        return false;
+      }
+
+      axios
+        .get('/test', {
+          params: {
+            host: form.host,
+          },
+        })
+        .then((rs) => {
+          if (rs && rs.code == 0) {
+            ElMessage.success(t(`sourcePage.testResult`));
+          }
+        });
     };
     onMounted(() => {
       if (props.types == 1) {
         getBaseInfo();
       }
     });
-
+    onActivated(() => {
+      if (router.params.forceupdate) {
+        console.log(router.params, 'update');
+      }
+    });
     return {
       form,
       formRef,
       rules,
       submit,
       getBaseInfo,
+      testConnect,
     };
   },
   components: {
@@ -175,6 +235,9 @@ export default {
   }
   &::v-deep .el-form-item__content {
     line-height: 20px;
+  }
+  &::v-deep .el-dialog {
+    margin-top: 10vh !important;
   }
 }
 </style>

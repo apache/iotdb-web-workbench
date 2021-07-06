@@ -1,7 +1,21 @@
 <template>
   <div class="databasem">
     <el-container class="content-container">
-      <el-aside :width="dividerWidth + 'px'"><data-list-tree :nodekey="nodekey" ref="treeRef" :handleNodeClick="handleNodeClick"></data-list-tree></el-aside>
+      <el-aside :width="dividerWidth + 'px'"
+        ><data-list-tree
+          :func="{
+            treeAppend,
+            treeInsertAfter,
+            treeInsertBefore,
+            removeTab,
+            addTab,
+            updateTree,
+          }"
+          :nodekey="nodekey"
+          ref="treeRef"
+          :handleNodeClick="handleNodeClick"
+        ></data-list-tree
+      ></el-aside>
       <div class="divider" ref="dividerRef"></div>
       <el-main>
         <template v-if="urlTabs.length !== 0">
@@ -18,7 +32,19 @@
           <div class="router-container">
             <router-view v-slot="{ Component, route }">
               <keep-alive>
-                <component :key="route.fullPath" :is="Component" :data="tabData" />
+                <component
+                  :key="route.fullPath"
+                  :is="Component"
+                  :data="tabData"
+                  :func="{
+                    treeAppend,
+                    treeInsertAfter,
+                    treeInsertBefore,
+                    removeTab,
+                    addTab,
+                    updateTree,
+                  }"
+                />
               </keep-alive>
             </router-view>
           </div>
@@ -58,17 +84,34 @@ export default {
       treeRef.value.treeRef.setCurrentKey(data.id);
       nodekey.value = data.id;
       urlSkipMap(data.node);
+      // addTab('myteststorageGroup');
+    };
 
-      // let node = treeRef.value.treeRef.getCurrentNode();
-      // treeRef.value.treeRef.insertAfter(
-      //   {
-      //     id: 'test:newquery',
-      //     name: '新建查询ffffff',
-      //     type: 'newquery',
-      //     leaf: true,
-      //   },
-      //   node
-      // );
+    const updateTree = () => {
+      treeRef.value.updateTree();
+    };
+
+    const treeAppend = (id, data) => {
+      treeRef.value.treeRef.append(data, id);
+    };
+
+    const treeInsertAfter = (id, data) => {
+      treeRef.value.treeRef.insertAfter(data, id);
+    };
+
+    const treeInsertBefore = (id, data) => {
+      treeRef.value.treeRef.insertBefore(data, id);
+    };
+
+    const addTab = (id, extraParams) => {
+      updateTree();
+      let stop = setInterval(() => {
+        let node = treeRef.value.treeRef.getNode(id);
+        if (node) {
+          handleNodeClick({ ...node.data, extraParams: extraParams });
+          clearInterval(stop);
+        }
+      }, 300);
     };
 
     watch(urlTabsValue, (newValue) => {
@@ -81,23 +124,33 @@ export default {
 
     const urlSkipMap = (data, forceupdate) => {
       // console.log(data, 'ppppppp');
+      let extraParams = data.extraParams;
       if (data.type === 'connection') {
         //数据连接
-        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate } });
+        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'newstorageGroup') {
-        //新建存储组
-        router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate } });
+        router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'querylist') {
         //查询列表
       } else if (data.type === 'storageGroup') {
+        // if (1 == data) {
+        // let data = JSON.parse(router.currentRoute.value.params.extraParams);
+        // if (data.type && data.type == 'edit') {
+        //   router.push({ name: 'EditStorage', params: { serverid: data.serverId, groupName: data.groupName } });
+        // }
+        // } else {
         //存储组
-        router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate } });
+        router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
+        // }
       } else if (data.type === 'newdevice') {
         //新建实体
       } else if (data.type === 'device') {
         //实体
+        console.log(data);
+        router.push({ name: 'DeviceMessage', params: { ...data } });
       } else if (data.type === 'newquery') {
         //新建查询
+        router.push({ name: 'SqlSerch' });
       } else if (data.type === 'query') {
         //查询
       }
@@ -105,6 +158,7 @@ export default {
 
     const handleNodeClick = (data) => {
       nodekey.value = data.id;
+      treeRef.value.treeRef.setCurrentKey(data.id);
       if (data.type === 'querylist') {
         return;
       }
@@ -163,6 +217,11 @@ export default {
       handleClick,
       removeTab,
       handleNodeClick,
+      treeAppend,
+      treeInsertBefore,
+      treeInsertAfter,
+      updateTree,
+      addTab,
     };
   },
   components: {

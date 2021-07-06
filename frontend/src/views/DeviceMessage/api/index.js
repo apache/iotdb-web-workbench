@@ -1,12 +1,12 @@
 import axios from '@/util/axios.js';
 
 //获取实体详情
-export function getDeviceDate(serverId, groupName, deviceName) {
-  return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}`);
+export function getDeviceDate(data) {
+  return axios.get(`/servers/${data.connectionid}/storageGroups/${data.storagegroupid}/devices/${data.name}`);
 }
 //获取实体下物理量列表
-export function getList(serverId, groupName, deviceName, data) {
-  return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/info`, { params: data });
+export function getList(data, params) {
+  return axios.get(`/servers/${data.connectionid}/storageGroups/${data.storagegroupid}/devices/${data.name}/info`, { params: params });
 }
 //获取测点数据趋势
 export function getData(serverId, groupName, deviceName, timeseriesName) {

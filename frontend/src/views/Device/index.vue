@@ -30,11 +30,19 @@ import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
+// import { useRoute } from 'vue-router';
 export default {
   name: 'DeviceAddEidt',
   setup() {
+    // const route = useRoute();
     const standtable = ref(null);
     const { t } = useI18n();
+    const deviceData = reactive({
+      id: null,
+      timeseries: null,
+      deviceName: null,
+      groupName: null,
+    });
     const encoding = {
       BOOLEAN: [
         { label: 'PLAIN', value: 'PLAIN' },
@@ -109,7 +117,6 @@ export default {
       ],
     });
     const form = reactive({
-      // inline: true, //横向
       labelPosition: 'left', //文本对齐方式
       formData: {},
       formItem: [
@@ -145,6 +152,31 @@ export default {
         },
       ],
     });
+    // watch(
+    //   () => route.params,
+    //   () => {
+    //     if (route.params.deviceName) {
+    //       deviceData.deviceName = route.params.deviceName;
+    //       deviceData.id = route.params.id;
+    //       deviceData.groupName = route.params.groupName;
+    //       getdData();
+    //       getListData();
+    //     } else {
+    //       deviceData.deviceName = null;
+    //       deviceData.id = null;
+    //       deviceData.groupName = null;
+    //       tableData.list = [
+    //         {
+    //           timeseries: null,
+    //           dataType: null,
+    //           encoding: null,
+    //           description: null,
+    //           display: true,
+    //         },
+    //       ];
+    //     }
+    //   }
+    // );
     function checkVal(val, ev) {
       if (!/^\w+$/.test(val)) {
         ElMessage.error(`"${val}"物理量必须由字⺟、数字、下划线组成`);
@@ -163,7 +195,7 @@ export default {
         type: 'warning',
       })
         .then(() => {
-          deleteData(9, 'mytest', 'test1', row.timeseries).then(() => {
+          deleteData(deviceData, row.timeseries).then(() => {
             tableData.list.splice(index, 1);
             ElMessage({
               type: 'success',
@@ -202,7 +234,7 @@ export default {
         console.log(e);
       }
       if (checkfalg) {
-        deviceAddEdite(9, 'mytest', { ...form.formData, deviceDTOList: tableData.list }).then(() => {
+        deviceAddEdite(deviceData.id, deviceData.groupName, { ...form.formData, deviceDTOList: tableData.list }).then(() => {
           ElMessage({
             type: 'success',
             message: '保存成功!',
@@ -212,21 +244,24 @@ export default {
       }
     }
     function getListData() {
-      getList(9, 'mytest', 'test1', { pageSize: 10, pageNum: 1 }).then((res) => {
+      getList(deviceData, { pageSize: 10, pageNum: 1 }).then((res) => {
         console.log(res);
         tableData.list = res.data.measurementVOList;
         console.log(standtable);
       });
     }
-    onMounted(() => {
-      getDeviceDate(9, 'mytest', 'test1').then((res) => {
+    function getdData() {
+      getDeviceDate(deviceData).then((res) => {
         form.formData = reactive({
           description: res.data.description,
-          deviceName: 'test1',
-          groupName: 'mytest',
+          deviceName: deviceData.deviceName,
+          groupName: deviceData.groupName,
           deviceId: res.data.deviceId,
         });
       });
+    }
+    onMounted(() => {
+      getdData();
       getListData();
     });
     return {

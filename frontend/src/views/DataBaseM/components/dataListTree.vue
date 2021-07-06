@@ -4,7 +4,7 @@
       <span>{{ $t('rootPage.dataList') }}</span>
       <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
         <div class="icon-1">
-          <svg class="icon" aria-hidden="true" @click="btnClick1" v-icon="`#icon-xinjianchaxun-color`">
+          <svg class="icon" @click="updateTree" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
             <use xlink:href="#icon-xinjianchaxun"></use>
           </svg>
         </div>
@@ -25,6 +25,7 @@
       </el-input>
     </div> -->
     <el-tree
+      :default-expanded-keys="treeExpandKey"
       v-if="store.state?.userInfo?.userId !== undefined"
       ref="treeRef"
       highlight-current
@@ -35,6 +36,7 @@
       :load="loadNode"
       lazy
       :current-node-key="nodekey"
+      :key="treeKey"
     >
       <template #default="{ node, data }">
         <span class="custom-tree-node">
@@ -43,7 +45,7 @@
         </span>
       </template>
     </el-tree>
-    <NewSource v-if="showDialog" :serverId="null" :showDialog="showDialog" :types="types" @close="close()" />
+    <NewSource v-if="showDialog" :func="func" :serverId="null" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
   </div>
 </template>
 
@@ -57,7 +59,7 @@ import NewSource from '../../Source/components/newSource';
 
 export default {
   name: 'DataListTree',
-  props: ['handleNodeClick', 'nodekey'],
+  props: ['handleNodeClick', 'nodekey', 'func'],
   setup(props) {
     const treeProps = reactive({
       label: 'name',
@@ -67,14 +69,30 @@ export default {
     });
     const searchVal = ref('');
     const treeRef = ref(null);
+    const treeExpandKey = ref([]);
     const store = useStore();
     const showDialog = ref(false);
     const types = ref(null);
+    const treeKey = ref(1);
+
     const searchClick = () => {
       console.log('jj');
     };
 
     const nodeClick = (data, node) => {
+      let arr = treeExpandKey.value;
+      setTimeout(() => {
+        if (node.expanded) {
+          arr.push(node.data.id);
+        } else {
+          let index = arr.indexOf(node.data.id);
+          if (index !== -1) {
+            arr.splice(index, 1);
+          }
+        }
+        treeExpandKey.value = arr;
+      }, 1000);
+
       props.handleNodeClick(data, node);
     };
     /**
@@ -91,7 +109,17 @@ export default {
       showDialog.value = false;
       types.value = 0;
     };
-    const btnClick2 = () => {};
+    /**
+     * 新增或编辑数据源成功回调
+     */
+    const successFunc = () => {
+      showDialog.value = false;
+      types.value = 0;
+    };
+
+    const updateTree = () => {
+      treeKey.value += 1;
+    };
 
     const loadNode = (node, resolve) => {
       if (node.level === 0) {
@@ -132,7 +160,7 @@ export default {
               return {
                 parent: node.data,
                 name: e.groupName,
-                id: e.groupName + 'storageGroup',
+                id: node.data.id + e.groupName + 'storageGroup',
                 type: 'storageGroup',
                 rawid: e.groupName,
                 storagegroupid: e.groupName,
@@ -163,7 +191,7 @@ export default {
               return {
                 parent: node.data,
                 name: e,
-                id: e + 'device',
+                id: node.data.id + e + 'device',
                 type: 'device',
                 leaf: true,
                 rawid: e,
@@ -194,7 +222,7 @@ export default {
               return {
                 parent: node.data,
                 name: e.queryName,
-                id: e.id + 'query',
+                id: node.data.id + e.id + 'query',
                 type: 'query',
                 leaf: true,
                 rawid: e.id,
@@ -211,18 +239,21 @@ export default {
     };
 
     return {
+      treeExpandKey,
+      treeKey,
       store,
       loadNode,
       searchClick,
       nodeClick,
       newSource,
-      btnClick2,
       treeProps,
       searchVal,
       treeRef,
       close,
+      successFunc,
       showDialog,
       types,
+      updateTree,
     };
   },
   components: {
