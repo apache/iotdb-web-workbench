@@ -4,6 +4,7 @@ import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
+import org.apache.iotdb.admin.model.vo.MeasuremtnInfoVO;
 import org.apache.iotdb.admin.model.vo.RecordVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
 import org.apache.iotdb.session.pool.SessionPool;
@@ -18,9 +19,9 @@ public interface IotDBService {
 
     void deleteStorageGroup(Connection connection, String groupName) throws BaseException;
 
-    List<String> getDevicesByGroup(Connection connection, String groupName,Integer pageSize,Integer pageNum) throws BaseException;
+    CountDTO getDevicesByGroup(Connection connection, String groupName,Integer pageSize,Integer pageNum,String keyword) throws BaseException;
 
-    List<MeasurementDTO> getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum) throws BaseException;
+    CountDTO  getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum, String keyword) throws BaseException;
 
     List<String> getIotDBUserList(Connection connection) throws BaseException;
 

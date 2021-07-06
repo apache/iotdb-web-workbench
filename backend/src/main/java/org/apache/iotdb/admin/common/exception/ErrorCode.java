@@ -185,6 +185,9 @@ public class ErrorCode {
     public static final String No_QUERY = "IOTDB-0040";
     public static final String NO_QUERY_MSG = "不存在此查询";
 
+    public static final String NO_ALL_NUM_SEARCH = "IOTDB-0041";
+    public static final String NO_ALL_NUM_SEARCH_MSG = "不支持纯数字查询";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
