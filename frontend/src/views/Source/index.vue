@@ -36,7 +36,7 @@
           </ul>
         </div>
         <div class="right-part">
-          <el-button class="auth-add-btn" type="text" v-if="activeName == '2'" @click="authAdd()">添加权限</el-button>
+          <el-button class="auth-add-btn" type="text" v-if="activeName == '2'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
           <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs">
             <el-tab-pane :label="$t('sourcePage.baseConfig')" name="1">
               <template v-if="activeIndex !== null">
@@ -176,7 +176,7 @@
         <el-table-column :label="$t('common.operation')">
           <template #default="scope">
             <!-- @click="handleClick(scope.row)" -->
-            <el-button type="text" size="small">{{ $t('common.detail') }}{{ scope.row.ttl }}</el-button>
+            <el-button type="text" size="small" @click="goGroupDetail(scope)">{{ $t('common.detail') }}</el-button>
             <el-button type="text" size="small">
               {{ $t('common.edit') }}
             </el-button>
@@ -185,7 +185,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <NewSource v-if="showDialog" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
+    <NewSource v-if="showDialog" :func="func" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
   </div>
 </template>
 
@@ -201,7 +201,8 @@ import axios from '@/util/axios.js';
 import { useRouter } from 'vue-router';
 export default {
   name: 'Source',
-  setup() {
+  props: ['func', 'data'],
+  setup(props) {
     const { t } = useI18n();
     // const store = useStore();
 
@@ -340,7 +341,7 @@ export default {
     const deleteSource = () => {
       axios.delete(`/servers/${serverId.value}`).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('删除连接成功');
+          ElMessage.success(t('souragePage.successDeleteLabel'));
         }
       });
     };
@@ -379,7 +380,7 @@ export default {
      */
     const editBaseInfo = () => {
       if (!canModifyPassword.value) {
-        ElMessage.error('您当前没有权限操作');
+        ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
       edit.value = true;
@@ -395,7 +396,7 @@ export default {
      */
     const doEdit = () => {
       if (!baseInfoForm.password) {
-        ElMessage.error('请填写密码');
+        ElMessage.error(t(`sourcePage.passwordEmptyTip`));
         return false;
       }
       let reqObj = {
@@ -404,7 +405,7 @@ export default {
       };
       axios.post(`/servers/${serverId.value}/users/pwd`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('修改用户密码成功');
+          ElMessage.success(t('sourcePage.modifySuccessLabel'));
           edit.value = false;
         }
       });
@@ -421,7 +422,7 @@ export default {
         if (valid) {
           axios.post(`/servers/${serverId.value}/users/`, { ...reqObj }).then((rs) => {
             if (rs && rs.code == 0) {
-              ElMessage.success('新建用户成功');
+              ElMessage.success(t('sourcePage.addSuccessLabel'));
               cancelNew();
             }
           });
@@ -434,12 +435,12 @@ export default {
      */
     const deleteUser = (item) => {
       if (!canDeleteUser.value) {
-        ElMessage.error('您当前没有权限操作');
+        ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
       axios.delete(`/servers/${serverId.value}/users/${item.username}`).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('删除用户成功');
+          ElMessage.success(t('sourcePage.deleteUserSuccessLabel'));
           activeIndex.value = null;
           getUserList();
         }
@@ -450,12 +451,12 @@ export default {
      */
     const newUser = () => {
       if (!canCreateUser.value) {
-        ElMessage.error('您当前没有权限操作');
+        ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
       for (let i = 0; i < userList.value.length; i++) {
         if (userList.value[i].username == 'new') {
-          ElMessage.error('请先完成当前新增账号的操作');
+          ElMessage.error(t(`sourcePage.addFirstLabel`));
           return false;
         }
       }
@@ -510,7 +511,7 @@ export default {
      */
     const authAdd = () => {
       if (!canAuth.value) {
-        ElMessage.error('您当前没有权限操作');
+        ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
       authTableData.value.push({
@@ -608,7 +609,7 @@ export default {
       reqObj.privileges = [];
       axios.post(`/servers/${serverId.value}/users/${activeIndex.value}`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('删除权限成功');
+          ElMessage.success(t('sourcePage.deleteAuthLabel'));
           getUserAuth({ username: activeIndex.value });
         }
       });
@@ -641,7 +642,7 @@ export default {
 
       axios.post(`/servers/${serverId.value}/users/${activeIndex.value}`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('操作权限成功');
+          ElMessage.success(t('sourcePage.operateAuthLabel'));
           getUserAuth({ username: activeIndex.value });
         }
       });
@@ -698,10 +699,16 @@ export default {
     const deleteGroup = (scope) => {
       axios.delete(`/servers/${serverId.value}/storageGroups/${scope.row.groupName}`).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('删除存储组成功');
+          ElMessage.success(t('sourcePage.deleteGroupLabel'));
           getGroupList();
         }
       });
+    };
+    /**
+     * 查看存储组详情
+     */
+    const goGroupDetail = (scope) => {
+      props.func.addTab(scope.row.groupName + 'storageGroup');
     };
     onMounted(() => {
       serverId.value = router.currentRoute.value.params.serverid;
@@ -765,6 +772,7 @@ export default {
       canModifyPassword,
       canShowUser,
       canAuth,
+      goGroupDetail,
     };
   },
   components: {

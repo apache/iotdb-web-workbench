@@ -1,7 +1,21 @@
 <template>
   <div class="databasem">
     <el-container class="content-container">
-      <el-aside :width="dividerWidth + 'px'"><data-list-tree :nodekey="nodekey" ref="treeRef" :handleNodeClick="handleNodeClick"></data-list-tree></el-aside>
+      <el-aside :width="dividerWidth + 'px'"
+        ><data-list-tree
+          :func="{
+            treeAppend,
+            treeInsertAfter,
+            treeInsertBefore,
+            removeTab,
+            addTab,
+            updateTree,
+          }"
+          :nodekey="nodekey"
+          ref="treeRef"
+          :handleNodeClick="handleNodeClick"
+        ></data-list-tree
+      ></el-aside>
       <div class="divider" ref="dividerRef"></div>
       <el-main>
         <template v-if="urlTabs.length !== 0">

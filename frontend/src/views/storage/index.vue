@@ -56,6 +56,7 @@ import axios from '@/util/axios.js';
 
 export default {
   name: 'Storage',
+  props: ['data', 'func'],
   setup() {
     const { t } = useI18n();
     const router = useRouter();

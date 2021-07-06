@@ -63,6 +63,12 @@ export default {
     serverId: {
       type: Number,
     },
+    data: {
+      type: Object,
+    },
+    func: {
+      type: Object,
+    },
   },
   setup(props, context) {
     const { t } = useI18n();
@@ -148,6 +154,7 @@ export default {
             if (res && res.code == 0) {
               ElMessage.success('新增或数据连接成功');
               context.emit('successFunc', res);
+              props.func.updateTree();
             }
           });
         }

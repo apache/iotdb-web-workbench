@@ -93,6 +93,16 @@ const cn = {
       test: '测试连通性',
       testBtnLabel: '连接测试',
       testResult: '连接测试通过',
+      noAuthTip: '您当前没有权限操作',
+      successDeleteLabel: '删除连接成功',
+      addAuthBtn: '添加权限',
+      modifySuccessLabel: '修改用户密码成功',
+      addSuccessLabel: '新建用户成功',
+      deleteUserSuccessLabel: '删除用户成功',
+      addFirstLabel: '请先完成当前新增账号的操作',
+      deleteAuthLabel: '删除权限成功',
+      operateAuthLabel: '操作权限成功',
+      deleteGroupLabel: '删除存储组成功'
     },
     storagePage: {
       alias: '数据连接',

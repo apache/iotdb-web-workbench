@@ -45,7 +45,7 @@
         </span>
       </template>
     </el-tree>
-    <NewSource v-if="showDialog" :serverId="null" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
+    <NewSource v-if="showDialog" :func="func" :serverId="null" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
   </div>
 </template>
 
@@ -59,7 +59,7 @@ import NewSource from '../../Source/components/newSource';
 
 export default {
   name: 'DataListTree',
-  props: ['handleNodeClick', 'nodekey'],
+  props: ['handleNodeClick', 'nodekey', 'func'],
   setup(props) {
     const treeProps = reactive({
       label: 'name',
@@ -111,8 +111,7 @@ export default {
     /**
      * 新增或编辑数据源成功回调
      */
-    const successFunc = (data) => {
-      console.log(data);
+    const successFunc = () => {
       showDialog.value = false;
       types.value = 0;
     };
