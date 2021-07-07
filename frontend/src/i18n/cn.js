@@ -36,8 +36,12 @@ const cn = {
       forgetPassword: '忘记密码',
       forgetPasswordTip: '请联系系统管理员',
       accountEmptyTip: '账号不能为空',
+      accountContentTip: '用户名必须由字母、数字、下划线组成，不能以数字和下划线开始',
+      accountLengthTip: '用户名必须大于等于3个字符，小于等于32字符',
       passwordEmptyTip: '密码不能为空',
+      passwordLenghtTip: '密码必须大于等于6位，请检查密码位数',
       welcomeLogin: '登录IotDB数据库管理',
+      loginErrorTip: '用户名或密码不正确，请重新输入',
     },
 
     sourcePage: {
@@ -102,7 +106,7 @@ const cn = {
       addFirstLabel: '请先完成当前新增账号的操作',
       deleteAuthLabel: '删除权限成功',
       operateAuthLabel: '操作权限成功',
-      deleteGroupLabel: '删除存储组成功'
+      deleteGroupLabel: '删除存储组成功',
     },
     storagePage: {
       alias: '数据连接',

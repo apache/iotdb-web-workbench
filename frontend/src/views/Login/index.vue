@@ -40,7 +40,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { ElForm, ElFormItem, ElInput, ElButton, ElDialog } from 'element-plus';
+import { ElForm, ElFormItem, ElInput, ElButton, ElDialog, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
 
@@ -63,7 +63,23 @@ export default {
         return;
       }
       if (!/^[^_\d]\w+?/.test(value)) {
-        callback(new Error(t(`用户名必须由字母、数字、下划线组成，不能以数字和下划线开始`)));
+        callback(new Error(t(`loginPage.accountContentTip`)));
+        return;
+      }
+      if (value.length < 3 || value.length > 32) {
+        callback(new Error(t(`loginPage.accountLengthTip`)));
+        return;
+      }
+      callback();
+    };
+
+    const validatePassport = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(t(`loginPage.passwordEmptyTip`)));
+        return;
+      }
+      if (value.length < 6) {
+        callback(new Error(t(`loginPage.passwordLenghtTip`)));
         return;
       }
       callback();
@@ -80,7 +96,7 @@ export default {
       passport: [
         {
           required: true,
-          message: t(`loginPage.passwordEmptyTip`),
+          validator: validatePassport,
           trigger: 'blur',
         },
       ],
@@ -101,6 +117,8 @@ export default {
               store.commit('setLogin', true);
               store.commit('setUserInfo', res.data || {});
               router.push({ name: 'Root' });
+            } else {
+              ElMessage.error(t(`loginPage.loginErrorTip`));
             }
           });
         }
