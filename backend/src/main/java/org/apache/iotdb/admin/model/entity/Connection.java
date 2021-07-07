@@ -19,7 +19,7 @@ public class Connection implements Serializable {
     private Integer id;
 
     @NotBlank(message = "不能为空或为null")
-    @Pattern(regexp = "^(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3}$",message = "主机号输入不合法")
+    @Pattern(regexp = "^((2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3})|(localhost)$",message = "主机号输入不合法")
     private String host;
 
     @NotNull(message = "不能为null")

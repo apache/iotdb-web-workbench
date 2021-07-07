@@ -187,7 +187,7 @@ public class IotDBController<T> {
                                                       @PathVariable("groupName") String groupName,
                                                       @RequestParam("pageSize") Integer pageSize,
                                                       @RequestParam("pageNum") Integer pageNum,
-                                                      @RequestParam("keyword") String keyword,
+                                                      @RequestParam(value = "keyword",required = false) String keyword,
                                                       HttpServletRequest request) throws BaseException {
         if (groupName == null || !groupName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
@@ -326,7 +326,7 @@ public class IotDBController<T> {
                                                                 @PathVariable("deviceName") String deviceName,
                                                                 @RequestParam("pageSize") Integer pageSize,
                                                                 @RequestParam("pageNum") Integer pageNum,
-                                                                @RequestParam("keyword") String keyword,
+                                                                @RequestParam(value = "keyword",required = false) String keyword,
                                                                 HttpServletRequest request) throws BaseException {
         if (groupName == null || !groupName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
