@@ -107,11 +107,7 @@ export default {
       let count = 0;
       let stop = setInterval(() => {
         let node = treeRef.value.treeRef.getNode(id);
-<<<<<<< HEAD
-        console.log(node);
-=======
         count++;
->>>>>>> 33fc16a1eb0a06745ca0d8423d17255a5dea9486
         if (node) {
           handleNodeClick({ ...node.data, extraParams: extraParams });
           clearInterval(stop);
