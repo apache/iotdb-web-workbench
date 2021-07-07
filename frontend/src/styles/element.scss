@@ -90,3 +90,8 @@
 .el-input__icon {
   cursor: pointer;
 }
+.el-popover {
+  .el-popconfirm__main {
+    padding: 10px 10px 20px;
+  }
+}

@@ -5,9 +5,15 @@
         <svg class="icon" aria-hidden="true" @click="editGroup()">
           <use xlink:href="#icon-se-icon-f-edit"></use>
         </svg>
-        <svg class="icon" aria-hidden="true" @click="deleteGroup()">
-          <use xlink:href="#icon-se-icon-delete"></use>
-        </svg>
+        <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup()">
+          <template #reference>
+            <span class="icon-del">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-se-icon-delete"></use>
+              </svg>
+            </span>
+          </template>
+        </el-popconfirm>
       </div>
       <el-descriptions :title="baseInfo.groupName">
         <el-descriptions-item :label="$t('storagePage.alias') + ':'">{{ baseInfo.alias }}</el-descriptions-item>
@@ -33,10 +39,12 @@
           <el-table-column prop="creator" :label="$t('storagePage.creator')"> </el-table-column>
           <el-table-column :label="$t('storagePage.operation')">
             <template #default="scope">
-              <!-- @click="handleClick(scope.row)" -->
-
               <el-button type="text" size="small">{{ $t('common.edit') }}{{ scope.row.ttl }}</el-button>
-              <el-button type="text" size="small" class="el-button-delete">{{ $t('common.delete') }}</el-button>
+              <el-popconfirm placement="top" :title="$t('storagePage.deleteDeviceConfirm')" @confirm="deleteDevice(scope)">
+                <template #reference>
+                  <el-button type="text" size="small" class="el-button-delete">{{ $t('common.delete') }}</el-button>
+                </template>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -49,7 +57,7 @@
 <script>
 // @ is an alias to /src
 import { onMounted, ref } from 'vue';
-import { ElDescriptions, ElDescriptionsItem, ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage } from 'element-plus';
+import { ElDescriptions, ElDescriptionsItem, ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage, ElPopconfirm } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import axios from '@/util/axios.js';
@@ -57,7 +65,7 @@ import axios from '@/util/axios.js';
 export default {
   name: 'Storage',
   props: ['data', 'func'],
-  setup() {
+  setup(props) {
     const { t } = useI18n();
     const router = useRouter();
 
@@ -89,7 +97,9 @@ export default {
     const deleteGroup = () => {
       axios.delete(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${baseInfo.value.groupName}`).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success('删除存储组成功');
+          ElMessage.success(t('sourcePage.deleteGroupLabel'));
+          props.func.updateTree();
+          props.func.removeTab(props.data.id);
         }
       });
     };
@@ -116,6 +126,7 @@ export default {
           params: {
             pageSize: pageSize.value,
             pageNum: currentPage.value,
+            keyword: searchVal.value || null,
           },
         })
         .then((res) => {
@@ -127,6 +138,13 @@ export default {
             total.value = 0;
           }
         });
+    };
+    /**
+     * 删除实体
+     * scope:要被删除的实体的信息
+     */
+    const deleteDevice = (scope) => {
+      console.log(scope);
     };
     onMounted(() => {
       getGroupDetail();
@@ -147,6 +165,7 @@ export default {
       deleteGroup,
       getGroupDetail,
       getDeviceList,
+      deleteDevice,
     };
   },
   components: {
@@ -157,6 +176,7 @@ export default {
     ElTable,
     ElTableColumn,
     ElPagination,
+    ElPopconfirm,
   },
 };
 </script>
@@ -178,12 +198,13 @@ export default {
       .icon {
         cursor: pointer;
       }
+
       .icon:first-child {
         margin-right: 20px;
         color: $theme-color;
       }
       .icon:last-child {
-        margin-right: 20px;
+        margin-right: 0px;
         color: #d32d2fff;
       }
     }
