@@ -210,7 +210,10 @@ public class IotDBServiceImpl implements IotDBService {
                 }
                 // privileges String内容形式 "path : 权限1 权限2 权限3"
                 // 组装成权限信息集合
-                List<PrivilegeInfo> privilegeInfos = privilegesStrSwitchToObject(sessionpool,privileges);
+                List<PrivilegeInfo> privilegeInfos = new ArrayList<>();
+                if (privileges != null && privileges.size() > 0) {
+                    privilegeInfos = privilegesStrSwitchToObject(sessionpool,privileges);
+                }
                 iotDBUserVO.setPrivilegesInfo(privilegeInfos);
             }
         }catch (Exception e) {
@@ -660,7 +663,7 @@ public class IotDBServiceImpl implements IotDBService {
         for (String sql : sqls) {
             int firstSpaceIndex = sql.indexOf(" ");
             String judge = sql.substring(0, firstSpaceIndex);
-            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge)) {
+            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge) || "list".equalsIgnoreCase(judge)) {
                 sqlResultVO = executeQuery(sessionPool, sql,false,id_plus_timestamp);
                 continue;
             }

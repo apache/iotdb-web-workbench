@@ -105,6 +105,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> imp
             if (flag <= 0) {
                 throw new BaseException(ErrorCode.UPDATE_GROUP_INFO_FAIL,ErrorCode.UPDATE_GROUP_INFO_FAIL_MSG);
             }
+            return;
         }
         throw new BaseException(ErrorCode.NO_GROUP_INFO,ErrorCode.NO_GROUP_INFO_MSG);
     }
