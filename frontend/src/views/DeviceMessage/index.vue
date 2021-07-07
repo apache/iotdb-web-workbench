@@ -51,13 +51,20 @@
 import { ElButton } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, onActivated } from 'vue';
 import { getList, getDeviceDate } from './api';
 import Echarts from '@/components/Echarts';
 import { useRoute, useRouter } from 'vue-router';
 export default {
   name: 'DeviceMessage',
-  setup() {
+  props: {
+    func: Object,
+    data: Object,
+  },
+  setup(props) {
+    const funcs = reactive(props.func);
+    console.log(props.func);
+    console.log(props.data);
     const router = useRouter();
     const route = useRoute();
     let drawer = ref(0);
@@ -114,37 +121,39 @@ export default {
         },
       ],
     });
-    const column = [
-      {
-        label: 'device.physicalname',
-        prop: 'timeseries',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: 'device.datatype',
-        prop: 'dataType',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: 'device.codingmode',
-        prop: 'encoding',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: 'device.physicaldescr',
-        prop: 'description',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: 'device.newValue',
-        prop: 'newValue',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: 'device.datatrends',
-        prop: 'action',
-      },
-    ];
+    const column = reactive({
+      list: [
+        {
+          label: 'device.physicalname',
+          prop: 'timeseries',
+          value: '——', //默认值，该项如果没有数据显示
+        },
+        {
+          label: 'device.datatype',
+          prop: 'dataType',
+          value: '——', //默认值，该项如果没有数据显示
+        },
+        {
+          label: 'device.codingmode',
+          prop: 'encoding',
+          value: '——', //默认值，该项如果没有数据显示
+        },
+        {
+          label: 'device.physicaldescr',
+          prop: 'description',
+          value: '——', //默认值，该项如果没有数据显示
+        },
+        {
+          label: 'device.newValue',
+          prop: 'newValue',
+          value: '——', //默认值，该项如果没有数据显示
+        },
+        {
+          label: 'device.datatrends',
+          prop: 'action',
+        },
+      ],
+    });
     const tableData = reactive({
       list: [],
     });
@@ -177,14 +186,15 @@ export default {
       formdate.formData.time = [new Date(timeS), new Date(timeE)];
     }
     function creatDevice() {
-      console.log('xinjia');
-      router.push({ name: 'Device', params: { deviceName: null } });
+      funcs.addTab(`${routeData.obj.parentid}:newdevice`);
+      // router.push({ name: 'Device', params: { ...routeData.obj } });
     }
     function editDevce() {
+      // funcs.addTab(routeData.obj.id);
       router.push({ name: 'Device', params: { ...routeData.obj } });
     }
     function getListData() {
-      getList(routeData.obj, { pageSize: 10, pageNum: 1 }).then((res) => {
+      getList(routeData.obj, { pageSize: 12, pageNum: 1, keyword: '' }).then((res) => {
         tableData.list = res.data.measurementVOList;
       });
     }
@@ -193,6 +203,13 @@ export default {
         deviceObj.deviceData = res.data;
       });
     }
+    onActivated(() => {
+      console.log(11111);
+      if (route.params.forceupdate) {
+        console.log(route.params.forceupdate);
+        console.log(route.params, 'update');
+      }
+    });
     onMounted(() => {
       getdData();
       getListData();

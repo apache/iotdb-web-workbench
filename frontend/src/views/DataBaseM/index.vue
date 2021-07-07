@@ -107,6 +107,7 @@ export default {
       updateTree();
       let stop = setInterval(() => {
         let node = treeRef.value.treeRef.getNode(id);
+        console.log(node);
         if (node) {
           handleNodeClick({ ...node.data, extraParams: extraParams });
           clearInterval(stop);
@@ -138,15 +139,19 @@ export default {
         router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, extraParams } });
       } else if (data.type === 'newdevice') {
         //新建实体
+        console.log(data);
+        router.push({ name: 'Device', params: { ...data } });
       } else if (data.type === 'device') {
         //实体
         console.log(data);
-        router.push({ name: 'DeviceMessage', params: { ...data } });
+        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id } });
       } else if (data.type === 'newquery') {
         //新建查询
-        router.push({ name: 'SqlSerch' });
+        console.log(data);
+        router.push({ name: 'SqlSerch', params: { ...data } });
       } else if (data.type === 'query') {
         //查询
+        console.log(data);
       }
     };
 

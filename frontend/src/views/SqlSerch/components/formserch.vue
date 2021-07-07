@@ -8,7 +8,7 @@
         <template #default="{ node, data }">
           <span class="custom-tree-node">
             <eltooltip :label="data.value">
-              <span @click="getFunction(node.label)">{{ $t(node.label) }}</span>
+              <span @dblclick="getFunction(node.label)">{{ $t(node.label) }}</span>
             </eltooltip>
           </span>
         </template>

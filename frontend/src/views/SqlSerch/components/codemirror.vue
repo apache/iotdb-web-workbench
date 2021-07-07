@@ -55,7 +55,8 @@ export default {
             let start = end;
             let token = cmInstance.getTokenAt(cursor);
             console.log(cmInstance, cursor, cursorLine, start, end, token);
-            this.coder.markText({ line: cursor.line, ch: 5 }, { line: cursor.line, ch: 0 });
+            console.log(cursorLine);
+            // this.$emit('getCode', cursor.line, cursorLine);
           },
         },
         // styleActiveLine: true,
@@ -64,7 +65,10 @@ export default {
   },
   mounted() {
     this._initialize();
-    this.coder.on('change', () => {
+    this.coder.on('change', (cmInstance) => {
+      let cursor = cmInstance.getCursor();
+      let cursorLine = cmInstance.getLine(cursor.line);
+      this.$emit('getCode', cursor.line, cursorLine);
       handleShowHint(this.coder);
       //编译器内容更改事件
       this.coder.showHint();
@@ -89,7 +93,6 @@ export default {
       // 支持双向绑定
       this.coder.on('change', (coder) => {
         this.code = coder.getValue();
-        this.$emit('getCode', this.code);
       });
       keywords.forEach((words) => {
         CodeMirror.resolveMode('text/x-mysql').keywords[words.toLowerCase()] = true;
