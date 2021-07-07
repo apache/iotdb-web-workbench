@@ -33,7 +33,7 @@
             <router-view v-slot="{ Component, route }">
               <keep-alive>
                 <component
-                  :key="route.fullPath"
+                  :key="route.fullPath + JSON.stringify(route.params || {})"
                   :is="Component"
                   :data="tabData"
                   :func="{
