@@ -8,8 +8,6 @@
       :close-on-click-modal="false"
       @close="$emit('close')"
     >
-      <!-- label-width="100px" -->
-
       <el-form ref="formRef" :model="form" :rules="rules" class="source-form">
         <el-form-item :label="$t('sourcePage.alias')" prop="alias">
           <el-input v-model="form.alias"></el-input>
@@ -19,7 +17,7 @@
           <span class="eg">{{ $t('sourcePage.eg') }}</span>
         </el-form-item>
         <el-form-item :label="$t('sourcePage.port')" prop="port">
-          <el-input v-model="form.port"></el-input>
+          <el-input v-model="form.port" type="number"></el-input>
         </el-form-item>
         <el-form-item :label="$t('sourcePage.username')" prop="username">
           <el-input v-model="form.username"></el-input>
@@ -27,8 +25,8 @@
         <el-form-item :label="$t('sourcePage.password')" prop="password">
           <el-input v-model="form.password" show-password></el-input>
         </el-form-item>
-        <el-form-item :label="$t('sourcePage.test')">
-          <el-button @click="testConnect()">{{ $t('sourcePage.testBtnLabel') }}</el-button>
+        <el-form-item class="test-form-item" :label="$t('sourcePage.test')">
+          <el-button :disabled="!form.host" @click="testConnect()">{{ $t('sourcePage.testBtnLabel') }}</el-button>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -43,12 +41,12 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, reactive, ref, onActivated } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { ElDialog, ElButton, ElForm, ElInput, ElFormItem, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
 import { useStore } from 'vuex';
-import { useRoute } from 'vue-router';
+// import { useRoute } from 'vue-router';
 
 export default {
   name: 'NewSource',
@@ -73,11 +71,11 @@ export default {
   setup(props, context) {
     const { t } = useI18n();
     const store = useStore();
-    const router = useRoute();
+    // const router = useRoute();
     let form = reactive({
       alias: '',
       host: '',
-      port: '',
+      port: '6668',
       username: '',
       password: '',
     });
@@ -104,10 +102,15 @@ export default {
           trigger: 'change',
         },
         {
-          pattern: /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/,
+          pattern: /^(((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?))|(localhost)$/,
           message: t(`sourcePage.hostErrorTip`),
           trigger: 'change',
         },
+        // {
+        //   pattern: /^localhost$/,
+        //   message: t(`sourcePage.hostErrorTip`),
+        //   trigger: 'change',
+        // },
       ],
       port: [
         {
@@ -129,15 +132,9 @@ export default {
         },
       ],
     });
-    // const isHost = (rule, value, callback) => {
-    //   let reg = /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/;
-    //   console.log(rule);
-    //   if (!reg.test(value)) {
-    //     return callback(new Error('请输入0-100的整数'));
-    //   } else {
-    //     callback();
-    //   }
-    // };
+    /**
+     * 新增编辑数据源
+     */
     const submit = () => {
       formRef.value.validate((valid) => {
         let connection = {
@@ -152,7 +149,7 @@ export default {
         if (valid) {
           axios.post('/servers', { ...connection }).then((res) => {
             if (res && res.code == 0) {
-              ElMessage.success('新增或数据连接成功');
+              ElMessage.success(t(`sourcePage.newGroupSuccessLabel`));
               context.emit('successFunc', res);
               props.func.updateTree();
             }
@@ -160,6 +157,9 @@ export default {
         }
       });
     };
+    /**
+     * 获取数据源基本信息
+     */
     const getBaseInfo = () => {
       axios.get(`/servers/${props.serverId}`, {}).then((res) => {
         if (res && res.code == 0) {
@@ -172,6 +172,9 @@ export default {
         }
       });
     };
+    /**
+     * 数据源是否联通测试
+     */
     const testConnect = () => {
       let patternReg = /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/;
       if (!form.host) {
@@ -200,11 +203,7 @@ export default {
         getBaseInfo();
       }
     });
-    onActivated(() => {
-      if (router.params.forceupdate) {
-        console.log(router.params, 'update');
-      }
-    });
+
     return {
       form,
       formRef,
@@ -232,6 +231,9 @@ export default {
 
       color: rgba(34, 34, 34, 0.4);
     }
+  }
+  .test-form-item {
+    margin-top: 20px;
   }
   &::v-deep .el-form-item__content {
     line-height: 20px;

@@ -3,9 +3,9 @@
     <p>{{ $t('storagePage.alias') }}:{{ alias }}</p>
     <el-form ref="formRef" :model="form" :rules="rules" class="source-form" label-position="top">
       <el-form-item :label="$t('storagePage.groupName')" prop="groupName" class="form-input-item">
-        <el-input v-model="form.groupName"></el-input>
+        <el-input :disabled="router.currentRoute.value.params.groupname" v-model="form.groupName" :placeholder="$t('storagePage.groupNamePlaceholder')"></el-input>
       </el-form-item>
-      <el-form-item :label="$t('storagePage.groupDescription')" class="form-input-item">
+      <el-form-item :label="$t('storagePage.groupDescription')" prop="description" class="form-input-item">
         <el-input v-model="form.description"></el-input>
       </el-form-item>
       <el-form-item :label="$t('storagePage.ttl')" class="form-input-item">
@@ -50,10 +50,30 @@ export default {
       groupName: [
         {
           required: true,
-          message: t(`storagePage.aliasEmptyTip`),
+          message: t(`storagePage.groupNamePlaceholder`),
+          trigger: 'blur',
+        },
+        {
+          pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+          message: t(`sourcePage.newUserErrorTip`),
+          trigger: 'blur',
+        },
+        {
+          min: 0,
+          max: 255,
+          message: t(`storagePage.groupNameLengthTips`),
           trigger: 'blur',
         },
       ],
+      description: [
+        {
+          required: false,
+          min: 0,
+          max: 100,
+          message: t(`storagePage.descriptionLengthTips`),
+          trigger: 'blur',
+        },
+      ]
     });
     let form = reactive({
       groupName: '',
@@ -102,7 +122,7 @@ export default {
           };
           axios.post(`/servers/${router.currentRoute.value.params.serverid}/storageGroups`, { ...reqObj }).then((res) => {
             if (res && res.code == 0) {
-              ElMessage.success('新增或编辑存储组成功');
+              ElMessage.success(t('sourcePage.newGroupSuccessLabel'));
               props.func.removeTab(props.data.id);
               props.func.updateTree();
               props.func.addTab(router.currentRoute.value.params.serverid + 'connection' + form.groupName + 'storageGroup');
@@ -111,6 +131,9 @@ export default {
         }
       });
     };
+    /**
+     * 单独获取数据源的alias
+     */
     const getServerName = () => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}`, {}).then((res) => {
         if (res && res.code == 0) {
@@ -143,6 +166,7 @@ export default {
       submit,
       cancel,
       alias,
+      router,
     };
   },
   components: {
