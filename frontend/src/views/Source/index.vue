@@ -36,7 +36,7 @@
           </ul>
         </div>
         <div class="right-part">
-          <el-button class="auth-add-btn" type="text" v-if="activeName == '2'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
+          <el-button class="auth-add-btn" type="text" v-if="activeName == '2' && baseInfoForm.userName !== 'root'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
           <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs">
             <el-tab-pane :label="$t('sourcePage.baseConfig')" name="1">
               <template v-if="activeIndex !== null">
@@ -150,8 +150,8 @@
                         <el-button type="text" size="small" class="el-button-delete" @click="cancelRowAuth()">{{ $t('common.cancel') }}</el-button>
                       </div>
                       <div v-else>
-                        <el-button type="text" size="small" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
-                        <el-button type="text" size="small" class="el-button-delete" @click="deleteRowAuth(scope)">{{ $t('common.delete') }}</el-button>
+                        <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
+                        <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" class="el-button-delete" @click="deleteRowAuth(scope)">{{ $t('common.delete') }}</el-button>
                       </div>
                     </template>
                   </el-table-column>
@@ -268,7 +268,7 @@ export default {
     let edit = ref(false);
     let isNew = ref(false);
     const serverId = ref(null);
-    const funcTypeOne = reactive([
+    const funcTypeOne = [
       { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
       { id: 'CREATE_USER', label: t('sourcePage.createUser') },
       { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
@@ -301,8 +301,8 @@ export default {
       { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
       { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
       { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
-    ]);
-    const funcTypeTwo = reactive([
+    ];
+    const funcTypeTwo = [
       {
         id: 'CREATE_TIMESERIES',
         label: t('sourcePage.createTimeSeries'),
@@ -316,13 +316,13 @@ export default {
         id: 'DELETE_TIMESERIES',
         label: t('sourcePage.deleteTimeSeries'),
       },
-    ]);
-    const funcList = reactive({
+    ];
+    const funcList = {
       0: funcTypeOne,
       1: funcTypeTwo,
       2: funcTypeTwo,
       3: funcTypeTwo,
-    });
+    };
     /**
      * 用户基本信息及所有权限列表
      */
@@ -705,10 +705,9 @@ export default {
       });
     };
     /**
-     * 跳转编辑存储组
+     * 跳转编辑存储组 type为了区分是去往存储组编辑页
      */
     const goEditGroup = (scope) => {
-      debugger;
       props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' });
     };
     /**
