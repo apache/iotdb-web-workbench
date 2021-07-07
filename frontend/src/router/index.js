@@ -2,6 +2,14 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import Root from '../views/Root';
 import Login from '../views/Login';
 import DataBaseM from '../views/DataBaseM';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
+
+NProgress.configure({
+  showSpinner: false,
+  easing: 'ease',
+  speed: 500,
+});
 
 const routes = [
   {
@@ -70,6 +78,14 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+});
+
+router.beforeEach(() => {
+  NProgress.start();
+});
+
+router.afterEach(() => {
+  NProgress.done();
 });
 
 export default router;

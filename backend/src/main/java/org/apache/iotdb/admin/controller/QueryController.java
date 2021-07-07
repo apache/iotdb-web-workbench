@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
+import org.apache.iotdb.admin.model.dto.SearchDTO;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.entity.Query;
 import org.apache.iotdb.admin.model.vo.BaseVO;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -39,14 +41,15 @@ public class QueryController {
     @PostMapping("/querySql")
     @ApiOperation("用于查询器查询")
     public BaseVO<SqlResultVO> query(@PathVariable("serverId") Integer serverId,
-                                     @RequestParam("sqls") List<String> sqls,
-                                     @RequestParam("timestamp") Long timestamp,
+                                     @RequestBody SearchDTO searchDTO,
                                      HttpServletRequest request) throws BaseException {
+        List<String> sqls = searchDTO.getSqls();
         if (sqls == null || sqls.size() == 0) {
             throw new BaseException(ErrorCode.NO_SQL, ErrorCode.NO_SQL_MSG);
         }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
+        Long timestamp = searchDTO.getTimestamp();
         SqlResultVO sqlResultVO = iotDBService.queryAll(connection, sqls,timestamp);
         return BaseVO.success("查询成功", sqlResultVO);
     }

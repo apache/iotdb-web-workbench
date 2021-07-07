@@ -3,9 +3,9 @@
     <p>{{ $t('storagePage.alias') }}:{{ alias }}</p>
     <el-form ref="formRef" :model="form" :rules="rules" class="source-form" label-position="top">
       <el-form-item :label="$t('storagePage.groupName')" prop="groupName" class="form-input-item">
-        <el-input v-model="form.groupName"></el-input>
+        <el-input :disabled="router.currentRoute.value.params.groupname" v-model="form.groupName" :placeholder="$t('storagePage.groupNamePlaceholder')"></el-input>
       </el-form-item>
-      <el-form-item :label="$t('storagePage.groupDescription')" class="form-input-item">
+      <el-form-item :label="$t('storagePage.groupDescription')" prop="description" class="form-input-item">
         <el-input v-model="form.description"></el-input>
       </el-form-item>
       <el-form-item :label="$t('storagePage.ttl')" class="form-input-item">
@@ -31,10 +31,10 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref, reactive } from 'vue';
+import { onMounted, ref, reactive, onActivated } from 'vue';
 import { ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import axios from '@/util/axios.js';
 
 export default {
@@ -43,16 +43,37 @@ export default {
   setup(props) {
     const { t } = useI18n();
     const router = useRouter();
+    const route = useRoute();
     let formRef = ref(null);
     let alias = ref(null);
     const rules = reactive({
       groupName: [
         {
           required: true,
-          message: t(`storagePage.aliasEmptyTip`),
-          trigger: 'change',
+          message: t(`storagePage.groupNamePlaceholder`),
+          trigger: 'blur',
+        },
+        {
+          pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+          message: t(`sourcePage.newUserErrorTip`),
+          trigger: 'blur',
+        },
+        {
+          min: 0,
+          max: 255,
+          message: t(`storagePage.groupNameLengthTips`),
+          trigger: 'blur',
         },
       ],
+      description: [
+        {
+          required: false,
+          min: 0,
+          max: 100,
+          message: t(`storagePage.descriptionLengthTips`),
+          trigger: 'blur',
+        },
+      ]
     });
     let form = reactive({
       groupName: '',
@@ -101,7 +122,7 @@ export default {
           };
           axios.post(`/servers/${router.currentRoute.value.params.serverid}/storageGroups`, { ...reqObj }).then((res) => {
             if (res && res.code == 0) {
-              ElMessage.success('新增或编辑存储组成功');
+              ElMessage.success(t('sourcePage.newGroupSuccessLabel'));
               props.func.removeTab(props.data.id);
               props.func.updateTree();
               props.func.addTab(router.currentRoute.value.params.serverid + 'connection' + form.groupName + 'storageGroup');
@@ -110,6 +131,9 @@ export default {
         }
       });
     };
+    /**
+     * 单独获取数据源的alias
+     */
     const getServerName = () => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}`, {}).then((res) => {
         if (res && res.code == 0) {
@@ -124,6 +148,15 @@ export default {
         getServerName();
       }
     });
+    onActivated(() => {
+      if (route.params.forceupdate) {
+        console.log(route.params, 'update');
+        form.groupName = null;
+        form.ttl = null;
+        form.ttlUnit = null;
+        form.description = null;
+      }
+    });
 
     return {
       // t,
@@ -133,6 +166,7 @@ export default {
       submit,
       cancel,
       alias,
+      router,
     };
   },
   components: {

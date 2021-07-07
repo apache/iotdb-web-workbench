@@ -129,15 +129,6 @@
         </dependency>
         <!-- swagger 组件结束-->
 
-        <!--         异常组件-->
-        <!--        <dependency>-->
-        <!--            <groupId>cn.cisdigital</groupId>-->
-        <!--            <artifactId>exception-component</artifactId>-->
-        <!--            <version>1.0.0</version>-->
-        <!--        </dependency>-->
-        <!--        异常组件结束-->
-
-
         <!-- 校验框架-->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
@@ -192,12 +183,6 @@
                     </executions>
                 </plugin>
             </plugins>
-            <resources>
-                <resource>
-                    <directory>backend/src/main/resources/iotdb.db</directory>
-                    <targetPath>backend/src/main/resources/iotdb.db</targetPath>
-                </resource>
-            </resources>
     </build>
 
     <repositories>

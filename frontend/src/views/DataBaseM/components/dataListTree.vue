@@ -37,6 +37,8 @@
       lazy
       :current-node-key="nodekey"
       :key="treeKey"
+      @node-expand="expandNode"
+      @node-collapse="collapseNode"
     >
       <template #default="{ node, data }">
         <span class="custom-tree-node">
@@ -80,19 +82,6 @@ export default {
     };
 
     const nodeClick = (data, node) => {
-      let arr = treeExpandKey.value;
-      setTimeout(() => {
-        if (node.expanded) {
-          arr.push(node.data.id);
-        } else {
-          let index = arr.indexOf(node.data.id);
-          if (index !== -1) {
-            arr.splice(index, 1);
-          }
-        }
-        treeExpandKey.value = arr;
-      }, 1000);
-
       props.handleNodeClick(data, node);
     };
     /**
@@ -117,8 +106,28 @@ export default {
       types.value = 0;
     };
 
-    const updateTree = () => {
+    const updateTree = (params) => {
+      if (params) {
+        let arr = treeExpandKey.value;
+        arr = arr.concat(params);
+        treeExpandKey.value = arr;
+      }
       treeKey.value += 1;
+    };
+
+    const expandNode = (data) => {
+      let arr = treeExpandKey.value;
+      arr.push(data.id);
+      treeExpandKey.value = arr;
+    };
+
+    const collapseNode = (data) => {
+      let arr = treeExpandKey.value;
+      let index = arr.indexOf(data.id);
+      if (index !== -1) {
+        arr.splice(index, 1);
+      }
+      treeExpandKey.value = arr;
     };
 
     const loadNode = (node, resolve) => {
@@ -239,6 +248,8 @@ export default {
     };
 
     return {
+      collapseNode,
+      expandNode,
       treeExpandKey,
       treeKey,
       store,

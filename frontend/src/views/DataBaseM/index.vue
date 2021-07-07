@@ -33,7 +33,7 @@
             <router-view v-slot="{ Component, route }">
               <keep-alive>
                 <component
-                  :key="route.fullPath"
+                  :key="route.fullPath + JSON.stringify(route.params || {})"
                   :is="Component"
                   :data="tabData"
                   :func="{
@@ -84,11 +84,10 @@ export default {
       treeRef.value.treeRef.setCurrentKey(data.id);
       nodekey.value = data.id;
       urlSkipMap(data.node);
-      // addTab('myteststorageGroup');
     };
 
-    const updateTree = () => {
-      treeRef.value.updateTree();
+    const updateTree = (params) => {
+      treeRef.value.updateTree(params);
     };
 
     const treeAppend = (id, data) => {
@@ -105,11 +104,19 @@ export default {
 
     const addTab = (id, extraParams) => {
       updateTree();
+      let count = 0;
       let stop = setInterval(() => {
         let node = treeRef.value.treeRef.getNode(id);
+<<<<<<< HEAD
         console.log(node);
+=======
+        count++;
+>>>>>>> 33fc16a1eb0a06745ca0d8423d17255a5dea9486
         if (node) {
           handleNodeClick({ ...node.data, extraParams: extraParams });
+          clearInterval(stop);
+        }
+        if (count === 20) {
           clearInterval(stop);
         }
       }, 300);
@@ -128,15 +135,19 @@ export default {
       let extraParams = data.extraParams;
       if (data.type === 'connection') {
         //数据连接
-        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, extraParams } });
+        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'newstorageGroup') {
-        //新建存储组
-        router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate, extraParams } });
+        router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'querylist') {
         //查询列表
       } else if (data.type === 'storageGroup') {
-        //存储组
-        router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, extraParams } });
+        //判断是进入存储组详情还是编辑存储组
+        if (data.extraParams && data.extraParams.type == 'edit') {
+          router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name } });
+        } else {
+          //存储组
+          router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
+        }
       } else if (data.type === 'newdevice') {
         //新建实体
         console.log(data);

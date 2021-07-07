@@ -9,9 +9,15 @@
       <svg class="icon icon-edit" aria-hidden="true" @click="editSource()">
         <use xlink:href="#icon-se-icon-f-edit"></use>
       </svg>
-      <svg class="icon icon-del" aria-hidden="true" @click="deleteSource()">
-        <use xlink:href="#icon-se-icon-delete"></use>
-      </svg>
+      <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')" @confirm="deleteSource()">
+        <template #reference>
+          <span class="icon-del">
+            <svg aria-hidden="true" class="icon">
+              <use xlink:href="#icon-se-icon-delete"></use>
+            </svg>
+          </span>
+        </template>
+      </el-popconfirm>
     </div>
     <div class="permission-box">
       <div class="info-head">
@@ -36,7 +42,7 @@
           </ul>
         </div>
         <div class="right-part">
-          <el-button class="auth-add-btn" type="text" v-if="activeName == '2'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
+          <el-button class="auth-add-btn" type="text" v-if="activeName == '2' && baseInfoForm.userName !== 'root'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
           <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs">
             <el-tab-pane :label="$t('sourcePage.baseConfig')" name="1">
               <template v-if="activeIndex !== null">
@@ -150,8 +156,12 @@
                         <el-button type="text" size="small" class="el-button-delete" @click="cancelRowAuth()">{{ $t('common.cancel') }}</el-button>
                       </div>
                       <div v-else>
-                        <el-button type="text" size="small" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
-                        <el-button type="text" size="small" class="el-button-delete" @click="deleteRowAuth(scope)">{{ $t('common.delete') }}</el-button>
+                        <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
+                        <el-popconfirm placement="top" :title="$t('sourcePage.deleteAuthConfirm')" @confirm="deleteRowAuth(scope)">
+                          <template #reference>
+                            <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" class="el-button-delete">{{ $t('common.delete') }}</el-button>
+                          </template>
+                        </el-popconfirm>
                       </div>
                     </template>
                   </el-table-column>
@@ -177,10 +187,14 @@
           <template #default="scope">
             <!-- @click="handleClick(scope.row)" -->
             <el-button type="text" size="small" @click="goGroupDetail(scope)">{{ $t('common.detail') }}</el-button>
-            <el-button type="text" size="small">
+            <el-button type="text" size="small" @click="goEditGroup(scope)">
               {{ $t('common.edit') }}
             </el-button>
-            <el-button type="text" size="small" class="el-button-delete" :disable="canGroupSet" @click="deleteGroup(scope)"> {{ $t('common.delete') }} </el-button>
+            <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup(scope)">
+              <template #reference>
+                <el-button type="text" size="small" class="el-button-delete" :disable="canGroupSet"> {{ $t('common.delete') }} </el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -192,7 +206,24 @@
 <script>
 // @ is an alias to /src
 import { onMounted, reactive, ref } from 'vue';
-import { ElButton, ElTable, ElTableColumn, ElTabs, ElTabPane, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElCheckbox, ElCheckboxGroup, ElMessage } from 'element-plus';
+import {
+  ElButton,
+  ElTable,
+  ElTableColumn,
+  ElTabs,
+  ElTabPane,
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElSelect,
+  ElOption,
+  ElCheckbox,
+  ElCheckboxGroup,
+  ElMessage,
+  ElPopconfirm,
+  ElPopover,
+  ElPopper,
+} from 'element-plus';
 import NewSource from './components/newSource.vue';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
@@ -247,14 +278,31 @@ export default {
       password: [
         {
           required: true,
-          message: t(`sourcePage.passwordEmptyTip`),
+          message: t(`sourcePage.newPasswordTip`),
+          trigger: 'change',
+        },
+        {
+          min: 4,
+          max: 255,
+          message: t(`sourcePage.newpasswordErrorTip1`),
           trigger: 'change',
         },
       ],
       userName: [
         {
           required: true,
-          message: t(`sourcePage.usernameEmptyTip`),
+          message: t(`sourcePage.newUserEmptyTip`),
+          trigger: 'change',
+        },
+        {
+          pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+          message: t(`sourcePage.newUserErrorTip`),
+          trigger: 'change',
+        },
+        {
+          min: 4,
+          max: 255,
+          message: t(`sourcePage.newUserErrorTip1`),
           trigger: 'change',
         },
       ],
@@ -268,7 +316,7 @@ export default {
     let edit = ref(false);
     let isNew = ref(false);
     const serverId = ref(null);
-    const funcTypeOne = reactive([
+    const funcTypeOne = [
       { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
       { id: 'CREATE_USER', label: t('sourcePage.createUser') },
       { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
@@ -301,8 +349,8 @@ export default {
       { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
       { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
       { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
-    ]);
-    const funcTypeTwo = reactive([
+    ];
+    const funcTypeTwo = [
       {
         id: 'CREATE_TIMESERIES',
         label: t('sourcePage.createTimeSeries'),
@@ -316,13 +364,13 @@ export default {
         id: 'DELETE_TIMESERIES',
         label: t('sourcePage.deleteTimeSeries'),
       },
-    ]);
-    const funcList = reactive({
+    ];
+    const funcList = {
       0: funcTypeOne,
       1: funcTypeTwo,
       2: funcTypeTwo,
       3: funcTypeTwo,
-    });
+    };
     /**
      * 用户基本信息及所有权限列表
      */
@@ -341,7 +389,9 @@ export default {
     const deleteSource = () => {
       axios.delete(`/servers/${serverId.value}`).then((rs) => {
         if (rs && rs.code == 0) {
-          ElMessage.success(t('souragePage.successDeleteLabel'));
+          ElMessage.success(t('sourcePage.successDeleteLabel'));
+          props.func.updateTree();
+          props.func.removeTab(props.data.id);
         }
       });
     };
@@ -355,8 +405,7 @@ export default {
     /**
      * 新增或编辑数据源成功回调
      */
-    const successFunc = (data) => {
-      console.log(data);
+    const successFunc = () => {
       showDialog.value = false;
       types.value = 0;
     };
@@ -705,10 +754,16 @@ export default {
       });
     };
     /**
+     * 跳转编辑存储组 type为了区分是去往存储组编辑页
+     */
+    const goEditGroup = (scope) => {
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' });
+    };
+    /**
      * 查看存储组详情
      */
     const goGroupDetail = (scope) => {
-      props.func.addTab(serverId.value + scope.row.groupName + 'storageGroup');
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup');
     };
     onMounted(() => {
       serverId.value = router.currentRoute.value.params.serverid;
@@ -773,6 +828,7 @@ export default {
       canShowUser,
       canAuth,
       goGroupDetail,
+      goEditGroup,
     };
   },
   components: {
@@ -789,6 +845,12 @@ export default {
     ElOption,
     ElCheckbox,
     ElCheckboxGroup,
+    ElPopconfirm,
+
+    /* eslint-disable */
+    ElPopover,
+    ElPopper,
+    /* eslint-disable */
   },
 };
 </script>
@@ -804,6 +866,12 @@ export default {
   &::v-deep .el-tabs__header .el-tabs__nav .el-tabs__item.is-active {
     background: #fff !important;
   }
+  .icon-del {
+    position: absolute;
+    top: 0px;
+    right: 40px;
+    color: #d32d2fff;
+  }
   .info-box {
     padding: 10px 20px;
     position: relative;
@@ -811,10 +879,7 @@ export default {
       position: absolute;
       top: 19px;
     }
-    .icon-del {
-      right: 20px;
-      color: #d32d2fff;
-    }
+
     .icon-edit {
       right: 60px;
       color: $theme-color;
@@ -897,7 +962,7 @@ export default {
           position: absolute;
           right: 10px;
           top: 6px;
-          z-index: 10000;
+          z-index: 1000;
         }
         &::v-deep .el-tabs__active-bar {
           // width: 23px !important;

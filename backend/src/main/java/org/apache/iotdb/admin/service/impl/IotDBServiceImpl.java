@@ -82,10 +82,14 @@ public class IotDBServiceImpl implements IotDBService {
         try {
             sessionPool.executeNonQueryStatement(sql);
         } catch (StatementExecutionException e) {
-            // 捕获异常代表存储组已有或输入错误
+            // 300为存储组重复
+            if (e.getStatusCode() != 300) {
+                throw new BaseException(ErrorCode.SET_GROUP_FAIL,ErrorCode.SET_GROUP_FAIL_MSG);
+            }
             logger.error(e.getMessage());
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SET_GROUP_FAIL,ErrorCode.SET_GROUP_FAIL_MSG);
         } finally {
             if (sessionPool != null) {
                 sessionPool.close();
@@ -114,26 +118,36 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public List<String> getDevicesByGroup(Connection connection, String groupName,Integer pageSize,Integer pageNum) throws BaseException {
+    public CountDTO getDevicesByGroup(Connection connection, String groupName,Integer pageSize,Integer pageNum,String keyword) throws BaseException {
         paramValid(groupName);
         SessionPool sessionPool = getSessionPool(connection);
-        String sql = "show devices " + groupName;
-        List<String> devices = executeQueryOneColumn(sessionPool, sql, pageSize, pageNum);
+        String sql;
+        if (keyword == null || "".equals(keyword)) {
+            sql = "show devices " + groupName;
+        } else if (keyword.matches("^[0-9]*$")) {
+            throw new BaseException(ErrorCode.NO_ALL_NUM_SEARCH,ErrorCode.NO_ALL_NUM_SEARCH_MSG);
+        } else {
+            sql = "show devices " + groupName + "." + keyword + "*";
+        }
+        CountDTO countDTO = executeQueryOneColumn(sessionPool, sql, pageSize, pageNum);
         sessionPool.close();
-        return devices;
+        return countDTO;
     }
 
     @Override
-    public List<MeasurementDTO> getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum) throws BaseException {
+    public CountDTO getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum,String keyword) throws BaseException {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
-        String sql = "show timeseries " + deviceName;
-        List<MeasurementDTO> measurementDTOList = executeQuery(MeasurementDTO.class,sessionPool,sql,pageSize,pageNum);
-        return measurementDTOList;
-        //        java.sql.Connection conn = getConnection(connection);
-//        String sql = "show child paths " + deviceName;
-//        List<String> measurements = customExecuteQuery(conn, sql);
-//        closeConnection(conn);
+        String sql ;
+        if (keyword == null || "".equals(keyword)) {
+            sql = "show timeseries " + deviceName;
+        } else if (keyword.matches("^[0-9]*$")) {
+            throw new BaseException(ErrorCode.NO_ALL_NUM_SEARCH,ErrorCode.NO_ALL_NUM_SEARCH_MSG);
+        } else {
+            sql = "show timeseries " + deviceName + "." + keyword + "*";
+        }
+        CountDTO countDTO = executeQuery(MeasurementDTO.class,sessionPool,sql,pageSize,pageNum);
+        return countDTO;
     }
 
     @Override
@@ -196,7 +210,10 @@ public class IotDBServiceImpl implements IotDBService {
                 }
                 // privileges String内容形式 "path : 权限1 权限2 权限3"
                 // 组装成权限信息集合
-                List<PrivilegeInfo> privilegeInfos = privilegesStrSwitchToObject(sessionpool,privileges);
+                List<PrivilegeInfo> privilegeInfos = new ArrayList<>();
+                if (privileges != null && privileges.size() > 0) {
+                    privilegeInfos = privilegesStrSwitchToObject(sessionpool,privileges);
+                }
                 iotDBUserVO.setPrivilegesInfo(privilegeInfos);
             }
         }catch (Exception e) {
@@ -646,7 +663,7 @@ public class IotDBServiceImpl implements IotDBService {
         for (String sql : sqls) {
             int firstSpaceIndex = sql.indexOf(" ");
             String judge = sql.substring(0, firstSpaceIndex);
-            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge)) {
+            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge) || "list".equalsIgnoreCase(judge)) {
                 sqlResultVO = executeQuery(sessionPool, sql,false,id_plus_timestamp);
                 continue;
             }
@@ -907,7 +924,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
 
-    private <T> List<T> executeQuery(Class<T> clazz, SessionPool sessionPool, String sql, Integer pageSize, Integer pageNum) throws BaseException {
+    private <T> CountDTO executeQuery(Class<T> clazz, SessionPool sessionPool, String sql, Integer pageSize, Integer pageNum) throws BaseException {
         SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
             sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
@@ -918,16 +935,9 @@ public class IotDBServiceImpl implements IotDBService {
                 while (sessionDataSetWrapper.hasNext()) {
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     count++;
-                    if (count < pageSize * (pageNum - 1) + 1) {
-                        continue;
-                    }
-                    if (count > pageSize * pageNum) {
-                        break;
-                    }
                     T t = clazz.newInstance();
                     List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
                     List<String> columnNames = sessionDataSetWrapper.getColumnNames();
-                    List<TSDataType> columnTypes = sessionDataSetWrapper.getColumnTypes();
                     for (int i = 0; i < fields.size(); i++) {
                         Field field = clazz.getDeclaredField(columnNames.get(i).replaceAll(" ",""));
                         field.setAccessible(true);
@@ -936,7 +946,12 @@ public class IotDBServiceImpl implements IotDBService {
                     results.add(t);
                 }
             }
-            return results;
+            CountDTO countDTO = new CountDTO();
+            countDTO.setObjects(results);
+            countDTO.setTotalCount(count);
+            Integer totalPage = count % pageSize == 0 ? count / pageSize : count / pageSize + 1;
+            countDTO.setTotalPage(totalPage);
+            return countDTO;
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_MSM_FAIL,ErrorCode.GET_MSM_FAIL_MSG);
@@ -981,7 +996,7 @@ public class IotDBServiceImpl implements IotDBService {
         }
     }
 
-    private List<String> executeQueryOneColumn(SessionPool sessionPool,String sql,Integer pageSize,Integer pageNum) throws BaseException {
+    private CountDTO executeQueryOneColumn(SessionPool sessionPool,String sql,Integer pageSize,Integer pageNum) throws BaseException {
         SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
             sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
@@ -992,17 +1007,16 @@ public class IotDBServiceImpl implements IotDBService {
                 while (sessionDataSetWrapper.hasNext()) {
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     count++;
-                    if (count < pageSize * (pageNum - 1) + 1) {
-                        continue;
-                    }
-                    if (count > pageSize * pageNum) {
-                        break;
-                    }
                     List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
                     values.add(fields.get(0).toString());
                 }
             }
-            return values;
+            CountDTO countDTO = new CountDTO();
+            countDTO.setObjects(values);
+            countDTO.setTotalCount(count);
+            Integer totalPage = count % pageSize == 0 ? count / pageSize : count / pageSize + 1;
+            countDTO.setTotalPage(totalPage);
+            return countDTO;
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL,ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
