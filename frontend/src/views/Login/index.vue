@@ -56,18 +56,31 @@ export default {
       account: '',
       passport: '',
     });
+
+    const validateAccount = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(t(`loginPage.accountEmptyTip`)));
+        return;
+      }
+      if (!/^[^_\d]\w+?/.test(value)) {
+        callback(new Error(t(`用户名必须由字母、数字、下划线组成，不能以数字和下划线开始`)));
+        return;
+      }
+      callback();
+    };
+
     const rules = reactive({
       account: [
         {
           required: true,
-          message: t(`loginPage.accountEmptyTip`),
+          validator: validateAccount,
           trigger: 'blur',
         },
       ],
       passport: [
         {
           required: true,
-          message: t(`loginPage.accountEmptyTip`),
+          message: t(`loginPage.passwordEmptyTip`),
           trigger: 'blur',
         },
       ],
@@ -165,6 +178,7 @@ export default {
         }
         .submit-btn {
           width: 100%;
+          margin-top: 10px;
         }
         .form-item {
           position: relative;
@@ -183,5 +197,6 @@ export default {
 .forget-tip {
   text-align: center;
   font-size: 14px;
+  margin: 20px;
 }
 </style>

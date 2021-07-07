@@ -84,11 +84,10 @@ export default {
       treeRef.value.treeRef.setCurrentKey(data.id);
       nodekey.value = data.id;
       urlSkipMap(data.node);
-      // addTab('myteststorageGroup');
     };
 
-    const updateTree = () => {
-      treeRef.value.updateTree();
+    const updateTree = (params) => {
+      treeRef.value.updateTree(params);
     };
 
     const treeAppend = (id, data) => {
@@ -105,10 +104,15 @@ export default {
 
     const addTab = (id, extraParams) => {
       updateTree();
+      let count = 0;
       let stop = setInterval(() => {
         let node = treeRef.value.treeRef.getNode(id);
+        count++;
         if (node) {
           handleNodeClick({ ...node.data, extraParams: extraParams });
+          clearInterval(stop);
+        }
+        if (count === 20) {
           clearInterval(stop);
         }
       }, 300);
