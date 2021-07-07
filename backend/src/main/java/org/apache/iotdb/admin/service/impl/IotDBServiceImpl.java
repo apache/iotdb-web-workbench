@@ -140,11 +140,11 @@ public class IotDBServiceImpl implements IotDBService {
         SessionPool sessionPool = getSessionPool(connection);
         String sql ;
         if (keyword == null || "".equals(keyword)) {
-            sql = "show devices " + deviceName;
+            sql = "show timeseries " + deviceName;
         } else if (keyword.matches("^[0-9]*$")) {
             throw new BaseException(ErrorCode.NO_ALL_NUM_SEARCH,ErrorCode.NO_ALL_NUM_SEARCH_MSG);
         } else {
-            sql = "show devices " + deviceName + "." + keyword + "*";
+            sql = "show timeseries " + deviceName + "." + keyword + "*";
         }
         CountDTO countDTO = executeQuery(MeasurementDTO.class,sessionPool,sql,pageSize,pageNum);
         return countDTO;

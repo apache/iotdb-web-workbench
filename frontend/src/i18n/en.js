@@ -36,8 +36,12 @@ const en = {
       forgetPassword: 'forget password',
       forgetPasswordTip: 'please contact system administrator',
       accountEmptyTip: 'account can not be empty',
+      accountContentTip: 'the user name must be made up of letters, numbers, underscores, and cannot start with numbers and underscores',
+      accountLengthTip: 'the user name must be greater than or equal to 3 characters and less than or equal to 32 characters',
       passwordEmptyTip: 'password can not be empty',
+      passwordLenghtTip: 'password must be greater than or equal to 6 digits. please check the number of digits',
       welcomeLogin: 'log in to IotDB database management',
+      loginErrorTip: 'incorrect user name or password, please re-enter',
     },
 
     sourcePage: {

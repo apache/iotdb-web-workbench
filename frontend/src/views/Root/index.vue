@@ -58,6 +58,7 @@ export default {
     const handleMenuSelect = (key) => {
       menuIndex.value = key;
     };
+
     const handleLoginCommand = (val) => {
       if (val === '0') {
         store.commit('setLogin', false);

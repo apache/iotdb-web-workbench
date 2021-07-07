@@ -40,7 +40,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { ElForm, ElFormItem, ElInput, ElButton, ElDialog } from 'element-plus';
+import { ElForm, ElFormItem, ElInput, ElButton, ElDialog, ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
 
@@ -56,18 +56,47 @@ export default {
       account: '',
       passport: '',
     });
+
+    const validateAccount = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(t(`loginPage.accountEmptyTip`)));
+        return;
+      }
+      if (!/^[^_\d]\w+?/.test(value)) {
+        callback(new Error(t(`loginPage.accountContentTip`)));
+        return;
+      }
+      if (value.length < 3 || value.length > 32) {
+        callback(new Error(t(`loginPage.accountLengthTip`)));
+        return;
+      }
+      callback();
+    };
+
+    const validatePassport = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(t(`loginPage.passwordEmptyTip`)));
+        return;
+      }
+      if (value.length < 6) {
+        callback(new Error(t(`loginPage.passwordLenghtTip`)));
+        return;
+      }
+      callback();
+    };
+
     const rules = reactive({
       account: [
         {
           required: true,
-          message: t(`loginPage.accountEmptyTip`),
+          validator: validateAccount,
           trigger: 'blur',
         },
       ],
       passport: [
         {
           required: true,
-          message: t(`loginPage.accountEmptyTip`),
+          validator: validatePassport,
           trigger: 'blur',
         },
       ],
@@ -88,6 +117,8 @@ export default {
               store.commit('setLogin', true);
               store.commit('setUserInfo', res.data || {});
               router.push({ name: 'Root' });
+            } else {
+              ElMessage.error(t(`loginPage.loginErrorTip`));
             }
           });
         }
@@ -165,6 +196,7 @@ export default {
         }
         .submit-btn {
           width: 100%;
+          margin-top: 10px;
         }
         .form-item {
           position: relative;
@@ -183,5 +215,6 @@ export default {
 .forget-tip {
   text-align: center;
   font-size: 14px;
+  margin: 20px;
 }
 </style>
