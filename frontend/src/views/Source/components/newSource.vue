@@ -163,7 +163,7 @@ export default {
         if (valid) {
           axios.post('/servers', { ...connection }).then((res) => {
             if (res && res.code == 0) {
-              ElMessage.success(t(`sourcePage.newGroupSuccessLabel`));
+              ElMessage.success(t(`sourcePage.newSourceSuccessLabel`));
               context.emit('successFunc', res);
               props.func.updateTree();
             }

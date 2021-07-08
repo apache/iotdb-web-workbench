@@ -24,6 +24,11 @@ const routes = [
         component: DataBaseM,
         children: [
           {
+            path: 'empty',
+            name: 'Empty',
+            component: () => import(/* webpackChunkName: "Empty" */ '../views/Source/components/empty.vue'),
+          },
+          {
             path: 'about/:serverid/:groupname',
             name: 'About',
             component: () => import(/* webpackChunkName: "about" */ '../views/About'),

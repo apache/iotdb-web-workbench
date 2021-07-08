@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus';
 import router from '../router';
 
 const instance = axios.create({});
-const headerUrls = ['/login'];
+const headerUrls = ['/api/login'];
 instance.defaults.withCredentials = true;
 instance.defaults.timeout = 100000;
 instance.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';

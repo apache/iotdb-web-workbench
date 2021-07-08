@@ -85,7 +85,7 @@ export default {
       props.handleNodeClick(data, node);
     };
     /**
-     * 新建数据源
+     * 新建数据连接
      */
     const newSource = () => {
       showDialog.value = true;
