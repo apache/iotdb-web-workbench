@@ -30,13 +30,14 @@ import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 export default {
   name: 'DeviceAddEidt',
   props: {
     func: Object,
   },
   setup(props) {
+    const router = useRouter();
     const route = useRoute();
     const standtable = ref(null);
     const { t } = useI18n();
@@ -174,7 +175,7 @@ export default {
         type: 'warning',
       })
         .then(() => {
-          deleteData(deviceData, row.timeseries).then(() => {
+          deleteData(deviceData.obj, row.timeseries).then(() => {
             tableData.list.splice(index, 1);
             ElMessage({
               type: 'success',
@@ -220,7 +221,11 @@ export default {
           });
           deviceData.obj.name = form.formData.deviceName;
           props.func.updateTree();
-          props.func.removeTab(route.params.id);
+          if (route.params.name === '新建实体') {
+            props.func.removeTab(route.params.id);
+          } else {
+            router.go(-1);
+          }
         });
       }
     }

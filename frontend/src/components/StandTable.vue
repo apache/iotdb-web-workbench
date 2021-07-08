@@ -61,7 +61,7 @@
       </el-table-column>
     </el-table>
     <div class="paination" v-if="paginations || exportData">
-      <el-button v-if="exportData" class="export_button">批量导出</el-button>
+      <el-button v-if="exportData" class="export_button">{{ $t('standTable.export') }}</el-button>
       <el-pagination
         v-if="paginations"
         @size-change="handleSizeChange"

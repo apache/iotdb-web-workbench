@@ -155,10 +155,11 @@ export default {
       } else if (data.type === 'newquery') {
         //新建查询
         console.log(data);
-        router.push({ name: 'SqlSerch', params: { ...data } });
+        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name } });
       } else if (data.type === 'query') {
         //查询
         console.log(data);
+        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name } });
       }
     };
 

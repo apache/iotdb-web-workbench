@@ -36,7 +36,7 @@ export default {
   props: {
     form: Array,
   },
-  setup(props) {
+  setup(props, { emit }) {
     const formObj = reactive(props.form);
     let prop = {};
     const requiredArry = formObj.formItem.filter((item) => item.required);
@@ -53,7 +53,7 @@ export default {
     }
     const rules = reactive(prop);
     function getFormData() {
-      console.log(formObj.formData);
+      emit('serchFormData');
     }
     return {
       ...toRefs(formObj),

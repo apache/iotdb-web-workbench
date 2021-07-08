@@ -4,7 +4,7 @@
       <el-input v-model="filterText" :placeholder="placeholder" class="elinput" suffix-icon="el-icon-search"></el-input>
     </div>
     <div class="serch_div maxheight">
-      <el-tree :data="data.list" :props="defaultProps" :load="loadNode" lazy @check-change="handleCheckChange">
+      <el-tree :data="data.list" :props="defaultProps" :load="loadNode" lazy @check-change="handleCheckChange" ref="tree">
         <template #default="{ node, data }">
           <span class="custom-tree-node chil" v-if="data.table" @dblclick="getFunction(node)">
             <span>{{ node.label }}</span>
@@ -20,7 +20,7 @@
 
 <script>
 import { ElInput, ElTree } from 'element-plus';
-import { watch, ref, reactive } from 'vue';
+import { ref, reactive } from 'vue';
 import { getDevice, getCList } from '../api/index';
 export default {
   props: {
@@ -36,26 +36,12 @@ export default {
       children: 'children',
       label: 'label',
     };
-    watch(
-      () => filterText,
-      (val) => {
-        console.log(val);
-        console.log(tree);
-        tree.value.filter(val);
-      }
-    );
     function append(val) {
       console.log(val);
     }
     function getFunction(val) {
       console.log(val);
-      // if (val.indexOf('.') === -1) {
       emit('getFunction', `root.${val.data.parents}.${val.data.parent}.${val.data.label}`);
-      // }
-    }
-    function filterNode(value, data) {
-      if (!value) return true;
-      return data.label.indexOf(value) !== -1;
     }
     function loadNode(node, solve) {
       if (node.data.deciceF) {
@@ -96,7 +82,7 @@ export default {
         });
       }
     }
-    return { data, defaultProps, filterText, tree, append, getFunction, filterNode, loadNode };
+    return { data, defaultProps, filterText, tree, append, getFunction, loadNode };
   },
   components: {
     ElInput,

@@ -5,12 +5,12 @@
         <div class="headerSpan">{{ routeData.obj.name }}</div>
         <div class="flexBox headerIcon">
           <i class="el-icon-edit edit" @click="editDevce"></i>
-          <i class="el-icon-delete delete"></i>
+          <i class="el-icon-delete delete" @click="deleteData"></i>
         </div>
       </div>
       <div class="messageBox">
-        <span>数据链接：</span>
-        <span>xxxxxxxxxxxxxxxxx</span>
+        <span>{{ $t('device.dataconnection') }}：</span>
+        <span>{{ connection }}</span>
         <span class="spanmargin">{{ $t('device.group') }}：</span>
         <span>{{ routeData.obj.storagegroupid }}</span>
         <span class="spanmargin">{{ $t('device.physicaldescr') }}：</span>
@@ -22,17 +22,17 @@
       </div>
     </div>
     <div style="padding: 20px 30px" class="flexBox">
-      <form-table :form="form"></form-table>
+      <form-table :form="form" @serchFormData="serchFormData"></form-table>
       <el-button class="creatButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
     </div>
-    <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="450" :exportData="() => {}">
+    <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="450">
       <template #default="{ scope }">
         <el-button @click="searchRow(scope.row)" type="text" size="small"> 查看 </el-button>
       </template>
     </stand-table>
     <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px' }">
       <div class="drawertitle">
-        <div>xxxxx测试点数据趋势</div>
+        <div>{{ routeData.obj.timeseries }}{{ $t('device.datatrend') }}</div>
         <div>
           <i class="el-icon-close" style="cursor: pointer" @click="closeDrawer"></i>
         </div>
@@ -41,19 +41,20 @@
         <form-table :form="formdate"></form-table>
       </div>
       <div>
-        <echarts ref="drawerRef" :echartsData="echartsData" :getDate="getDate"></echarts>
+        <echarts ref="drawerRef" :echartsData="routeData.obj" :getDate="getDate"></echarts>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ElButton } from 'element-plus';
+import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
-import { onMounted, reactive, ref, watch, onActivated } from 'vue';
-import { getList, getDeviceDate } from './api';
+import { reactive, ref, onActivated } from 'vue';
+import { getList, getDeviceDate, deleteDevice } from './api';
 import Echarts from '@/components/Echarts';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 export default {
   name: 'DeviceMessage',
@@ -62,6 +63,7 @@ export default {
     data: Object,
   },
   setup(props) {
+    const { t } = useI18n();
     const funcs = reactive(props.func);
     console.log(props.func);
     console.log(props.data);
@@ -69,6 +71,7 @@ export default {
     const route = useRoute();
     let drawer = ref(0);
     let drawerFlag = ref(false);
+    let connection = ref('');
     // const pagination = reactive({
     //   total: 50,
     //   currentPage: 1,
@@ -80,24 +83,16 @@ export default {
     let deviceObj = reactive({
       deviceData: 0,
     });
-    watch(
-      () => route.params,
-      () => {
-        routeData.obj = route.params;
-        getdData();
-        getListData();
-      }
-    );
     const form = reactive({
       inline: true, //横向
       formData: {},
       formItem: [
         {
-          label: '测点名称：', //名称
+          label: 'device.physicalname', //名称
           type: 'INPUT', //控件类型
           size: 'small', //element尺寸
           width: '400px',
-          itemID: 'name', //数据字段名
+          itemID: 'keyword', //数据字段名
           suffixIcon: 'el-icon-search', // 后图标样式
           placeholder: '请输入测点名称', //灰色提示文字
         },
@@ -110,7 +105,7 @@ export default {
       },
       formItem: [
         {
-          label: '时间：', //名称
+          label: 'device.time', //名称
           type: 'DATE', //控件类型
           size: 'small', //element尺寸
           width: '400px',
@@ -165,6 +160,7 @@ export default {
         drawerFlag.value = false;
         setTimeout(() => {
           drawerFlag.value = true;
+          console.log(routeData.obj);
           drawerRef.value.getehartsData(routeData.obj);
         }, 10);
       }
@@ -187,14 +183,38 @@ export default {
     }
     function creatDevice() {
       funcs.addTab(`${routeData.obj.parentid}:newdevice`);
-      // router.push({ name: 'Device', params: { ...routeData.obj } });
     }
     function editDevce() {
-      // funcs.addTab(routeData.obj.id);
       router.push({ name: 'Device', params: { ...routeData.obj } });
     }
+    function deleteData() {
+      ElMessageBox.confirm(`${t('device.deletecontent1')}"${routeData.obj.name}"？${t('device.deletecontent2')}`, '提示', {
+        confirmButtonText: t('device.ok'),
+        cancelButtonText: t('device.cencel'),
+        type: 'warning',
+      })
+        .then(() => {
+          deleteDevice(routeData.obj).then(() => {
+            ElMessage({
+              type: 'success',
+              message: '删除成功!',
+            });
+            props.func.updateTree();
+            props.func.removeTab(routeData.obj.id);
+          });
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: '已取消删除',
+          });
+        });
+    }
+    function serchFormData() {
+      getListData();
+    }
     function getListData() {
-      getList(routeData.obj, { pageSize: 12, pageNum: 1, keyword: '' }).then((res) => {
+      getList(routeData.obj, { pageSize: 12, pageNum: 1, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
       });
     }
@@ -204,25 +224,28 @@ export default {
       });
     }
     onActivated(() => {
-      console.log(11111);
-      if (route.params.forceupdate) {
-        console.log(route.params.forceupdate);
-        console.log(route.params, 'update');
-      }
-    });
-    onMounted(() => {
+      console.log(route.params);
+      routeData.obj = route.params;
       getdData();
       getListData();
     });
+    // onMounted(() => {
+    //   connection.value = props.data.parent.parent.name;
+    //   getdData();
+    //   getListData();
+    // });
     return {
       form,
       column,
       drawer,
+      connection,
       getDate,
       drawerRef,
       deviceObj,
       routeData,
+      deleteData,
       // echartsData,
+      serchFormData,
       drawerFlag,
       tableData,
       formdate,

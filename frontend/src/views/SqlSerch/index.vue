@@ -4,9 +4,9 @@
       <el-header class="sqlheader">
         <div class="title flex">
           <div>
-            <span>数据连接：</span>
+            <span>{{ $t('device.dataconnection') }}：{{ routeData.obj.connectId }}</span>
           </div>
-          <div class="rightIcon flex">
+          <div class="rightIcon flex" style="width: 60px">
             <eltooltip label="sqlserch.save">
               <span>
                 <svg class="icon icon-1" aria-hidden="true" @click="centerDialogVisible = true" v-icon="`#icon-baocun-color`">
@@ -21,6 +21,9 @@
                 </svg>
               </span>
             </eltooltip>
+            <eltooltip label="sqlserch.stop">
+              <i class="el-icon-video-pause stop"></i>
+            </eltooltip>
           </div>
         </div>
       </el-header>
@@ -34,9 +37,9 @@
         <div :style="{ height: divwerHeight + 'px', overflow: 'auto' }">
           <div class="tabs">
             <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav">
-              <el-tab-pane label="运行结果1" name="first">
+              <el-tab-pane name="first1">
                 <template #label>
-                  <span>运行结果1<i class="el-icon-more iconmore green"></i> </span>
+                  <span>{{ $t('standTable.running') }}1<i class="el-icon-more iconmore green"></i> </span>
                 </template>
                 <div class="header_messge flex">
                   <div>
@@ -44,22 +47,22 @@
                       <svg class="icon icon-1 icon-color" aria-hidden="true" @click="btnClick1">
                         <use xlink:href="#icon-se-icon-download"></use>
                       </svg>
-                      <span class="downloadchart">下载</span>
+                      <span class="downloadchart">{{ $t('standTable.download') }}</span>
                     </span>
-                    <span class="frist_span">最多下载10万条数据</span>
+                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span>
                   </div>
                   <div>
-                    <span class="frist_span">查询时间：{{ time }}</span>
-                    <span class="frist_span">查询行数：{{ line }}</span>
+                    <span class="frist_span">{{ $t('standTable.serchtime') }}：{{ time }}</span>
+                    <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line }}</span>
                   </div>
                 </div>
                 <div class="tab_table">
                   <stand-table ref="standTable" :column="column" :tableData="tableData" :lineHeight="5" :lineWidth="13" :maxHeight="400" :pagination="pagination"> </stand-table>
                 </div>
               </el-tab-pane>
-              <el-tab-pane label="运行结果2" name="second">
+              <el-tab-pane name="second2">
                 <template #label>
-                  <span>运行结果2<i class="el-icon-more iconmore red"></i> </span>
+                  <span>{{ $t('standTable.running') }}2<i class="el-icon-more iconmore red"></i> </span>
                 </template>
               </el-tab-pane>
             </el-tabs>
@@ -70,11 +73,11 @@
     <el-aside width="300px">
       <div class="el_aside_div">
         <div class="tabgad">
-          <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav_aside">
-            <el-tab-pane label="函数" name="first">
+          <el-tabs v-model="activeNameRight" @tab-click="handleClick" class="tabs_nav_aside">
+            <el-tab-pane :label="$t('standTable.function')" name="first">
               <formserch :placeholder="'请输入函数名称'" @getFunction="getFunction"></formserch>
             </el-tab-pane>
-            <el-tab-pane label="数据" name="second">
+            <el-tab-pane :label="$t('standTable.data')" name="second">
               <formserch-data :placeholder="'请输入测点名称'" @getFunction="getFunction" :treeList="treeList" :id="routeData.obj.connectionid"> </formserch-data>
             </el-tab-pane>
           </el-tabs>
@@ -82,12 +85,14 @@
       </div>
     </el-aside>
   </el-container>
-  <el-dialog title="保存查询" v-model="centerDialogVisible" width="30%" center>
-    <div class="dilog_div"><span>查询名称：</span><el-input style="width: 50%" v-model="sqlName"></el-input></div>
+  <el-dialog :title="$t('standTable.savequery')" v-model="centerDialogVisible" width="30%" center>
+    <div class="dilog_div">
+      <span>{{ $t('standTable.queryname') }}：</span><el-input style="width: 50%" v-model="sqlName"></el-input>
+    </div>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="centerDialog">取 消</el-button>
-        <el-button type="primary" @click="centerDialogOk">确 定</el-button>
+        <el-button @click="centerDialog">{{ $t('device.cencel') }}</el-button>
+        <el-button type="primary" @click="centerDialogOk">{{ $t('device.ok') }}</el-button>
       </span>
     </template>
   </el-dialog>
@@ -101,12 +106,16 @@ import formserchData from './components/formserchData';
 import useElementResize from './hooks/useElementResize.js';
 import codemirror from './components/codemirror';
 import eltooltip from './components/eltooltip';
-import { onMounted, ref, computed, nextTick, reactive, watch } from 'vue';
-import { querySql, saveQuery, getGroup } from './api/index';
+import { ref, computed, nextTick, reactive, onActivated } from 'vue';
+import { querySql, saveQuery, getGroup, getSql } from './api/index';
 import { useRoute } from 'vue-router';
 export default {
   name: 'Sqlserch',
-  setup() {
+  props: {
+    func: Object,
+    data: Object,
+  },
+  setup(props) {
     let centerDialogVisible = ref(false);
     let divwerHeight = ref(0);
     const route = useRoute();
@@ -114,7 +123,8 @@ export default {
     let sqlName = ref(null);
     let codemirror = ref(null);
     const standTable = ref(null);
-    let activeName = ref('first');
+    let activeName = ref('first1');
+    let activeNameRight = ref('first');
     let line = ref(null);
     let time = ref(null);
     let sqlheight = computed(() => {
@@ -137,14 +147,6 @@ export default {
     const treeList = reactive({
       list: [],
     });
-    watch(
-      () => route.params,
-      () => {
-        routeData.obj = route.params;
-        getGroupList();
-        useElementResize(dividerRef, divwerHeight);
-      }
-    );
     function getFunction(val) {
       codemirror.value.onCmCodeChange(val);
     }
@@ -158,7 +160,7 @@ export default {
     function querySqlRun() {
       divwerHeight.value = 300;
       useElementResize(dividerRef, divwerHeight);
-      querySql(9, { sqls: codeArr, timestamp: Number(new Date()) }).then((res) => {
+      querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: Number(new Date()) }).then((res) => {
         line.value = res.data.line;
         time.value = res.data.queryTime;
         column.list = res.data.metaDataList.map((item, index) => {
@@ -185,18 +187,44 @@ export default {
       });
     }
     function centerDialogOk() {
+      let codes = '';
+      codeArr.forEach((item) => {
+        codes += item + '\n';
+      });
       const data = {
         connectionId: routeData.obj.connectionid * 1,
-        id: null,
+        id: routeData.obj.queryid || null,
         queryName: sqlName.value,
-        sqls: codeArr,
+        sqls: codes,
       };
-      saveQuery(routeData.obj.connectionid, data).then((res) => {
-        console.log(res);
+      saveQuery(routeData.obj.connectionid, data).then(() => {
+        ElMessage({
+          type: 'success',
+          message: '保存成功!',
+        });
+        centerDialogVisible.value = false;
+        props.func.updateTree();
       });
     }
+    function getSqlCode() {
+      let data = '';
+      if (route.params.name !== '新建查询') {
+        getSql(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
+          sqlName.value = res.data.queryName;
+          data = res.data.sqls;
+          codemirror.value.setCode(data);
+          setTimeout(() => {
+            codemirror.value.setEvent(data);
+          }, 1000);
+        });
+      } else {
+        setTimeout(() => {
+          codemirror.value.setEvent(data);
+        }, 1000);
+      }
+    }
     function getGroupList() {
-      getGroup(route.params.connectionid).then((res) => {
+      getGroup(routeData.obj.connectionid).then((res) => {
         treeList.list = res.data.map((item) => {
           return {
             label: item.groupName,
@@ -207,13 +235,22 @@ export default {
         });
       });
     }
-    onMounted(() => {
+    onActivated(() => {
+      routeData.obj = route.params;
+      getSqlCode();
       getGroupList();
       useElementResize(dividerRef, divwerHeight);
     });
+    // onMounted(() => {
+    //   routeData.obj = route.params;
+    //   getSqlCode();
+    //   getGroupList();
+    //   useElementResize(dividerRef, divwerHeight);
+    // });
     return {
       column,
       line,
+      activeNameRight,
       treeList,
       centerDialogVisible,
       time,
@@ -255,6 +292,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.stop:hover {
+  color: rgb(84, 95, 255);
+}
 .dilog_div {
   display: flex;
   justify-content: center;

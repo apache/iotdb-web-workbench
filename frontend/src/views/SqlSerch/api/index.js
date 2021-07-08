@@ -20,3 +20,7 @@ export function getDevice(serverId, groupName) {
 export function getCList(serverId, groupName, deviceName, params) {
   return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/info`, { params: params });
 }
+//获取指定查询
+export function getSql(serverId, queryId) {
+  return axios.get(`/servers/${serverId}/query/${queryId}`);
+}
