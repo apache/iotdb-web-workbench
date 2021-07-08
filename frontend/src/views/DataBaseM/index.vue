@@ -247,13 +247,14 @@ export default {
 .databasem {
   height: 100%;
   .divider {
+    z-index: 10;
     width: 1px;
     height: 100%;
     background-color: #f0f0f0;
     cursor: w-resize;
     &:hover {
       background-color: $theme-color !important;
-      width: 2px;
+      width: 3px;
     }
   }
   .router-container {
