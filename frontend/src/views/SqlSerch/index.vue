@@ -22,7 +22,7 @@
               </span>
             </eltooltip>
             <eltooltip label="sqlserch.stop">
-              <i class="el-icon-video-pause stop"></i>
+              <i class="el-icon-video-pause stop" @click="stopquery"></i>
             </eltooltip>
           </div>
         </div>
@@ -78,7 +78,7 @@
               <formserch :placeholder="'请输入函数名称'" @getFunction="getFunction"></formserch>
             </el-tab-pane>
             <el-tab-pane :label="$t('standTable.data')" name="second">
-              <formserch-data :placeholder="'请输入测点名称'" @getFunction="getFunction" :treeList="treeList" :id="routeData.obj.connectionid"> </formserch-data>
+              <formserch-data :placeholder="'请输入测点名称'" @getFunction="getFunction" :id="routeData.obj.connectionid" :treeList="treeList"> </formserch-data>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -107,7 +107,7 @@ import useElementResize from './hooks/useElementResize.js';
 import codemirror from './components/codemirror';
 import eltooltip from './components/eltooltip';
 import { ref, computed, nextTick, reactive, onActivated } from 'vue';
-import { querySql, saveQuery, getGroup, getSql } from './api/index';
+import { querySql, saveQuery, getSql, queryStop, getGroup } from './api/index';
 import { useRoute } from 'vue-router';
 export default {
   name: 'Sqlserch',
@@ -119,12 +119,14 @@ export default {
     let centerDialogVisible = ref(false);
     let divwerHeight = ref(0);
     const route = useRoute();
+    let timeNumber = ref(0);
     let dividerRef = ref(null);
     let sqlName = ref(null);
     let codemirror = ref(null);
     const standTable = ref(null);
     let activeName = ref('first1');
     let activeNameRight = ref('first');
+    let runFlag = ref(true);
     let line = ref(null);
     let time = ref(null);
     let sqlheight = computed(() => {
@@ -136,7 +138,7 @@ export default {
     let code = '';
     let codeArr = [];
     const routeData = reactive({
-      obj: {},
+      obj: route.params,
     });
     const column = reactive({
       list: [],
@@ -150,34 +152,44 @@ export default {
     function getFunction(val) {
       codemirror.value.onCmCodeChange(val);
     }
-    function getCode(line, val) {
-      codeArr[line] = val;
+    function getCode(code) {
+      codeArr = code.split('\n');
       codeArr = codeArr.filter((item) => {
         return item;
       });
       console.log(codeArr);
     }
     function querySqlRun() {
-      divwerHeight.value = 300;
-      useElementResize(dividerRef, divwerHeight);
-      querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: Number(new Date()) }).then((res) => {
-        line.value = res.data.line;
-        time.value = res.data.queryTime;
-        column.list = res.data.metaDataList.map((item, index) => {
-          return {
-            label: item,
-            prop: `t${index}`,
-          };
+      if (runFlag.value) {
+        runFlag.value = false;
+        divwerHeight.value = 300;
+        timeNumber.value = Number(new Date());
+        useElementResize(dividerRef, divwerHeight);
+        querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value }).then((res) => {
+          line.value = res.data.line;
+          time.value = res.data.queryTime;
+          column.list = res.data.metaDataList.map((item, index) => {
+            return {
+              label: item,
+              prop: `t${index}`,
+            };
+          });
+          tableData.list = res.data.valueList.map((item) => {
+            const obj = {};
+            for (let i = 0; i < item.length; i++) {
+              obj[`t${i}`] = item[i];
+            }
+            return obj;
+          });
+          standTable.value.getColumn(column.list);
+          runFlag.value = true;
         });
-        tableData.list = res.data.valueList.map((item) => {
-          const obj = {};
-          for (let i = 0; i < item.length; i++) {
-            obj[`t${i}`] = item[i];
-          }
-          return obj;
-        });
-        standTable.value.getColumn(column.list);
-      });
+        setTimeout(() => {
+          runFlag.value = true;
+        }, 5000);
+      } else {
+        ElMessage.error('查询正在运行中，请勿重复操作');
+      }
     }
     function centerDialog() {
       centerDialogVisible.value = false;
@@ -210,8 +222,12 @@ export default {
       let data = '';
       if (route.params.name !== '新建查询') {
         getSql(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
+          console.log(23456);
+          console.log(res);
+          console.log(res);
           sqlName.value = res.data.queryName;
           data = res.data.sqls;
+          codeArr = res.data.sqls.split('\n');
           codemirror.value.setCode(data);
           setTimeout(() => {
             codemirror.value.setEvent(data);
@@ -235,18 +251,19 @@ export default {
         });
       });
     }
+    function stopquery() {
+      queryStop(routeData.obj.connectionid, { timestamp: timeNumber.value }).then((res) => {
+        console.log(res);
+      });
+    }
     onActivated(() => {
       routeData.obj = route.params;
-      getSqlCode();
-      getGroupList();
-      useElementResize(dividerRef, divwerHeight);
+      if (route.params.forceupdate) {
+        getSqlCode();
+        getGroupList();
+        useElementResize(dividerRef, divwerHeight);
+      }
     });
-    // onMounted(() => {
-    //   routeData.obj = route.params;
-    //   getSqlCode();
-    //   getGroupList();
-    //   useElementResize(dividerRef, divwerHeight);
-    // });
     return {
       column,
       line,
@@ -256,6 +273,7 @@ export default {
       time,
       standTable,
       tableData,
+      stopquery,
       code,
       sqlName,
       centerDialog,

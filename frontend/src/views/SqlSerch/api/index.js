@@ -24,3 +24,6 @@ export function getCList(serverId, groupName, deviceName, params) {
 export function getSql(serverId, queryId) {
   return axios.get(`/servers/${serverId}/query/${queryId}`);
 }
+export function queryStop(serverId, params) {
+  return axios.get(`/servers/${serverId}/stop`, { params: params });
+}

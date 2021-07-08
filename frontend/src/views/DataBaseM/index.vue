@@ -146,20 +146,16 @@ export default {
         }
       } else if (data.type === 'newdevice') {
         //新建实体
-        console.log(data);
-        router.push({ name: 'Device', params: { ...data } });
+        router.push({ name: 'Device', params: { ...data, forceupdate, ...extraParams } });
       } else if (data.type === 'device') {
         //实体
-        console.log(data);
-        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id } });
+        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询
-        console.log(data);
-        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name } });
+        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'query') {
         //查询
-        console.log(data);
-        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name } });
+        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name, forceupdate, ...extraParams } });
       }
     };
 

@@ -27,7 +27,8 @@
     </div>
     <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="450">
       <template #default="{ scope }">
-        <el-button @click="searchRow(scope.row)" type="text" size="small"> 查看 </el-button>
+        <el-button v-if="scope.row.newValue + '' * 1" @click="searchRow(scope.row)" type="text" size="small"> {{ $t('device.look') }} </el-button>
+        <span v-else>——</span>
       </template>
     </stand-table>
     <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px' }">
@@ -224,16 +225,14 @@ export default {
       });
     }
     onActivated(() => {
-      console.log(route.params);
       routeData.obj = route.params;
+      if (route.params.forceupdate === 'true') {
+        form.formData.keyword = '';
+        formdate.formData.time = [];
+      }
       getdData();
       getListData();
     });
-    // onMounted(() => {
-    //   connection.value = props.data.parent.parent.name;
-    //   getdData();
-    //   getListData();
-    // });
     return {
       form,
       column,

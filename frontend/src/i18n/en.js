@@ -165,6 +165,7 @@ const en = {
       datatrends: 'data trends',
       datatrend: 'Trend of physical quantity data',
       time: 'date',
+      look: 'look',
     },
     sqlserch: {
       Aggregate: 'Aggregate',

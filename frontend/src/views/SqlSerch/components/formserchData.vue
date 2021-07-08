@@ -1,27 +1,28 @@
 <template>
   <div>
     <div class="serch_div">
-      <el-input v-model="filterText" :placeholder="placeholder" class="elinput" suffix-icon="el-icon-search"></el-input>
+      <el-select v-model="groupName" placeholder="请选择" class="elinput selectIcon">
+        <el-option v-for="item in data.list" :key="item.value" :label="item.label" :value="item.value" @click="getdevicel"> </el-option>
+      </el-select>
+      <el-select v-model="deviceName" placeholder="请选择" class="elinput selectIcon">
+        <el-option v-for="item in devicelist.list" :key="item.value" :label="item.label" :value="item.value" @click="getpylist(item)"> </el-option>
+      </el-select>
+      <el-input v-model="filterText" :placeholder="placeholder" class="elinput inputIcon" suffix-icon="el-icon-search" @input="serchpylist"></el-input>
     </div>
     <div class="serch_div maxheight">
-      <el-tree :data="data.list" :props="defaultProps" :load="loadNode" lazy @check-change="handleCheckChange" ref="tree">
-        <template #default="{ node, data }">
-          <span class="custom-tree-node chil" v-if="data.table" @dblclick="getFunction(node)">
-            <span>{{ node.label }}</span>
-            <span>{{ data.decr || '--' }}</span>
-            <span>{{ data.type }}</span>
-          </span>
-          <span v-else>{{ node.label }}</span>
-        </template>
-      </el-tree>
+      <span class="custom-tree-node chil" v-for="(item, index) in pyData.list" :key="item.value" @dblclick="getFunction(item)" :style="{ color: index === 0 ? '#c7c6c6' : 'black' }">
+        <span>{{ item.label }}</span>
+        <span>{{ item.decr || '——' }}</span>
+        <span>{{ item.type }}</span>
+      </span>
     </div>
   </div>
 </template>
 
 <script>
-import { ElInput, ElTree } from 'element-plus';
+import { ElInput, ElSelect, ElOption } from 'element-plus';
 import { ref, reactive } from 'vue';
-import { getDevice, getCList } from '../api/index';
+import { getCList, getDevice } from '../api/index';
 export default {
   props: {
     placeholder: String,
@@ -31,7 +32,18 @@ export default {
   setup(props, { emit }) {
     const data = reactive(props.treeList);
     let filterText = ref(null);
+    let groupName = ref('');
+    let deviceName = ref('');
     const tree = ref(null);
+    const devicelist = reactive({
+      list: [],
+    });
+    const pyCopyData = reactive({
+      list: [],
+    });
+    const pyData = reactive({
+      list: [],
+    });
     const defaultProps = {
       children: 'children',
       label: 'label',
@@ -40,72 +52,92 @@ export default {
       console.log(val);
     }
     function getFunction(val) {
-      console.log(val);
-      emit('getFunction', `root.${val.data.parents}.${val.data.parent}.${val.data.label}`);
+      emit('getFunction', `root.${val.parents}.${val.parent}.${val.label}`);
     }
-    function loadNode(node, solve) {
-      if (node.data.deciceF) {
-        console.log(node);
-        getCList(props.id, node.data.parent, node.data.value, { pageSize: 99999, pageNum: 1 }).then((res) => {
-          const data = res.data.measurementVOList.map((item) => {
-            return {
-              parents: node.data.parent,
-              parent: node.data.value,
-              label: item.timeseries,
-              type: item.dataType,
-              decr: item.description,
-              table: true,
-              children: res.data.measurementVOList,
-            };
-          });
-          data.unshift({
-            label: '测点名称',
-            type: '类型',
-            decr: '描述',
-            table: true,
-          });
-          return solve(data);
+    function getdevicel() {
+      deviceName.value = '';
+      getDevice(props.id, groupName.value).then((res) => {
+        const datas = res.data.map((item) => {
+          return {
+            label: item,
+            value: item,
+            parentid: groupName.value,
+          };
         });
+        devicelist.list = datas;
+      });
+    }
+    function getpylist(deviceData) {
+      getCList(props.id, deviceData.parentid, deviceData.value, { pageSize: 99999, pageNum: 1 }).then((res) => {
+        const data = res.data.measurementVOList.map((item) => {
+          return {
+            parents: deviceData.parentid,
+            parent: deviceData.value,
+            label: item.timeseries,
+            type: item.dataType,
+            decr: item.description,
+          };
+        });
+        data.unshift({
+          label: '物理量',
+          type: '类型',
+          decr: '描述',
+        });
+        pyData.list = data;
+        pyCopyData.list = JSON.parse(JSON.stringify(data));
+        console.log(data);
+      });
+    }
+    function serchpylist() {
+      if (!filterText.value) {
+        pyData.list = JSON.parse(JSON.stringify(pyCopyData.list));
       } else {
-        getDevice(props.id, node.data.value).then((res) => {
-          const data = res.data.map((item) => {
-            return {
-              parent: node.data.value,
-              label: item,
-              value: item,
-              decr: '',
-              type: '',
-              deciceF: true,
-            };
-          });
-          return solve(data);
+        pyData.list = pyData.list.filter((item) => {
+          return item.label.indexOf(filterText.value) !== -1;
+        });
+        pyData.list.unshift({
+          label: '物理量',
+          type: '类型',
+          decr: '描述',
         });
       }
     }
-    return { data, defaultProps, filterText, tree, append, getFunction, loadNode };
+    return { data, defaultProps, filterText, tree, append, serchpylist, getFunction, groupName, getdevicel, getpylist, devicelist, deviceName, pyData };
   },
   components: {
     ElInput,
-    ElTree,
+    ElSelect,
+    ElOption,
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .serch_div {
-  padding: 20px 20px 0px 20px;
+  padding: 10px 20px 10px 20px;
   background: #fff;
   &.maxheight {
-    height: 75vh;
+    height: 65vh;
     overflow: auto;
   }
 }
 .elinput {
+  width: 100%;
   height: 30px;
-  line-height: 30px;
+  padding: 3px 0;
 }
 </style>
 <style lang="scss">
+.selectIcon {
+  .el-input__suffix {
+    top: -4px;
+  }
+}
+.inputIcon {
+  .el-input__suffix {
+    top: 3px;
+  }
+}
 .serch_div .el-tree-node__content {
   height: 35px !important;
 }
@@ -113,25 +145,24 @@ export default {
   .el-input__inner {
     height: 30px;
     line-height: 30px;
+    margin-top: 5px;
   }
   .el-input__icon {
     line-height: 30px;
   }
 }
 .custom-tree-node.chil {
-  width: 115%;
-  margin-left: -25%;
   display: flex;
-  font-size: 14px;
+  font-size: 12px;
   justify-content: space-between;
   border-bottom: 1px solid #ebeef5;
-  padding: 5px 0px 5px 0px;
+  padding: 10px 0px;
+  cursor: pointer;
   span {
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    text-align: left;
   }
 }
 </style>

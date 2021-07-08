@@ -166,6 +166,7 @@ const cn = {
       datatrends: '数据趋势',
       datatrend: '物理量数据趋势',
       time: '时间',
+      look: '查看',
     },
     sqlserch: {
       Aggregate: '聚合函数',

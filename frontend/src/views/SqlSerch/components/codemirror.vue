@@ -56,6 +56,7 @@ export default {
             let token = cmInstance.getTokenAt(cursor);
             console.log(cmInstance, cursor, cursorLine, start, end, token);
             console.log(cursorLine);
+            cmInstance.setSelection({ line: cursor.line, ch: cursorLine.indexOf('<') }, { line: cursor.line, ch: cursorLine.indexOf('>') + 1 });
             // this.$emit('getCode', cursor.line, cursorLine);
           },
         },
@@ -80,10 +81,8 @@ export default {
       this.coder.setValue(value);
     },
     setEvent() {
-      this.coder.on('change', (cmInstance) => {
-        let cursor = cmInstance.getCursor();
-        let cursorLine = cmInstance.getLine(cursor.line);
-        this.$emit('getCode', cursor.line, cursorLine);
+      this.coder.on('change', () => {
+        this.$emit('getCode', this.code);
         handleShowHint(this.coder);
         //编译器内容更改事件
         this.coder.showHint();
