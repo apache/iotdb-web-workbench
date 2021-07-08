@@ -51,7 +51,6 @@ public class ConnectionController {
     public BaseVO<Connection> getConnection(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
         Integer userId = AuthenticationUtils.getUserId(request);
         connectionService.check(serverId,userId);
-        // 1. 增加数据源详情内容
         return BaseVO.success("获取成功",connectionService.getById(serverId));
     }
 
@@ -64,7 +63,6 @@ public class ConnectionController {
         return BaseVO.success("获取成功",connectionVO);
     }
 
-    // 4. 连通性测试
     @GetMapping("/test")
     @ApiOperation("连通性测试")
     public BaseVO<ConnectionVO> testConnection(String host) throws BaseException {

@@ -21,6 +21,7 @@ public class FilterConfig implements WebMvcConfigurer {
         InterceptorRegistration interceptorRegistration = registry.addInterceptor(new TokenFilter());
         List<String> paths = new ArrayList();
         paths.add("/servers/**");
+        paths.add("/get");
         interceptorRegistration.addPathPatterns(paths);
     }
 

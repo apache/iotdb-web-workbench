@@ -11,17 +11,15 @@ import org.apache.iotdb.admin.model.entity.Device;
 import org.apache.iotdb.admin.model.entity.StorageGroup;
 import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.*;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 @RestController
@@ -44,9 +42,9 @@ public class IotDBController<T> {
     @Autowired
     private MeasurementService measurementService;
 
-    static Set<String> searchGroupSet;
-
-    static Set<String> searchDeviceSet;
+//    static Set<String> searchGroupSet;
+//
+//    static Set<String> searchDeviceSet;
 
     @GetMapping("/storageGroups/info")
     @ApiOperation("获得存储组信息列表")
@@ -55,7 +53,6 @@ public class IotDBController<T> {
         Connection connection = connectionService.getById(serverId);
         List<String> groupNames = iotDBService.getAllStorageGroups(connection);
         List<GroupInfoVO> groupInfoList = new ArrayList<>();
-        // 3.存储组列表 增加描述、设备数量
         if (groupNames == null || groupNames.size() == 0) {
             return BaseVO.success("获取成功", groupInfoList);
         }
@@ -101,11 +98,9 @@ public class IotDBController<T> {
         Connection connection = connectionService.getById(serverId);
         groupDTO.setGroupName("root." + groupDTO.getGroupName());
         if (groupDTO.getGroupId() == null) {
-            // 新增
             iotDBService.saveStorageGroup(connection, groupDTO.getGroupName());
             groupService.setStorageGroupInfo(connection, groupDTO);
         } else {
-            // 更新
             groupService.updateStorageGroupInfo(connection,groupDTO);
         }
         if (groupDTO.getTtl() != null && groupDTO.getTtlUnit() != null) {
@@ -120,7 +115,6 @@ public class IotDBController<T> {
                 throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
             }
         }
-        // 8. 存储组的编辑
         return BaseVO.success("新增或更新成功", null);
     }
 
@@ -142,7 +136,6 @@ public class IotDBController<T> {
         return BaseVO.success("删除成功", null);
     }
 
-    // 6. 存储组详情获取 孟老师
     @GetMapping("/storageGroups/{groupName}")
     @ApiOperation("存储组详情获取")
     public BaseVO<GroupVO> getStorageGroup(@PathVariable("serverId") Integer serverId,
@@ -177,7 +170,6 @@ public class IotDBController<T> {
         }
         groupVO.setGroupName(groupName.replaceFirst("root.",""));
         groupVO.setAlias(connection.getAlias());
-        // 描述 创建人 创建时间
         return BaseVO.success("获取成功", groupVO);
     }
 
@@ -199,7 +191,6 @@ public class IotDBController<T> {
         Connection connection = connectionService.getById(serverId);
         groupName = "root." + groupName;
         CountDTO countDTO =  iotDBService.getDevicesByGroup(connection, groupName, pageSize, pageNum,keyword);
-        // 7.设备列表分页
         List<String> deviceNames = countDTO.getObjects();
         DeviceInfoVO deviceInfoVO = new DeviceInfoVO();
         Integer totalPage = countDTO.getTotalPage();
@@ -246,14 +237,12 @@ public class IotDBController<T> {
         return BaseVO.success("获取成功", deviceNames);
     }
 
-    // 9.新增设备  // 12. 编辑设备
     @PostMapping("/storageGroups/{groupName}/devices")
     @ApiOperation("新增或编辑实体(设备)")
     public BaseVO<List<String>> saveOrUpdateDevice(@PathVariable("serverId") Integer serverId,
                                                    @PathVariable("groupName") String groupName,
                                                    @RequestBody DeviceInfoDTO deviceInfoDTO,
                                                    HttpServletRequest request) throws BaseException {
-        // 修改DeviceDTO传参内容 修改逻辑
         if (groupName == null || !groupName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
@@ -268,7 +257,6 @@ public class IotDBController<T> {
             deviceDTO.setTimeseries(deviceInfoDTO.getDeviceName() + "." + deviceDTO.getTimeseries());
         }
         iotDBService.createDeviceWithMeasurements(connection, deviceInfoDTO);
-        // 新增
         if (deviceInfoDTO.getDeviceId() == null) {
             deviceService.setDeviceInfo(connection, deviceInfoDTO);
             measurementService.setMeasurementsInfo(serverId, deviceInfoDTO);
@@ -302,7 +290,6 @@ public class IotDBController<T> {
         return BaseVO.success("删除成功", null);
     }
 
-    // 10.获取设备详情
     @GetMapping("/storageGroups/{groupName}/devices/{deviceName}")
     @ApiOperation("获取实体(设备)详情")
     public BaseVO<DeviceVO> getDeviceInfo(@PathVariable("serverId") Integer serverId,
@@ -359,7 +346,6 @@ public class IotDBController<T> {
         measuremtnInfoVO.setTotalCount(countDTO.getTotalCount());
         measuremtnInfoVO.setTotalPage(countDTO.getTotalPage());
         measuremtnInfoVO.setMeasurementVOList(measurementVOList);
-        // 11.测点列表加分页
         return BaseVO.success("获取成功", measuremtnInfoVO);
     }
 
@@ -525,15 +511,6 @@ public class IotDBController<T> {
         return BaseVO.success("操作成功", null);
     }
 
-//    @DeleteMapping("/users/{userName}")
-//    @ApiOperation("数据库用户删除对应路径全部权限")
-//    public BaseVO deleteUserPrivileges(@PathVariable("serverId") Integer serverId,
-//                                    @PathVariable("userName") String userName,
-//                                    @RequestBody PrivilegeInfoDTO privilegeInfoDTO,
-//                                    HttpServletRequest request) throws BaseException {
-//
-//    }
-
     @PostMapping("/users/pwd")
     @ApiOperation("改变用户密码")
     public BaseVO updatePassword(@PathVariable("serverId") Integer serverId,
@@ -581,7 +558,6 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         iotDBService.setIotDBUser(connection, iotDBUser);
-        // 2.用户增加修改去掉角色 勾
         return BaseVO.success("创建成功", null);
     }
 
