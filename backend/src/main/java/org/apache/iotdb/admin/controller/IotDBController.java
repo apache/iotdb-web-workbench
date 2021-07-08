@@ -100,9 +100,9 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         groupDTO.setGroupName("root." + groupDTO.getGroupName());
-        iotDBService.saveStorageGroup(connection, groupDTO.getGroupName());
         if (groupDTO.getGroupId() == null) {
             // 新增
+            iotDBService.saveStorageGroup(connection, groupDTO.getGroupName());
             groupService.setStorageGroupInfo(connection, groupDTO);
         } else {
             // 更新

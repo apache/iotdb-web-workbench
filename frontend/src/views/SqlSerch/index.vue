@@ -4,13 +4,12 @@
       <el-header class="sqlheader">
         <div class="title flex">
           <div>
-            <span>数据连接：</span>
-            <span>存储组：</span>
+            <span>{{ $t('device.dataconnection') }}：{{ routeData.obj.connectId }}</span>
           </div>
-          <div class="rightIcon flex">
+          <div class="rightIcon flex" style="width: 60px">
             <eltooltip label="sqlserch.save">
               <span>
-                <svg class="icon icon-1" aria-hidden="true" @click="btnClick1" v-icon="`#icon-baocun-color`">
+                <svg class="icon icon-1" aria-hidden="true" @click="centerDialogVisible = true" v-icon="`#icon-baocun-color`">
                   <use xlink:href="#icon-baocun"></use>
                 </svg>
               </span>
@@ -21,6 +20,9 @@
                   <use xlink:href="#icon-yunhang"></use>
                 </svg>
               </span>
+            </eltooltip>
+            <eltooltip label="sqlserch.stop">
+              <i class="el-icon-video-pause stop"></i>
             </eltooltip>
           </div>
         </div>
@@ -35,9 +37,9 @@
         <div :style="{ height: divwerHeight + 'px', overflow: 'auto' }">
           <div class="tabs">
             <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav">
-              <el-tab-pane label="运行结果1" name="first">
+              <el-tab-pane name="first1">
                 <template #label>
-                  <span>运行结果1<i class="el-icon-more iconmore green"></i> </span>
+                  <span>{{ $t('standTable.running') }}1<i class="el-icon-more iconmore green"></i> </span>
                 </template>
                 <div class="header_messge flex">
                   <div>
@@ -45,22 +47,22 @@
                       <svg class="icon icon-1 icon-color" aria-hidden="true" @click="btnClick1">
                         <use xlink:href="#icon-se-icon-download"></use>
                       </svg>
-                      <span class="downloadchart">下载</span>
+                      <span class="downloadchart">{{ $t('standTable.download') }}</span>
                     </span>
-                    <span class="frist_span">最多下载10万条数据</span>
+                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span>
                   </div>
                   <div>
-                    <span class="frist_span">查询时间：</span>
-                    <span class="frist_span">查询行数：</span>
+                    <span class="frist_span">{{ $t('standTable.serchtime') }}：{{ time }}</span>
+                    <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line }}</span>
                   </div>
                 </div>
                 <div class="tab_table">
-                  <stand-table :column="column" :tableData="tableData" :lineHeight="5" :lineWidth="13" :maxHeight="400" :pagination="pagination"> </stand-table>
+                  <stand-table ref="standTable" :column="column" :tableData="tableData" :lineHeight="5" :lineWidth="13" :maxHeight="400" :pagination="pagination"> </stand-table>
                 </div>
               </el-tab-pane>
-              <el-tab-pane label="运行结果2" name="second">
+              <el-tab-pane name="second2">
                 <template #label>
-                  <span>运行结果2<i class="el-icon-more iconmore red"></i> </span>
+                  <span>{{ $t('standTable.running') }}2<i class="el-icon-more iconmore red"></i> </span>
                 </template>
               </el-tab-pane>
             </el-tabs>
@@ -71,156 +73,194 @@
     <el-aside width="300px">
       <div class="el_aside_div">
         <div class="tabgad">
-          <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav_aside">
-            <el-tab-pane label="函数" name="first">
+          <el-tabs v-model="activeNameRight" @tab-click="handleClick" class="tabs_nav_aside">
+            <el-tab-pane :label="$t('standTable.function')" name="first">
               <formserch :placeholder="'请输入函数名称'" @getFunction="getFunction"></formserch>
             </el-tab-pane>
-            <el-tab-pane label="数据" name="second"></el-tab-pane>
+            <el-tab-pane :label="$t('standTable.data')" name="second">
+              <formserch-data :placeholder="'请输入测点名称'" @getFunction="getFunction" :treeList="treeList" :id="routeData.obj.connectionid"> </formserch-data>
+            </el-tab-pane>
           </el-tabs>
         </div>
       </div>
     </el-aside>
   </el-container>
+  <el-dialog :title="$t('standTable.savequery')" v-model="centerDialogVisible" width="30%" center>
+    <div class="dilog_div">
+      <span>{{ $t('standTable.queryname') }}：</span><el-input style="width: 50%" v-model="sqlName"></el-input>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="centerDialog">{{ $t('device.cencel') }}</el-button>
+        <el-button type="primary" @click="centerDialogOk">{{ $t('device.ok') }}</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
-import { ElContainer, ElMain, ElAside, ElHeader, ElFooter, ElTabs, ElTabPane } from 'element-plus';
+import { ElContainer, ElMain, ElAside, ElHeader, ElFooter, ElTabs, ElTabPane, ElDialog, ElButton, ElInput, ElMessage } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import formserch from './components/formserch';
+import formserchData from './components/formserchData';
 import useElementResize from './hooks/useElementResize.js';
 import codemirror from './components/codemirror';
 import eltooltip from './components/eltooltip';
-import { onMounted, ref, computed, nextTick } from 'vue';
-import { querySql } from './api/index';
+import { ref, computed, nextTick, reactive, onActivated } from 'vue';
+import { querySql, saveQuery, getGroup, getSql } from './api/index';
+import { useRoute } from 'vue-router';
 export default {
   name: 'Sqlserch',
-  setup() {
+  props: {
+    func: Object,
+    data: Object,
+  },
+  setup(props) {
+    let centerDialogVisible = ref(false);
     let divwerHeight = ref(0);
+    const route = useRoute();
     let dividerRef = ref(null);
+    let sqlName = ref(null);
     let codemirror = ref(null);
-    let activeName = ref('first');
+    const standTable = ref(null);
+    let activeName = ref('first1');
+    let activeNameRight = ref('first');
+    let line = ref(null);
+    let time = ref(null);
     let sqlheight = computed(() => {
       nextTick(() => {
         codemirror.value.codemrriorHeight(divwerHeight.value);
       });
       return divwerHeight.value;
     });
-    let code = 'show storage group';
-    const column = [
-      {
-        label: '测点名称',
-        prop: 'name',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: '数据类型',
-        prop: 'type',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: '编码方式',
-        prop: 'func',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: '测点描述',
-        prop: 'mess',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-      {
-        label: '最新值',
-        prop: 'num',
-        value: '——', //默认值，该项如果没有数据显示
-      },
-    ];
-    const tableData = [
-      {
-        name: 'A111',
-        type: 'string',
-        func: '',
-        mess: '设备',
-      },
-      {
-        name: 'A111',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A111',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A222',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A222',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A222',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A222',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A222',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A222',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-      {
-        name: 'A222',
-        type: 'string',
-        func: 'utf',
-        mess: '设备',
-      },
-    ];
+    let code = '';
+    let codeArr = [];
+    const routeData = reactive({
+      obj: {},
+    });
+    const column = reactive({
+      list: [],
+    });
+    const tableData = reactive({
+      list: [],
+    });
+    const treeList = reactive({
+      list: [],
+    });
     function getFunction(val) {
       codemirror.value.onCmCodeChange(val);
     }
-    function getCode(val) {
-      code = val;
+    function getCode(line, val) {
+      codeArr[line] = val;
+      codeArr = codeArr.filter((item) => {
+        return item;
+      });
+      console.log(codeArr);
     }
     function querySqlRun() {
       divwerHeight.value = 300;
       useElementResize(dividerRef, divwerHeight);
-      querySql(9, { sqls: [code], timestamp: new Date() }).then((res) => {
-        console.log(res);
+      querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: Number(new Date()) }).then((res) => {
+        line.value = res.data.line;
+        time.value = res.data.queryTime;
+        column.list = res.data.metaDataList.map((item, index) => {
+          return {
+            label: item,
+            prop: `t${index}`,
+          };
+        });
+        tableData.list = res.data.valueList.map((item) => {
+          const obj = {};
+          for (let i = 0; i < item.length; i++) {
+            obj[`t${i}`] = item[i];
+          }
+          return obj;
+        });
+        standTable.value.getColumn(column.list);
       });
     }
-    function btnClick1() {
-      // divwerHeight.value = 300;
-      // useElementResize(dividerRef, divwerHeight);
+    function centerDialog() {
+      centerDialogVisible.value = false;
+      ElMessage({
+        type: 'info',
+        message: '已取消保存',
+      });
     }
-    onMounted(() => {
+    function centerDialogOk() {
+      let codes = '';
+      codeArr.forEach((item) => {
+        codes += item + '\n';
+      });
+      const data = {
+        connectionId: routeData.obj.connectionid * 1,
+        id: routeData.obj.queryid || null,
+        queryName: sqlName.value,
+        sqls: codes,
+      };
+      saveQuery(routeData.obj.connectionid, data).then(() => {
+        ElMessage({
+          type: 'success',
+          message: '保存成功!',
+        });
+        centerDialogVisible.value = false;
+        props.func.updateTree();
+      });
+    }
+    function getSqlCode() {
+      let data = '';
+      if (route.params.name !== '新建查询') {
+        getSql(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
+          sqlName.value = res.data.queryName;
+          data = res.data.sqls;
+          codemirror.value.setCode(data);
+          setTimeout(() => {
+            codemirror.value.setEvent(data);
+          }, 1000);
+        });
+      } else {
+        setTimeout(() => {
+          codemirror.value.setEvent(data);
+        }, 1000);
+      }
+    }
+    function getGroupList() {
+      getGroup(routeData.obj.connectionid).then((res) => {
+        treeList.list = res.data.map((item) => {
+          return {
+            label: item.groupName,
+            value: item.groupName,
+            decr: '',
+            type: '',
+          };
+        });
+      });
+    }
+    onActivated(() => {
+      routeData.obj = route.params;
+      getSqlCode();
+      getGroupList();
       useElementResize(dividerRef, divwerHeight);
     });
+    // onMounted(() => {
+    //   routeData.obj = route.params;
+    //   getSqlCode();
+    //   getGroupList();
+    //   useElementResize(dividerRef, divwerHeight);
+    // });
     return {
       column,
+      line,
+      activeNameRight,
+      treeList,
+      centerDialogVisible,
+      time,
+      standTable,
       tableData,
       code,
-      btnClick1,
+      sqlName,
+      centerDialog,
       getCode,
+      centerDialogOk,
       codemirror,
       divwerHeight,
       dividerRef,
@@ -228,6 +268,7 @@ export default {
       activeName,
       getFunction,
       querySqlRun,
+      routeData,
     };
   },
   components: {
@@ -242,11 +283,23 @@ export default {
     ElTabPane,
     StandTable,
     formserch,
+    ElDialog,
+    ElButton,
+    ElInput,
+    formserchData,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.stop:hover {
+  color: rgb(84, 95, 255);
+}
+.dilog_div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .el_aside_div {
   width: 298px;
   height: calc(100vh - 106px);

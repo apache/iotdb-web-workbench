@@ -33,7 +33,7 @@
             <router-view v-slot="{ Component, route }">
               <keep-alive>
                 <component
-                  :key="route.fullPath"
+                  :key="route.fullPath + JSON.stringify(route.params || {})"
                   :is="Component"
                   :data="tabData"
                   :func="{
@@ -147,15 +147,20 @@ export default {
         }
       } else if (data.type === 'newdevice') {
         //新建实体
+        console.log(data);
+        router.push({ name: 'Device', params: { ...data } });
       } else if (data.type === 'device') {
         //实体
         console.log(data);
-        router.push({ name: 'DeviceMessage', params: { ...data } });
+        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id } });
       } else if (data.type === 'newquery') {
         //新建查询
-        router.push({ name: 'SqlSerch' });
+        console.log(data);
+        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name } });
       } else if (data.type === 'query') {
         //查询
+        console.log(data);
+        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name } });
       }
     };
 
@@ -243,13 +248,14 @@ export default {
 .databasem {
   height: 100%;
   .divider {
+    z-index: 10;
     width: 1px;
     height: 100%;
     background-color: #f0f0f0;
     cursor: w-resize;
     &:hover {
       background-color: $theme-color !important;
-      width: 2px;
+      width: 3px;
     }
   }
   .router-container {

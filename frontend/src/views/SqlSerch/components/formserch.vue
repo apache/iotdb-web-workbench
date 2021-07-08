@@ -3,12 +3,12 @@
     <div class="serch_div">
       <el-input v-model="filterText" :placeholder="placeholder" class="elinput" suffix-icon="el-icon-search"></el-input>
     </div>
-    <div class="serch_div">
+    <div class="serch_div maxheight">
       <el-tree :data="data" :props="defaultProps" accordion @node-click="handleNodeClick" :filter-node-method="filterNode" ref="tree">
         <template #default="{ node, data }">
           <span class="custom-tree-node">
             <eltooltip :label="data.value">
-              <span @click="getFunction(node.label)">{{ $t(node.label) }}</span>
+              <span @dblclick="getFunction(node.label)">{{ $t(node.label) }}</span>
             </eltooltip>
           </span>
         </template>
@@ -29,20 +29,15 @@ export default {
   setup(props, { emit }) {
     console.log(props);
     const data = list;
-    let filterText = ref(null);
+    let filterText = ref('');
     const tree = ref(null);
     const defaultProps = {
       children: 'children',
       label: 'label',
     };
-    watch(
-      () => filterText,
-      (val) => {
-        console.log(val);
-        console.log(tree);
-        tree.value.filter(val);
-      }
-    );
+    watch(filterText, (newValue) => {
+      tree.value.filter(newValue.toLocaleUpperCase());
+    });
     function append(val) {
       console.log(val);
     }
@@ -69,6 +64,10 @@ export default {
 .serch_div {
   padding: 20px 20px 0px 20px;
   background: #fff;
+  &.maxheight {
+    height: 75vh;
+    overflow: auto;
+  }
 }
 .elinput {
   height: 30px;
