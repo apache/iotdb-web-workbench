@@ -79,9 +79,8 @@ public class IotDBServiceImpl implements IotDBService {
     public void saveStorageGroup(Connection connection, String groupName) throws BaseException {
         paramValid(groupName);
         SessionPool sessionPool = getSessionPool(connection);
-        String sql = "set storage group to " + groupName;
         try {
-            sessionPool.executeNonQueryStatement(sql);
+            sessionPool.setStorageGroup(groupName);
         } catch (StatementExecutionException e) {
             // 300为存储组重复
             if (e.getStatusCode() != 300) {
@@ -102,9 +101,8 @@ public class IotDBServiceImpl implements IotDBService {
     public void deleteStorageGroup(Connection connection, String groupName) throws BaseException {
         paramValid(groupName);
         SessionPool sessionPool = getSessionPool(connection);
-        String sql = "delete storage group " + groupName;
         try {
-            sessionPool.executeNonQueryStatement(sql);
+            sessionPool.deleteStorageGroup(groupName);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.DELETE_GROUP_FAIL,ErrorCode.DELETE_GROUP_FAIL_MSG);
