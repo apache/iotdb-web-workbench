@@ -72,8 +72,8 @@ export default {
 
     onMounted(() => {
       // window.onbeforeunload = function () {
-      //   router.push({ name: "Root" });
-      //   return "";
+      //   router.push({ name: 'Root' });
+      //   return '';
       // };
       store.dispatch('fetchIsLogin');
     });

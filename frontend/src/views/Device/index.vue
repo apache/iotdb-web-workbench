@@ -30,18 +30,19 @@ import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
-// import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 export default {
   name: 'DeviceAddEidt',
-  setup() {
-    // const route = useRoute();
+  props: {
+    func: Object,
+  },
+  setup(props) {
+    const router = useRouter();
+    const route = useRoute();
     const standtable = ref(null);
     const { t } = useI18n();
     const deviceData = reactive({
-      id: null,
-      timeseries: null,
-      deviceName: null,
-      groupName: null,
+      obj: {},
     });
     const encoding = {
       BOOLEAN: [
@@ -56,55 +57,57 @@ export default {
         { label: 'GORILLA', value: 'GORILLA' },
       ],
     };
-    const column = reactive([
-      {
-        label: 'device.physicalname',
-        prop: 'timeseries',
-        type: 'INPUT', //控件类型
-        width: 350,
-        required: true, //必填标志
-        size: 'small',
-        event: checkVal,
-      },
-      {
-        label: 'device.datatype',
-        prop: 'dataType',
-        type: 'SELECT',
-        width: 200,
-        options: [
-          { label: 'BOOLEAN', value: 'BOOLEAN' },
-          { label: 'INT32', value: 'INT32' },
-          { label: 'INT64', value: 'INT64' },
-          { label: 'FLOAT', value: 'FLOAT' },
-          { label: 'DOUBLE', value: 'DOUBLE' },
-          { label: 'TEXT', value: 'TEXT' },
-        ],
-        required: true,
-        size: 'small',
-      },
-      {
-        label: 'device.codingmode',
-        prop: 'encoding',
-        type: 'SELECTCH',
-        width: 200,
-        required: true,
-        size: 'small',
-        icon: 'el-icon-question',
-      },
-      {
-        label: 'device.physicaldescr',
-        prop: 'description',
-        type: 'TEXT',
-        width: 700,
-        maxlength: 255,
-        size: 'small',
-      },
-      {
-        label: 'device.action',
-        prop: 'action',
-        align: 'center',
-      },
-    ]);
+    const column = reactive({
+      list: [
+        {
+          label: 'device.physicalname',
+          prop: 'timeseries',
+          type: 'INPUT', //控件类型
+          width: 350,
+          required: true, //必填标志
+          size: 'small',
+          event: checkVal,
+        },
+        {
+          label: 'device.datatype',
+          prop: 'dataType',
+          type: 'SELECT',
+          width: 200,
+          options: [
+            { label: 'BOOLEAN', value: 'BOOLEAN' },
+            { label: 'INT32', value: 'INT32' },
+            { label: 'INT64', value: 'INT64' },
+            { label: 'FLOAT', value: 'FLOAT' },
+            { label: 'DOUBLE', value: 'DOUBLE' },
+            { label: 'TEXT', value: 'TEXT' },
+          ],
+          required: true,
+          size: 'small',
+        },
+        {
+          label: 'device.codingmode',
+          prop: 'encoding',
+          type: 'SELECTCH',
+          width: 200,
+          required: true,
+          size: 'small',
+          icon: 'el-icon-question',
+        },
+        {
+          label: 'device.physicaldescr',
+          prop: 'description',
+          type: 'TEXT',
+          width: 700,
+          maxlength: 255,
+          size: 'small',
+        },
+        {
+          label: 'device.action',
+          prop: 'action',
+          align: 'center',
+        },
+      ],
+    });
     let tableData = reactive({
       list: [
         {
@@ -118,7 +121,9 @@ export default {
     });
     const form = reactive({
       labelPosition: 'left', //文本对齐方式
-      formData: {},
+      formData: {
+        deviceId: null,
+      },
       formItem: [
         {
           label: 'device.devicename', //名称
@@ -152,31 +157,6 @@ export default {
         },
       ],
     });
-    // watch(
-    //   () => route.params,
-    //   () => {
-    //     if (route.params.deviceName) {
-    //       deviceData.deviceName = route.params.deviceName;
-    //       deviceData.id = route.params.id;
-    //       deviceData.groupName = route.params.groupName;
-    //       getdData();
-    //       getListData();
-    //     } else {
-    //       deviceData.deviceName = null;
-    //       deviceData.id = null;
-    //       deviceData.groupName = null;
-    //       tableData.list = [
-    //         {
-    //           timeseries: null,
-    //           dataType: null,
-    //           encoding: null,
-    //           description: null,
-    //           display: true,
-    //         },
-    //       ];
-    //     }
-    //   }
-    // );
     function checkVal(val, ev) {
       if (!/^\w+$/.test(val)) {
         ElMessage.error(`"${val}"物理量必须由字⺟、数字、下划线组成`);
@@ -195,7 +175,7 @@ export default {
         type: 'warning',
       })
         .then(() => {
-          deleteData(deviceData, row.timeseries).then(() => {
+          deleteData(deviceData.obj, row.timeseries).then(() => {
             tableData.list.splice(index, 1);
             ElMessage({
               type: 'success',
@@ -234,35 +214,49 @@ export default {
         console.log(e);
       }
       if (checkfalg) {
-        deviceAddEdite(deviceData.id, deviceData.groupName, { ...form.formData, deviceDTOList: tableData.list }).then(() => {
+        deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then(() => {
           ElMessage({
             type: 'success',
             message: '保存成功!',
           });
-          getListData();
+          deviceData.obj.name = form.formData.deviceName;
+          props.func.updateTree();
+          if (route.params.name === '新建实体') {
+            props.func.removeTab(route.params.id);
+          } else {
+            router.go(-1);
+          }
         });
       }
     }
     function getListData() {
-      getList(deviceData, { pageSize: 10, pageNum: 1 }).then((res) => {
-        console.log(res);
+      getList(deviceData.obj, { pageSize: 10, pageNum: 1 }).then((res) => {
         tableData.list = res.data.measurementVOList;
-        console.log(standtable);
       });
     }
     function getdData() {
-      getDeviceDate(deviceData).then((res) => {
+      getDeviceDate(deviceData.obj).then((res) => {
         form.formData = reactive({
           description: res.data.description,
-          deviceName: deviceData.deviceName,
-          groupName: deviceData.groupName,
+          deviceName: deviceData.obj.name,
+          groupName: deviceData.obj.storagegroupid,
           deviceId: res.data.deviceId,
         });
       });
     }
     onMounted(() => {
-      getdData();
-      getListData();
+      deviceData.obj = route.params;
+      if (route.params.name !== '新建实体') {
+        getdData();
+        getListData();
+      } else {
+        form.formData = reactive({
+          description: null,
+          deviceName: null,
+          groupName: deviceData.obj.storagegroupid,
+          deviceId: null,
+        });
+      }
     });
     return {
       sumbitData,
@@ -298,7 +292,7 @@ export default {
   line-height: 0px;
 }
 .addbutton:hover {
-  background-color: #3a3dff;
+  border-color: #0882fc;
 }
 .tableBox {
   margin-top: 20px;

@@ -24,6 +24,11 @@ const routes = [
         component: DataBaseM,
         children: [
           {
+            path: 'empty',
+            name: 'Empty',
+            component: () => import(/* webpackChunkName: "Empty" */ '../views/Source/components/empty.vue'),
+          },
+          {
             path: 'about/:serverid/:groupname',
             name: 'About',
             component: () => import(/* webpackChunkName: "about" */ '../views/About'),
@@ -50,17 +55,17 @@ const routes = [
             component: () => import(/* webpackChunkName: "EditStorage" */ '../views/storage/newStorage.vue'),
           },
           {
-            path: 'device/:storagegroupid/:name',
+            path: 'device/:connectionid/:storagegroupid/:name',
             name: 'Device',
             component: () => import('../views/Device'),
           },
           {
-            path: 'devicemessage/:storagegroupid/:name',
+            path: 'devicemessage/:connectionid/:storagegroupid/:name',
             name: 'DeviceMessage',
             component: () => import('../views/DeviceMessage'),
           },
           {
-            path: 'sqlserch',
+            path: 'sqlserch/:connectionid/:name',
             name: 'SqlSerch',
             component: () => import('../views/SqlSerch'),
           },

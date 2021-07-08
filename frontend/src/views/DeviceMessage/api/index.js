@@ -12,3 +12,7 @@ export function getList(data, params) {
 export function getData(serverId, groupName, deviceName, timeseriesName) {
   return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries/${timeseriesName}`);
 }
+//删除实体
+export function deleteDevice(data) {
+  return axios.delete(`/servers/${data.connectionid}/storageGroups/${data.storagegroupid}/devices/${data.name}`);
+}

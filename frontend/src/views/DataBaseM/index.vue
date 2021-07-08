@@ -139,6 +139,7 @@ export default {
       } else if (data.type === 'storageGroup') {
         //判断是进入存储组详情还是编辑存储组
         if (data.extraParams && data.extraParams.type == 'edit') {
+          updateTree(data.connectionid + 'connection');
           router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name } });
         } else {
           //存储组
@@ -146,15 +147,16 @@ export default {
         }
       } else if (data.type === 'newdevice') {
         //新建实体
+        router.push({ name: 'Device', params: { ...data, forceupdate, ...extraParams } });
       } else if (data.type === 'device') {
         //实体
-        console.log(data);
-        router.push({ name: 'DeviceMessage', params: { ...data } });
+        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询
-        router.push({ name: 'SqlSerch' });
+        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'query') {
         //查询
+        router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name, forceupdate, ...extraParams } });
       }
     };
 
@@ -242,13 +244,14 @@ export default {
 .databasem {
   height: 100%;
   .divider {
+    z-index: 10;
     width: 1px;
     height: 100%;
     background-color: #f0f0f0;
     cursor: w-resize;
     &:hover {
       background-color: $theme-color !important;
-      width: 2px;
+      width: 3px;
     }
   }
   .router-container {

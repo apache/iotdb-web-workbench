@@ -50,18 +50,24 @@ export default {
       groupName: [
         {
           required: true,
-          message: t(`storagePage.groupNamePlaceholder`),
+          message: () => {
+            return t(`storagePage.groupNamePlaceholder`);
+          },
           trigger: 'blur',
         },
         {
           pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
-          message: t(`sourcePage.newUserErrorTip`),
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
           trigger: 'blur',
         },
         {
           min: 0,
           max: 255,
-          message: t(`storagePage.groupNameLengthTips`),
+          message: () => {
+            return t(`storagePage.groupNameLengthTips`);
+          },
           trigger: 'blur',
         },
       ],
@@ -70,10 +76,12 @@ export default {
           required: false,
           min: 0,
           max: 100,
-          message: t(`storagePage.descriptionLengthTips`),
+          message: () => {
+            return t(`storagePage.descriptionLengthTips`);
+          },
           trigger: 'blur',
         },
-      ]
+      ],
     });
     let form = reactive({
       groupName: '',

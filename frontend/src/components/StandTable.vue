@@ -16,7 +16,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column v-if="selectData" type="selection" width="80" align="center"> </el-table-column>
-      <el-table-column :key="item.prop" v-for="item of columns" :width="item.width + 'px'" :align="item.align" show-overflow-tooltip>
+      <el-table-column :key="item.prop" v-for="item of columns.list" :width="item.width + 'px'" :align="item.align" show-overflow-tooltip>
         <template #header>
           <span :class="{ spanbox: item.required }"></span>
           <span>{{ $t(item.label) }}</span>
@@ -61,7 +61,7 @@
       </el-table-column>
     </el-table>
     <div class="paination" v-if="paginations || exportData">
-      <el-button v-if="exportData" class="export_button">批量导出</el-button>
+      <el-button v-if="exportData" class="export_button">{{ $t('standTable.export') }}</el-button>
       <el-pagination
         v-if="paginations"
         @size-change="handleSizeChange"
@@ -80,7 +80,7 @@
 
 <script>
 import { ElTable, ElTableColumn, ElInput, ElSelect, ElOption, ElMessage, ElButton, ElPagination } from 'element-plus';
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
 export default {
   name: 'StandTable',
   props: {
@@ -96,8 +96,11 @@ export default {
     encoding: Object,
   },
   setup(props) {
-    const actionA = props.column.filter((item) => item.prop === 'action');
-    const columns = props.column.filter((item) => item.prop !== 'action');
+    const columns = reactive({
+      list: {},
+    });
+    const actionA = props.column.list.filter((item) => item.prop === 'action');
+    columns.list = props.column.list.filter((item) => item.prop !== 'action');
     const actionO = actionA.length > 0 ? reactive(actionA[0]) : '';
     const paginations = reactive(props.pagination);
     const tableDatas = reactive(props.tableData);
@@ -121,6 +124,9 @@ export default {
     function handleCurrentChange(val) {
       console.log(val);
     }
+    function getColumn(data) {
+      columns.list = data.filter((item) => item.prop !== 'action');
+    }
     function selectEncoding(val, row) {
       row.options = encodings[val];
       if (!row.options) {
@@ -128,6 +134,10 @@ export default {
       }
       row.encoding = row.options[0].value;
     }
+    onMounted(() => {
+      console.log(1234);
+      console.log(columns);
+    });
     return {
       columns,
       actionO,
@@ -138,6 +148,7 @@ export default {
       handleCurrentChange,
       selectEncoding,
       getlist,
+      getColumn,
     };
   },
   components: {

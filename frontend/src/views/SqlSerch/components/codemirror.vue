@@ -55,7 +55,9 @@ export default {
             let start = end;
             let token = cmInstance.getTokenAt(cursor);
             console.log(cmInstance, cursor, cursorLine, start, end, token);
-            this.coder.markText({ line: cursor.line, ch: 5 }, { line: cursor.line, ch: 0 });
+            console.log(cursorLine);
+            cmInstance.setSelection({ line: cursor.line, ch: cursorLine.indexOf('<') }, { line: cursor.line, ch: cursorLine.indexOf('>') + 1 });
+            // this.$emit('getCode', cursor.line, cursorLine);
           },
         },
         // styleActiveLine: true,
@@ -64,11 +66,6 @@ export default {
   },
   mounted() {
     this._initialize();
-    this.coder.on('change', () => {
-      handleShowHint(this.coder);
-      //编译器内容更改事件
-      this.coder.showHint();
-    });
   },
   methods: {
     onCmCodeChange(content) {
@@ -80,16 +77,25 @@ export default {
     codemrriorHeight(val) {
       this.coder.setSize('auto', `calc(100vh - ${143 + val}px)`);
     },
+    setCode(value) {
+      this.coder.setValue(value);
+    },
+    setEvent() {
+      this.coder.on('change', () => {
+        this.$emit('getCode', this.code);
+        handleShowHint(this.coder);
+        //编译器内容更改事件
+        this.coder.showHint();
+      });
+    },
     _initialize() {
       // 初始化编辑器实例，传入需要被实例化的文本域对象和默认配置
       this.coder = CodeMirror.fromTextArea(this.$refs.textarea, this.options);
       // 编辑器赋值
-      this.coder.setValue(this.value || this.code);
       // this.coder.setSize("auto", `calc(100vh - 443px)`);
       // 支持双向绑定
       this.coder.on('change', (coder) => {
         this.code = coder.getValue();
-        this.$emit('getCode', this.code);
       });
       keywords.forEach((words) => {
         CodeMirror.resolveMode('text/x-mysql').keywords[words.toLowerCase()] = true;
