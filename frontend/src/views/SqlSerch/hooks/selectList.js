@@ -1,6 +1,11 @@
 const selectList = {
   SET: ['SET STORAGE GROUP TO <FullPath>', 'SET TTL TO <StorageGroupPath> <Integer>'],
-  CREATE: ['CREATE TIMESERIES <FullPath> WITH <AttributeClauses>', 'CREATE TIMESERIES <FullPath> WITH <AttributeClauses> TAGS (<Clauses>) ATTRIBUTES(<Clauses>)'],
+  CREATE: [
+    'CREATE TIMESERIES <FullPath> WITH <AttributeClauses>',
+    'CREATE TIMESERIES <FullPath> WITH <AttributeClauses> TAGS (<Clauses>) ATTRIBUTES(<Clauses>)',
+    'CREATE USER <userName> <password>',
+    'CREATE ROLE <roleName>',
+  ],
   ALTER: [
     'ALTER TIMESERIES <FullPath> ADD TAGS <Clauses>',
     'ALTER TIMESERIES <FullPath> ADD ATTRIBUTES <Clauses>',
@@ -8,8 +13,9 @@ const selectList = {
     'ALTER TIMESERIES <FullPath> RENAME <OldName> TO <NewName>',
     'ALTER TIMESERIES <FullPath> SET <Clauses>',
     'ALTER TIMESERIES <FullPath>',
+    'ALTER USER <username> SET PASSWORD <password>',
   ],
-  DELETE: ['DELETE STORAGE GROUP <PrefixPath>', 'DELETE TIMESERIES <PrefixPath>', ' FROM <PrefixPath>', 'DELETE FROM <PrefixPath> WHERE <WhereClause>'],
+  DELETE: ['DELETE STORAGE GROUP <PrefixPath>', 'DELETE TIMESERIES <PrefixPath>', 'DELETE FROM <PrefixPath>', 'DELETE FROM <PrefixPath> WHERE <WhereClause>'],
   UNSET: ['UNSET TTL TO <StorageGroupPath>'],
   UPSERT: ['UPSERT ALIAS=<NewName> TAGS(<Clauses>) ATTRIBUTES(<Clauses>)'],
   SHOW: [
@@ -40,5 +46,18 @@ const selectList = {
   ORDER: ['ORDER BY TIME ASC | DESC'],
   LIMIT: ['LIMIT <Integer> [OFFSET <Integer>]?'],
   SLIMIT: ['SLIMIT <Integer> [OFFSET <Integer>]?'],
+  DROP: ['DROP ROLE <roleName>'],
+  GRANT: ['GRANT USER <userName> PRIVILEGES <privileges> ON 	<nodeName>', 'GRANT ROLE <roleName> PRIVILEGES <privileges> ON 	<nodeName>', 'GRANT <roleName> TO <userName>'],
+  REVOKE: ['REVOKE USER <userName> PRIVILEGES <privileges> ON 	<nodeName>', 'REVOKE ROLE <roleName> PRIVILEGES <privileges> ON 	<nodeName>', 'REVOKE <roleName> FROM <userName>'],
+  LIST: [
+    'LIST USER',
+    'LIST ROL',
+    'LIST PRIVILEGES USER <username> ON 	<path>',
+    'LIST PRIVILEGES ROLE <roleName> ON 	<path>',
+    'LIST USER PRIVILEGES <username>',
+    'LIST ROLE PRIVILEGES <roleName>',
+    'LIST ALL ROLE OF USER <username>',
+    'LIST ALL USER OF ROLE <roleName>',
+  ],
 };
 export default selectList;

@@ -147,9 +147,11 @@ export default {
         }
       } else if (data.type === 'newdevice') {
         //新建实体
-        router.push({ name: 'Device', params: { ...data, forceupdate, ...extraParams } });
+        console.log(data);
+        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
       } else if (data.type === 'device') {
         //实体
+        console.log(data);
         router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询

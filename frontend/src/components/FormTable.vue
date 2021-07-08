@@ -6,7 +6,7 @@
         v-model="formData[item.itemID]"
         :size="item.size"
         :style="{ width: item.width }"
-        :placeholder="item.placeholder"
+        :placeholder="$t(item.placeholder)"
         @blur="getFormData"
         :suffix-icon="item.suffixIcon"
         :prefix-icon="item.prefixIcon"
@@ -31,12 +31,14 @@
 <script>
 import { ElForm, ElFormItem, ElInput, ElDatePicker } from 'element-plus';
 import { reactive, toRefs } from 'vue';
+import { useI18n } from 'vue-i18n';
 export default {
   name: 'FormTable',
   props: {
     form: Array,
   },
   setup(props, { emit }) {
+    const { t } = useI18n();
     const formObj = reactive(props.form);
     let prop = {};
     const requiredArry = formObj.formItem.filter((item) => item.required);
@@ -45,7 +47,7 @@ export default {
         prop[item.itemID] = [
           {
             required: true,
-            message: item.message,
+            message: t(item.message),
             trigger: item.type === 'INPUT' ? 'blur' : 'change',
           },
         ];

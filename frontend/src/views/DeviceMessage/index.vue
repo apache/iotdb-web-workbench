@@ -25,9 +25,21 @@
       <form-table :form="form" @serchFormData="serchFormData"></form-table>
       <el-button class="creatButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
     </div>
-    <stand-table :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :maxHeight="450">
+    <stand-table
+      :column="column"
+      :tableData="tableData"
+      :getList="getListData"
+      :total="totalCount"
+      @getPagintions="getPagintions"
+      :selectData="selectData"
+      :lineHeight="5"
+      :maxHeight="450"
+      :pagination="pagination"
+    >
       <template #default="{ scope }">
-        <el-button v-if="scope.row.newValue + '' * 1" @click="searchRow(scope.row)" type="text" size="small"> {{ $t('device.look') }} </el-button>
+        <div @click="searchRow(scope.row)" v-if="scope.row.newValue + '' * 1">
+          <action :echartsData="routeData.obj" :row="scope.row"></action>
+        </div>
         <span v-else>——</span>
       </template>
     </stand-table>
@@ -57,6 +69,7 @@ import { getList, getDeviceDate, deleteDevice } from './api';
 import Echarts from '@/components/Echarts';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import action from './components/action.vue';
 export default {
   name: 'DeviceMessage',
   props: {
@@ -66,17 +79,16 @@ export default {
   setup(props) {
     const { t } = useI18n();
     const funcs = reactive(props.func);
-    console.log(props.func);
-    console.log(props.data);
     const router = useRouter();
     const route = useRoute();
     let drawer = ref(0);
     let drawerFlag = ref(false);
     let connection = ref('');
-    // const pagination = reactive({
-    //   total: 50,
-    //   currentPage: 1,
-    // });
+    let totalCount = ref(0);
+    const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
+    });
     const routeData = reactive({
       obj: route.params,
     });
@@ -212,11 +224,18 @@ export default {
         });
     }
     function serchFormData() {
+      pagination.pageSize = 10;
+      pagination.pageNum = 1;
       getListData();
     }
+    function getPagintions(val) {
+      console.log(val);
+      console.log(pagination);
+    }
     function getListData() {
-      getList(routeData.obj, { pageSize: 12, pageNum: 1, ...form.formData }).then((res) => {
+      getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
+        totalCount.value = res.data.totalCount;
       });
     }
     function getdData() {
@@ -243,7 +262,10 @@ export default {
       deviceObj,
       routeData,
       deleteData,
-      // echartsData,
+      pagination,
+      totalCount,
+      getPagintions,
+      getListData,
       serchFormData,
       drawerFlag,
       tableData,
@@ -260,6 +282,7 @@ export default {
     FormTable,
     ElButton,
     Echarts,
+    action,
   },
 };
 </script>
