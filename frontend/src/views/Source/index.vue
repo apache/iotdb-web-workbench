@@ -205,7 +205,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import {
   ElButton,
   ElTable,
@@ -226,6 +226,7 @@ import {
 } from 'element-plus';
 import NewSource from './components/newSource.vue';
 import { useI18n } from 'vue-i18n';
+
 import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
 
@@ -234,7 +235,7 @@ export default {
   name: 'Source',
   props: ['func', 'data'],
   setup(props) {
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
     // const store = useStore();
 
     let showDialog = ref(false);
@@ -253,13 +254,13 @@ export default {
     // 是否可以用户赋权
     let canAuth = ref(false);
     const router = useRouter();
-    const pathList = reactive([
+    let pathList = ref([
       { label: t('sourcePage.selectAlias'), value: 0 },
       { label: t('sourcePage.selectGroup'), value: 1 },
       { label: t('sourcePage.selectDevice'), value: 2 },
       { label: t('sourcePage.selectTime'), value: 3 },
     ]);
-    const pathMap = reactive({
+    let pathMap = ref({
       0: t('sourcePage.selectAlias'),
       1: t('sourcePage.selectGroup'),
       2: t('sourcePage.selectDevice'),
@@ -278,31 +279,41 @@ export default {
       password: [
         {
           required: true,
-          message: t(`sourcePage.newPasswordTip`),
+          message: () => {
+            return t(`sourcePage.newPasswordTip`);
+          },
           trigger: 'change',
         },
         {
           min: 4,
           max: 255,
-          message: t(`sourcePage.newpasswordErrorTip1`),
+          message: () => {
+            return t(`sourcePage.newpasswordErrorTip1`);
+          },
           trigger: 'change',
         },
       ],
       userName: [
         {
           required: true,
-          message: t(`sourcePage.newUserEmptyTip`),
+          message: () => {
+            return t(`sourcePage.newUserEmptyTip`);
+          },
           trigger: 'change',
         },
         {
           pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
-          message: t(`sourcePage.newUserErrorTip`),
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
           trigger: 'change',
         },
         {
           min: 4,
           max: 255,
-          message: t(`sourcePage.newUserErrorTip1`),
+          message: () => {
+            return t(`sourcePage.newUserErrorTip1`);
+          },
           trigger: 'change',
         },
       ],
@@ -316,61 +327,131 @@ export default {
     let edit = ref(false);
     let isNew = ref(false);
     const serverId = ref(null);
-    const funcTypeOne = [
-      { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
-      { id: 'CREATE_USER', label: t('sourcePage.createUser') },
-      { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
-      { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
-      { id: 'LIST_USER', label: t('sourcePage.listUser') },
-      {
-        id: 'GRANT_USER_PRIVILEGE',
-        label: t('sourcePage.grantPrivilege'),
-      },
-      {
-        id: 'REVOKE_USER_PRIVILEGE',
-        label: t('sourcePage.revertPrivilege'),
-      },
-      {
-        id: 'CREATE_TIMESERIES',
-        label: t('sourcePage.createTimeSeries'),
-      },
-      {
-        id: 'INSERT_TIMESERIES',
-        label: t('sourcePage.insertTimeSeries'),
-      },
-      { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
-      {
-        id: 'DELETE_TIMESERIES',
-        label: t('sourcePage.deleteTimeSeries'),
-      },
-      { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
-      { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
-      { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
-      { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
-      { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
-      { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
-    ];
-    const funcTypeTwo = [
-      {
-        id: 'CREATE_TIMESERIES',
-        label: t('sourcePage.createTimeSeries'),
-      },
-      {
-        id: 'INSERT_TIMESERIES',
-        label: t('sourcePage.insertTimeSeries'),
-      },
-      { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
-      {
-        id: 'DELETE_TIMESERIES',
-        label: t('sourcePage.deleteTimeSeries'),
-      },
-    ];
-    const funcList = {
-      0: funcTypeOne,
-      1: funcTypeTwo,
-      2: funcTypeTwo,
-      3: funcTypeTwo,
+    let funcTypeOne = () => {
+      return [
+        { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
+        { id: 'CREATE_USER', label: t('sourcePage.createUser') },
+        { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
+        { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
+        { id: 'LIST_USER', label: t('sourcePage.listUser') },
+        {
+          id: 'GRANT_USER_PRIVILEGE',
+          label: t('sourcePage.grantPrivilege'),
+        },
+        {
+          id: 'REVOKE_USER_PRIVILEGE',
+          label: t('sourcePage.revertPrivilege'),
+        },
+        {
+          id: 'CREATE_TIMESERIES',
+          label: t('sourcePage.createTimeSeries'),
+        },
+        {
+          id: 'INSERT_TIMESERIES',
+          label: t('sourcePage.insertTimeSeries'),
+        },
+        { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+        {
+          id: 'DELETE_TIMESERIES',
+          label: t('sourcePage.deleteTimeSeries'),
+        },
+        { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
+        { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
+        { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
+        { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
+        { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
+        { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
+      ];
     };
+    // const funcTypeOne = [
+    //   { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
+    //   { id: 'CREATE_USER', label: t('sourcePage.createUser') },
+    //   { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
+    //   { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
+    //   { id: 'LIST_USER', label: t('sourcePage.listUser') },
+    //   {
+    //     id: 'GRANT_USER_PRIVILEGE',
+    //     label: t('sourcePage.grantPrivilege'),
+    //   },
+    //   {
+    //     id: 'REVOKE_USER_PRIVILEGE',
+    //     label: t('sourcePage.revertPrivilege'),
+    //   },
+    //   {
+    //     id: 'CREATE_TIMESERIES',
+    //     label: t('sourcePage.createTimeSeries'),
+    //   },
+    //   {
+    //     id: 'INSERT_TIMESERIES',
+    //     label: t('sourcePage.insertTimeSeries'),
+    //   },
+    //   { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+    //   {
+    //     id: 'DELETE_TIMESERIES',
+    //     label: t('sourcePage.deleteTimeSeries'),
+    //   },
+    //   { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
+    //   { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
+    //   { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
+    //   { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
+    //   { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
+    //   { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
+    // ];
+    // const funcTypeTwo = [
+    //   {
+    //     id: 'CREATE_TIMESERIES',
+    //     label: t('sourcePage.createTimeSeries'),
+    //   },
+    //   {
+    //     id: 'INSERT_TIMESERIES',
+    //     label: t('sourcePage.insertTimeSeries'),
+    //   },
+    //   { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+    //   {
+    //     id: 'DELETE_TIMESERIES',
+    //     label: t('sourcePage.deleteTimeSeries'),
+    //   },
+    // ];
+    let funcTypeTwo = () => {
+      return [
+        {
+          id: 'CREATE_TIMESERIES',
+          label: t('sourcePage.createTimeSeries'),
+        },
+        {
+          id: 'INSERT_TIMESERIES',
+          label: t('sourcePage.insertTimeSeries'),
+        },
+        { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+        {
+          id: 'DELETE_TIMESERIES',
+          label: t('sourcePage.deleteTimeSeries'),
+        },
+      ];
+    };
+    const funcList = ref({
+      0: funcTypeOne(),
+      1: funcTypeTwo(),
+      2: funcTypeTwo(),
+      3: funcTypeTwo(),
+    });
+    console.log(locale);
+
+    watch(locale, () => {
+      funcList.value = {
+        0: funcTypeOne(),
+        1: funcTypeTwo(),
+        2: funcTypeTwo(),
+        3: funcTypeTwo(),
+      };
+      pathList.value = [
+        { label: t('sourcePage.selectAlias'), value: 0 },
+        { label: t('sourcePage.selectGroup'), value: 1 },
+        { label: t('sourcePage.selectDevice'), value: 2 },
+        { label: t('sourcePage.selectTime'), value: 3 },
+      ];
+      pathMap.value = { 0: t('sourcePage.selectAlias'), 1: t('sourcePage.selectGroup'), 2: t('sourcePage.selectDevice'), 3: t('sourcePage.selectTime') };
+    });
     /**
      * 用户基本信息及所有权限列表
      */

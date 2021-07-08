@@ -84,26 +84,34 @@ export default {
       alias: [
         {
           required: true,
-          message: t(`sourcePage.aliasEmptyTip`),
+          message: () => {
+            return t(`sourcePage.aliasEmptyTip`);
+          },
           trigger: 'change',
         },
       ],
       password: [
         {
           required: true,
-          message: t(`sourcePage.passwordEmptyTip`),
+          message: () => {
+            return t(`sourcePage.passwordEmptyTip`);
+          },
           trigger: 'change',
         },
       ],
       host: [
         {
           required: true,
-          message: t(`sourcePage.hostEmptyTip`),
+          message: () => {
+            return t(`sourcePage.hostEmptyTip`);
+          },
           trigger: 'change',
         },
         {
           pattern: /^(((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?))|(localhost)$/,
-          message: t(`sourcePage.hostErrorTip`),
+          message: () => {
+            return t(`sourcePage.hostErrorTip`);
+          },
           trigger: 'change',
         },
         // {
@@ -115,19 +123,25 @@ export default {
       port: [
         {
           required: true,
-          message: t(`sourcePage.portEmptyTip`),
+          message: () => {
+            return t(`sourcePage.portEmptyTip`);
+          },
           trigger: 'change',
         },
         {
           pattern: /^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
-          message: t(`sourcePage.portErrorTip`),
+          message: () => {
+            return t(`sourcePage.portErrorTip`);
+          },
           trigger: 'change',
         },
       ],
       username: [
         {
           required: true,
-          message: t(`sourcePage.usernameEmptyTip`),
+          message: () => {
+            return t(`sourcePage.usernameEmptyTip`);
+          },
           trigger: 'change',
         },
       ],
