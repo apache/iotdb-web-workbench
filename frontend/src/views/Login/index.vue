@@ -112,7 +112,7 @@ export default {
       formNameRef.value.validate((valid) => {
         if (valid) {
           axios.post('/login', {}, { params: { name: ruleForm.account, password: ruleForm.passport } }).then((res) => {
-            if (res?.data?.code === '0') {
+            if (res?.code === '0') {
               localStorage.setItem('authorization', res?.headers?.authorization);
               store.commit('setLogin', true);
               store.commit('setUserInfo', res.data || {});
