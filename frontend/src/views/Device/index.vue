@@ -173,7 +173,7 @@ export default {
         },
       ],
     });
-    function checkVal(obj, val, ev) {
+    function checkVal(scope, obj, val, ev) {
       if (!/^\w+$/.test(val)) {
         ElMessage.error(`"${val}"${t('device.pyname')}`);
         obj.border = true;
@@ -184,7 +184,7 @@ export default {
         ev.target.focus();
       } else {
         const arr = JSON.parse(JSON.stringify(tableData.list));
-        arr.shift();
+        arr.splice(scope.$index, 1);
         arr.forEach((item) => {
           if (item.timeseries === val) {
             ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
@@ -235,18 +235,14 @@ export default {
     }
     function sumbitData() {
       let checkfalg = true;
-      try {
-        tableData.list.forEach((item) => {
-          if (item.timeseries === null || item.dataType === null) {
-            item.timeseries === null ? ElMessage.error(`${t('device.pleaseinput')}`) : ElMessage.error(`"${item.timeseries}"${t('device.selectdata')}`);
-            checkfalg = false;
-            item.border = true;
-            throw Error();
-          }
-        });
-      } catch (e) {
-        console.log(e);
-      }
+      tableData.list.forEach((item) => {
+        if (item.timeseries === null || item.dataType === null) {
+          checkfalg = false;
+          item.border = true;
+        } else {
+          item.border = false;
+        }
+      });
       if (checkfalg && form.formData.deviceName) {
         if (tableData.list.length > 0) {
           deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then(() => {
@@ -261,10 +257,12 @@ export default {
             props.func.removeTab(route.params.id);
           });
         } else {
-          if (form.formData.deviceName) {
+          if (tableData.list.length <= 0) {
             ElMessage.error(`${t('device.minphysical')}`);
           }
         }
+      } else {
+        ElMessage.error(`${t('device.must')}`);
       }
     }
     function getListData() {

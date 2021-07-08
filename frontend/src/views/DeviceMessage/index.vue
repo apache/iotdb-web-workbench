@@ -82,6 +82,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     let drawer = ref(0);
+    let loading = ref(true);
     let drawerFlag = ref(false);
     let connection = ref('');
     let totalCount = ref(0);
@@ -275,6 +276,7 @@ export default {
       editDevce,
       closeDrawer,
       creatDevice,
+      loading,
     };
   },
   components: {

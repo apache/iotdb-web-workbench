@@ -29,7 +29,7 @@
             :size="item.size"
             :class="{ borderRed: !scope.row[item.prop] && scope.row.border }"
             :placeholder="$t(item.label)"
-            @blur="item.event(scope.row, scope.row[item.prop], $event)"
+            @blur="item.event(scope, scope.row, scope.row[item.prop], index, $event)"
           >
           </el-input>
           <el-input

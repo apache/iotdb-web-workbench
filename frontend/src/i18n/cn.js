@@ -182,6 +182,7 @@ const cn = {
       selectdata: '物理量必须选择数据类型',
       savesuccess: '保存成功',
       minphysical: '物理量不能为0',
+      must: '请输入必填内容',
     },
     sqlserch: {
       Aggregate: '聚合函数',

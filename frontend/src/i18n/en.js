@@ -181,6 +181,7 @@ const en = {
       selectdata: 'Data type must be selected for physical quantity',
       savesuccess: 'Saved successfully',
       minphysical: 'The physical quantity cannot be 0',
+      must: 'Please enter the required content',
     },
     sqlserch: {
       Aggregate: 'Aggregate',
