@@ -32,6 +32,7 @@ function filter(data) {
 }
 
 instance.interceptors.request.use((request) => {
+  request.url = '/api' + request.url;
   request.headers.common.Authorization = localStorage.getItem('authorization') || '';
   filter(request.params || request.data);
   return request;
