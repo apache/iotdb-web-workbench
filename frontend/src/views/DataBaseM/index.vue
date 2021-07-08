@@ -18,7 +18,7 @@
       ></el-aside>
       <div class="divider" ref="dividerRef"></div>
       <el-main>
-        <template v-if="urlTabs.length !== 0">
+        <template v-if="urlTabs.length !== 0 || route.path === `/databasem/empty`">
           <el-tabs v-model="urlTabsValue" type="card" @tab-click="handleClick" @tab-remove="removeTab" closable>
             <el-tab-pane v-for="item in urlTabs" :key="item.name" :name="item.name">
               <template #label>
@@ -33,7 +33,7 @@
             <router-view v-slot="{ Component, route }">
               <keep-alive>
                 <component
-                  :key="route.fullPath + JSON.stringify(route.params || {})"
+                  :key="route.fullPath"
                   :is="Component"
                   :data="tabData"
                   :func="{
@@ -102,8 +102,10 @@ export default {
       treeRef.value.treeRef.insertBefore(data, id);
     };
 
-    const addTab = (id, extraParams) => {
-      updateTree();
+    const addTab = (id, extraParams, notupdate) => {
+      if (!notupdate) {
+        updateTree();
+      }
       let count = 0;
       let stop = setInterval(() => {
         let node = treeRef.value.treeRef.getNode(id);
@@ -112,10 +114,10 @@ export default {
           handleNodeClick({ ...node.data, extraParams: extraParams });
           clearInterval(stop);
         }
-        if (count === 20) {
+        if (count > 10) {
           clearInterval(stop);
         }
-      }, 300);
+      }, 500);
     };
 
     watch(urlTabsValue, (newValue) => {

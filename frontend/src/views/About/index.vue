@@ -12,7 +12,7 @@ export default {
   setup() {
     const route = useRoute();
     onMounted(() => {
-      // console.log(props.func, 'yyy');
+      console.log('kkkkyyy');
     });
     onUpdated(() => {
       // console.log(props.data, 'yyy');

@@ -71,9 +71,10 @@ export default {
     };
 
     onMounted(() => {
-      // window.onbeforeunload = function () {
-      //   router.push({ name: 'Root' });
-      //   return '';
+      // window.onunload  = function () {
+      //   // router.push({ name: 'Root' });
+      //   // return '';
+      //   console.log('kkkkkkkkkkk');
       // };
       store.dispatch('fetchIsLogin');
     });

@@ -2,6 +2,17 @@
   <div class="login">
     <div class="header">
       <div class="header-logo"></div>
+      <div class="lang-btn">
+        <el-dropdown @command="handleLangCommand">
+          <span class="el-dropdown-link"> {{ [$t('rootPage.chinalang'), $t('rootPage.englishlang')][langIndex] }}<i class="el-icon-arrow-down el-icon--right"></i> </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item :disabled="langIndex === 0" command="0">{{ $t('rootPage.chinalang') }}</el-dropdown-item>
+              <el-dropdown-item :disabled="langIndex === 1" command="1">{{ $t('rootPage.englishlang') }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
     </div>
     <div class="body">
       <div class="left"></div>
@@ -40,9 +51,10 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { ElForm, ElFormItem, ElInput, ElButton, ElDialog, ElMessage } from 'element-plus';
+import { ElForm, ElFormItem, ElInput, ElButton, ElDialog, ElMessage, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
+import useLangSwitch from '@/views/Root/hooks/useLangSwitch.js';
 
 export default {
   name: 'Root',
@@ -56,6 +68,7 @@ export default {
       account: '',
       passport: '',
     });
+    const { langIndex, handleLangCommand } = useLangSwitch();
 
     const validateAccount = (rule, value, callback) => {
       if (value === '') {
@@ -130,6 +143,8 @@ export default {
     };
 
     return {
+      langIndex,
+      handleLangCommand,
       dialogVisible,
       formNameRef,
       ruleForm,
@@ -138,7 +153,7 @@ export default {
       showDialog,
     };
   },
-  components: { ElForm, ElFormItem, ElInput, ElButton, ElDialog },
+  components: { ElForm, ElFormItem, ElInput, ElButton, ElDialog, ElDropdown, ElDropdownMenu, ElDropdownItem },
 };
 </script>
 
@@ -151,6 +166,12 @@ export default {
     border-style: solid;
     border-color: #f0f0f0;
     position: relative;
+    .lang-btn {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translate(0, -50%);
+    }
     .header-logo {
       background-image: url(~@/assets/logo.png);
       background-size: 100% 100%;

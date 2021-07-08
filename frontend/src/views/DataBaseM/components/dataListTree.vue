@@ -57,6 +57,7 @@ import { reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
+import { useRouter, useRoute } from 'vue-router';
 import NewSource from '../../Source/components/newSource';
 
 export default {
@@ -76,6 +77,8 @@ export default {
     const showDialog = ref(false);
     const types = ref(null);
     const treeKey = ref(1);
+    const router = useRouter();
+    const route = useRoute();
 
     const searchClick = () => {
       console.log('jj');
@@ -84,6 +87,7 @@ export default {
     const nodeClick = (data, node) => {
       props.handleNodeClick(data, node);
     };
+
     /**
      * 新建数据连接
      */
@@ -143,6 +147,12 @@ export default {
                 connectionid: e.id,
               };
             });
+            if (data.length === 0) {
+              router.push({ name: 'Empty' });
+            }
+            if (data.length > 0 && route.path === '/databasem') {
+              props.func.addTab(data[0].id, {}, true);
+            }
             return resolve(data);
           }
         });
