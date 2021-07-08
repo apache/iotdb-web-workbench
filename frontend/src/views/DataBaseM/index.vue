@@ -139,6 +139,7 @@ export default {
       } else if (data.type === 'storageGroup') {
         //判断是进入存储组详情还是编辑存储组
         if (data.extraParams && data.extraParams.type == 'edit') {
+          updateTree(data.connectionid + 'connection');
           router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name } });
         } else {
           //存储组
@@ -243,13 +244,14 @@ export default {
 .databasem {
   height: 100%;
   .divider {
+    z-index: 10;
     width: 1px;
     height: 100%;
     background-color: #f0f0f0;
     cursor: w-resize;
     &:hover {
       background-color: $theme-color !important;
-      width: 2px;
+      width: 3px;
     }
   }
   .router-container {

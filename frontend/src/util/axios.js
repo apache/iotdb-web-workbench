@@ -3,9 +3,9 @@ import { ElMessage } from 'element-plus';
 import router from '../router';
 
 const instance = axios.create({});
-const headerUrls = ['/login'];
+const headerUrls = ['/api/login'];
 instance.defaults.withCredentials = true;
-instance.defaults.timeout = 500000;
+instance.defaults.timeout = 100000;
 instance.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
 function trim(s) {
@@ -32,6 +32,7 @@ function filter(data) {
 }
 
 instance.interceptors.request.use((request) => {
+  request.url = '/api' + request.url;
   request.headers.common.Authorization = localStorage.getItem('authorization') || '';
   filter(request.params || request.data);
   return request;

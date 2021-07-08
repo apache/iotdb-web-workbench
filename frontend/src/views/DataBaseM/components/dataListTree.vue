@@ -2,13 +2,13 @@
   <div class="data-list-tree">
     <div class="data-list-top">
       <span>{{ $t('rootPage.dataList') }}</span>
-      <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
+      <!-- <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
         <div class="icon-1">
           <svg class="icon" @click="updateTree" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
             <use xlink:href="#icon-xinjianchaxun"></use>
           </svg>
         </div>
-      </el-tooltip>
+      </el-tooltip> -->
       <el-tooltip :content="$t('rootPage.newdatasource')" :visible-arrow="false" effect="light">
         <div class="icon-2">
           <svg v-icon="`#icon-xinzengshujulianjie-color`" class="icon" aria-hidden="true" @click="newSource">
@@ -85,7 +85,7 @@ export default {
       props.handleNodeClick(data, node);
     };
     /**
-     * 新建数据源
+     * 新建数据连接
      */
     const newSource = () => {
       showDialog.value = true;
@@ -300,7 +300,7 @@ export default {
     }
     .icon-2 {
       top: 2px;
-      right: 30px;
+      right: 0px;
       position: absolute;
     }
   }

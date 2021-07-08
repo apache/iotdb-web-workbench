@@ -25,6 +25,7 @@ const en = {
       dataList: 'data list',
       newdatasource: 'new data source',
       newQueryWindow: 'new query window',
+      nodatasource: 'it is has no data source at present, please',
     },
     loginPage: {
       account: 'account',
@@ -50,8 +51,8 @@ const en = {
       port: 'port',
       username: 'username',
       password: 'password',
-      addDialogTitle: 'newAlias',
-      editDialogTitle: 'editAlias',
+      addDialogTitle: 'new source',
+      editDialogTitle: 'edit source',
       eg: 'example:127.0.0.1',
       aliasEmptyTip: 'alias can not be empty',
       hostEmptyTip: 'host can not be empty',
@@ -114,6 +115,7 @@ const en = {
       newGroupSuccessLabel: 'you have new or edit group successful',
       deleteAuthConfirm: 'are you sure to delete this auth?',
       deleteSourceConfirm: 'are you sure to delete this source?',
+      newSourceSuccessLabel: 'you have new or edit source successful',
     },
     storagePage: {
       alias: 'alias',
