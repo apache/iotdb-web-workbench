@@ -30,6 +30,9 @@ public class ErrorCode {
     public static final String TEST_CONN_WRONG = "CONN-0008";
     public static final String TEST_CONN_WRONG_MSG = "连接失败,主机输入不合法";
 
+    public static final String TIME_OUT = "CONN-0009";
+    public static final String TIME_OUT_MSG = "连接超时";
+
     // 登录相关
     public static final String LOGIN_FAIL_USER = "USER-0001";
     public static final String LOGIN_FAIL_USER_MSG = "登录失败,用户不存在";

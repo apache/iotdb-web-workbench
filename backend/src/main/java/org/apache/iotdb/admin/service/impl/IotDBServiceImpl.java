@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.Date;
 import java.util.*;
+import java.util.concurrent.*;
 
 
 @Service
@@ -78,9 +79,8 @@ public class IotDBServiceImpl implements IotDBService {
     public void saveStorageGroup(Connection connection, String groupName) throws BaseException {
         paramValid(groupName);
         SessionPool sessionPool = getSessionPool(connection);
-        String sql = "set storage group to " + groupName;
         try {
-            sessionPool.executeNonQueryStatement(sql);
+            sessionPool.setStorageGroup(groupName);
         } catch (StatementExecutionException e) {
             // 300为存储组重复
             if (e.getStatusCode() != 300) {
@@ -101,9 +101,8 @@ public class IotDBServiceImpl implements IotDBService {
     public void deleteStorageGroup(Connection connection, String groupName) throws BaseException {
         paramValid(groupName);
         SessionPool sessionPool = getSessionPool(connection);
-        String sql = "delete storage group " + groupName;
         try {
-            sessionPool.executeNonQueryStatement(sql);
+            sessionPool.deleteStorageGroup(groupName);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.DELETE_GROUP_FAIL,ErrorCode.DELETE_GROUP_FAIL_MSG);
@@ -935,15 +934,17 @@ public class IotDBServiceImpl implements IotDBService {
                 while (sessionDataSetWrapper.hasNext()) {
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     count++;
-                    T t = clazz.newInstance();
-                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
-                    List<String> columnNames = sessionDataSetWrapper.getColumnNames();
-                    for (int i = 0; i < fields.size(); i++) {
-                        Field field = clazz.getDeclaredField(columnNames.get(i).replaceAll(" ",""));
-                        field.setAccessible(true);
-                        field.set(t,fields.get(i).toString());
+                    if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
+                        T t = clazz.newInstance();
+                        List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                        List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+                        for (int i = 0; i < fields.size(); i++) {
+                            Field field = clazz.getDeclaredField(columnNames.get(i).replaceAll(" ",""));
+                            field.setAccessible(true);
+                            field.set(t,fields.get(i).toString());
+                        }
+                        results.add(t);
                     }
-                    results.add(t);
                 }
             }
             CountDTO countDTO = new CountDTO();
@@ -1007,8 +1008,10 @@ public class IotDBServiceImpl implements IotDBService {
                 while (sessionDataSetWrapper.hasNext()) {
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     count++;
-                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
-                    values.add(fields.get(0).toString());
+                    if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
+                        List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                        values.add(fields.get(0).toString());
+                    }
                 }
             }
             CountDTO countDTO = new CountDTO();
@@ -1033,6 +1036,10 @@ public class IotDBServiceImpl implements IotDBService {
     private List<String> executeQueryOneColumn(SessionPool sessionPool,String sql) throws BaseException {
         SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
+            Callable call = () -> sessionPool.executeQueryStatement(sql);
+            ExecutorService service = Executors.newFixedThreadPool(1);
+            Future submit = service.submit(call);
+            submit.get(30 ,TimeUnit.SECONDS);
             sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
             int batchSize = sessionDataSetWrapper.getBatchSize();
             List<String> values = new ArrayList<>();
@@ -1050,6 +1057,9 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL,ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.TIME_OUT,ErrorCode.TIME_OUT_MSG);
         } finally {
             if (sessionDataSetWrapper != null) {
                 sessionDataSetWrapper.close();
