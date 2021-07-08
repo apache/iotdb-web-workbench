@@ -73,7 +73,7 @@ export default {
           message: t(`storagePage.descriptionLengthTips`),
           trigger: 'blur',
         },
-      ]
+      ],
     });
     let form = reactive({
       groupName: '',
