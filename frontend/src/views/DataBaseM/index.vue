@@ -45,6 +45,7 @@
                     addTab,
                     updateTree,
                     expandByIds,
+                    updateTreeByIds,
                   }"
                 />
               </keep-alive>
@@ -160,9 +161,11 @@ export default {
       } else if (data.type === 'querylist') {
         //查询列表
       } else if (data.type === 'storageGroup') {
+        debugger;
         //判断是进入存储组详情还是编辑存储组
         if (data.extraParams && data.extraParams.type == 'edit') {
-          updateTree(data.connectionid + 'connection');
+          // updateTree(data.connectionid + 'connection');
+          // expandByIds([data.connectionid + 'connection']);
           router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name } });
         } else {
           //存储组

@@ -1,14 +1,15 @@
 .el-button--primary {
-  background-color: $theme-color;
+  background-color: $theme-color !important;
+  border-color: $theme-color !important;
   span {
     color: #fff;
   }
 }
 .el-button {
-  height: 30px;
-  line-height: 30px;
-  min-height: 30px;
-  padding: 0 12px;
+  height: 30px !important;
+  line-height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 12px !important;
 }
 .el-button--text {
   color: $theme-color !important;

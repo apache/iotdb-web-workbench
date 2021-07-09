@@ -854,14 +854,21 @@ export default {
      * 跳转编辑存储组 type为了区分是去往存储组编辑页
      */
     const goEditGroup = (scope) => {
-      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' });
+      //先获取数据(防止是收起状态没有加载数据)
+      props.func.updateTreeByIds([serverId.value + 'connection']);
+      //展开数据
+      props.func.expandByIds([serverId.value + 'connection']);
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' }, true);
     };
     /**
      * 查看存储组详情
      */
     const goGroupDetail = (scope) => {
-      props.func.updateTree(serverId.value + 'connection');
-      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup');
+      //先获取数据(防止是收起状态没有加载数据)
+      props.func.updateTreeByIds([serverId.value + 'connection']);
+      //展开数据
+      props.func.expandByIds([serverId.value + 'connection']);
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', {}, true);
     };
     onMounted(() => {
       serverId.value = router.currentRoute.value.params.serverid;
