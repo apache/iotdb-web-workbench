@@ -846,6 +846,8 @@ export default {
       axios.delete(`/servers/${serverId.value}/storageGroups/${scope.row.groupName}`).then((rs) => {
         if (rs && rs.code == 0) {
           ElMessage.success(t('sourcePage.deleteGroupLabel'));
+          props.func.updateTreeByIds([serverId.value + 'connection']);
+
           getGroupList();
         }
       });
