@@ -39,7 +39,7 @@
             <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav">
               <el-tab-pane name="first1">
                 <template #label>
-                  <span>{{ $t('standTable.running') }}1<i class="el-icon-more iconmore green"></i> </span>
+                  <span>{{ $t('standTable.running') }}<i class="el-icon-more iconmore green"></i> </span>
                 </template>
                 <div class="header_messge flex">
                   <div>
@@ -60,11 +60,11 @@
                   <stand-table ref="standTable" :column="column" :tableData="tableData" :lineHeight="5" :lineWidth="13" :maxHeight="400" :pagination="pagination"> </stand-table>
                 </div>
               </el-tab-pane>
-              <el-tab-pane name="second2">
+              <!-- <el-tab-pane name="second2">
                 <template #label>
                   <span>{{ $t('standTable.running') }}2<i class="el-icon-more iconmore red"></i> </span>
                 </template>
-              </el-tab-pane>
+              </el-tab-pane> -->
             </el-tabs>
           </div>
         </div>
