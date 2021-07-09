@@ -154,7 +154,7 @@ export default {
       } else if (data.type === 'device') {
         //实体
         console.log(data);
-        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
+        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询
         console.log(data);

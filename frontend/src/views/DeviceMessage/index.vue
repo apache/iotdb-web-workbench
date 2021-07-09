@@ -10,7 +10,7 @@
       </div>
       <div class="messageBox">
         <span>{{ $t('device.dataconnection') }}：</span>
-        <span>{{ connection }}</span>
+        <span>{{ routeData.obj.parentids }}</span>
         <span class="spanmargin">{{ $t('device.group') }}：</span>
         <span>{{ routeData.obj.storagegroupid }}</span>
         <span class="spanmargin">{{ $t('device.physicaldescr') }}：</span>
@@ -23,7 +23,7 @@
     </div>
     <div style="padding: 20px 30px" class="flexBox">
       <form-table :form="form" @serchFormData="serchFormData"></form-table>
-      <el-button class="creatButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
+      <el-button type="primary" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
     </div>
     <stand-table
       :column="column"
