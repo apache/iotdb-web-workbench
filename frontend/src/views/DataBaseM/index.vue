@@ -86,8 +86,8 @@ export default {
       urlSkipMap(data.node);
     };
 
-    const updateTree = (params) => {
-      treeRef.value.updateTree(params);
+    const updateTree = (params, clear) => {
+      treeRef.value.updateTree(params, clear);
     };
 
     const treeAppend = (id, data) => {

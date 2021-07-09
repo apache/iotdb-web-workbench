@@ -4,7 +4,7 @@
       <span>{{ $t('rootPage.dataList') }}</span>
       <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
         <div class="icon-1">
-          <svg class="icon" @click="updateTree" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
+          <svg class="icon" @click="sqlClick" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
             <use xlink:href="#icon-xinjianchaxun"></use>
           </svg>
         </div>
@@ -114,16 +114,22 @@ export default {
       types.value = 0;
     };
 
-    const updateTree = (params) => {
-      console.log(params);
+    const sqlClick = () => {
       showDrawer.value = true;
-      // if (params) {
-      //   let arr = treeExpandKey.value;
-      //   arr = arr.concat(params);
-      //   treeExpandKey.value = arr;
-      // }
-      // treeKey.value += 1;
     };
+
+    const updateTree = (params, clear) => {
+      if (params) {
+        let arr = treeExpandKey.value;
+        if (clear) {
+          arr = [];
+        }
+        arr = arr.concat(params);
+        treeExpandKey.value = arr;
+      }
+      treeKey.value += 1;
+    };
+
     const coloseDrawer = () => {
       showDrawer.value = false;
     };
@@ -285,6 +291,7 @@ export default {
       types,
       showDrawer,
       updateTree,
+      sqlClick,
       coloseDrawer,
       funcdata,
     };
