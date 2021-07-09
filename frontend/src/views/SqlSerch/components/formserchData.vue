@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="serch_div">
-      <el-select v-model="groupName" placeholder="请选择" class="elinput selectIcon">
+      <el-select v-model="groupName" :placeholder="$t('device.selectp')" class="elinput selectIcon">
         <el-option v-for="item in data.list" :key="item.value" :label="item.label" :value="item.value" @click="getdevicel"> </el-option>
       </el-select>
-      <el-select v-model="deviceName" placeholder="请选择" class="elinput selectIcon">
+      <el-select v-model="deviceName" :placeholder="$t('device.selectp')" class="elinput selectIcon">
         <el-option v-for="item in devicelist.list" :key="item.value" :label="item.label" :value="item.value" @click="getpylist(item)"> </el-option>
       </el-select>
-      <el-input v-model="filterText" :placeholder="placeholder" class="elinput inputIcon" suffix-icon="el-icon-search" @input="serchpylist"></el-input>
+      <el-input v-model="filterText" :placeholder="$t('device.pleaseinput')" class="elinput inputIcon" suffix-icon="el-icon-search" @input="serchpylist"></el-input>
     </div>
     <div class="serch_div maxheight">
       <span class="custom-tree-node chil" v-for="(item, index) in pyData.list" :key="item.value" @dblclick="getFunction(item)" :style="{ color: index === 0 ? '#c7c6c6' : 'black' }">

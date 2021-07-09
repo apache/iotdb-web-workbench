@@ -185,6 +185,8 @@ const en = {
       minphysical: 'The physical quantity cannot be 0',
       must: 'Please enter the required content',
       newquery: 'New Query',
+      inputfunction: 'Please enter a function name',
+      selectp: 'Please Select',
     },
     sqlserch: {
       Aggregate: 'Aggregate',

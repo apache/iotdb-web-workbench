@@ -151,6 +151,7 @@ const cn = {
       selectdataconnection: '请选择数据链接',
       devicename: '实体名称',
       description: '实体描述',
+      selectp: '请选择',
       group: '所属存储组',
       physical: '实体物理量',
       addphysical: '添加物理量',
@@ -186,6 +187,7 @@ const cn = {
       minphysical: '物理量不能为0',
       must: '请输入必填内容',
       newquery: '新建查询',
+      inputfunction: '请输入函数名称',
     },
     sqlserch: {
       Aggregate: '聚合函数',

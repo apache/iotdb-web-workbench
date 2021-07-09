@@ -43,13 +43,13 @@
                 </template>
                 <div class="header_messge flex">
                   <div>
-                    <span>
+                    <!-- <span>
                       <svg class="icon icon-1 icon-color" aria-hidden="true" @click="btnClick1">
                         <use xlink:href="#icon-se-icon-download"></use>
                       </svg>
                       <span class="downloadchart">{{ $t('standTable.download') }}</span>
                     </span>
-                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span>
+                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span> -->
                   </div>
                   <div>
                     <span class="frist_span">{{ $t('standTable.serchtime') }}：{{ time }}</span>
@@ -75,10 +75,10 @@
         <div class="tabgad">
           <el-tabs v-model="activeNameRight" @tab-click="handleClick" class="tabs_nav_aside">
             <el-tab-pane :label="$t('standTable.function')" name="first">
-              <formserch :placeholder="'请输入函数名称'" @getFunction="getFunction"></formserch>
+              <formserch placeholder="device.inputfunction" @getFunction="getFunction"></formserch>
             </el-tab-pane>
             <el-tab-pane :label="$t('standTable.data')" name="second">
-              <formserch-data :placeholder="'请输入测点名称'" @getFunction="getFunction" :id="routeData.obj.connectionid" :treeList="treeList"> </formserch-data>
+              <formserch-data @getFunction="getFunction" :id="routeData.obj.connectionid" :treeList="treeList"> </formserch-data>
             </el-tab-pane>
           </el-tabs>
         </div>

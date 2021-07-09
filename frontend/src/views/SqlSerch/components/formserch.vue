@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="serch_div">
-      <el-input v-model="filterText" :placeholder="placeholder" class="elinput" suffix-icon="el-icon-search"></el-input>
+      <el-input v-model="filterText" :placeholder="$t(placeholder)" class="elinput" suffix-icon="el-icon-search"></el-input>
     </div>
     <div class="serch_div maxheight">
       <el-tree :data="data" :props="defaultProps" accordion @node-click="handleNodeClick" :filter-node-method="filterNode" ref="tree">

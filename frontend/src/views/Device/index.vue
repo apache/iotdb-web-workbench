@@ -28,7 +28,7 @@
       </stand-table>
     </div>
     <div class="footer">
-      <el-button type="info">{{ $t('device.cencel') }}</el-button>
+      <el-button type="info" @click="closeTab">{{ $t('device.cencel') }}</el-button>
       <el-button type="primary" @click="sumbitData">{{ $t('device.ok') }}</el-button>
     </div>
   </div>
@@ -238,6 +238,13 @@ export default {
         });
       }
     }
+    function closeTab() {
+      ElMessage({
+        type: 'info',
+        message: `${t('device.cencel')}!`,
+      });
+      props.func.removeTab(route.params.id);
+    }
     function sumbitData() {
       let checkfalg = true;
       tableData.list.forEach((item) => {
@@ -305,6 +312,7 @@ export default {
       deleteRow,
       addItem,
       getListData,
+      closeTab,
       pagination,
       encoding,
       totalCount,
