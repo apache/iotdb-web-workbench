@@ -3,7 +3,7 @@
 
     <Properties>
         <!--应用名-->
-        <property name="app">projectservicedemo</property>
+        <property name="app">iotdb-admin</property>
         <property name="log.root.level">INFO</property>
         <property name="log.home">/data/applogs/app</property>
         <property name="log.default.pattern">%-d{yyyy-MM-dd HH:mm:ss.SSS} [%p] [${app}] %l %m%n</property>

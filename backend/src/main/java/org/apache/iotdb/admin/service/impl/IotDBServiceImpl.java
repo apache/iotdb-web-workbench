@@ -327,13 +327,13 @@ public class IotDBServiceImpl implements IotDBService {
         }
     }
 
-    @Override
-    public SqlResultVO query(Connection connection, String sql) throws BaseException {
-        java.sql.Connection conn = getConnection(connection);
-        SqlResultVO sqlResultVO = sqlQuery(conn, sql);
-        closeConnection(conn);
-        return sqlResultVO;
-    }
+//    @Override
+//    public SqlResultVO query(Connection connection, String sql) throws BaseException {
+//        java.sql.Connection conn = getConnection(connection);
+//        SqlResultVO sqlResultVO = sqlQuery(conn, sql);
+//        closeConnection(conn);
+//        return sqlResultVO;
+//    }
 
     @Override
     public void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries) throws BaseException {
@@ -1039,8 +1039,8 @@ public class IotDBServiceImpl implements IotDBService {
             Callable call = () -> sessionPool.executeQueryStatement(sql);
             ExecutorService service = Executors.newFixedThreadPool(1);
             Future submit = service.submit(call);
-            submit.get(30 ,TimeUnit.SECONDS);
-            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            sessionDataSetWrapper = (SessionDataSetWrapper) submit.get(30, TimeUnit.SECONDS);
+//            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
             int batchSize = sessionDataSetWrapper.getBatchSize();
             List<String> values = new ArrayList<>();
             if (batchSize > 0) {
@@ -1291,34 +1291,87 @@ public class IotDBServiceImpl implements IotDBService {
 
     private PathVO splitPathToPathVO(SessionPool sessionPool,String s) throws BaseException {
         PathVO pathVO = new PathVO();
-        String sql = "count devices " + s;
-        Integer isTimeseries = Integer.valueOf(executeQueryOneValue(sessionPool,sql));
-        if (isTimeseries == 0) {
-            int mid = s.lastIndexOf(".");
-            String timeseriesName = s.substring(mid + 1);
-            pathVO.setTimeseriesName(timeseriesName);
-            s = s.substring(0,mid);
-        }
-        String oldS = s;
-        int isGroup;
-        while (true) {
+        while (!"root".equals(s)) {
+            String sql = "count devices " + s;
+            Integer isDevice = Integer.valueOf(executeQueryOneValue(sessionPool,sql));
             sql = "count storage group " + s;
-            isGroup = Integer.valueOf(executeQueryOneValue(sessionPool,sql));
-            if (isGroup > 0) {
+            Integer  isGroup = Integer.valueOf(executeQueryOneValue(sessionPool,sql));
+            // 为测点
+            if (isDevice == 0 && isGroup == 0) {
+                int mid = s.lastIndexOf(".");
+                String timeseriesName = s.substring(mid + 1);
+                pathVO.setTimeseriesName(timeseriesName);
+                s = s.substring(0,mid);
+                continue;
+            }
+            // 既是存储组也是实体
+            if (isDevice == 1 && isGroup == 1) {
+                String deviceName = s.replaceFirst("root.", "");
+                String groupName = s.replaceFirst("root.", "");
+                pathVO.setGroupName(groupName);
+                pathVO.setDeviceName(deviceName);
                 break;
             }
-            int mid = s.lastIndexOf(".");
-            s = s.substring(0,mid);
+            // 是存储组 判断是否还为实体
+            if (isDevice > 1 && isGroup == 1) {
+                sql = "show devices " + s;
+                List<String> list = executeQueryOneColumn(sessionPool, sql);
+                if (list.contains(s)) {
+                    String deviceName = s.replaceFirst("root.", "");
+                    String groupName = s.replaceFirst("root.", "");
+                    pathVO.setGroupName(groupName);
+                    pathVO.setDeviceName(deviceName);
+                    break;
+                }
+                String groupName = s.replaceFirst("root.", "");
+                pathVO.setGroupName(groupName);
+            }
+            // 为存储组
+            if (isDevice == 0 && isGroup == 1) {
+                String groupName = s.replaceFirst("root.", "");
+                pathVO.setGroupName(groupName);
+                break;
+            }
+            // 实体 实体之下还可以有实体 需要遍历有多少层级
+            if (isDevice >= 1 && isGroup == 0) {
+                String oldS = s;
+                while (true) {
+                    int mid = s.lastIndexOf(".");
+                    s = s.substring(0,mid);
+                    sql = "count storage group " + s;
+                    isGroup = Integer.valueOf(executeQueryOneValue(sessionPool,sql));
+                    if (isGroup > 0) {
+                        String deviceName = oldS.replaceFirst(s + ".", "");
+                        String groupName = s.replaceFirst("root.", "");
+                        pathVO.setGroupName(groupName);
+                        pathVO.setDeviceName(deviceName);
+                        break;
+                    }
+                }
+                break;
+            }
         }
-        String deviceName = oldS.replaceFirst(s + ".", "");
-        pathVO.setDeviceName(deviceName);
-        String groupName = s.replaceFirst("root.", "");
-        pathVO.setGroupName(groupName);
         return pathVO;
     }
 
     private int findType(SessionPool sessionPool, String s) throws BaseException {
-        String sql = "count storage group " + s;
+        // 主要用于判断s路径是否已经不存在 iotdb存在已删除路径的权限还会展示出来的问题
+        String sql = "count timeseries " + s;
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            return -1;
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            return -1;
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
+            }
+        }
+        sql = "count storage group " + s;
         Integer isGroup = Integer.valueOf(executeQueryOneValue(sessionPool, sql));
         if (isGroup == 1) {
             return 1;

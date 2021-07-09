@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
  */
 
 @SpringBootApplication
-@ComponentScan(value = {"org.apache.iotdb.admin"})
 @MapperScan("org.apache.iotdb.admin.mapper")
 @EnableWebSecurity
 public class AdminApplication {

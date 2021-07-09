@@ -24,7 +24,7 @@ public class User implements Serializable {
     private String name;
 
     @NotBlank
-    @Length(min = 4,message = "长度必须大于等于4")
+    @Length(min = 6,message = "长度必须大于等于6")
     @Pattern(regexp = "^[^ ]+$",message = "不能包含空格")
     private String password;
 

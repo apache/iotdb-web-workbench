@@ -86,8 +86,8 @@ export default {
       urlSkipMap(data.node);
     };
 
-    const updateTree = (params) => {
-      treeRef.value.updateTree(params);
+    const updateTree = (params, clear) => {
+      treeRef.value.updateTree(params, clear);
     };
 
     const treeAppend = (id, data) => {
@@ -157,6 +157,7 @@ export default {
         router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询
+        console.log(data);
         router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'query') {
         //查询

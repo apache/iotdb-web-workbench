@@ -435,7 +435,6 @@ export default {
       2: funcTypeTwo(),
       3: funcTypeTwo(),
     });
-    console.log(locale);
 
     watch(locale, () => {
       funcList.value = {
