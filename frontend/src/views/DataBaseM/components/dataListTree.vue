@@ -58,7 +58,7 @@ import { reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import NewSource from '../../Source/components/newSource';
 import SqlDrawer from '../../SqlSerch/components/sqlDrawer';
 
@@ -82,7 +82,6 @@ export default {
     const treeKey = ref(1);
     const funcdata = reactive(props.func);
     const router = useRouter();
-    const route = useRoute();
 
     const searchClick = () => {
       console.log('jj');
@@ -165,9 +164,11 @@ export default {
             if (data.length === 0) {
               router.push({ name: 'Empty' });
             }
-            if (data.length > 0 && route.path === '/databasem') {
+            if (data.length > 0 && store.state.firstPageLoad) {
+              // router.push({ name: 'Root' });
               props.func.addTab(data[0].id, {}, true);
             }
+            store.commit('setFirstPageLoad', false);
             return resolve(data);
           }
         });

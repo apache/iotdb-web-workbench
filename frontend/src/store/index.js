@@ -7,8 +7,13 @@ export default createStore({
   state: () => ({
     isLogin: false,
     userInfo: {},
+    firstPageLoad: true,
   }),
   mutations: {
+    setFirstPageLoad(state, bool) {
+      console.log('fuck', bool);
+      state.firstPageLoad = bool;
+    },
     setLogin(state, islogin) {
       state.isLogin = islogin;
     },
