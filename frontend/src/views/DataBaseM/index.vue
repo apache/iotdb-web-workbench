@@ -4,9 +4,6 @@
       <el-aside :width="dividerWidth + 'px'"
         ><data-list-tree
           :func="{
-            treeAppend,
-            treeInsertAfter,
-            treeInsertBefore,
             removeTab,
             addTab,
             updateTree,
@@ -38,9 +35,6 @@
                   :is="Component"
                   :data="tabData"
                   :func="{
-                    treeAppend,
-                    treeInsertAfter,
-                    treeInsertBefore,
                     removeTab,
                     addTab,
                     updateTree,
@@ -105,23 +99,19 @@ export default {
 
     const expandByIds = (ids) => {
       ids.forEach((id) => {
-        let node = treeRef.value.treeRef.getNode(id);
-        if (node) {
-          node.expanded = true;
-        }
+        let count = 0;
+        let stop = setInterval(() => {
+          let node = treeRef.value.treeRef.getNode(id);
+          count++;
+          if (node) {
+            node.expanded = true;
+            clearInterval(stop);
+          }
+          if (count > 10) {
+            clearInterval(stop);
+          }
+        }, 500);
       });
-    };
-
-    const treeAppend = (id, data) => {
-      treeRef.value.treeRef.append(data, id);
-    };
-
-    const treeInsertAfter = (id, data) => {
-      treeRef.value.treeRef.insertAfter(data, id);
-    };
-
-    const treeInsertBefore = (id, data) => {
-      treeRef.value.treeRef.insertBefore(data, id);
     };
 
     const addTab = (id, extraParams, notupdate) => {
@@ -247,9 +237,6 @@ export default {
       handleClick,
       removeTab,
       handleNodeClick,
-      treeAppend,
-      treeInsertBefore,
-      treeInsertAfter,
       updateTree,
       updateTreeByIds,
       expandByIds,
