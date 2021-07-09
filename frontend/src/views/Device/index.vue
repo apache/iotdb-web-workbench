@@ -132,6 +132,7 @@ export default {
           description: null,
           display: true,
           border: false,
+          namecopy: false,
         },
       ],
     });
@@ -189,7 +190,11 @@ export default {
           if (item.timeseries === val) {
             ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
             obj.border = true;
+            obj.namecopy = true;
             ev.target.focus();
+          } else {
+            obj.border = false;
+            obj.namecopy = false;
           }
         });
       }

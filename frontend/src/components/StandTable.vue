@@ -27,7 +27,7 @@
             v-if="item.type === 'INPUT' && (!scope.row[item.prop] || scope.row.display)"
             v-model="scope.row[item.prop]"
             :size="item.size"
-            :class="{ borderRed: !scope.row[item.prop] && scope.row.border }"
+            :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border }"
             :placeholder="$t(item.label)"
             @blur="item.event(scope, scope.row, scope.row[item.prop], index, $event)"
           >

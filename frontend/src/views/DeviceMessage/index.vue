@@ -40,7 +40,9 @@
         <div @click="searchRow(scope.row)" v-if="scope.row.newValue + '' * 1">
           <action :echartsData="routeData.obj" :row="scope.row"></action>
         </div>
-        <span v-else>——</span>
+        <div v-else class="actionSpan">
+          <span>——</span>
+        </div>
       </template>
     </stand-table>
     <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px' }">
@@ -291,6 +293,11 @@ export default {
 
 <style lang="scss" scoped>
 $cursor: pointer;
+.actionSpan {
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
 .formtable {
   padding: 10px 30px;
   text-align: initial;
