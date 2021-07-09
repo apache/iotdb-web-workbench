@@ -150,126 +150,154 @@ export default {
 
     const loadNode = (node, resolve) => {
       if (node.level === 0) {
-        axios.get('/servers', { params: { userId: store.state?.userInfo?.userId } }).then((res) => {
-          if (res?.code === '0') {
-            let data = (res.data.aliasList || []).map((e) => {
-              return {
-                name: e.alias,
-                id: e.id + 'connection',
-                type: 'connection',
-                rawid: e.id,
-                connectionid: e.id,
-              };
-            });
-            if (data.length === 0) {
-              router.push({ name: 'Empty' });
+        axios
+          .get('/servers', { params: { userId: store.state?.userInfo?.userId } })
+          .then((res) => {
+            if (res?.code === '0') {
+              let data = (res.data.aliasList || []).map((e) => {
+                return {
+                  name: e.alias,
+                  id: e.id + 'connection',
+                  type: 'connection',
+                  rawid: e.id,
+                  connectionid: e.id,
+                };
+              });
+              if (data.length === 0) {
+                router.push({ name: 'Empty' });
+              }
+              if (data.length > 0 && store.state.firstPageLoad) {
+                // router.push({ name: 'Root' });
+                props.func.addTab(data[0].id, {}, true);
+              }
+              store.commit('setFirstPageLoad', false);
+              return resolve(data);
+            } else {
+              resolve([]);
             }
-            if (data.length > 0 && store.state.firstPageLoad) {
-              // router.push({ name: 'Root' });
-              props.func.addTab(data[0].id, {}, true);
-            }
-            store.commit('setFirstPageLoad', false);
-            return resolve(data);
-          }
-        });
+          })
+          .catch(() => {
+            resolve([]);
+          });
       }
       if (node.level === 1) {
-        axios.get(`/servers/${node.data.rawid}/storageGroups`, {}).then((res) => {
-          let newStorageGroup = {
-            id: node.data.id + ':newstoragegroup',
-            name: '新建存储组',
-            parent: node.data,
-            type: 'newstorageGroup',
-            leaf: true,
-            connectionid: node.data.connectionid,
-          };
-          let queryList = {
-            id: node.data.id + ':querylist',
-            name: '查询',
-            parent: node.data,
-            type: 'querylist',
-            connectionid: node.data.connectionid,
-          };
-          if (res?.code === '0') {
-            let data = (res.data || []).map((e) => {
-              return {
-                parent: node.data,
-                name: e.groupName,
-                id: node.data.id + e.groupName + 'storageGroup',
-                type: 'storageGroup',
-                rawid: e.groupName,
-                storagegroupid: e.groupName,
-                connectionid: node.data.connectionid,
-              };
-            });
-            data.unshift(queryList);
-            data.unshift(newStorageGroup);
-            return resolve(data);
-          }
-        });
+        axios
+          .get(`/servers/${node.data.rawid}/storageGroups`, {})
+          .then((res) => {
+            let newStorageGroup = {
+              id: node.data.id + ':newstoragegroup',
+              name: '新建存储组',
+              parent: node.data,
+              type: 'newstorageGroup',
+              leaf: true,
+              connectionid: node.data.connectionid,
+            };
+            let queryList = {
+              id: node.data.id + ':querylist',
+              name: '查询',
+              parent: node.data,
+              type: 'querylist',
+              connectionid: node.data.connectionid,
+            };
+            if (res?.code === '0') {
+              let data = (res.data || []).map((e) => {
+                return {
+                  parent: node.data,
+                  name: e.groupName,
+                  id: node.data.id + e.groupName + 'storageGroup',
+                  type: 'storageGroup',
+                  rawid: e.groupName,
+                  storagegroupid: e.groupName,
+                  connectionid: node.data.connectionid,
+                };
+              });
+              data.unshift(queryList);
+              data.unshift(newStorageGroup);
+              return resolve(data);
+            } else {
+              resolve([]);
+            }
+          })
+          .catch(() => {
+            resolve([]);
+          });
       }
       if (node.level === 2 && node.data.type === 'storageGroup') {
         let groupName = node.data.rawid;
         let serverId = node.data.parent.rawid;
-        axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices`, {}).then((res) => {
-          let newDevice = {
-            id: node.data.id + ':newdevice',
-            name: '新建实体',
-            type: 'newdevice',
-            leaf: true,
-            parent: node.data,
-            connectionid: node.data.connectionid,
-            storagegroupid: node.data.storagegroupid,
-          };
-          if (res?.code === '0') {
-            let data = (res.data || []).map((e) => {
-              return {
-                parent: node.data,
-                name: e,
-                id: node.data.id + e + 'device',
-                type: 'device',
-                leaf: true,
-                rawid: e,
-                storagegroupid: node.data.storagegroupid,
-                connectionid: node.data.connectionid,
-                deviceid: e,
-              };
-            });
-            data.unshift(newDevice);
-            return resolve(data);
-          }
-        });
+        axios
+          .get(`/servers/${serverId}/storageGroups/${groupName}/devices`, {})
+          .then((res) => {
+            let newDevice = {
+              id: node.data.id + ':newdevice',
+              name: '新建实体',
+              type: 'newdevice',
+              leaf: true,
+              parent: node.data,
+              connectionid: node.data.connectionid,
+              storagegroupid: node.data.storagegroupid,
+            };
+            if (res?.code === '0') {
+              let data = (res.data || []).map((e) => {
+                return {
+                  parent: node.data,
+                  name: e,
+                  id: node.data.id + e + 'device',
+                  type: 'device',
+                  leaf: true,
+                  rawid: e,
+                  storagegroupid: node.data.storagegroupid,
+                  connectionid: node.data.connectionid,
+                  deviceid: e,
+                };
+              });
+              data.unshift(newDevice);
+              return resolve(data);
+            } else {
+              resolve([]);
+            }
+          })
+          .catch(() => {
+            resolve([]);
+          });
       }
       if (node.level === 2 && node.data.type === 'querylist') {
         let serverId = node.data.parent.rawid;
-        axios.get(`/servers/${serverId}/query`, {}).then((res) => {
-          let newQuery = {
-            id: node.data.id + ':newquery',
-            name: '新建查询',
-            type: 'newquery',
-            leaf: true,
-            parent: node.data,
-            storagegroupid: node.data.storagegroupid,
-            connectionid: node.data.connectionid,
-          };
-          if (res?.code === '0') {
-            let data = (res.data || []).map((e) => {
-              return {
-                parent: node.data,
-                name: e.queryName,
-                id: node.data.id + e.id + 'query',
-                type: 'query',
-                leaf: true,
-                rawid: e.id,
-                storagegroupid: node.data.storagegroupid,
-                connectionid: node.data.connectionid,
-                queryid: e.id,
-              };
-            });
-            data.unshift(newQuery);
-            return resolve(data);
-          }
-        });
+        axios
+          .get(`/servers/${serverId}/query`, {})
+          .then((res) => {
+            let newQuery = {
+              id: node.data.id + ':newquery',
+              name: '新建查询',
+              type: 'newquery',
+              leaf: true,
+              parent: node.data,
+              storagegroupid: node.data.storagegroupid,
+              connectionid: node.data.connectionid,
+            };
+            if (res?.code === '0') {
+              let data = (res.data || []).map((e) => {
+                return {
+                  parent: node.data,
+                  name: e.queryName,
+                  id: node.data.id + e.id + 'query',
+                  type: 'query',
+                  leaf: true,
+                  rawid: e.id,
+                  storagegroupid: node.data.storagegroupid,
+                  connectionid: node.data.connectionid,
+                  queryid: e.id,
+                };
+              });
+              data.unshift(newQuery);
+              return resolve(data);
+            } else {
+              resolve([]);
+            }
+          })
+          .catch(() => {
+            resolve([]);
+          });
       }
     };
 
