@@ -55,11 +55,12 @@
 
 <script>
 import { ElTree, ElTooltip } from 'element-plus';
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import NewSource from '../../Source/components/newSource';
 import SqlDrawer from '../../SqlSerch/components/sqlDrawer';
 
@@ -83,6 +84,7 @@ export default {
     const treeKey = ref(1);
     const funcdata = reactive(props.func);
     const router = useRouter();
+    const { t } = useI18n();
 
     const searchClick = () => {
       console.log('jj');
@@ -187,7 +189,7 @@ export default {
           .then((res) => {
             let newStorageGroup = {
               id: node.data.id + ':newstoragegroup',
-              name: '新建存储组',
+              name: computed(() => t(`databasem.newStoreGroup`)),
               parent: node.data,
               type: 'newstorageGroup',
               leaf: true,
@@ -195,7 +197,7 @@ export default {
             };
             let queryList = {
               id: node.data.id + ':querylist',
-              name: '查询',
+              name: computed(() => t(`databasem.query`)),
               parent: node.data,
               type: 'querylist',
               connectionid: node.data.connectionid,
@@ -231,7 +233,7 @@ export default {
           .then((res) => {
             let newDevice = {
               id: node.data.id + ':newdevice',
-              name: '新建实体',
+              name: computed(() => t(`databasem.newDevice`)),
               type: 'newdevice',
               leaf: true,
               parent: node.data,
@@ -269,7 +271,7 @@ export default {
           .then((res) => {
             let newQuery = {
               id: node.data.id + ':newquery',
-              name: '新建查询',
+              name: computed(() => t(`databasem.newQuery`)),
               type: 'newquery',
               leaf: true,
               parent: node.data,
