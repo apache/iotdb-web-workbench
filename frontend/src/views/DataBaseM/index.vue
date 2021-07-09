@@ -10,6 +10,7 @@
             removeTab,
             addTab,
             updateTree,
+            expandByIds,
           }"
           :nodekey="nodekey"
           ref="treeRef"
@@ -43,6 +44,7 @@
                     removeTab,
                     addTab,
                     updateTree,
+                    expandByIds,
                   }"
                 />
               </keep-alive>
@@ -86,8 +88,27 @@ export default {
       urlSkipMap(data.node);
     };
 
-    const updateTree = (params) => {
-      treeRef.value.updateTree(params);
+    const updateTree = (params, clear) => {
+      treeRef.value.updateTree(params, clear);
+    };
+
+    const updateTreeByIds = (ids) => {
+      ids.forEach((id) => {
+        let node = treeRef.value.treeRef.getNode(id);
+        if (node) {
+          node.loaded = false;
+          node.loadData();
+        }
+      });
+    };
+
+    const expandByIds = (ids) => {
+      ids.forEach((id) => {
+        let node = treeRef.value.treeRef.getNode(id);
+        if (node) {
+          node.expanded = true;
+        }
+      });
     };
 
     const treeAppend = (id, data) => {
@@ -230,6 +251,8 @@ export default {
       treeInsertBefore,
       treeInsertAfter,
       updateTree,
+      updateTreeByIds,
+      expandByIds,
       addTab,
     };
   },

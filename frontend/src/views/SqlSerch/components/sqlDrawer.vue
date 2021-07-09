@@ -38,8 +38,7 @@ export default {
     const linkData = ref(null);
     function centerDialog() {
       if (linkData.value) {
-        console.log(111);
-        props.func.updateTree([`${linkData.value}connection`, `${linkData.value}connection:querylist`, `${linkData.value}connection:querylist:newquery`]);
+        props.func.updateTree([`${linkData.value}connection`, `${linkData.value}connection:querylist`]);
         props.func.addTab(`${linkData.value}connection:querylist:newquery`);
         emit('coloseDrawer');
       } else {
