@@ -856,6 +856,7 @@ export default {
      * 查看存储组详情
      */
     const goGroupDetail = (scope) => {
+      props.func.updateTree(serverId.value + 'connection');
       props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup');
     };
     onMounted(() => {

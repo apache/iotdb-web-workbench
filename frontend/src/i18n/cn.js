@@ -93,7 +93,7 @@ const cn = {
       createTimeSeries: '创建时间序列',
       insertTimeSeries: '插入数据',
       readTimeSeries: '查询数据',
-      deleteTimeSeries: '删除数据活时间序列',
+      deleteTimeSeries: '删除数据或时间序列',
       createTrigger: '创建触发器',
       uninstallTrigger: '卸载触发器',
       startTrigger: '启动触发器',
