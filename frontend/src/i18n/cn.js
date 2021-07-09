@@ -117,6 +117,7 @@ const cn = {
       deleteAuthConfirm: '是否确定删除该权限?',
       deleteSourceConfirm: '是否确认删除该数据连接?',
       newSourceSuccessLabel: '新增或编辑数据连接成功',
+      addAuthFirstLabel: '请先完成当前权限的添加',
     },
     storagePage: {
       alias: '数据连接',

@@ -116,6 +116,7 @@ const en = {
       deleteAuthConfirm: 'are you sure to delete this auth?',
       deleteSourceConfirm: 'are you sure to delete this source?',
       newSourceSuccessLabel: 'you have new or edit source successful',
+      addAuthFirstLabel: 'please do auth add present first',
     },
     storagePage: {
       alias: 'alias',
