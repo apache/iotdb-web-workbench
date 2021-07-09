@@ -25,6 +25,7 @@
       </el-input>
     </div> -->
     <el-tree
+      :expand-on-click-node="false"
       :default-expanded-keys="treeExpandKey"
       v-if="store.state?.userInfo?.userId !== undefined"
       ref="treeRef"
