@@ -502,6 +502,12 @@ export default {
      * item:当前选中用户信息
      */
     const handleUser = (index, item) => {
+      for (let i = 0; i < userList.value.length; i++) {
+        if (userList.value[i].username == 'new') {
+          ElMessage.error(t(`sourcePage.addFirstLabel`));
+          return false;
+        }
+      }
       activeIndex.value = item.username;
       getUserAuth(item);
     };
@@ -643,6 +649,12 @@ export default {
       if (!canAuth.value) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
+      }
+      for (let i = 0; i < authTableData.value.length; i++) {
+        if (authTableData.value[i].new) {
+          ElMessage.error(t(`sourcePage.addAuthFirstLabel`));
+          return false;
+        }
       }
       authTableData.value.push({
         edit: true,
