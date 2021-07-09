@@ -11,7 +11,6 @@ export default createStore({
   }),
   mutations: {
     setFirstPageLoad(state, bool) {
-      console.log('fuck', bool);
       state.firstPageLoad = bool;
     },
     setLogin(state, islogin) {
