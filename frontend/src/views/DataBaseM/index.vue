@@ -103,6 +103,7 @@ export default {
     };
 
     const addTab = (id, extraParams) => {
+      console.log(id);
       updateTree();
       let count = 0;
       let stop = setInterval(() => {
@@ -155,6 +156,7 @@ export default {
         router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询
+        console.log(data);
         router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'query') {
         //查询

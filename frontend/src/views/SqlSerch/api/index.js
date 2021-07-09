@@ -24,6 +24,11 @@ export function getCList(serverId, groupName, deviceName, params) {
 export function getSql(serverId, queryId) {
   return axios.get(`/servers/${serverId}/query/${queryId}`);
 }
+//终止查询
 export function queryStop(serverId, params) {
   return axios.get(`/servers/${serverId}/stop`, { params: params });
+}
+// 获取数据连接
+export function getlink(params) {
+  return axios.get(`/servers`, { params: params });
 }

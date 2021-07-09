@@ -147,6 +147,7 @@ const en = {
     },
     device: {
       dataconnection: 'data connection',
+      selectdataconnection: 'Please select data link',
       devicename: 'device name',
       description: 'device description',
       group: 'storage group',
@@ -183,6 +184,7 @@ const en = {
       savesuccess: 'Saved successfully',
       minphysical: 'The physical quantity cannot be 0',
       must: 'Please enter the required content',
+      newquery: 'New Query',
     },
     sqlserch: {
       Aggregate: 'Aggregate',

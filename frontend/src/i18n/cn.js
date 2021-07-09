@@ -148,6 +148,7 @@ const cn = {
     },
     device: {
       dataconnection: '数据链接',
+      selectdataconnection: '请选择数据链接',
       devicename: '实体名称',
       description: '实体描述',
       group: '所属存储组',
@@ -184,6 +185,7 @@ const cn = {
       savesuccess: '保存成功',
       minphysical: '物理量不能为0',
       must: '请输入必填内容',
+      newquery: '新建查询',
     },
     sqlserch: {
       Aggregate: '聚合函数',
