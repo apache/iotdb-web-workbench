@@ -29,7 +29,7 @@ const routes = [
             component: () => import(/* webpackChunkName: "Empty" */ '../views/Source/components/empty.vue'),
           },
           {
-            path: 'about/:serverid/:groupname',
+            path: 'about',
             name: 'About',
             component: () => import(/* webpackChunkName: "about" */ '../views/About'),
           },

@@ -58,6 +58,7 @@ import { reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
+import { useRouter, useRoute } from 'vue-router';
 import NewSource from '../../Source/components/newSource';
 import SqlDrawer from '../../SqlSerch/components/sqlDrawer';
 
@@ -79,7 +80,12 @@ export default {
     const showDrawer = ref(false);
     const types = ref(null);
     const treeKey = ref(1);
+<<<<<<< HEAD
     const funcdata = reactive(props.func);
+=======
+    const router = useRouter();
+    const route = useRoute();
+>>>>>>> a9495eb503033102cd70e77d1e25e72d416849a2
 
     const searchClick = () => {
       console.log('jj');
@@ -88,6 +94,7 @@ export default {
     const nodeClick = (data, node) => {
       props.handleNodeClick(data, node);
     };
+
     /**
      * 新建数据连接
      */
@@ -152,6 +159,12 @@ export default {
                 connectionid: e.id,
               };
             });
+            if (data.length === 0) {
+              router.push({ name: 'Empty' });
+            }
+            if (data.length > 0 && route.path === '/databasem') {
+              props.func.addTab(data[0].id, {}, true);
+            }
             return resolve(data);
           }
         });
