@@ -39,17 +39,17 @@
             <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav">
               <el-tab-pane name="first1">
                 <template #label>
-                  <span>{{ $t('standTable.running') }}1<i class="el-icon-more iconmore green"></i> </span>
+                  <span>{{ $t('standTable.running') }}<i class="el-icon-more iconmore green"></i> </span>
                 </template>
                 <div class="header_messge flex">
                   <div>
-                    <span>
+                    <!-- <span>
                       <svg class="icon icon-1 icon-color" aria-hidden="true" @click="btnClick1">
                         <use xlink:href="#icon-se-icon-download"></use>
                       </svg>
                       <span class="downloadchart">{{ $t('standTable.download') }}</span>
                     </span>
-                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span>
+                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span> -->
                   </div>
                   <div>
                     <span class="frist_span">{{ $t('standTable.serchtime') }}：{{ time }}</span>
@@ -60,11 +60,11 @@
                   <stand-table ref="standTable" :column="column" :tableData="tableData" :lineHeight="5" :lineWidth="13" :maxHeight="400" :pagination="pagination"> </stand-table>
                 </div>
               </el-tab-pane>
-              <el-tab-pane name="second2">
+              <!-- <el-tab-pane name="second2">
                 <template #label>
                   <span>{{ $t('standTable.running') }}2<i class="el-icon-more iconmore red"></i> </span>
                 </template>
-              </el-tab-pane>
+              </el-tab-pane> -->
             </el-tabs>
           </div>
         </div>
@@ -75,10 +75,10 @@
         <div class="tabgad">
           <el-tabs v-model="activeNameRight" @tab-click="handleClick" class="tabs_nav_aside">
             <el-tab-pane :label="$t('standTable.function')" name="first">
-              <formserch :placeholder="'请输入函数名称'" @getFunction="getFunction"></formserch>
+              <formserch placeholder="device.inputfunction" @getFunction="getFunction"></formserch>
             </el-tab-pane>
             <el-tab-pane :label="$t('standTable.data')" name="second">
-              <formserch-data :placeholder="'请输入测点名称'" @getFunction="getFunction" :id="routeData.obj.connectionid" :treeList="treeList"> </formserch-data>
+              <formserch-data @getFunction="getFunction" :id="routeData.obj.connectionid" :treeList="treeList"> </formserch-data>
             </el-tab-pane>
           </el-tabs>
         </div>

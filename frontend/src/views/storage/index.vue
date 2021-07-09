@@ -26,7 +26,7 @@
     <div class="device-content">
       <div class="search-panel clearfix">
         <span class="search-title">{{ $t('storagePage.deviceName') }}</span>
-        <el-input v-model="searchVal" suffix-icon="el-icon-search" @keyup.enter="search()"></el-input>
+        <el-input v-model="searchVal" suffix-icon="el-icon-search" @blur="search()" @keyup.enter="search()"></el-input>
         <el-button type="primary" class="search-btn">{{ $t('storagePage.newDevice') }}</el-button>
       </div>
       <div class="device-list">

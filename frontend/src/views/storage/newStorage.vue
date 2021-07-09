@@ -132,7 +132,8 @@ export default {
             if (res && res.code == 0) {
               ElMessage.success(t('sourcePage.newGroupSuccessLabel'));
               props.func.removeTab(props.data.id);
-              props.func.updateTree();
+              props.func.updateTreeByIds([props.data.id]);
+              props.func.expandByIds([props.data.id]);
               props.func.addTab(router.currentRoute.value.params.serverid + 'connection' + form.groupName + 'storageGroup');
             }
           });

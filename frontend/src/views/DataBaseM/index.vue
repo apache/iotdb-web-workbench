@@ -4,12 +4,10 @@
       <el-aside :width="dividerWidth + 'px'"
         ><data-list-tree
           :func="{
-            treeAppend,
-            treeInsertAfter,
-            treeInsertBefore,
             removeTab,
             addTab,
             updateTree,
+            expandByIds,
           }"
           :nodekey="nodekey"
           ref="treeRef"
@@ -37,12 +35,11 @@
                   :is="Component"
                   :data="tabData"
                   :func="{
-                    treeAppend,
-                    treeInsertAfter,
-                    treeInsertBefore,
                     removeTab,
                     addTab,
                     updateTree,
+                    expandByIds,
+                    updateTreeByIds,
                   }"
                 />
               </keep-alive>
@@ -90,16 +87,31 @@ export default {
       treeRef.value.updateTree(params, clear);
     };
 
-    const treeAppend = (id, data) => {
-      treeRef.value.treeRef.append(data, id);
+    const updateTreeByIds = (ids) => {
+      ids.forEach((id) => {
+        let node = treeRef.value.treeRef.getNode(id);
+        if (node) {
+          node.loaded = false;
+          node.loadData();
+        }
+      });
     };
 
-    const treeInsertAfter = (id, data) => {
-      treeRef.value.treeRef.insertAfter(data, id);
-    };
-
-    const treeInsertBefore = (id, data) => {
-      treeRef.value.treeRef.insertBefore(data, id);
+    const expandByIds = (ids) => {
+      ids.forEach((id) => {
+        let count = 0;
+        let stop = setInterval(() => {
+          let node = treeRef.value.treeRef.getNode(id);
+          count++;
+          if (node) {
+            node.expanded = true;
+            clearInterval(stop);
+          }
+          if (count > 10) {
+            clearInterval(stop);
+          }
+        }, 500);
+      });
     };
 
     const addTab = (id, extraParams, notupdate) => {
@@ -141,7 +153,6 @@ export default {
       } else if (data.type === 'storageGroup') {
         //判断是进入存储组详情还是编辑存储组
         if (data.extraParams && data.extraParams.type == 'edit') {
-          updateTree(data.connectionid + 'connection');
           router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name } });
         } else {
           //存储组
@@ -154,7 +165,7 @@ export default {
       } else if (data.type === 'device') {
         //实体
         console.log(data);
-        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
+        router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询
         console.log(data);
@@ -226,10 +237,9 @@ export default {
       handleClick,
       removeTab,
       handleNodeClick,
-      treeAppend,
-      treeInsertBefore,
-      treeInsertAfter,
       updateTree,
+      updateTreeByIds,
+      expandByIds,
       addTab,
     };
   },

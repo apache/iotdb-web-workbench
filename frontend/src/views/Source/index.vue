@@ -435,7 +435,6 @@ export default {
       2: funcTypeTwo(),
       3: funcTypeTwo(),
     });
-    console.log(locale);
 
     watch(locale, () => {
       funcList.value = {
@@ -508,6 +507,7 @@ export default {
           return false;
         }
       }
+      edit.value = false;
       activeIndex.value = item.username;
       getUserAuth(item);
     };
@@ -746,6 +746,10 @@ export default {
      * scope当前行数据
      */
     const deleteRowAuth = (scope) => {
+      if (!canAuth.value) {
+        ElMessage.error(t(`sourcePage.noAuthTip`));
+        return false;
+      }
       let reqObj = scope.row;
       reqObj.cancelPrivileges = scope.row.privileges;
       reqObj.privileges = [];
@@ -842,6 +846,8 @@ export default {
       axios.delete(`/servers/${serverId.value}/storageGroups/${scope.row.groupName}`).then((rs) => {
         if (rs && rs.code == 0) {
           ElMessage.success(t('sourcePage.deleteGroupLabel'));
+          props.func.updateTreeByIds([serverId.value + 'connection']);
+
           getGroupList();
         }
       });
@@ -850,14 +856,21 @@ export default {
      * 跳转编辑存储组 type为了区分是去往存储组编辑页
      */
     const goEditGroup = (scope) => {
-      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' });
+      //先获取数据(防止是收起状态没有加载数据)
+      props.func.updateTreeByIds([serverId.value + 'connection']);
+      //展开数据
+      props.func.expandByIds([serverId.value + 'connection']);
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' }, true);
     };
     /**
      * 查看存储组详情
      */
     const goGroupDetail = (scope) => {
-      props.func.updateTree(serverId.value + 'connection');
-      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup');
+      //先获取数据(防止是收起状态没有加载数据)
+      props.func.updateTreeByIds([serverId.value + 'connection']);
+      //展开数据
+      props.func.expandByIds([serverId.value + 'connection']);
+      props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', {}, true);
     };
     onMounted(() => {
       serverId.value = router.currentRoute.value.params.serverid;

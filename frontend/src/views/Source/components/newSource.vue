@@ -75,7 +75,7 @@ export default {
     let form = reactive({
       alias: '',
       host: '',
-      port: '6668',
+      port: '6667',
       username: '',
       password: '',
     });
@@ -190,7 +190,7 @@ export default {
      * 数据源是否联通测试
      */
     const testConnect = () => {
-      let patternReg = /^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/;
+      let patternReg = /^(((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?))|(localhost)$/;
       if (!form.host) {
         ElMessage.error(t(`sourcePage.hostEmptyTip`));
         return false;
