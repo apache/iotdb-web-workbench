@@ -2,13 +2,13 @@
   <div class="data-list-tree">
     <div class="data-list-top">
       <span>{{ $t('rootPage.dataList') }}</span>
-      <!-- <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
+      <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
         <div class="icon-1">
-          <svg class="icon" @click="updateTree" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
+          <svg class="icon" @click="sqlClick" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
             <use xlink:href="#icon-xinjianchaxun"></use>
           </svg>
         </div>
-      </el-tooltip> -->
+      </el-tooltip>
       <el-tooltip :content="$t('rootPage.newdatasource')" :visible-arrow="false" effect="light">
         <div class="icon-2">
           <svg v-icon="`#icon-xinzengshujulianjie-color`" class="icon" aria-hidden="true" @click="newSource">
@@ -48,6 +48,7 @@
       </template>
     </el-tree>
     <NewSource v-if="showDialog" :func="func" :serverId="null" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
+    <SqlDrawer v-if="showDrawer" :func="funcdata" @coloseDrawer="coloseDrawer"></SqlDrawer>
   </div>
 </template>
 
@@ -57,7 +58,9 @@ import { reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
+import { useRouter } from 'vue-router';
 import NewSource from '../../Source/components/newSource';
+import SqlDrawer from '../../SqlSerch/components/sqlDrawer';
 
 export default {
   name: 'DataListTree',
@@ -74,8 +77,11 @@ export default {
     const treeExpandKey = ref([]);
     const store = useStore();
     const showDialog = ref(false);
+    const showDrawer = ref(false);
     const types = ref(null);
     const treeKey = ref(1);
+    const funcdata = reactive(props.func);
+    const router = useRouter();
 
     const searchClick = () => {
       console.log('jj');
@@ -84,6 +90,7 @@ export default {
     const nodeClick = (data, node) => {
       props.handleNodeClick(data, node);
     };
+
     /**
      * 新建数据连接
      */
@@ -106,13 +113,24 @@ export default {
       types.value = 0;
     };
 
-    const updateTree = (params) => {
+    const sqlClick = () => {
+      showDrawer.value = true;
+    };
+
+    const updateTree = (params, clear) => {
       if (params) {
         let arr = treeExpandKey.value;
+        if (clear) {
+          arr = [];
+        }
         arr = arr.concat(params);
         treeExpandKey.value = arr;
       }
       treeKey.value += 1;
+    };
+
+    const coloseDrawer = () => {
+      showDrawer.value = false;
     };
 
     const expandNode = (data) => {
@@ -143,6 +161,14 @@ export default {
                 connectionid: e.id,
               };
             });
+            if (data.length === 0) {
+              router.push({ name: 'Empty' });
+            }
+            if (data.length > 0 && store.state.firstPageLoad) {
+              // router.push({ name: 'Root' });
+              props.func.addTab(data[0].id, {}, true);
+            }
+            store.commit('setFirstPageLoad', false);
             return resolve(data);
           }
         });
@@ -264,7 +290,11 @@ export default {
       successFunc,
       showDialog,
       types,
+      showDrawer,
       updateTree,
+      sqlClick,
+      coloseDrawer,
+      funcdata,
     };
   },
   components: {
@@ -273,6 +303,7 @@ export default {
     // ElInput,
     ElTooltip,
     NewSource,
+    SqlDrawer,
   },
 };
 </script>
@@ -300,7 +331,7 @@ export default {
     }
     .icon-2 {
       top: 2px;
-      right: 0px;
+      right: 30px;
       position: absolute;
     }
   }

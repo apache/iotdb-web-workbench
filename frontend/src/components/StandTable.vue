@@ -27,8 +27,9 @@
             v-if="item.type === 'INPUT' && (!scope.row[item.prop] || scope.row.display)"
             v-model="scope.row[item.prop]"
             :size="item.size"
+            :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border }"
             :placeholder="$t(item.label)"
-            @blur="item.event(scope.row[item.prop], $event)"
+            @blur="item.event(scope, scope.row, scope.row[item.prop], index, $event)"
           >
           </el-input>
           <el-input
@@ -40,12 +41,24 @@
             @blur="checkInput(scope.row[item.prop], item.required)"
           >
           </el-input>
-          <el-select v-model="scope.row[item.prop]" :placeholder="$t(item.label)" v-if="item.type === 'SELECT' && (!scope.row[item.prop] || scope.row.display)" :size="item.size">
+          <el-select
+            v-model="scope.row[item.prop]"
+            :class="{ borderRed: !scope.row[item.prop] && scope.row.border }"
+            :placeholder="$t(item.label)"
+            v-if="item.type === 'SELECT' && (!scope.row[item.prop] || scope.row.display)"
+            :size="item.size"
+          >
             <el-option v-for="item in item.options" :key="item.value" :label="item.label" :value="item.value" @click="selectEncoding(item.value, scope.row)">
               <span style="float: left">{{ item.label }}</span>
             </el-option>
           </el-select>
-          <el-select v-model="scope.row[item.prop]" :placeholder="$t(item.label)" v-if="item.type === 'SELECTCH' && (!scope.row[item.prop] || scope.row.display)" :size="item.size">
+          <el-select
+            v-model="scope.row[item.prop]"
+            :class="{ borderRed: !scope.row[item.prop] && scope.row.border }"
+            :placeholder="$t(item.label)"
+            v-if="item.type === 'SELECTCH' && (!scope.row[item.prop] || scope.row.display)"
+            :size="item.size"
+          >
             <el-option v-for="item in scope.row.options" :key="item.value" :label="item.label" :value="item.value">
               <span style="float: left">{{ item.label }}</span>
             </el-option>
@@ -62,15 +75,16 @@
     </el-table>
     <div class="paination" v-if="paginations || exportData">
       <el-button v-if="exportData" class="export_button">{{ $t('standTable.export') }}</el-button>
+      <div></div>
       <el-pagination
         v-if="paginations"
         @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        v-model:currentPage="paginations.currentPage"
+        @current-change="getList"
+        v-model:currentPage="paginations.pageNum"
         :page-size="10"
         :page-count="5"
         layout="total, prev, pager, next"
-        :total="paginations.total"
+        :total="total"
         :hide-on-single-page="true"
       >
       </el-pagination>
@@ -94,8 +108,10 @@ export default {
     pagination: Object,
     exportData: Function,
     encoding: Object,
+    total: Number,
+    getList: Function,
   },
-  setup(props) {
+  setup(props, { emit }) {
     const columns = reactive({
       list: {},
     });
@@ -123,6 +139,7 @@ export default {
     }
     function handleCurrentChange(val) {
       console.log(val);
+      emit('getPagintions', val);
     }
     function getColumn(data) {
       columns.list = data.filter((item) => item.prop !== 'action');
@@ -169,6 +186,9 @@ export default {
   color: #f56c6c;
   margin-right: 4px;
 }
+.borderRed .el-input__inner {
+  border: 1px solid red;
+}
 .paination {
   display: flex;
   justify-content: space-between;
@@ -181,5 +201,12 @@ export default {
   height: 30px;
   line-height: 0px;
   min-height: 0px !important;
+}
+</style>
+<style lang="scss">
+.borderRed {
+  .el-input__inner {
+    border: 1px solid red;
+  }
 }
 </style>

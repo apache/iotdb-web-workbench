@@ -222,9 +222,6 @@ export default {
       let data = '';
       if (route.params.name !== '新建查询') {
         getSql(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
-          console.log(23456);
-          console.log(res);
-          console.log(res);
           sqlName.value = res.data.queryName;
           data = res.data.sqls;
           codeArr = res.data.sqls.split('\n');

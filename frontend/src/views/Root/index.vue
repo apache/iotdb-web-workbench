@@ -71,10 +71,7 @@ export default {
     };
 
     onMounted(() => {
-      // window.onbeforeunload = function () {
-      //   router.push({ name: 'Root' });
-      //   return '';
-      // };
+      store.commit('setFirstPageLoad', true);
       store.dispatch('fetchIsLogin');
     });
 
