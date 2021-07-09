@@ -8,7 +8,18 @@
       </el-button>
     </div>
     <div class="tableBox">
-      <stand-table ref="standtable" :column="column" :tableData="tableData" :selectData="selectData" :lineHeight="5" :encoding="encoding" :maxHeight="460">
+      <stand-table
+        ref="standtable"
+        :column="column"
+        :total="totalCount"
+        :getList="getListData"
+        :tableData="tableData"
+        :selectData="selectData"
+        :pagination="pagination"
+        :lineHeight="5"
+        :encoding="encoding"
+        :maxHeight="430"
+      >
         <template #default="{ scope }">
           <el-button @click="deleteRow(scope.row, scope.$index)" type="text" size="small" style="color: red">
             {{ $t('device.delete') }}
@@ -30,19 +41,23 @@ import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 export default {
   name: 'DeviceAddEidt',
   props: {
     func: Object,
   },
   setup(props) {
-    const router = useRouter();
     const route = useRoute();
     const standtable = ref(null);
     const { t } = useI18n();
+    let totalCount = ref(0);
     const deviceData = reactive({
       obj: {},
+    });
+    const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
     });
     const encoding = {
       BOOLEAN: [
@@ -116,6 +131,7 @@ export default {
           encoding: null,
           description: null,
           display: true,
+          border: false,
         },
       ],
     });
@@ -131,9 +147,9 @@ export default {
           size: 'small', //element尺寸
           labelWidth: '40%', //块宽度 px 或 %
           itemID: 'deviceName', //数据字段名
-          placeholder: '请输入设备名称', //灰色提示文字
+          placeholder: 'device.inputdevice', //灰色提示文字
           required: true, //是否必填
-          message: '请输入设备名称', //报错提示信息
+          message: 'device.inputdevice', //报错提示信息
         },
         {
           label: 'device.description', //名称
@@ -141,9 +157,9 @@ export default {
           size: 'small', //尺寸
           labelWidth: '40%', //块宽度 px 或 %
           itemID: 'description', //数据字段名
-          placeholder: '请输入设备描述', //灰色提示文字
+          placeholder: 'device.inputdecr', //灰色提示文字
           required: false, //是否必填
-          message: '请输入设备描述', //报错提示信息
+          message: 'device.inputdecr', //报错提示信息
         },
         {
           label: 'device.group', //名称
@@ -157,19 +173,31 @@ export default {
         },
       ],
     });
-    function checkVal(val, ev) {
+    function checkVal(scope, obj, val, ev) {
       if (!/^\w+$/.test(val)) {
-        ElMessage.error(`"${val}"物理量必须由字⺟、数字、下划线组成`);
+        ElMessage.error(`"${val}"${t('device.pyname')}`);
+        obj.border = true;
         ev.target.focus();
       } else if (val === null || val.length > 255) {
-        ElMessage.error(`"${val}"物理量必须⼤于0⼤字符，⼩于255个字符`);
+        ElMessage.error(`"${val}"${t('device.pynamel')}`);
+        obj.border = true;
         ev.target.focus();
+      } else {
+        const arr = JSON.parse(JSON.stringify(tableData.list));
+        arr.splice(scope.$index, 1);
+        arr.forEach((item) => {
+          if (item.timeseries === val) {
+            ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
+            obj.border = true;
+            ev.target.focus();
+          }
+        });
       }
     }
     function deleteRow(row, index) {
       console.log(row.timeseries);
       console.log(index);
-      ElMessageBox.confirm(`${t('device.deletecontent1')}"${row.timeseries}"？${t('device.deletecontent2')}`, '提示', {
+      ElMessageBox.confirm(`${t('device.deletecontent1')}"${row.timeseries}"？${t('device.deletecontent2')}`, `${t('device.tips')}`, {
         confirmButtonText: t('device.ok'),
         cancelButtonText: t('device.cencel'),
         type: 'warning',
@@ -179,59 +207,68 @@ export default {
             tableData.list.splice(index, 1);
             ElMessage({
               type: 'success',
-              message: '删除成功!',
+              message: `${t('device.deletetitle')}!`,
             });
           });
         })
         .catch(() => {
           ElMessage({
             type: 'info',
-            message: '已取消删除',
+            message: `${t('device.canceldelete')}!`,
           });
         });
       // deleteData(9, 'mytest', 'test1',row.timeseries)
     }
     function addItem() {
-      tableData.list.unshift({
-        timeseries: null,
-        dataType: null,
-        encoding: null,
-        description: null,
-        display: true,
-      });
+      if (tableData.list.length > 2000) {
+        ElMessage.error(`${t('device.addpydata')}!`);
+      } else {
+        tableData.list.unshift({
+          timeseries: null,
+          dataType: null,
+          encoding: null,
+          description: null,
+          display: true,
+          border: false,
+        });
+      }
     }
     function sumbitData() {
       let checkfalg = true;
-      try {
-        tableData.list.forEach((item) => {
-          if (item.timeseries === null || item.dataType === null) {
-            item.timeseries === null ? ElMessage.error(`请填写物理量名称`) : ElMessage.error(`${item.timeseries}物理量必须选择数据类型`);
-            checkfalg = false;
-            throw Error();
-          }
-        });
-      } catch (e) {
-        console.log(e);
-      }
-      if (checkfalg) {
-        deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then(() => {
-          ElMessage({
-            type: 'success',
-            message: '保存成功!',
-          });
-          deviceData.obj.name = form.formData.deviceName;
-          props.func.updateTree();
-          if (route.params.name === '新建实体') {
+      tableData.list.forEach((item) => {
+        if (item.timeseries === null || item.dataType === null) {
+          checkfalg = false;
+          item.border = true;
+        } else {
+          item.border = false;
+        }
+      });
+      if (checkfalg && form.formData.deviceName) {
+        if (tableData.list.length > 0) {
+          deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then(() => {
+            ElMessage({
+              type: 'success',
+              message: `${t('device.savesuccess')}!`,
+            });
+            deviceData.obj.name = form.formData.deviceName;
+            console.log(`${route.params.parentid}${form.formData.deviceName}device`);
+            props.func.updateTree();
+            props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
             props.func.removeTab(route.params.id);
-          } else {
-            router.go(-1);
+          });
+        } else {
+          if (tableData.list.length <= 0) {
+            ElMessage.error(`${t('device.minphysical')}`);
           }
-        });
+        }
+      } else {
+        ElMessage.error(`${t('device.must')}`);
       }
     }
     function getListData() {
-      getList(deviceData.obj, { pageSize: 10, pageNum: 1 }).then((res) => {
+      getList(deviceData.obj, pagination).then((res) => {
         tableData.list = res.data.measurementVOList;
+        totalCount.value = res.data.totalCount;
       });
     }
     function getdData() {
@@ -262,7 +299,10 @@ export default {
       sumbitData,
       deleteRow,
       addItem,
+      getListData,
+      pagination,
       encoding,
+      totalCount,
       form,
       tableData,
       column,
