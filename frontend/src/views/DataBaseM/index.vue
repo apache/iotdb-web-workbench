@@ -102,16 +102,10 @@ export default {
       treeRef.value.treeRef.insertBefore(data, id);
     };
 
-<<<<<<< HEAD
-    const addTab = (id, extraParams) => {
-      console.log(id);
-      updateTree();
-=======
     const addTab = (id, extraParams, notupdate) => {
       if (!notupdate) {
         updateTree();
       }
->>>>>>> a9495eb503033102cd70e77d1e25e72d416849a2
       let count = 0;
       let stop = setInterval(() => {
         let node = treeRef.value.treeRef.getNode(id);

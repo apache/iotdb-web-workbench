@@ -80,12 +80,9 @@ export default {
     const showDrawer = ref(false);
     const types = ref(null);
     const treeKey = ref(1);
-<<<<<<< HEAD
     const funcdata = reactive(props.func);
-=======
     const router = useRouter();
     const route = useRoute();
->>>>>>> a9495eb503033102cd70e77d1e25e72d416849a2
 
     const searchClick = () => {
       console.log('jj');
