@@ -25,17 +25,7 @@
       <form-table :form="form" @serchFormData="serchFormData"></form-table>
       <el-button type="primary" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
     </div>
-    <stand-table
-      :column="column"
-      :tableData="tableData"
-      :getList="getListData"
-      :total="totalCount"
-      @getPagintions="getPagintions"
-      :selectData="selectData"
-      :lineHeight="5"
-      :maxHeight="450"
-      :pagination="pagination"
-    >
+    <stand-table :column="column" :tableData="tableData" :getList="getListData" :total="totalCount" @getPagintions="getPagintions" :lineHeight="5" :maxHeight="450" :pagination="pagination">
       <template #default="{ scope }">
         <div @click="searchRow(scope.row)" v-if="scope.row.newValue + '' * 1">
           <action :echartsData="routeData.obj" :row="scope.row"></action>
