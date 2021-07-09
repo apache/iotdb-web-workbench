@@ -508,6 +508,7 @@ export default {
           return false;
         }
       }
+      edit.value = false;
       activeIndex.value = item.username;
       getUserAuth(item);
     };
@@ -746,6 +747,10 @@ export default {
      * scope当前行数据
      */
     const deleteRowAuth = (scope) => {
+      if (!canAuth.value) {
+        ElMessage.error(t(`sourcePage.noAuthTip`));
+        return false;
+      }
       let reqObj = scope.row;
       reqObj.cancelPrivileges = scope.row.privileges;
       reqObj.privileges = [];

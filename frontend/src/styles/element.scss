@@ -11,12 +11,12 @@
   padding: 0 12px;
 }
 .el-button--text {
-  color: $theme-color;
+  color: $theme-color !important;
 }
 .el-button-delete {
-  color: #d32d2fff;
+  color: #d32d2fff !important;
   &:hover {
-    color: #f56c6c;
+    color: #f56c6c !important;
   }
 }
 .el-tree--highlight-current .el-tree-node {

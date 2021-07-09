@@ -75,7 +75,7 @@ export default {
     let form = reactive({
       alias: '',
       host: '',
-      port: '6668',
+      port: '6667',
       username: '',
       password: '',
     });
