@@ -73,7 +73,7 @@ public interface IotDBService {
 
     RecordVO getRecords(Connection connection, String deviceName, String timeseriesName) throws BaseException;
 
-    SqlResultVO queryAll(Connection connection, List<String> sqls,Long timestamp) throws BaseException;
+    List<SqlResultVO> queryAll(Connection connection, List<String> sqls,Long timestamp) throws BaseException;
 
     void updatePwd(Connection connection, IotDBUser iotDBUser) throws BaseException;
 

@@ -653,9 +653,9 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public SqlResultVO queryAll(Connection connection, List<String> sqls,Long timestamp) throws BaseException {
+    public List<SqlResultVO> queryAll(Connection connection, List<String> sqls,Long timestamp) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
-        SqlResultVO sqlResultVO = new SqlResultVO();
+        List<SqlResultVO> results = new ArrayList<>();
         Integer id = connection.getId();
         String id_plus_timestamp = id + ":" + timestamp;
         QUERY_STOP.put(id_plus_timestamp,true);
@@ -663,7 +663,8 @@ public class IotDBServiceImpl implements IotDBService {
             int firstSpaceIndex = sql.indexOf(" ");
             String judge = sql.substring(0, firstSpaceIndex);
             if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge) || "list".equalsIgnoreCase(judge)) {
-                sqlResultVO = executeQuery(sessionPool, sql,false,id_plus_timestamp);
+                SqlResultVO sqlResultVO = executeQuery(sessionPool, sql,false,id_plus_timestamp);
+                results.add(sqlResultVO);
                 continue;
             }
             try {
@@ -683,7 +684,7 @@ public class IotDBServiceImpl implements IotDBService {
             }
         }
         QUERY_STOP.remove(id_plus_timestamp);
-        return sqlResultVO;
+        return results;
     }
 
     @Override
@@ -1110,10 +1111,12 @@ public class IotDBServiceImpl implements IotDBService {
         // 先处理root 生成对象
         Set<String> strings = rootPrivileges.keySet();
         List<String> rootPrivilege = Arrays.asList(strings.toArray(new String[0]));
-        PrivilegeInfo privilegeInfo = new PrivilegeInfo();
-        privilegeInfo.setType(0);
-        privilegeInfo.setPrivileges(rootPrivilege);
-        results.add(privilegeInfo);
+        if (rootPrivilege != null && rootPrivilege.size() > 0) {
+            PrivilegeInfo privilegeInfo = new PrivilegeInfo();
+            privilegeInfo.setType(0);
+            privilegeInfo.setPrivileges(rootPrivilege);
+            results.add(privilegeInfo);
+        }
         // 处理非root  String存储形式 "权限1 权限2 权限3.." List存储相同并集下的path路径
         Map<String,List<String>> privilegeOne = new HashMap<>();
         Map<String,List<String>> privilegeTwo = new HashMap<>();
