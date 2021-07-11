@@ -39,7 +39,7 @@ public class QueryController {
 
     @PostMapping("/querySql")
     @ApiOperation("用于查询器查询")
-    public BaseVO<SqlResultVO> query(@PathVariable("serverId") Integer serverId,
+    public BaseVO<List<SqlResultVO>> query(@PathVariable("serverId") Integer serverId,
                                      @RequestBody SearchDTO searchDTO,
                                      HttpServletRequest request) throws BaseException {
         List<String> sqls = searchDTO.getSqls();
@@ -49,8 +49,8 @@ public class QueryController {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         Long timestamp = searchDTO.getTimestamp();
-        SqlResultVO sqlResultVO = iotDBService.queryAll(connection, sqls,timestamp);
-        return BaseVO.success("查询成功", sqlResultVO);
+        List<SqlResultVO> sqlResultVOList= iotDBService.queryAll(connection, sqls,timestamp);
+        return BaseVO.success("查询成功", sqlResultVOList);
     }
 
     @PostMapping("/query")

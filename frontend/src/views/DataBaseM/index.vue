@@ -4,9 +4,6 @@
       <el-aside :width="dividerWidth + 'px'"
         ><data-list-tree
           :func="{
-            treeAppend,
-            treeInsertAfter,
-            treeInsertBefore,
             removeTab,
             addTab,
             updateTree,
@@ -38,13 +35,11 @@
                   :is="Component"
                   :data="tabData"
                   :func="{
-                    treeAppend,
-                    treeInsertAfter,
-                    treeInsertBefore,
                     removeTab,
                     addTab,
                     updateTree,
                     expandByIds,
+                    updateTreeByIds,
                   }"
                 />
               </keep-alive>
@@ -104,23 +99,19 @@ export default {
 
     const expandByIds = (ids) => {
       ids.forEach((id) => {
-        let node = treeRef.value.treeRef.getNode(id);
-        if (node) {
-          node.expanded = true;
-        }
+        let count = 0;
+        let stop = setInterval(() => {
+          let node = treeRef.value.treeRef.getNode(id);
+          count++;
+          if (node) {
+            node.expanded = true;
+            clearInterval(stop);
+          }
+          if (count > 10) {
+            clearInterval(stop);
+          }
+        }, 500);
       });
-    };
-
-    const treeAppend = (id, data) => {
-      treeRef.value.treeRef.append(data, id);
-    };
-
-    const treeInsertAfter = (id, data) => {
-      treeRef.value.treeRef.insertAfter(data, id);
-    };
-
-    const treeInsertBefore = (id, data) => {
-      treeRef.value.treeRef.insertBefore(data, id);
     };
 
     const addTab = (id, extraParams, notupdate) => {
@@ -162,7 +153,6 @@ export default {
       } else if (data.type === 'storageGroup') {
         //判断是进入存储组详情还是编辑存储组
         if (data.extraParams && data.extraParams.type == 'edit') {
-          updateTree(data.connectionid + 'connection');
           router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name } });
         } else {
           //存储组
@@ -247,9 +237,6 @@ export default {
       handleClick,
       removeTab,
       handleNodeClick,
-      treeAppend,
-      treeInsertBefore,
-      treeInsertAfter,
       updateTree,
       updateTreeByIds,
       expandByIds,
@@ -276,10 +263,8 @@ export default {
     width: 1px;
     height: 100%;
     background-color: #f0f0f0;
-    cursor: w-resize;
     &:hover {
-      background-color: $theme-color !important;
-      width: 3px;
+      cursor: w-resize;
     }
   }
   .router-container {

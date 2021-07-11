@@ -66,7 +66,7 @@ public class ConnectionController {
     @GetMapping("/test")
     @ApiOperation("连通性测试")
     public BaseVO<ConnectionVO> testConnection(String host) throws BaseException {
-        if (host == null || !host.matches("^(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3}$")) {
+        if (host == null || !host.matches("^((2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3})|(localhost)$")) {
             throw new BaseException(ErrorCode.TEST_CONN_WRONG,ErrorCode.TEST_CONN_WRONG_MSG);
         }
         try {

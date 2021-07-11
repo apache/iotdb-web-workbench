@@ -15,6 +15,12 @@ const cn = {
       operation: '操作',
       save: '保存',
     },
+    databasem: {
+      newStoreGroup: '新建存储组',
+      query: '查询',
+      newDevice: '新建实体',
+      newQuery: '新建查询',
+    },
     rootPage: {
       chinalang: '中文',
       englishlang: '英文',
@@ -41,7 +47,7 @@ const cn = {
       accountLengthTip: '用户名必须大于等于3个字符，小于等于32字符',
       passwordEmptyTip: '密码不能为空',
       passwordLenghtTip: '密码必须大于等于6位，请检查密码位数',
-      welcomeLogin: '登录IotDB数据库管理',
+      welcomeLogin: '欢迎登录IotDB数据库管理系统',
       loginErrorTip: '用户名或密码不正确，请重新输入',
     },
 
