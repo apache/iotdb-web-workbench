@@ -5,7 +5,8 @@
 </template>
 
 <script>
-import 'codemirror/theme/idea.css';
+import 'codemirror/theme/neo.css';
+import 'codemirror/theme/neat.css';
 import 'codemirror/mode/sql/sql.js';
 import 'codemirror/addon/hint/show-hint.css';
 import 'codemirror/addon/hint/show-hint';
@@ -34,7 +35,7 @@ export default {
       options: {
         mode: { name: 'text/x-mysql' },
         tabSize: 1,
-        theme: 'idea',
+        theme: 'neat',
         lineNumbers: true,
         line: true,
         lineWrapping: true, // 自动换行

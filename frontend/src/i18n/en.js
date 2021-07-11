@@ -187,6 +187,7 @@ const en = {
       newquery: 'New Query',
       inputfunction: 'Please enter a function name',
       selectp: 'Please Select',
+      deleteSuccess: 'Delete Success',
     },
     sqlserch: {
       Aggregate: 'Aggregate',

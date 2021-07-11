@@ -22,6 +22,7 @@
 <script>
 import { ElInput, ElSelect, ElOption } from 'element-plus';
 import { ref, reactive } from 'vue';
+import { useStore } from 'vuex';
 import { getCList, getDevice } from '../api/index';
 export default {
   props: {
@@ -30,6 +31,7 @@ export default {
     id: Number,
   },
   setup(props, { emit }) {
+    const userInfo = useStore();
     const data = reactive(props.treeList);
     let filterText = ref(null);
     let groupName = ref('');
@@ -52,6 +54,7 @@ export default {
       console.log(val);
     }
     function getFunction(val) {
+      console.log(userInfo.state.userInfo.name);
       emit('getFunction', `root.${val.parents}.${val.parent}.${val.label}`);
     }
     function getdevicel() {

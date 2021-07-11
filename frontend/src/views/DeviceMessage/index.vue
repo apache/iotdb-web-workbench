@@ -23,7 +23,7 @@
     </div>
     <div style="padding: 20px 30px" class="flexBox">
       <form-table :form="form" @serchFormData="serchFormData"></form-table>
-      <el-button type="primary" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
+      <el-button type="primary" class="newButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
     </div>
     <stand-table :column="column" :tableData="tableData" :getList="getListData" :total="totalCount" @getPagintions="getPagintions" :lineHeight="5" :maxHeight="450" :pagination="pagination">
       <template #default="{ scope }">
@@ -283,8 +283,12 @@ export default {
 
 <style lang="scss" scoped>
 $cursor: pointer;
+.newButton {
+  background-color: $theme-color;
+  border-color: $theme-color;
+}
 .actionSpan {
-  height: 60px;
+  height: 50px;
   display: flex;
   align-items: center;
 }

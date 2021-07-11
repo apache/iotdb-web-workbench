@@ -27,7 +27,7 @@
       <div class="search-panel clearfix">
         <span class="search-title">{{ $t('storagePage.deviceName') }}</span>
         <el-input v-model="searchVal" suffix-icon="el-icon-search" @keyup.enter="search()"></el-input>
-        <el-button type="primary" class="search-btn">{{ $t('storagePage.newDevice') }}</el-button>
+        <el-button type="primary" class="search-btn" @click="newDevice">{{ $t('storagePage.newDevice') }}</el-button>
       </div>
       <div class="device-list">
         <!-- @selection-change="handleSelectionChange" -->
@@ -39,7 +39,7 @@
           <el-table-column prop="creator" :label="$t('storagePage.creator')"> </el-table-column>
           <el-table-column :label="$t('storagePage.operation')">
             <template #default="scope">
-              <el-button type="text" size="small">{{ $t('common.edit') }}{{ scope.row.ttl }}</el-button>
+              <el-button type="text" size="small" @click="editDevice(scope.row)">{{ $t('common.edit') }}{{ scope.row.ttl }}</el-button>
               <el-popconfirm placement="top" :title="$t('storagePage.deleteDeviceConfirm')" @confirm="deleteDevice(scope)">
                 <template #reference>
                   <el-button type="text" size="small" class="el-button-delete">{{ $t('common.delete') }}</el-button>
@@ -68,7 +68,6 @@ export default {
   setup(props) {
     const { t } = useI18n();
     const router = useRouter();
-
     let baseInfo = ref({});
     let searchVal = ref(null);
     let tableData = ref([]);
@@ -151,7 +150,29 @@ export default {
      * scope:要被删除的实体的信息
      */
     const deleteDevice = (scope) => {
-      console.log(scope);
+      axios.delete(`/servers/${props.data.connectionid}/storageGroups/${props.data.storagegroupid}/devices/${scope.row.deviceName}`).then(() => {
+        ElMessage({
+          type: 'success',
+          message: `${t('device.deleteSuccess')}!`,
+        });
+        getDeviceList();
+      });
+    };
+    /**
+     * 编辑实体
+     * row:要被删除的实体的信息
+     */
+    const editDevice = (row) => {
+      props.func.updateTree([props.data.parent.id, props.data.id]);
+      // props.func.expandByIds([props.data.parent.id, props.data.id, `${props.data.id}${row.deviceName}device`]);
+      props.func.addTab(`${props.data.id}${row.deviceName}device`);
+    };
+    /**
+     * 新建实体
+     */
+    const newDevice = () => {
+      props.func.updateTree([props.data.parent.id, props.data.id]);
+      props.func.addTab(`${props.data.id}:newdevice`);
     };
     onMounted(() => {
       getGroupDetail();
@@ -167,8 +188,10 @@ export default {
       pageSize,
       total,
       // handleSelectionChange,
+      newDevice,
       handleCurrentChange,
       editGroup,
+      editDevice,
       deleteGroup,
       getGroupDetail,
       getDeviceList,
