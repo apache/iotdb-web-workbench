@@ -37,7 +37,7 @@
         <div :style="{ height: divwerHeight + 'px', overflow: 'hidden' }">
           <div class="tabs">
             <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav">
-              <el-tab-pane v-for="(item, index) of column.list" :key="index" :name="index">
+              <el-tab-pane v-for="(item, index) of column.list" :key="index" :name="`t${index}`">
                 <template #label>
                   <span>{{ $t('standTable.running') }}{{ index + 1 }}<i class="el-icon-more iconmore green"></i> </span>
                 </template>
@@ -171,8 +171,7 @@ export default {
         timeNumber.value = Number(new Date());
         useElementResize(dividerRef, divwerHeight);
         querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value }).then((res) => {
-          // line.value = res.data.line;
-          // time.value = res.data.queryTime;
+          activeName.value = 't0';
           column.list = [];
           tableData.list = [];
           tabelNum.value = res.data.length;
@@ -197,22 +196,6 @@ export default {
               }),
             });
           });
-          console.log(column);
-          console.log(tableData.list[0]);
-          // column.list = res.data.metaDataList.map((item, index) => {
-          //   return {
-          //     label: item,
-          //     prop: `t${index}`,
-          //   };
-          // });
-          // tableData.list = res.data.valueList.map((item) => {
-          //   const obj = {};
-          //   for (let i = 0; i < item.length; i++) {
-          //     obj[`t${i}`] = item[i];
-          //   }
-          //   return obj;
-          // });
-          // standTable.value.getColumn(column.list);
           runFlag.value = true;
         });
         setTimeout(() => {
