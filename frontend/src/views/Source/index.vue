@@ -35,7 +35,7 @@
           <ul class="user-list">
             <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
               <span class="content">{{ item.username }}</span>
-              <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true" @click="deleteUser(item)">
+              <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true" @click.stop="deleteUser(item)">
                 <use xlink:href="#icon-se-icon-delete"></use>
               </svg>
             </li>
@@ -288,6 +288,13 @@ export default {
           trigger: 'change',
         },
         {
+          pattern: /^\S+$/,
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
+          trigger: 'change',
+        },
+        {
           min: 4,
           max: 255,
           message: () => {
@@ -306,6 +313,13 @@ export default {
         },
         {
           pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
+          trigger: 'change',
+        },
+        {
+          pattern: /^\S+$/,
           message: () => {
             return t(`sourcePage.newUserErrorTip`);
           },
@@ -1057,6 +1071,7 @@ export default {
               max-width: 150px;
               overflow: hidden;
               text-overflow: ellipsis;
+              height: 36px;
             }
             .icon {
               position: absolute;
@@ -1113,7 +1128,7 @@ export default {
           display: block;
         }
         .tab-content {
-          padding: 10px 30px;
+          padding: 10px 16px;
           .password {
             div {
               max-width: 200px;
@@ -1175,7 +1190,7 @@ export default {
       //   overflow: auto !important;
       // }
       .el-button {
-        padding-left: 0;
+        padding-left: 0 !important;
       }
     }
   }

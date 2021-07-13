@@ -90,6 +90,13 @@ export default {
           trigger: 'change',
         },
         {
+          pattern: /^\S+$/,
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
+          trigger: 'change',
+        },
+        {
           min: 3,
           max: 100,
           message: () => {

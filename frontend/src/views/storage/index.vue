@@ -253,6 +253,11 @@ export default {
         float: right;
       }
     }
+    .device-list{
+      .el-button--text {
+        padding-left: 0!important;
+      }
+    }
     .el-pagination {
       text-align: right;
       margin-top: 16px;
