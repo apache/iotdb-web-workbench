@@ -54,7 +54,7 @@
                     <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
                       <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
 
-                      <svg v-if="!edit" class="icon" aria-hidden="true" @click="editBaseInfo()">
+                      <svg v-if="!edit && baseInfoForm.userName != 'root'" class="icon" aria-hidden="true" @click="editBaseInfo()">
                         <use xlink:href="#icon-se-icon-f-edit"></use>
                       </svg>
                       <div v-if="!edit" class="password">
