@@ -29,7 +29,7 @@
     </div>
     <div class="footer">
       <el-button type="info" @click="closeTab">{{ $t('device.cencel') }}</el-button>
-      <el-button type="primary" @click="sumbitData">{{ $t('device.ok') }}</el-button>
+      <el-button type="primary" class="sumbitButton" @click="sumbitData">{{ $t('device.ok') }}</el-button>
     </div>
   </div>
 </template>
@@ -202,26 +202,30 @@ export default {
     function deleteRow(row, index) {
       console.log(row.timeseries);
       console.log(index);
-      ElMessageBox.confirm(`${t('device.deletecontent1')}"${row.timeseries}"？${t('device.deletecontent2')}`, `${t('device.tips')}`, {
-        confirmButtonText: t('device.ok'),
-        cancelButtonText: t('device.cencel'),
-        type: 'warning',
-      })
-        .then(() => {
-          deleteData(deviceData.obj, row.timeseries).then(() => {
-            tableData.list.splice(index, 1);
+      if (!row.display) {
+        ElMessageBox.confirm(`${t('device.deletecontent1')}"${row.timeseries}"？${t('device.deletecontent2')}`, `${t('device.tips')}`, {
+          confirmButtonText: t('device.ok'),
+          cancelButtonText: t('device.cencel'),
+          type: 'warning',
+        })
+          .then(() => {
+            deleteData(deviceData.obj, row.timeseries).then(() => {
+              tableData.list.splice(index, 1);
+              ElMessage({
+                type: 'success',
+                message: `${t('device.deletetitle')}!`,
+              });
+            });
+          })
+          .catch(() => {
             ElMessage({
-              type: 'success',
-              message: `${t('device.deletetitle')}!`,
+              type: 'info',
+              message: `${t('device.canceldelete')}!`,
             });
           });
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: `${t('device.canceldelete')}!`,
-          });
-        });
+      } else {
+        tableData.list.splice(index, 1);
+      }
       // deleteData(9, 'mytest', 'test1',row.timeseries)
     }
     function addItem() {
@@ -294,6 +298,7 @@ export default {
       });
     }
     onMounted(() => {
+      console.log(route.params);
       deviceData.obj = route.params;
       if (route.params.name !== '新建实体') {
         getdData();
@@ -340,12 +345,16 @@ export default {
   color: #ffffff;
   margin-left: 20px;
   padding: 10px 30px;
-  background-color: #0080ff;
-  border-color: #0080ff;
+  background-color: $theme-color;
+  border-color: $theme-color;
   line-height: 0px;
 }
 .addbutton:hover {
-  border-color: #0882fc;
+  border-color: $theme-color;
+}
+.sumbitButton {
+  background-color: $theme-color;
+  border-color: $theme-color;
 }
 .tableBox {
   margin-top: 20px;

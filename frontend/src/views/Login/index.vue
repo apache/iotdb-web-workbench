@@ -199,7 +199,7 @@ export default {
         width: 520px;
         position: absolute;
         left: 50%;
-        top: 50%;
+        top: 45%;
         transform: translate(-50%, -50%);
         .login-img {
           background-image: url(~@/assets/logo.png);

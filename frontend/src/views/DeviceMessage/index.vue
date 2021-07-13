@@ -23,9 +23,20 @@
     </div>
     <div style="padding: 20px 30px" class="flexBox">
       <form-table :form="form" @serchFormData="serchFormData"></form-table>
-      <el-button type="primary" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
+      <el-button type="primary" class="newButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
     </div>
-    <stand-table :column="column" :tableData="tableData" :getList="getListData" :total="totalCount" @getPagintions="getPagintions" :lineHeight="5" :maxHeight="450" :pagination="pagination">
+    <stand-table
+      :column="column"
+      :tableData="tableData"
+      :getList="getListData"
+      :total="totalCount"
+      :lineHeight="5"
+      :lineWidth="21"
+      :celineWidth="23"
+      :maxHeight="450"
+      :pagination="pagination"
+      @getPagintions="getPagintions"
+    >
       <template #default="{ scope }">
         <div @click="searchRow(scope.row)" v-if="scope.row.newValue + '' * 1">
           <action :echartsData="routeData.obj" :row="scope.row"></action>
@@ -283,8 +294,12 @@ export default {
 
 <style lang="scss" scoped>
 $cursor: pointer;
+.newButton {
+  background-color: $theme-color;
+  border-color: $theme-color;
+}
 .actionSpan {
-  height: 60px;
+  height: 50px;
   display: flex;
   align-items: center;
 }

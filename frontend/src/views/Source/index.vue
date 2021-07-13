@@ -35,7 +35,7 @@
           <ul class="user-list">
             <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
               <span class="content">{{ item.username }}</span>
-              <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true" @click="deleteUser(item)">
+              <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true" @click.stop="deleteUser(item)">
                 <use xlink:href="#icon-se-icon-delete"></use>
               </svg>
             </li>
@@ -54,11 +54,13 @@
                     <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
                       <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
 
-                      <svg v-if="!edit" class="icon" aria-hidden="true" @click="editBaseInfo()">
+                      <svg v-if="!edit && baseInfoForm.userName != 'root'" class="icon" aria-hidden="true" @click="editBaseInfo()">
                         <use xlink:href="#icon-se-icon-f-edit"></use>
                       </svg>
-                      <div v-if="!edit">
-                        {{ baseInfoForm.password }}
+                      <div v-if="!edit" class="password">
+                        <el-tooltip class="item" effect="dark" :content="baseInfoForm.password" placement="top">
+                          <div>{{ baseInfoForm.password }}</div>
+                        </el-tooltip>
                       </div>
                       <div v-if="edit">
                         <el-button @click="cancelEdit()">{{ $t('common.cancel') }}</el-button>
@@ -223,6 +225,7 @@ import {
   ElPopconfirm,
   ElPopover,
   ElPopper,
+  ElTooltip,
 } from 'element-plus';
 import NewSource from './components/newSource.vue';
 import { useI18n } from 'vue-i18n';
@@ -285,6 +288,13 @@ export default {
           trigger: 'change',
         },
         {
+          pattern: /^\S+$/,
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
+          trigger: 'change',
+        },
+        {
           min: 4,
           max: 255,
           message: () => {
@@ -303,6 +313,13 @@ export default {
         },
         {
           pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
+          trigger: 'change',
+        },
+        {
+          pattern: /^\S+$/,
           message: () => {
             return t(`sourcePage.newUserErrorTip`);
           },
@@ -488,6 +505,7 @@ export default {
     const successFunc = () => {
       showDialog.value = false;
       types.value = 0;
+      getBaseInfo();
     };
     /**
      * 切换基本配置与账号权限的tab操作
@@ -953,7 +971,7 @@ export default {
     ElCheckbox,
     ElCheckboxGroup,
     ElPopconfirm,
-
+    ElTooltip,
     /* eslint-disable */
     ElPopover,
     ElPopper,
@@ -1053,6 +1071,7 @@ export default {
               max-width: 150px;
               overflow: hidden;
               text-overflow: ellipsis;
+              height: 36px;
             }
             .icon {
               position: absolute;
@@ -1109,7 +1128,15 @@ export default {
           display: block;
         }
         .tab-content {
-          padding: 10px 30px;
+          padding: 10px 16px;
+          .password {
+            div {
+              max-width: 200px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
           .user-name {
             max-width: 200px;
             overflow: hidden;
@@ -1163,7 +1190,7 @@ export default {
       //   overflow: auto !important;
       // }
       .el-button {
-        padding-left: 0;
+        padding-left: 0 !important;
       }
     }
   }

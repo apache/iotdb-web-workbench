@@ -15,6 +15,12 @@ const en = {
       operation: 'operation',
       save: 'save',
     },
+    databasem: {
+      newStoreGroup: 'new storage group',
+      query: 'query',
+      newDevice: 'new entity',
+      newQuery: 'new query',
+    },
     rootPage: {
       chinalang: 'chinese',
       englishlang: 'english',
@@ -41,7 +47,7 @@ const en = {
       accountLengthTip: 'the user name must be greater than or equal to 3 characters and less than or equal to 32 characters',
       passwordEmptyTip: 'password can not be empty',
       passwordLenghtTip: 'password must be greater than or equal to 6 digits. please check the number of digits',
-      welcomeLogin: 'log in to IotDB database management',
+      welcomeLogin: 'welcome log in to IotDB database management system',
       loginErrorTip: 'incorrect user name or password, please re-enter',
     },
 
@@ -63,6 +69,7 @@ const en = {
       newUserErrorTip: 'please input right pattern',
       newUserErrorTip1: 'the length of user name must be contain with 4~255',
       newpasswordErrorTip1: 'the length of password must be contain with 4~255',
+      aliasErrorTip: 'the length of alias must be contain with 3~100',
       portEmptyTip: 'port can not be empty',
       usernameEmptyTip: 'username can not be empty',
       passwordEmptyTip: 'password can not be empty',
@@ -186,7 +193,8 @@ const en = {
       must: 'Please enter the required content',
       newquery: 'New Query',
       inputfunction: 'Please enter a function name',
-      selectp: 'Please Select',
+      selectp: 'Please Select Group',
+      deleteSuccess: 'Delete Success',
     },
     sqlserch: {
       Aggregate: 'Aggregate',

@@ -50,4 +50,17 @@
   clear: both;
   visibility: hidden;
 }
+.move-resize {
+  cursor: w-resize !important;
+  .el-tree {
+    cursor: w-resize !important;
+  }
+  li {
+    cursor: w-resize !important;
+  }
+  .divider {
+    background-color: $theme-color !important;
+    width: 2px !important;
+  }
+}
 </style>

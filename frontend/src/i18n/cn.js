@@ -15,6 +15,12 @@ const cn = {
       operation: '操作',
       save: '保存',
     },
+    databasem: {
+      newStoreGroup: '新建存储组',
+      query: '查询',
+      newDevice: '新建实体',
+      newQuery: '新建查询',
+    },
     rootPage: {
       chinalang: '中文',
       englishlang: '英文',
@@ -41,7 +47,7 @@ const cn = {
       accountLengthTip: '用户名必须大于等于3个字符，小于等于32字符',
       passwordEmptyTip: '密码不能为空',
       passwordLenghtTip: '密码必须大于等于6位，请检查密码位数',
-      welcomeLogin: '登录IotDB数据库管理',
+      welcomeLogin: '欢迎登录IotDB数据库管理系统',
       loginErrorTip: '用户名或密码不正确，请重新输入',
     },
 
@@ -62,6 +68,7 @@ const cn = {
       newUserEmptyTip: '请输入账号名称',
       newUserErrorTip: '请输入正确格式',
       newUserErrorTip1: '用户名必须大于等于4个字符，小于等于255字符',
+      aliasErrorTip: '数据连接名称必须大于等于3个字符，小于等于100个字符',
       newpasswordErrorTip1: '密码必须大于等于4个字符，小于等于255字符',
       newPasswordTip: '请输入密码',
       usernameEmptyTip: '请输入数据连接用户名',
@@ -151,7 +158,7 @@ const cn = {
       selectdataconnection: '请选择数据链接',
       devicename: '实体名称',
       description: '实体描述',
-      selectp: '请选择',
+      selectp: '请选择存储组',
       group: '所属存储组',
       physical: '实体物理量',
       addphysical: '添加物理量',
@@ -188,6 +195,7 @@ const cn = {
       must: '请输入必填内容',
       newquery: '新建查询',
       inputfunction: '请输入函数名称',
+      deleteSuccess: '删除成功',
     },
     sqlserch: {
       Aggregate: '聚合函数',

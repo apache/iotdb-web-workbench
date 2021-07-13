@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="serch_div">
-      <el-select v-model="groupName" :placeholder="$t('device.selectp')" class="elinput selectIcon">
+      <el-select v-model="groupName" :placeholder="$t('device.selectdataconnection')" class="elinput selectIcon">
         <el-option v-for="item in data.list" :key="item.value" :label="item.label" :value="item.value" @click="getdevicel"> </el-option>
       </el-select>
       <el-select v-model="deviceName" :placeholder="$t('device.selectp')" class="elinput selectIcon">
@@ -22,6 +22,7 @@
 <script>
 import { ElInput, ElSelect, ElOption } from 'element-plus';
 import { ref, reactive } from 'vue';
+import { useStore } from 'vuex';
 import { getCList, getDevice } from '../api/index';
 export default {
   props: {
@@ -30,6 +31,7 @@ export default {
     id: Number,
   },
   setup(props, { emit }) {
+    const userInfo = useStore();
     const data = reactive(props.treeList);
     let filterText = ref(null);
     let groupName = ref('');
@@ -52,6 +54,7 @@ export default {
       console.log(val);
     }
     function getFunction(val) {
+      console.log(userInfo.state.userInfo.name);
       emit('getFunction', `root.${val.parents}.${val.parent}.${val.label}`);
     }
     function getdevicel() {

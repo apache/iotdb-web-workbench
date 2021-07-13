@@ -34,12 +34,12 @@
       </el-main>
       <el-footer class="footer" :style="{ display: divwerHeight > 30 ? '' : 'none' }">
         <div class="divider" ref="dividerRef"></div>
-        <div :style="{ height: divwerHeight + 'px', overflow: 'auto' }">
+        <div :style="{ height: divwerHeight + 'px', overflow: 'hidden' }">
           <div class="tabs">
             <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav">
-              <el-tab-pane name="first1">
+              <el-tab-pane v-for="(item, index) of column.list" :key="index" :name="`t${index}`">
                 <template #label>
-                  <span>{{ $t('standTable.running') }}<i class="el-icon-more iconmore green"></i> </span>
+                  <span>{{ $t('standTable.running') }}{{ index + 1 }}<i class="el-icon-more iconmore green"></i> </span>
                 </template>
                 <div class="header_messge flex">
                   <div>
@@ -52,12 +52,12 @@
                     <span class="frist_span">{{ $t('standTable.maxdownload') }}</span> -->
                   </div>
                   <div>
-                    <span class="frist_span">{{ $t('standTable.serchtime') }}：{{ time }}</span>
-                    <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line }}</span>
+                    <span class="frist_span">{{ $t('standTable.serchtime') }}：{{ time.list[index] }}</span>
+                    <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line.list[index] }}</span>
                   </div>
                 </div>
                 <div class="tab_table">
-                  <stand-table ref="standTable" :column="column" :tableData="tableData" :lineHeight="5" :lineWidth="13" :maxHeight="400" :pagination="pagination"> </stand-table>
+                  <stand-table ref="standTable" :column="item" :tableData="tableData.list[index]" :lineHeight="5" :lineWidth="13" :maxHeight="divwerHeight" :pagination="pagination"> </stand-table>
                 </div>
               </el-tab-pane>
               <!-- <el-tab-pane name="second2">
@@ -123,12 +123,17 @@ export default {
     let dividerRef = ref(null);
     let sqlName = ref(null);
     let codemirror = ref(null);
+    let tabelNum = ref(0);
     const standTable = ref(null);
-    let activeName = ref('first1');
+    let activeName = ref(0);
     let activeNameRight = ref('first');
     let runFlag = ref(true);
-    let line = ref(null);
-    let time = ref(null);
+    let line = reactive({
+      list: [],
+    });
+    let time = reactive({
+      list: [],
+    });
     let sqlheight = computed(() => {
       nextTick(() => {
         codemirror.value.codemrriorHeight(divwerHeight.value);
@@ -162,26 +167,35 @@ export default {
     function querySqlRun() {
       if (runFlag.value) {
         runFlag.value = false;
-        divwerHeight.value = 300;
+        divwerHeight.value = 400;
         timeNumber.value = Number(new Date());
         useElementResize(dividerRef, divwerHeight);
         querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value }).then((res) => {
-          line.value = res.data.line;
-          time.value = res.data.queryTime;
-          column.list = res.data.metaDataList.map((item, index) => {
-            return {
-              label: item,
-              prop: `t${index}`,
-            };
+          activeName.value = 't0';
+          column.list = [];
+          tableData.list = [];
+          tabelNum.value = res.data.length;
+          res.data.forEach((item) => {
+            time.list.push(item.line);
+            line.list.push(item.queryTime);
+            column.list.push({
+              list: item.metaDataList.map((eleitem, index) => {
+                return {
+                  label: eleitem,
+                  prop: `t${index}`,
+                };
+              }),
+            });
+            tableData.list.push({
+              list: item.valueList.map((eleitem) => {
+                const obj = {};
+                for (let i = 0; i < eleitem.length; i++) {
+                  obj[`t${i}`] = eleitem[i];
+                }
+                return obj;
+              }),
+            });
           });
-          tableData.list = res.data.valueList.map((item) => {
-            const obj = {};
-            for (let i = 0; i < item.length; i++) {
-              obj[`t${i}`] = item[i];
-            }
-            return obj;
-          });
-          standTable.value.getColumn(column.list);
           runFlag.value = true;
         });
         setTimeout(() => {
@@ -264,6 +278,7 @@ export default {
     return {
       column,
       line,
+      tabelNum,
       activeNameRight,
       treeList,
       centerDialogVisible,
