@@ -54,11 +54,13 @@
                     <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
                       <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
 
-                      <svg v-if="!edit" class="icon" aria-hidden="true" @click="editBaseInfo()">
+                      <svg v-if="!edit && baseInfoForm.userName != 'root'" class="icon" aria-hidden="true" @click="editBaseInfo()">
                         <use xlink:href="#icon-se-icon-f-edit"></use>
                       </svg>
-                      <div v-if="!edit">
-                        {{ baseInfoForm.password }}
+                      <div v-if="!edit" class="password">
+                        <el-tooltip class="item" effect="dark" :content="baseInfoForm.password" placement="top">
+                          <div>{{ baseInfoForm.password }}</div>
+                        </el-tooltip>
                       </div>
                       <div v-if="edit">
                         <el-button @click="cancelEdit()">{{ $t('common.cancel') }}</el-button>
@@ -223,6 +225,7 @@ import {
   ElPopconfirm,
   ElPopover,
   ElPopper,
+  ElTooltip,
 } from 'element-plus';
 import NewSource from './components/newSource.vue';
 import { useI18n } from 'vue-i18n';
@@ -488,6 +491,7 @@ export default {
     const successFunc = () => {
       showDialog.value = false;
       types.value = 0;
+      getBaseInfo();
     };
     /**
      * 切换基本配置与账号权限的tab操作
@@ -953,7 +957,7 @@ export default {
     ElCheckbox,
     ElCheckboxGroup,
     ElPopconfirm,
-
+    ElTooltip,
     /* eslint-disable */
     ElPopover,
     ElPopper,
@@ -1110,6 +1114,14 @@ export default {
         }
         .tab-content {
           padding: 10px 30px;
+          .password {
+            div {
+              max-width: 200px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
           .user-name {
             max-width: 200px;
             overflow: hidden;

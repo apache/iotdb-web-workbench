@@ -17,7 +17,7 @@
           <span class="eg">{{ $t('sourcePage.eg') }}</span>
         </el-form-item>
         <el-form-item :label="$t('sourcePage.port')" prop="port">
-          <el-input v-model="form.port" type="number"></el-input>
+          <el-input v-model="form.port"></el-input>
         </el-form-item>
         <el-form-item :label="$t('sourcePage.username')" prop="username">
           <el-input v-model="form.username"></el-input>
@@ -86,6 +86,14 @@ export default {
           required: true,
           message: () => {
             return t(`sourcePage.aliasEmptyTip`);
+          },
+          trigger: 'change',
+        },
+        {
+          min: 3,
+          max: 100,
+          message: () => {
+            return t(`sourcePage.aliasErrorTip`);
           },
           trigger: 'change',
         },

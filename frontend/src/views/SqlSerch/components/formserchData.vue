@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="serch_div">
-      <el-select v-model="groupName" :placeholder="$t('device.selectp')" class="elinput selectIcon">
+      <el-select v-model="groupName" :placeholder="$t('device.selectdataconnection')" class="elinput selectIcon">
         <el-option v-for="item in data.list" :key="item.value" :label="item.label" :value="item.value" @click="getdevicel"> </el-option>
       </el-select>
       <el-select v-model="deviceName" :placeholder="$t('device.selectp')" class="elinput selectIcon">
