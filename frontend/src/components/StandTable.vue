@@ -7,11 +7,11 @@
       :height="Height"
       tooltip-effect="light"
       :cell-style="{
-        padding: `${lineHeight ? lineHeight : 0}px ${lineWidth ? lineWidth : 0}px`,
+        padding: `${lineHeight ? lineHeight : 0}px ${celineWidth ? celineWidth : 0}px !important`,
       }"
       :header-cell-style="{
         color: 'black',
-        padding: `${lineHeight ? lineHeight : 0}px ${lineWidth ? lineWidth : 0}px`,
+        padding: `${lineHeight ? lineHeight : 0}px ${lineWidth ? lineWidth : 0}px !important`,
       }"
       @selection-change="handleSelectionChange"
     >
@@ -110,6 +110,7 @@ export default {
     encoding: Object,
     total: Number,
     getList: Function,
+    celineWidth: Number,
   },
   setup(props, { emit }) {
     const columns = reactive({

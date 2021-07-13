@@ -88,6 +88,7 @@ export default {
   .el-form-item__label {
     line-height: 40px !important;
     text-align: right;
+    width: 120px !important;
   }
   .el-select {
     width: 90%;
