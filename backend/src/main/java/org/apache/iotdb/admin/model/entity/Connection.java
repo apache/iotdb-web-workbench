@@ -18,29 +18,29 @@ public class Connection implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    @NotBlank(message = "不能为空或为null")
+    @NotBlank(message = "主机地址不能为空或为null")
     @Pattern(regexp = "^((2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3})|(localhost)$",message = "主机号输入不合法")
     private String host;
 
-    @NotNull(message = "不能为null")
+    @NotNull(message = "端口号不能为null")
     @Range(min = 0,max = 65535,message = "端口号输入不合法")
     private Integer port;
 
-    @NotBlank(message = "不能为空或为null")
+    @NotBlank(message = "用户名不能为空或为null")
     @Length(min = 4,message = "长度必须大于等于4")
-    @Pattern(regexp = "^[^ ]+$",message = "不能包含空格")
+    @Pattern(regexp = "^[^ ]+$",message = "用户名不能包含空格")
     private String username;
 
-    @NotBlank(message = "不能为空或为null")
+    @NotBlank(message = "密码不能为空或为null")
     @Length(min = 4,message = "长度必须大于等于4")
-    @Pattern(regexp = "^[^ ]+$",message = "不能包含空格")
+    @Pattern(regexp = "^[^ ]+$",message = "密码不能包含空格")
     private String password;
 
-    @NotBlank(message = "不能为空或为null")
-    @Pattern(regexp = "^[^ ]+$",message = "不能包含空格")
+    @NotBlank(message = "连接名不能为空或为null")
+    @Pattern(regexp = "^[^ ]+$",message = "连接名不能包含空格")
     private String alias;
 
-    @NotNull(message = "不能为null")
+    @NotNull(message = "用户id不能为null")
     private Integer userId;
 
 }

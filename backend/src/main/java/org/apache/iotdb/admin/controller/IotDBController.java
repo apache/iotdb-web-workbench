@@ -505,6 +505,61 @@ public class IotDBController<T> {
         if (privilegeInfoDTO == null) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
+        Integer type = privilegeInfoDTO.getType();
+        List<String> groupPaths = privilegeInfoDTO.getGroupPaths();
+        List<String> devicePaths = privilegeInfoDTO.getDevicePaths();
+        List<String> timeseriesPaths = privilegeInfoDTO.getTimeseriesPaths();
+        if (type == null) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        switch (type) {
+            case 0:
+                if (groupPaths != null && groupPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (devicePaths != null && devicePaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (timeseriesPaths != null && timeseriesPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                break;
+            case 1:
+                if (groupPaths == null || groupPaths.size() == 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (devicePaths != null && devicePaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (timeseriesPaths != null && timeseriesPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                break;
+            case 2:
+                if (groupPaths == null || groupPaths.size() != 1) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (devicePaths == null || devicePaths.size() == 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (timeseriesPaths != null && timeseriesPaths.size() >0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                break;
+            case 3:
+                if (groupPaths == null || groupPaths.size() != 1) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (devicePaths == null || devicePaths.size() != 1) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (timeseriesPaths == null || timeseriesPaths.size() == 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                break;
+            default:
+                throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         iotDBService.setUserPrivileges(connection,userName,privilegeInfoDTO);
@@ -519,7 +574,7 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         iotDBService.updatePwd(connection, iotDBUser);
-        return BaseVO.success("删除成功", null);
+        return BaseVO.success("修改成功", null);
     }
 
     @DeleteMapping("/users/{userName}")

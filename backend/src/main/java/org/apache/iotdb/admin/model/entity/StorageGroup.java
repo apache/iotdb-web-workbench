@@ -25,8 +25,8 @@ public class StorageGroup implements Serializable {
     private String description;
 
     @NotBlank
-    @Length(min = 4,message = "长度必须大于等于4")
-    @Pattern(regexp = "^[^ ]+$",message = "不能包含空格")
+    @Length(min = 4,message = "创建者名长度必须大于等于4")
+    @Pattern(regexp = "^[^ ]+$",message = "创建者名不能包含空格")
     private String creator;
 
     @NotNull(message = "未指定创建时间")

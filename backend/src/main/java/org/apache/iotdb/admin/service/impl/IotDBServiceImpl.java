@@ -723,7 +723,6 @@ public class IotDBServiceImpl implements IotDBService {
                 sessionPool.executeNonQueryStatement(sql);
             } catch (StatementExecutionException e) {
                 logger.error(e.getMessage());
-                throw new BaseException(ErrorCode.PRIV_ROOT_FAIL,ErrorCode.PRIV_ROOT_FAIL_MSG);
             } catch (IoTDBConnectionException e) {
                 logger.error(e.getMessage());
                 throw new BaseException(ErrorCode.PRIV_ROOT_FAIL,ErrorCode.PRIV_ROOT_FAIL_MSG);
@@ -740,7 +739,6 @@ public class IotDBServiceImpl implements IotDBService {
                         sessionPool.executeNonQueryStatement(sql);
                     } catch (StatementExecutionException e) {
                         logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_GROUP_FAIL,ErrorCode.PRIV_GROUP_FAIL_MSG);
                     } catch (IoTDBConnectionException e) {
                         logger.error(e.getMessage());
                         throw new BaseException(ErrorCode.PRIV_GROUP_FAIL,ErrorCode.PRIV_GROUP_FAIL_MSG);
@@ -761,7 +759,6 @@ public class IotDBServiceImpl implements IotDBService {
                         sessionPool.executeNonQueryStatement(sql);
                     } catch (StatementExecutionException e) {
                         logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_DEVICE_FAIL,ErrorCode.PRIV_DEVICE_FAIL_MSG);
                     } catch (IoTDBConnectionException e) {
                         logger.error(e.getMessage());
                         throw new BaseException(ErrorCode.PRIV_DEVICE_FAIL,ErrorCode.PRIV_DEVICE_FAIL_MSG);
@@ -785,7 +782,6 @@ public class IotDBServiceImpl implements IotDBService {
                         sessionPool.executeNonQueryStatement(sql);
                     } catch (StatementExecutionException e) {
                         logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_TIMESERIES_FAIL,ErrorCode.PRIV_TIMESERIES_FAIL_MSG);
                     } catch (IoTDBConnectionException e) {
                         logger.error(e.getMessage());
                         throw new BaseException(ErrorCode.PRIV_TIMESERIES_FAIL,ErrorCode.PRIV_TIMESERIES_FAIL_MSG);
@@ -1040,7 +1036,7 @@ public class IotDBServiceImpl implements IotDBService {
             Callable call = () -> sessionPool.executeQueryStatement(sql);
             ExecutorService service = Executors.newFixedThreadPool(1);
             Future submit = service.submit(call);
-            sessionDataSetWrapper = (SessionDataSetWrapper) submit.get(30, TimeUnit.SECONDS);
+            sessionDataSetWrapper = (SessionDataSetWrapper) submit.get(60, TimeUnit.SECONDS);
 //            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
             int batchSize = sessionDataSetWrapper.getBatchSize();
             List<String> values = new ArrayList<>();
