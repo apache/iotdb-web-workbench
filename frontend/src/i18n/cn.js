@@ -68,6 +68,7 @@ const cn = {
       newUserEmptyTip: '请输入账号名称',
       newUserErrorTip: '请输入正确格式',
       newUserErrorTip1: '用户名必须大于等于4个字符，小于等于255字符',
+      aliasErrorTip: '数据连接名称必须大于等于3个字符，小于等于100个字符',
       newpasswordErrorTip1: '密码必须大于等于4个字符，小于等于255字符',
       newPasswordTip: '请输入密码',
       usernameEmptyTip: '请输入数据连接用户名',
