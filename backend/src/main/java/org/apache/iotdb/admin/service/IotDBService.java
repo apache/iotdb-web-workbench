@@ -69,7 +69,7 @@ public interface IotDBService {
 
     List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
 
-    void setUserPrivileges(Connection connection, String userName,PrivilegeInfoDTO privilegeInfoDTO) throws BaseException;
+    void setUserPrivileges(Connection connection, String userName,PrivilegeInfoDTO privilegeInfoDTO,Integer delType) throws BaseException;
 
     RecordVO getRecords(Connection connection, String deviceName, String timeseriesName) throws BaseException;
 

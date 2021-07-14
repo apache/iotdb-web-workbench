@@ -17,4 +17,7 @@ public class PrivilegeInfoDTO implements Serializable {
     private List<String> timeseriesPaths;
     private List<String> privileges;
     private List<String> cancelPrivileges;
+    private List<String> delGroupPaths;
+    private List<String> delDevicePaths;
+    private List<String> delTimeseriesPaths;
 }

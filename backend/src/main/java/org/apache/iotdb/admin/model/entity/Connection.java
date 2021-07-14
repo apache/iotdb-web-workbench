@@ -37,6 +37,7 @@ public class Connection implements Serializable {
     private String password;
 
     @NotBlank(message = "连接名不能为空或为null")
+    @Length(min = 3,max = 100,message = "连接名长度必须在3-100之间")
     @Pattern(regexp = "^[^ ]+$",message = "连接名不能包含空格")
     private String alias;
 
