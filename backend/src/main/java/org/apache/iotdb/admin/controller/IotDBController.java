@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -96,21 +98,28 @@ public class IotDBController<T> {
                                    HttpServletRequest request) throws BaseException {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
-        groupDTO.setGroupName("root." + groupDTO.getGroupName());
-        if (groupDTO.getGroupId() == null) {
-            iotDBService.saveStorageGroup(connection, groupDTO.getGroupName());
+        String groupName = groupDTO.getGroupName();
+        groupName = "root." + groupName;
+        Long ttl = groupDTO.getTtl();
+        String ttlUnit = groupDTO.getTtlUnit();
+        Integer groupId = groupDTO.getGroupId();
+        groupDTO.setGroupName(groupName);
+        if (groupId == null) {
+            iotDBService.saveStorageGroup(connection, groupName);
             groupService.setStorageGroupInfo(connection, groupDTO);
         } else {
             groupService.updateStorageGroupInfo(connection,groupDTO);
         }
-        if (groupDTO.getTtl() != null && groupDTO.getTtlUnit() != null) {
-            if (groupDTO.getTtl() >= 0) {
-                Long times = switchTime(groupDTO.getTtlUnit());
-                iotDBService.saveGroupTtl(connection, groupDTO.getGroupName(), groupDTO.getTtl() * times);
+        if (ttl != null && ttlUnit != null) {
+            if (ttl >= 0) {
+                Long times = switchTime(ttlUnit);
+                iotDBService.saveGroupTtl(connection, groupName, ttl * times);
+            } else {
+                throw new BaseException(ErrorCode.SET_TTL_FAIL, ErrorCode.SET_TTL_FAIL_MSG);
             }
-        }else {
-            if (groupDTO.getTtl() == null && groupDTO.getTtlUnit() == null) {
-                iotDBService.cancelGroupTtl(connection, groupDTO.getGroupName());
+        } else {
+            if (ttl == null && ttlUnit == null) {
+                iotDBService.cancelGroupTtl(connection, groupName);
             } else {
                 throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
             }
@@ -157,6 +166,7 @@ public class IotDBController<T> {
             Long times = switchTime(ttlUnit);
             ttl = String.valueOf(totalTime / times);
             groupVO.setTtl(ttl);
+            groupVO.setTtiUnit(ttlUnit);
         } else {
             groupVO.setTtl(null);
         }
@@ -505,10 +515,185 @@ public class IotDBController<T> {
         if (privilegeInfoDTO == null) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
+        Integer type = privilegeInfoDTO.getType();
+        if (type != null && (type > 3 || type < 0)) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+//        Integer delType = pathCheckAndGetDelType(privilegeInfoDTO);
+        pathCheck(privilegeInfoDTO);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         iotDBService.setUserPrivileges(connection,userName,privilegeInfoDTO);
         return BaseVO.success("操作成功", null);
+    }
+
+    private void pathCheck(PrivilegeInfoDTO privilegeInfoDTO) throws BaseException {
+        Integer type = privilegeInfoDTO.getType();
+        List<String> groupPaths = privilegeInfoDTO.getGroupPaths();
+        List<String> devicePaths = privilegeInfoDTO.getDevicePaths();
+        List<String> timeseriesPaths = privilegeInfoDTO.getTimeseriesPaths();
+        List<String> delDevicePaths = privilegeInfoDTO.getDelDevicePaths();
+        List<String> delGroupPaths = privilegeInfoDTO.getDelGroupPaths();
+        List<String> delTimeseriesPaths = privilegeInfoDTO.getDelTimeseriesPaths();
+        if (type == null) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        switch (type) {
+            case 0:
+                if (groupPaths != null && groupPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (devicePaths != null && devicePaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (timeseriesPaths != null && timeseriesPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (delDevicePaths != null && delDevicePaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (delGroupPaths  != null && delGroupPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (delTimeseriesPaths != null && delTimeseriesPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                break;
+            case 1:
+//                if (groupPaths == null || groupPaths.size() == 0) {
+//                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+//                }
+                if (devicePaths != null && devicePaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (timeseriesPaths != null && timeseriesPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (delDevicePaths != null && delDevicePaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (delTimeseriesPaths != null && delTimeseriesPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                break;
+            case 2:
+                if (groupPaths != null && groupPaths.size() > 0) {
+                    if (groupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (devicePaths == null || devicePaths.size() == 0) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (devicePaths != null && devicePaths.size() > 0) {
+                    if (groupPaths == null || groupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (timeseriesPaths != null && timeseriesPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                if (delGroupPaths != null && delGroupPaths.size() > 0) {
+                    if (delGroupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (delDevicePaths == null || delDevicePaths.size() == 0) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (delDevicePaths != null && delDevicePaths.size() > 0) {
+                    if (delGroupPaths == null || delGroupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (delTimeseriesPaths != null && delTimeseriesPaths.size() > 0) {
+                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                }
+                break;
+            case 3:
+                if (groupPaths != null && groupPaths.size() > 0) {
+                    if (groupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (devicePaths == null || devicePaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (timeseriesPaths == null || timeseriesPaths.size() == 0) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (devicePaths != null && devicePaths.size() > 0) {
+                    if (devicePaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (groupPaths == null || groupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (timeseriesPaths == null || timeseriesPaths.size() == 0) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (timeseriesPaths != null && timeseriesPaths.size() > 0) {
+                    if (groupPaths == null || groupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (delDevicePaths == null || delDevicePaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (delGroupPaths != null && delGroupPaths.size() > 0) {
+                    if (delGroupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (delDevicePaths == null || delDevicePaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (delTimeseriesPaths == null || delTimeseriesPaths.size() == 0) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (delDevicePaths != null && delDevicePaths.size() > 0) {
+                    if (delDevicePaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (delGroupPaths == null || delGroupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (delTimeseriesPaths == null || delTimeseriesPaths.size() == 0) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                if (delTimeseriesPaths != null && delTimeseriesPaths.size() > 0) {
+                    if (delGroupPaths == null || delGroupPaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    if (delDevicePaths == null || delDevicePaths.size() != 1) {
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                }
+                break;
+            default:
+                throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+//        if (delTimeseriesPaths != null && delTimeseriesPaths.size() > 0) {
+//            if (delGroupPaths == null || delGroupPaths.size() != 1) {
+//                throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+//            }
+//            if (delDevicePaths == null || delDevicePaths.size() != 1) {
+//                throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+//            }
+//            return 3;
+//        }
+//        if (delDevicePaths != null && delDevicePaths.size() > 0) {
+//            if (delGroupPaths == null || delGroupPaths.size() != 1) {
+//                throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+//            }
+//            return 2;
+//        }
+//        if (delGroupPaths != null && delGroupPaths.size() > 0) {
+//            return 1;
+//        }
+//        return 0;
     }
 
     @PostMapping("/users/pwd")
@@ -519,7 +704,7 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         iotDBService.updatePwd(connection, iotDBUser);
-        return BaseVO.success("删除成功", null);
+        return BaseVO.success("修改成功", null);
     }
 
     @DeleteMapping("/users/{userName}")
@@ -622,25 +807,25 @@ public class IotDBController<T> {
         if (time == 0) {
             return "milliSecond";
         }
-        if (time / 12 * 30 * 24 * 60 * 60 * 1000 != 0) {
+        if (time / (12 * 30 * 24 * 60 * 60 * 1000) != 0 && time % (12 * 30 * 24 * 60 * 60 * 1000) == 0) {
             return "year";
         }
-        if (time / 30 * 24 * 60 * 60 * 1000 != 0) {
+        if (time / (30 * 24 * 60 * 60 * 1000) != 0 && time % (30 * 24 * 60 * 60 * 1000) == 0) {
             return "month";
         }
-        if (time / 7 * 24 * 60 * 60 * 1000 != 0) {
+        if (time / (7 * 24 * 60 * 60 * 1000) != 0 && time % (7 * 24 * 60 * 60 * 1000) == 0) {
             return "week";
         }
-        if (time / 24 * 60 * 60 * 1000 != 0) {
+        if (time / (24 * 60 * 60 * 1000) != 0 && time % (24 * 60 * 60 * 1000) == 0) {
             return "day";
         }
-        if (time / 60 * 60 * 1000 != 0) {
+        if (time / (60 * 60 * 1000) != 0 && time % (60 * 60 * 1000) == 0) {
             return "hour";
         }
-        if (time / 60 * 1000 != 0) {
+        if (time / (60 * 1000) != 0 && time % (60 * 1000) == 0) {
             return "minute";
         }
-        if (time / 1000 != 0) {
+        if (time / 1000 != 0 && time % 1000 == 0) {
             return "second";
         }
         return null;

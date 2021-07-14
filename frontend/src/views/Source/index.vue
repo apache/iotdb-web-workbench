@@ -35,7 +35,7 @@
           <ul class="user-list">
             <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
               <span class="content">{{ item.username }}</span>
-              <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true" @click="deleteUser(item)">
+              <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true" @click.stop="deleteUser(item)">
                 <use xlink:href="#icon-se-icon-delete"></use>
               </svg>
             </li>
@@ -88,6 +88,7 @@
             </el-tab-pane>
             <el-tab-pane v-if="!isNew" :label="$t('sourcePage.accountPermit')" name="2">
               <template v-if="activeIndex !== null">
+                <p class="auth-tips">{{ $t('sourcePage.authTips') }}</p>
                 <el-table :data="authTableData" style="width: 100%">
                   <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
                     <template #default="scope">
@@ -288,6 +289,13 @@ export default {
           trigger: 'change',
         },
         {
+          pattern: /^\S+$/,
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
+          trigger: 'change',
+        },
+        {
           min: 4,
           max: 255,
           message: () => {
@@ -306,6 +314,13 @@ export default {
         },
         {
           pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+          message: () => {
+            return t(`sourcePage.newUserErrorTip`);
+          },
+          trigger: 'change',
+        },
+        {
+          pattern: /^\S+$/,
           message: () => {
             return t(`sourcePage.newUserErrorTip`);
           },
@@ -590,7 +605,7 @@ export default {
      * 新建用户操作
      */
     const newUser = () => {
-      if (!canCreateUser.value) {
+      if (!canCreateUser.value || !canShowUser.value) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -1057,6 +1072,7 @@ export default {
               max-width: 150px;
               overflow: hidden;
               text-overflow: ellipsis;
+              height: 36px;
             }
             .icon {
               position: absolute;
@@ -1112,8 +1128,14 @@ export default {
         .row-select-range {
           display: block;
         }
+         .auth-tips {
+            font-size: 12px;
+            color: red;
+            line-height: 16px;
+            margin-left: 10px;
+          }
         .tab-content {
-          padding: 10px 30px;
+          padding: 10px 16px;
           .password {
             div {
               max-width: 200px;
@@ -1139,6 +1161,7 @@ export default {
               cursor: pointer;
             }
           }
+         
         }
         .left-base-content {
           .el-input {
@@ -1175,7 +1198,7 @@ export default {
       //   overflow: auto !important;
       // }
       .el-button {
-        padding-left: 0;
+        padding-left: 0 !important;
       }
     }
   }

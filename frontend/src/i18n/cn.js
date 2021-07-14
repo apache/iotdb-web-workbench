@@ -125,6 +125,7 @@ const cn = {
       deleteSourceConfirm: '是否确认删除该数据连接?',
       newSourceSuccessLabel: '新增或编辑数据连接成功',
       addAuthFirstLabel: '请先完成当前权限的添加',
+      authTips: '注：勾选【查看用户】权限后，【创建用户】、【删除用户】、【修改密码】、【用户赋权】、【撤销赋权】才能生效',
     },
     storagePage: {
       alias: '数据连接',

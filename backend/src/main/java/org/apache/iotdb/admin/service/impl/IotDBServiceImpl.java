@@ -423,10 +423,8 @@ public class IotDBServiceImpl implements IotDBService {
             sessionPool.executeNonQueryStatement(sql);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.DEL_TTL_FAIL,ErrorCode.DEL_TTL_FAIL_MSG);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.DEL_TTL_FAIL,ErrorCode.DEL_TTL_FAIL_MSG);
         }finally {
             sessionPool.close();
         }
@@ -618,6 +616,77 @@ public class IotDBServiceImpl implements IotDBService {
         if (notNullAndNotZero(cancelPrivileges)) {
             grantOrRevoke("revoke",cancelPrivileges,userName,privilegeInfoDTO,sessionPool);
         }
+        cancelPathPrivileges(userName,privilegeInfoDTO,sessionPool);
+        sessionPool.close();
+//        if (delType >= 1 && delType <= 3) {
+//        cancelPathPrivileges(userName,privilegeInfoDTO,sessionPool,delType);
+//        }
+    }
+
+    private void cancelPathPrivileges(String userName, PrivilegeInfoDTO privilegeInfoDTO, SessionPool sessionPool) {
+        Integer type = privilegeInfoDTO.getType();
+        List<String> delDevicePaths = privilegeInfoDTO.getDelDevicePaths();
+        List<String> delGroupPaths = privilegeInfoDTO.getDelGroupPaths();
+        List<String> delTimeseriesPaths = privilegeInfoDTO.getDelTimeseriesPaths();
+        switch (type) {
+            case 1:
+                if (notNullAndNotZero(delGroupPaths)) {
+                    Set<String> privileges = SPECIAL_PRIVILEGES.keySet();
+                    for (String delGroupPath : delGroupPaths) {
+                        for (String privilegesStr : privileges) {
+                            String sql = "revoke user " + userName + " privileges '" + privilegesStr + "' on root."
+                                    + delGroupPath;
+                            try {
+                                sessionPool.executeNonQueryStatement(sql);
+                            } catch (StatementExecutionException e) {
+                                logger.error(e.getMessage());
+                            } catch (IoTDBConnectionException e) {
+                                logger.error(e.getMessage());
+                            }
+                        }
+                    }
+                }
+                break;
+            case 2:
+                if (notNullAndNotZero(delDevicePaths)) {
+                    Set<String> privileges = SPECIAL_PRIVILEGES.keySet();
+                    String onlyGroupPath = delGroupPaths.get(0);
+                    for (String delDevicePath : delDevicePaths) {
+                        for (String privilegesStr : privileges) {
+                            String sql = "revoke user " + userName + " privileges '" + privilegesStr + "' on root."
+                                    + onlyGroupPath + "." + delDevicePath;
+                            try {
+                                sessionPool.executeNonQueryStatement(sql);
+                            } catch (StatementExecutionException e) {
+                                logger.error(e.getMessage());
+                            } catch (IoTDBConnectionException e) {
+                                logger.error(e.getMessage());
+                            }
+                        }
+                    }
+                }
+                break;
+            case 3:
+                if (notNullAndNotZero(delTimeseriesPaths)) {
+                    Set<String> privileges = SPECIAL_PRIVILEGES.keySet();
+                    String onlyGroupPath = delGroupPaths.get(0);
+                    String onlyDevicePath = delDevicePaths.get(0);
+                    for (String delTimeseriesPath : delTimeseriesPaths) {
+                        for (String privilegesStr : privileges) {
+                            String sql = "revoke user "  + userName + " privileges '" + privilegesStr + "' on root."
+                                    + onlyGroupPath + "." + onlyDevicePath + "." + delTimeseriesPath;
+                            try {
+                                sessionPool.executeNonQueryStatement(sql);
+                            } catch (StatementExecutionException e) {
+                                logger.error(e.getMessage());
+                            } catch (IoTDBConnectionException e) {
+                                logger.error(e.getMessage());
+                            }
+                        }
+                    }
+                }
+                break;
+        }
     }
 
     @Override
@@ -716,86 +785,79 @@ public class IotDBServiceImpl implements IotDBService {
 
     private void grantOrRevoke(String word, List<String> privileges,String userName,PrivilegeInfoDTO privilegesInfo,SessionPool sessionPool) throws BaseException {
         Integer type = privilegesInfo.getType();
-        String privilegesStr = String.join("','", privileges);
-        if (type == 0) {
-            String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root";
-            try {
-                sessionPool.executeNonQueryStatement(sql);
-            } catch (StatementExecutionException e) {
-                logger.error(e.getMessage());
-                throw new BaseException(ErrorCode.PRIV_ROOT_FAIL,ErrorCode.PRIV_ROOT_FAIL_MSG);
-            } catch (IoTDBConnectionException e) {
-                logger.error(e.getMessage());
-                throw new BaseException(ErrorCode.PRIV_ROOT_FAIL,ErrorCode.PRIV_ROOT_FAIL_MSG);
+//        String privilegesStr = String.join("','", privileges); 一起存会有bug
+        for (String privilegesStr : privileges) {
+            if (type == 0) {
+                String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root";
+                try {
+                    sessionPool.executeNonQueryStatement(sql);
+                } catch (StatementExecutionException e) {
+                    logger.error(e.getMessage());
+                } catch (IoTDBConnectionException e) {
+                    logger.error(e.getMessage());
+                }
+                continue;
             }
-            return;
-        }
-        if (type == 1) {
-            List<String> groupPaths = privilegesInfo.getGroupPaths();
-            if (notNullAndNotZero(groupPaths)) {
-                for (String groupPath : groupPaths) {
-                    String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
-                            + groupPath;
-                    try {
-                        sessionPool.executeNonQueryStatement(sql);
-                    } catch (StatementExecutionException e) {
-                        logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_GROUP_FAIL,ErrorCode.PRIV_GROUP_FAIL_MSG);
-                    } catch (IoTDBConnectionException e) {
-                        logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_GROUP_FAIL,ErrorCode.PRIV_GROUP_FAIL_MSG);
+            if (type == 1) {
+                List<String> groupPaths = privilegesInfo.getGroupPaths();
+                if (notNullAndNotZero(groupPaths)) {
+                    for (String groupPath : groupPaths) {
+                        String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
+                                + groupPath;
+                        try {
+                            sessionPool.executeNonQueryStatement(sql);
+                        } catch (StatementExecutionException e) {
+                            logger.error(e.getMessage());
+                        } catch (IoTDBConnectionException e) {
+                            logger.error(e.getMessage());
+                        }
                     }
                 }
+                continue;
             }
-            return;
-        }
-        if (type == 2) {
-            List<String> groupPaths = privilegesInfo.getGroupPaths();
-            List<String> devicePaths = privilegesInfo.getDevicePaths();
-            if (notNullAndNotZero(groupPaths) && groupPaths.size() == 1 && notNullAndNotZero(devicePaths)){
-                String onlyGroupPath = groupPaths.get(0);
-                for (String devicePath : devicePaths) {
-                    String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
-                            + onlyGroupPath + "." + devicePath;
-                    try {
-                        sessionPool.executeNonQueryStatement(sql);
-                    } catch (StatementExecutionException e) {
-                        logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_DEVICE_FAIL,ErrorCode.PRIV_DEVICE_FAIL_MSG);
-                    } catch (IoTDBConnectionException e) {
-                        logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_DEVICE_FAIL,ErrorCode.PRIV_DEVICE_FAIL_MSG);
+            if (type == 2) {
+                List<String> groupPaths = privilegesInfo.getGroupPaths();
+                List<String> devicePaths = privilegesInfo.getDevicePaths();
+                if (notNullAndNotZero(groupPaths) && groupPaths.size() == 1 && notNullAndNotZero(devicePaths)){
+                    String onlyGroupPath = groupPaths.get(0);
+                    for (String devicePath : devicePaths) {
+                        String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
+                                + onlyGroupPath + "." + devicePath;
+                        try {
+                            sessionPool.executeNonQueryStatement(sql);
+                        } catch (StatementExecutionException e) {
+                            logger.error(e.getMessage());
+                        } catch (IoTDBConnectionException e) {
+                            logger.error(e.getMessage());
+                        }
                     }
                 }
+                continue;
             }
-            return;
-        }
-        if (type == 3) {
-            List<String> groupPaths = privilegesInfo.getGroupPaths();
-            List<String> devicePaths = privilegesInfo.getDevicePaths();
-            List<String> timeseriesPaths = privilegesInfo.getTimeseriesPaths();
-            if (notNullAndNotZero(groupPaths) && groupPaths.size() == 1 && notNullAndNotZero(devicePaths)
-                    && devicePaths.size() == 1 && notNullAndNotZero(timeseriesPaths)){
-                String onlyGroupPath = groupPaths.get(0);
-                String onlyDevicePath = devicePaths.get(0);
-                for (String timeseriesPath : timeseriesPaths) {
-                    String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
-                            + onlyGroupPath + "." + onlyDevicePath + "." + timeseriesPath;
-                    try {
-                        sessionPool.executeNonQueryStatement(sql);
-                    } catch (StatementExecutionException e) {
-                        logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_TIMESERIES_FAIL,ErrorCode.PRIV_TIMESERIES_FAIL_MSG);
-                    } catch (IoTDBConnectionException e) {
-                        logger.error(e.getMessage());
-                        throw new BaseException(ErrorCode.PRIV_TIMESERIES_FAIL,ErrorCode.PRIV_TIMESERIES_FAIL_MSG);
-
+            if (type == 3) {
+                List<String> groupPaths = privilegesInfo.getGroupPaths();
+                List<String> devicePaths = privilegesInfo.getDevicePaths();
+                List<String> timeseriesPaths = privilegesInfo.getTimeseriesPaths();
+                if (notNullAndNotZero(groupPaths) && groupPaths.size() == 1 && notNullAndNotZero(devicePaths)
+                        && devicePaths.size() == 1 && notNullAndNotZero(timeseriesPaths)){
+                    String onlyGroupPath = groupPaths.get(0);
+                    String onlyDevicePath = devicePaths.get(0);
+                    for (String timeseriesPath : timeseriesPaths) {
+                        String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
+                                + onlyGroupPath + "." + onlyDevicePath + "." + timeseriesPath;
+                        try {
+                            sessionPool.executeNonQueryStatement(sql);
+                        } catch (StatementExecutionException e) {
+                            logger.error(e.getMessage());
+                        } catch (IoTDBConnectionException e) {
+                            logger.error(e.getMessage());
+                        }
                     }
                 }
+                continue;
             }
-           return;
+            throw new BaseException(ErrorCode.NO_TYPE,ErrorCode.NO_TYPE_MSG);
         }
-        throw new BaseException(ErrorCode.NO_TYPE,ErrorCode.NO_TYPE_MSG);
     }
 
 
@@ -1040,7 +1102,7 @@ public class IotDBServiceImpl implements IotDBService {
             Callable call = () -> sessionPool.executeQueryStatement(sql);
             ExecutorService service = Executors.newFixedThreadPool(1);
             Future submit = service.submit(call);
-            sessionDataSetWrapper = (SessionDataSetWrapper) submit.get(30, TimeUnit.SECONDS);
+            sessionDataSetWrapper = (SessionDataSetWrapper) submit.get(60, TimeUnit.SECONDS);
 //            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
             int batchSize = sessionDataSetWrapper.getBatchSize();
             List<String> values = new ArrayList<>();

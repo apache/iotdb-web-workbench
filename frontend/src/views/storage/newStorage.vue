@@ -215,6 +215,7 @@ export default {
   .submit-btns {
     .el-button {
       width: 110px;
+      padding-left: 0!important;
     }
   }
 }

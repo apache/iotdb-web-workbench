@@ -10,10 +10,12 @@ import org.apache.iotdb.admin.model.vo.BaseVO;
 import org.apache.iotdb.admin.model.vo.ConnVO;
 import org.apache.iotdb.admin.model.vo.ConnectionVO;
 import org.apache.iotdb.admin.service.ConnectionService;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.net.InetAddress;
 import java.util.List;
 
