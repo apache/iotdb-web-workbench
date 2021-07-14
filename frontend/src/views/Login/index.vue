@@ -196,7 +196,7 @@ export default {
       flex-grow: 1;
       position: relative;
       .login-block {
-        width: 520px;
+        width: 35vw;
         position: absolute;
         left: 50%;
         top: 45%;

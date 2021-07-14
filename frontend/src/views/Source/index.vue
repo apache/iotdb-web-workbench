@@ -88,6 +88,7 @@
             </el-tab-pane>
             <el-tab-pane v-if="!isNew" :label="$t('sourcePage.accountPermit')" name="2">
               <template v-if="activeIndex !== null">
+                <p class="auth-tips">{{ $t('sourcePage.authTips') }}</p>
                 <el-table :data="authTableData" style="width: 100%">
                   <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
                     <template #default="scope">
@@ -604,7 +605,7 @@ export default {
      * 新建用户操作
      */
     const newUser = () => {
-      if (!canCreateUser.value) {
+      if (!canCreateUser.value || !canShowUser.value) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -1127,6 +1128,12 @@ export default {
         .row-select-range {
           display: block;
         }
+         .auth-tips {
+            font-size: 12px;
+            color: red;
+            line-height: 16px;
+            margin-left: 10px;
+          }
         .tab-content {
           padding: 10px 16px;
           .password {
@@ -1154,6 +1161,7 @@ export default {
               cursor: pointer;
             }
           }
+         
         }
         .left-base-content {
           .el-input {
