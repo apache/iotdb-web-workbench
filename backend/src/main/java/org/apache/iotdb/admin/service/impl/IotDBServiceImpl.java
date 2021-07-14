@@ -604,7 +604,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public void setUserPrivileges(Connection connection, String userName,PrivilegeInfoDTO privilegeInfoDTO,Integer delType) throws BaseException {
+    public void setUserPrivileges(Connection connection, String userName,PrivilegeInfoDTO privilegeInfoDTO) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         // 授权
         List<String> privileges = privilegeInfoDTO.getPrivileges();
@@ -616,17 +616,19 @@ public class IotDBServiceImpl implements IotDBService {
         if (notNullAndNotZero(cancelPrivileges)) {
             grantOrRevoke("revoke",cancelPrivileges,userName,privilegeInfoDTO,sessionPool);
         }
-        if (delType >= 1 && delType <= 3) {
-            cancelPathPrivileges(userName,privilegeInfoDTO,sessionPool,delType);
-        }
+        cancelPathPrivileges(userName,privilegeInfoDTO,sessionPool);
         sessionPool.close();
+//        if (delType >= 1 && delType <= 3) {
+//        cancelPathPrivileges(userName,privilegeInfoDTO,sessionPool,delType);
+//        }
     }
 
-    private void cancelPathPrivileges(String userName, PrivilegeInfoDTO privilegeInfoDTO, SessionPool sessionPool,Integer delType) {
+    private void cancelPathPrivileges(String userName, PrivilegeInfoDTO privilegeInfoDTO, SessionPool sessionPool) {
+        Integer type = privilegeInfoDTO.getType();
         List<String> delDevicePaths = privilegeInfoDTO.getDelDevicePaths();
         List<String> delGroupPaths = privilegeInfoDTO.getDelGroupPaths();
         List<String> delTimeseriesPaths = privilegeInfoDTO.getDelTimeseriesPaths();
-        switch (delType) {
+        switch (type) {
             case 1:
                 if (notNullAndNotZero(delGroupPaths)) {
                     Set<String> privileges = SPECIAL_PRIVILEGES.keySet();
