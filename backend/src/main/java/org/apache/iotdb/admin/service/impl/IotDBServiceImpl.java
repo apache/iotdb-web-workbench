@@ -83,6 +83,9 @@ public class IotDBServiceImpl implements IotDBService {
             sessionPool.setStorageGroup(groupName);
         } catch (StatementExecutionException e) {
             // 300为存储组重复
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_SET_GROUP,ErrorCode.NO_PRI_SET_GROUP_MSG);
+            }
             if (e.getStatusCode() != 300) {
                 throw new BaseException(ErrorCode.SET_GROUP_FAIL,ErrorCode.SET_GROUP_FAIL_MSG);
             }
@@ -105,6 +108,9 @@ public class IotDBServiceImpl implements IotDBService {
             sessionPool.deleteStorageGroup(groupName);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_DELETE_GROUP,ErrorCode.NO_PRI_DELETE_GROUP_MSG);
+            }
             throw new BaseException(ErrorCode.DELETE_GROUP_FAIL,ErrorCode.DELETE_GROUP_FAIL_MSG);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
@@ -753,7 +759,15 @@ public class IotDBServiceImpl implements IotDBService {
             }
             try {
                 if (QUERY_STOP.get(id_plus_timestamp)) {
+                    long start = System.currentTimeMillis();
                     sessionPool.executeNonQueryStatement(sql);
+                    long end = System.currentTimeMillis();
+                    double time = (end - start + 0.0d) / 1000;
+                    String queryTime = time + "s";
+                    SqlResultVO sqlResultVO = new SqlResultVO();
+                    sqlResultVO.setQueryTime(queryTime);
+                    sqlResultVO.setLine(0L);
+                    results.add(sqlResultVO);
                 }
             } catch (StatementExecutionException e) {
                 logger.error(e.getMessage());
@@ -1135,7 +1149,16 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL,ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new BaseException(ErrorCode.TIME_OUT,ErrorCode.TIME_OUT_MSG);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            if (e.getMessage().contains("600")) {
+                throw new BaseException(ErrorCode.WRONG_USER,ErrorCode.WRONG_USER_MSG);
+            }
+            throw new BaseException(ErrorCode.CONN_REFUSED,ErrorCode.CONN_REFUSED_MSG);
+        } catch (TimeoutException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.TIME_OUT,ErrorCode.TIME_OUT_MSG);
         } finally {
@@ -1238,7 +1261,7 @@ public class IotDBServiceImpl implements IotDBService {
             }
             if (type == 3) {
                 if (privilegeThree.containsKey(str)) {
-                    List<String> typeList = privilegeTwo.get(str);
+                    List<String> typeList = privilegeThree.get(str);
                     int existEnd = typeList.get(0).lastIndexOf(".");
                     int end = s.lastIndexOf(".");
                     if (typeList.get(0).substring(0,existEnd).equals(s.substring(0,end))) {

@@ -67,6 +67,7 @@ public class ErrorCode {
     public static final String SET_JWT_FAIL = "USER-0011";
     public static final String SET_JWT_FAIL_MSG = "JWT编解码失败";
 
+
     // iotDB相关
     public static final String INSERT_TS_FAIL = "IOTDB-0001";
     public static final String INSERT_TS_FAIL_MSG = "插入时间序列失败";
@@ -202,6 +203,18 @@ public class ErrorCode {
 
     public static final String NO_PRI_DELETE_TIMESERIES = "IOTDB-0045";;
     public static final String NO_PRI_DELETE_TIMESERIES_MSG = "没有权限删除测点";
+
+    public static final String CONN_REFUSED = "IOTDB-0046";
+    public static final String CONN_REFUSED_MSG = "连接错误,检查输入";
+
+    public static final String WRONG_USER = "IOTDB-0047";
+    public static final String WRONG_USER_MSG = "连接用户名或密码错误";
+
+    public static final String NO_PRI_SET_GROUP = "IOTDB-0048";
+    public static final String NO_PRI_SET_GROUP_MSG = "没有权限创建存储组";
+
+    public static final String NO_PRI_DELETE_GROUP = "IOTDB-0048";
+    public static final String NO_PRI_DELETE_GROUP_MSG = "没有权限删除存储组";
 
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";

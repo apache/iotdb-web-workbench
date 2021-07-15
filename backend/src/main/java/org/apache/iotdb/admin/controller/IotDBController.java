@@ -241,7 +241,12 @@ public class IotDBController<T> {
         List<String> deviceNamesStr = iotDBService.getDevices(connection, groupName);
         List<String> deviceNames = new ArrayList<>();
         for (String s : deviceNamesStr) {
-            String deviceName = s.replaceFirst(groupName + ".", "");
+            String deviceName;
+            if (groupName.equals(s)) {
+                deviceName = s.replaceFirst("root.","");
+            } else {
+                deviceName = s.replaceFirst(groupName + ".", "");
+            }
             deviceNames.add(deviceName);
         }
         return BaseVO.success("获取成功", deviceNames);
