@@ -65,6 +65,9 @@ export default {
         localStorage.setItem('authorization', '');
         router.push({ name: 'Login' });
       }
+      if (val === '1') {
+        router.push({ name: 'About' });
+      }
       if (val === '2') {
         window.open('https://iotdb.apache.org/zh/UserGuide/Master/QuickStart/QuickStart.html');
       }
