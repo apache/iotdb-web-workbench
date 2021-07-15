@@ -560,9 +560,6 @@ public class IotDBController<T> {
                 }
                 break;
             case 1:
-//                if (groupPaths == null || groupPaths.size() == 0) {
-//                    throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-//                }
                 if (devicePaths != null && devicePaths.size() > 0) {
                     throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
                 }
@@ -637,7 +634,7 @@ public class IotDBController<T> {
                     if (groupPaths == null || groupPaths.size() != 1) {
                         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
                     }
-                    if (delDevicePaths == null || delDevicePaths.size() != 1) {
+                    if (devicePaths == null || devicePaths.size() != 1) {
                         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
                     }
                 }

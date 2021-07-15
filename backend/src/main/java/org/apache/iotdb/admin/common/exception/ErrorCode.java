@@ -191,6 +191,18 @@ public class ErrorCode {
     public static final String NO_ALL_NUM_SEARCH = "IOTDB-0041";
     public static final String NO_ALL_NUM_SEARCH_MSG = "不支持纯数字查询";
 
+    public static final String NO_PRI_SET_TTL = "IOTDB-0042";
+    public static final String NO_PRI_SET_TTL_MSG = "没有权限设置ttl";
+
+    public static final String NO_PRI_CREATE_TIMESERIES = "IOTDB-0043";
+    public static final String NO_PRI_CREATE_TIMESERIES_MSG = "没有权限创建测点";
+
+    public static final String NO_PRI_READ_TIMESERIES = "IOTDB-0044";
+    public static final String NO_PRI_READ_TIMESERIES_MSG = "没有权限查看测点";
+
+    public static final String NO_PRI_DELETE_TIMESERIES = "IOTDB-0045";;
+    public static final String NO_PRI_DELETE_TIMESERIES_MSG = "没有权限删除测点";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
@@ -224,5 +236,4 @@ public class ErrorCode {
 
     // 参数校验相关
     public static final String WRONG_PARAM = "PARAM-0001";
-
 }
