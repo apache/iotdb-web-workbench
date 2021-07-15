@@ -253,9 +253,9 @@ export default {
         float: right;
       }
     }
-    .device-list{
+    .device-list {
       .el-button--text {
-        padding-left: 0!important;
+        padding-left: 0 !important;
       }
     }
     .el-pagination {

@@ -6,6 +6,15 @@ const en = {
     message: {
       hello: 'hello world',
     },
+    about: {
+      'line-2': 'About us',
+      'line-3': 'Visual management tool of IotDB',
+      'line-4': `IotDB Admin is a GUI interface of IotDB, providing all the Adding, Deleting, Altering and Querying operations. Besides that, Accessing Control is also built. It extremely simplifies the use of IotDB and has very little learning cost. `,
+      'line-5': `IotDB is one of the best time series database in our opinion. We will always try our best to advance the development and application of time series database, making contribution to rise of native open source ability and ecosystem development.Welcome everyone of you to join us, waiting for you! Contact us:`,
+      'line-6-text': 'Scan wechat',
+      'line-7': 'Version: 0.12',
+      'back-btn': 'Return to work page',
+    },
     common: {
       submit: 'submit',
       cancel: 'cancel',

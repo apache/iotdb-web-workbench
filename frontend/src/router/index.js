@@ -29,12 +29,6 @@ const routes = [
             component: () => import(/* webpackChunkName: "Empty" */ '../views/Source/components/empty.vue'),
           },
           {
-            path: 'about',
-            name: 'About',
-            component: () => import(/* webpackChunkName: "about" */ '../views/About'),
-          },
-
-          {
             path: 'source/:serverid',
             name: 'Source',
             component: () => import(/* webpackChunkName: "source" */ '../views/Source'),
@@ -77,6 +71,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import(/* webpackChunkName: "about" */ '../views/About'),
   },
 ];
 
