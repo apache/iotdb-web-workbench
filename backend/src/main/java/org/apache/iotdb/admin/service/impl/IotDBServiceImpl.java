@@ -362,6 +362,9 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (IoTDBConnectionException e) {
             throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
         } catch (StatementExecutionException e) {
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_DELETE_TIMESERIES, ErrorCode.NO_PRI_DELETE_TIMESERIES_MSG);
+            }
             throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
         }finally {
             if (sessionPool != null) {
@@ -406,6 +409,9 @@ public class IotDBServiceImpl implements IotDBService {
             sessionPool.executeNonQueryStatement(sql);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_SET_TTL,ErrorCode.NO_PRI_SET_TTL_MSG);
+            }
             throw new BaseException(ErrorCode.SET_TTL_FAIL,ErrorCode.SET_TTL_FAIL_MSG);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
@@ -468,6 +474,9 @@ public class IotDBServiceImpl implements IotDBService {
             sessionPool.executeNonQueryStatement(sql);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_DELETE_TIMESERIES,ErrorCode.NO_PRI_DELETE_TIMESERIES_MSG);
+            }
             throw new BaseException(ErrorCode.DELETE_TS_FAIL,ErrorCode.DELETE_TS_FAIL_MSG);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
@@ -498,6 +507,9 @@ public class IotDBServiceImpl implements IotDBService {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.INSERT_DEV_FAIL,ErrorCode.INSERT_DEV_FAIL_MSG);
         } catch (StatementExecutionException e) {
+            if (e.getMessage().contains("No permissions")) {
+                throw new BaseException(ErrorCode.NO_PRI_CREATE_TIMESERIES,ErrorCode.NO_PRI_CREATE_TIMESERIES_MSG);
+            }
             if (!e.getMessage().contains("PathAlreadyExistException")) {
                 logger.error(e.getMessage());
                 throw new BaseException(ErrorCode.INSERT_DEV_FAIL,ErrorCode.INSERT_DEV_FAIL_MSG);
@@ -549,6 +561,9 @@ public class IotDBServiceImpl implements IotDBService {
             throw new BaseException(ErrorCode.GET_LAST_VALUE_FAIL,ErrorCode.GET_LAST_VALUE_FAIL_MSG);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_READ_TIMESERIES,ErrorCode.NO_PRI_READ_TIMESERIES_MSG);
+            }
             throw new BaseException(ErrorCode.GET_LAST_VALUE_FAIL,ErrorCode.GET_LAST_VALUE_FAIL_MSG);
         } finally {
             if (sessionPool != null) {
@@ -1440,6 +1455,10 @@ public class IotDBServiceImpl implements IotDBService {
         Integer isGroup = Integer.valueOf(executeQueryOneValue(sessionPool, sql));
         if (isGroup == 1) {
             return 1;
+        }
+        // 无效路径 既不是root 也不是存储组 不展示到页面
+        if (isGroup > 1) {
+            return -1;
         }
         sql = "count devices " + s;
         Integer isDevices = Integer.valueOf(executeQueryOneValue(sessionPool, sql));
