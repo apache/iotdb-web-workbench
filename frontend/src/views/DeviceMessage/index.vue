@@ -23,7 +23,7 @@
     </div>
     <div style="padding: 20px 30px" class="flexBox">
       <form-table :form="form" @serchFormData="serchFormData"></form-table>
-      <el-button type="primary" class="newButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button>
+      <!-- <el-button type="primary" class="newButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button> -->
     </div>
     <stand-table
       :column="column"
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
+import { ElMessageBox, ElMessage } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
 import { reactive, ref, onActivated } from 'vue';
@@ -285,7 +285,7 @@ export default {
   components: {
     StandTable,
     FormTable,
-    ElButton,
+    // ElButton,
     Echarts,
     action,
   },
