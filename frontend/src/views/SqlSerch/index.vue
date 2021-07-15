@@ -56,8 +56,11 @@
                     <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line.list[index] }}</span>
                   </div>
                 </div>
-                <div class="tab_table">
+                <div class="tab_table" v-if="item">
                   <stand-table ref="standTable" :column="item" :tableData="tableData.list[index]" :lineHeight="5" :lineWidth="13" :maxHeight="divwerHeight" :pagination="pagination"> </stand-table>
+                </div>
+                <div class="tab_table" v-else>
+                  <span>{{ $t('sqlserch.sqlserchText') }}</span>
                 </div>
               </el-tab-pane>
               <!-- <el-tab-pane name="second2">
@@ -176,25 +179,33 @@ export default {
           tableData.list = [];
           tabelNum.value = res.data.length;
           res.data.forEach((item) => {
-            time.list.push(item.line);
-            line.list.push(item.queryTime);
-            column.list.push({
-              list: item.metaDataList.map((eleitem, index) => {
-                return {
-                  label: eleitem,
-                  prop: `t${index}`,
-                };
-              }),
-            });
-            tableData.list.push({
-              list: item.valueList.map((eleitem) => {
-                const obj = {};
-                for (let i = 0; i < eleitem.length; i++) {
-                  obj[`t${i}`] = eleitem[i];
-                }
-                return obj;
-              }),
-            });
+            time.list.push(item.queryTime);
+            line.list.push(item.line);
+            if (item.metaDataList) {
+              column.list.push({
+                list: item.metaDataList.map((eleitem, index) => {
+                  return {
+                    label: eleitem,
+                    prop: `t${index}`,
+                  };
+                }),
+              });
+            } else {
+              column.list.push(null);
+            }
+            if (item.valueList) {
+              tableData.list.push({
+                list: item.valueList.map((eleitem) => {
+                  const obj = {};
+                  for (let i = 0; i < eleitem.length; i++) {
+                    obj[`t${i}`] = eleitem[i];
+                  }
+                  return obj;
+                }),
+              });
+            } else {
+              tableData.list.push(null);
+            }
           });
           runFlag.value = true;
         });

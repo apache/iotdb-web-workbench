@@ -264,16 +264,18 @@ export default {
       });
       if (checkfalg && form.formData.deviceName) {
         if (tableData.list.length > 0) {
-          deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then(() => {
-            ElMessage({
-              type: 'success',
-              message: `${t('device.savesuccess')}!`,
-            });
-            deviceData.obj.name = form.formData.deviceName;
-            console.log(`${route.params.parentid}${form.formData.deviceName}device`);
-            props.func.updateTree();
-            props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-            props.func.removeTab(route.params.id);
+          deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then((res) => {
+            if (res.code === '0') {
+              ElMessage({
+                type: 'success',
+                message: `${t('device.savesuccess')}!`,
+              });
+              deviceData.obj.name = form.formData.deviceName;
+              console.log(`${route.params.parentid}${form.formData.deviceName}device`);
+              props.func.updateTree();
+              props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+              props.func.removeTab(route.params.id);
+            }
           });
         } else {
           if (tableData.list.length <= 0) {
@@ -318,21 +320,6 @@ export default {
         });
       }
     });
-    // onMounted(() => {
-    //   console.log(route.params);
-    //   deviceData.obj = route.params;
-    //   if (route.params.name !== '新建实体') {
-    //     getdData();
-    //     getListData();
-    //   } else {
-    //     form.formData = reactive({
-    //       description: null,
-    //       deviceName: null,
-    //       groupName: deviceData.obj.storagegroupid,
-    //       deviceId: null,
-    //     });
-    //   }
-    // });
     return {
       sumbitData,
       deleteRow,

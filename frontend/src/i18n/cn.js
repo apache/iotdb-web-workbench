@@ -244,6 +244,7 @@ const cn = {
       save: '保存',
       run: '运行',
       stop: '暂停',
+      sqlserchText: '执行成功,该查询语句无数据返回',
     },
     standTable: {
       export: '批量导出',

@@ -243,6 +243,7 @@ const en = {
       save: 'save',
       run: 'run',
       stop: 'stop',
+      sqlserchText: 'The query is executed successfully, and no data is returned',
     },
     standTable: {
       export: 'export',
