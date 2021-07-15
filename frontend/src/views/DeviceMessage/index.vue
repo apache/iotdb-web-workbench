@@ -13,7 +13,7 @@
         <span>{{ routeData.obj.parentids }}</span>
         <span class="spanmargin">{{ $t('device.group') }}：</span>
         <span>{{ routeData.obj.storagegroupid }}</span>
-        <span class="spanmargin">{{ $t('device.physicaldescr') }}：</span>
+        <span class="spanmargin">{{ $t('device.description') }}：</span>
         <span>{{ deviceObj.deviceData.description }}</span>
         <span class="spanmargin">{{ $t('device.creator') }}：</span>
         <span>{{ deviceObj.deviceData.creator }}</span>
@@ -39,14 +39,14 @@
     >
       <template #default="{ scope }">
         <div @click="searchRow(scope.row)" v-if="scope.row.newValue + '' * 1">
-          <action :echartsData="routeData.obj" :row="scope.row"></action>
+          <action :echartsData="routeData.obj" :row="scope.row" :scope="scope"></action>
         </div>
         <div v-else class="actionSpan">
           <span>——</span>
         </div>
       </template>
     </stand-table>
-    <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px' }">
+    <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px', width: widths - dividerWidth + 'px' }">
       <div class="drawertitle">
         <div>{{ routeData.obj.timeseries }}{{ $t('device.datatrend') }}</div>
         <div>
@@ -78,12 +78,14 @@ export default {
   props: {
     func: Object,
     data: Object,
+    dividerWidth: Object,
   },
   setup(props) {
     const { t } = useI18n();
     const funcs = reactive(props.func);
     const router = useRouter();
     const route = useRoute();
+    let widths = ref(window.screen.width);
     let drawer = ref(0);
     let loading = ref(true);
     let drawerFlag = ref(false);
@@ -258,6 +260,7 @@ export default {
     });
     return {
       form,
+      widths,
       column,
       drawer,
       connection,
@@ -317,7 +320,7 @@ $cursor: pointer;
   font-size: 11px;
 }
 .drawer {
-  width: 84%;
+  // width: 84%;
   bottom: 0px;
   background: #fff;
   position: absolute;

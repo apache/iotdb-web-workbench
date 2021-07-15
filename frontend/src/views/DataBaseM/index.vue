@@ -34,6 +34,7 @@
                   :key="route.fullPath"
                   :is="Component"
                   :data="tabData"
+                  :dividerWidth="dividerWidth"
                   :func="{
                     removeTab,
                     addTab,

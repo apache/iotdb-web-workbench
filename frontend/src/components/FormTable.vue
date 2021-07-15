@@ -8,6 +8,7 @@
         :style="{ width: item.width }"
         :placeholder="$t(item.placeholder)"
         @blur="getFormData"
+        @keypress.enter.stop="getFormData"
         :suffix-icon="item.suffixIcon"
         :prefix-icon="item.prefixIcon"
       >

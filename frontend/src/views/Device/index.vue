@@ -19,6 +19,7 @@
         :lineHeight="5"
         :encoding="encoding"
         :maxHeight="430"
+        @iconEvent="openWin"
       >
         <template #default="{ scope }">
           <el-button @click="deleteRow(scope.row, scope.$index)" type="text" size="small" style="color: red">
@@ -38,7 +39,7 @@
 import FormTable from '@/components/FormTable';
 import StandTable from '@/components/StandTable';
 import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
-import { onMounted, reactive, ref } from 'vue';
+import { onActivated, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
@@ -175,7 +176,7 @@ export default {
       ],
     });
     function checkVal(scope, obj, val, ev) {
-      if (!/^\w+$/.test(val)) {
+      if (!/^[\w\u4e00-\u9fa5]+$/.test(val)) {
         ElMessage.error(`"${val}"${t('device.pyname')}`);
         obj.border = true;
         ev.target.focus();
@@ -209,12 +210,14 @@ export default {
           type: 'warning',
         })
           .then(() => {
-            deleteData(deviceData.obj, row.timeseries).then(() => {
-              tableData.list.splice(index, 1);
-              ElMessage({
-                type: 'success',
-                message: `${t('device.deletetitle')}!`,
-              });
+            deleteData(deviceData.obj, row.timeseries).then((res) => {
+              if (res.code === '0') {
+                tableData.list.splice(index, 1);
+                ElMessage({
+                  type: 'success',
+                  message: `${t('device.deletetitle')}!`,
+                });
+              }
             });
           })
           .catch(() => {
@@ -297,7 +300,10 @@ export default {
         });
       });
     }
-    onMounted(() => {
+    function openWin() {
+      window.open('https://iotdb.apache.org/zh/UserGuide/Master/Data-Concept/Encoding.html', '_blank');
+    }
+    onActivated(() => {
       console.log(route.params);
       deviceData.obj = route.params;
       if (route.params.name !== '新建实体') {
@@ -312,12 +318,28 @@ export default {
         });
       }
     });
+    // onMounted(() => {
+    //   console.log(route.params);
+    //   deviceData.obj = route.params;
+    //   if (route.params.name !== '新建实体') {
+    //     getdData();
+    //     getListData();
+    //   } else {
+    //     form.formData = reactive({
+    //       description: null,
+    //       deviceName: null,
+    //       groupName: deviceData.obj.storagegroupid,
+    //       deviceId: null,
+    //     });
+    //   }
+    // });
     return {
       sumbitData,
       deleteRow,
       addItem,
       getListData,
       closeTab,
+      openWin,
       pagination,
       encoding,
       totalCount,

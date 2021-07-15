@@ -20,7 +20,7 @@
         <template #header>
           <span :class="{ spanbox: item.required }"></span>
           <span>{{ $t(item.label) }}</span>
-          <i :class="item.icon" style="margin-left: 4px"></i>
+          <i :class="item.icon" style="margin-left: 4px" @click="iconEvent"></i>
         </template>
         <template #default="scope">
           <el-input
@@ -152,6 +152,9 @@ export default {
       }
       row.encoding = row.options[0].value;
     }
+    function iconEvent() {
+      emit('iconEvent');
+    }
     onMounted(() => {
       console.log(1234);
       console.log(columns);
@@ -166,6 +169,7 @@ export default {
       handleCurrentChange,
       selectEncoding,
       getlist,
+      iconEvent,
       getColumn,
     };
   },

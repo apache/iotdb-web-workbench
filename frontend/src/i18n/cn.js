@@ -182,7 +182,7 @@ const cn = {
       look: '查看',
       inputdevice: '请输入实体名称',
       inputdecr: '请输入实体描述',
-      pyname: '物理量必须由字⺟、数字、下划线组成',
+      pyname: '物理量必须由汉字、字⺟、数字、下划线组成',
       pynamel: '物理量必须⼤于0⼤字符，⼩于255个字符',
       pynamecopy: '物理量重名，请修改',
       deletetitle: '删除成功',
