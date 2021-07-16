@@ -37,7 +37,7 @@
               <el-tooltip class="item" width="200" effect="dark" :content="item.username" placement="top">
                 <span class="content">{{ item.username }}</span>
               </el-tooltip>
-              <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')" @confirm="deleteUser(item)">
+              <el-popconfirm placement="top" :title="$t('sourcePage.deleteUserConfirm')" @confirm="deleteUser(item)">
                 <template #reference>
                   <span class="icon-del del-user">
                     <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true">
@@ -57,7 +57,9 @@
                 <div v-if="!isNew" class="tab-content left-base-content">
                   <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
                     <el-form-item :label="$t('sourcePage.userNameTitle')">
-                      <div class="user-name">{{ baseInfoForm.userName }}</div>
+                      <el-tooltip class="item" width="200" effect="dark" :content="baseInfoForm.userName" placement="top">
+                        <div class="user-name">{{ baseInfoForm.userName }}</div>
+                      </el-tooltip>
                     </el-form-item>
                     <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
                       <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
@@ -1248,7 +1250,8 @@ export default {
             }
           }
           .user-name {
-            max-width: 200px;
+            max-width: calc(100vw - 550px);
+
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;

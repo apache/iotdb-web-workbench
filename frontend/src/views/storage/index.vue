@@ -19,7 +19,8 @@
         <el-descriptions-item :label="$t('storagePage.alias') + ':'">{{ baseInfo.alias }}</el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.creator') + ':'">{{ baseInfo.creator }}</el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.createTime')">{{ baseInfo.createTime }}</el-descriptions-item>
-        <el-descriptions-item :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }}{{ ttlValue['second'] }} </el-descriptions-item>
+        <el-descriptions-item v-if="baseInfo.ttl" :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }}{{ ttlValue[baseInfo.ttiUnit] }} </el-descriptions-item>
+        <el-descriptions-item v-else :label="$t('storagePage.ttl')"> ∞ </el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.description') + ':'">{{ baseInfo.description }}</el-descriptions-item>
       </el-descriptions>
     </div>
