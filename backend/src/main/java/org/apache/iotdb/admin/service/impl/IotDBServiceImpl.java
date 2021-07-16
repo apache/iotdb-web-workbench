@@ -539,44 +539,15 @@ public class IotDBServiceImpl implements IotDBService {
     public String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         int index = timeseries.lastIndexOf(".");
-        String sql = "select last " + timeseries.substring(index + 1) + " from " + timeseries.substring(0, index);
+        String sql = "select " + timeseries.substring(index + 1) + " from " + timeseries.substring(0, index) + " limit 1 offset 0";
+//        String sql = "select last " + timeseries.substring(index + 1) + " from " + timeseries.substring(0, index);
+        String value;
         try {
-            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
-            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
-            int batchSize = sessionDataSetWrapper.getBatchSize();
-            int mark = -1;
-            for (int i = 0; i < columnNames.size(); i++) {
-                if ("value".equalsIgnoreCase(columnNames.get(i))) {
-                    mark = i;
-                    break;
-                }
-            }
-            if (mark == -1) {
-                throw new BaseException(ErrorCode.NO_SUCH_FIELD, ErrorCode.NO_SUCH_FIELD_MSG);
-            }
-            if (batchSize > 0) {
-                while (sessionDataSetWrapper.hasNext()) {
-                    RowRecord rowRecord = sessionDataSetWrapper.next();
-                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
-                    // 时间戳不在fields里面 所以下标减1
-                    return fields.get(mark - 1).toString();
-                }
-            }
-        } catch (IoTDBConnectionException e) {
-            logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.GET_LAST_VALUE_FAIL, ErrorCode.GET_LAST_VALUE_FAIL_MSG);
-        } catch (StatementExecutionException e) {
-            logger.error(e.getMessage());
-            if (e.getStatusCode() == 602) {
-                throw new BaseException(ErrorCode.NO_PRI_READ_TIMESERIES, ErrorCode.NO_PRI_READ_TIMESERIES_MSG);
-            }
-            throw new BaseException(ErrorCode.GET_LAST_VALUE_FAIL, ErrorCode.GET_LAST_VALUE_FAIL_MSG);
+            value = executeQueryOneValue(sessionPool,sql);
         } finally {
-            if (sessionPool != null) {
-                sessionPool.close();
-            }
+            sessionPool.close();
         }
-        return null;
+        return value;
     }
 
     @Override
