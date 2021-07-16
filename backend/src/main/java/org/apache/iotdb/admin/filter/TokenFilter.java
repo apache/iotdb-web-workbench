@@ -18,19 +18,19 @@ import java.net.UnknownHostException;
 public class TokenFilter implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws BaseException {
-        JWTVerifier jwtVerifier ;
+        JWTVerifier jwtVerifier;
         try {
             jwtVerifier = JWT.require(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress())).build();
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            throw new BaseException(ErrorCode.SET_JWT_FAIL,ErrorCode.SET_JWT_FAIL_MSG);
+            throw new BaseException(ErrorCode.SET_JWT_FAIL, ErrorCode.SET_JWT_FAIL_MSG);
         }
         try {
             String authorization = request.getHeader("Authorization");
             jwtVerifier.verify(authorization);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(ErrorCode.Token_Err,ErrorCode.Token_Err_MSG);
+            throw new BaseException(ErrorCode.Token_Err, ErrorCode.Token_Err_MSG);
         }
         return true;
     }

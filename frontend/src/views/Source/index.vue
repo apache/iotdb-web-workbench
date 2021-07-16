@@ -34,10 +34,18 @@
           </p>
           <ul class="user-list">
             <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
-              <span class="content">{{ item.username }}</span>
-              <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true" @click.stop="deleteUser(item)">
-                <use xlink:href="#icon-se-icon-delete"></use>
-              </svg>
+              <el-tooltip class="item" width="200" effect="dark" :content="item.username" placement="top">
+                <span class="content">{{ item.username }}</span>
+              </el-tooltip>
+              <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')" @confirm="deleteUser(item)">
+                <template #reference>
+                  <span class="icon-del del-user">
+                    <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true">
+                      <use xlink:href="#icon-se-icon-delete"></use>
+                    </svg>
+                  </span>
+                </template>
+              </el-popconfirm>
             </li>
           </ul>
         </div>
@@ -98,7 +106,7 @@
                       </el-select>
                     </template>
                   </el-table-column>
-                  <el-table-column show-overflow-tooltip :label="$t('sourcePage.range')">
+                  <el-table-column :label="$t('sourcePage.range')">
                     <template #default="scope">
                       <div v-if="scope.row.type == 0">-</div>
                       <div v-else-if="scope.row.type == 1">
@@ -108,6 +116,7 @@
                           </el-select>
                         </div>
                         <div v-else>
+                          <p>{{ $t('sourcePage.groupNameLabel') }}</p>
                           <span v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</span>
                         </div>
                       </div>
@@ -121,6 +130,9 @@
                           </el-select>
                         </div>
                         <div v-else>
+                          <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                          <span class="device-path">{{ scope.row.groupPaths[0] }}</span>
+                          <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
                           <span v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</span>
                         </div>
                       </div>
@@ -137,6 +149,11 @@
                           </el-select>
                         </div>
                         <div v-else>
+                          <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                          <span class="device-path">{{ scope.row.groupPaths[0] }}</span>
+                          <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
+                          <span class="device-path">{{ scope.row.devicePaths[0] }}</span>
+                          <p>{{ $t('sourcePage.timeNameLabel') }}</p>
                           <span v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</span>
                         </div>
                       </div>
@@ -381,55 +398,6 @@ export default {
         { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
       ];
     };
-    // const funcTypeOne = [
-    //   { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
-    //   { id: 'CREATE_USER', label: t('sourcePage.createUser') },
-    //   { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
-    //   { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
-    //   { id: 'LIST_USER', label: t('sourcePage.listUser') },
-    //   {
-    //     id: 'GRANT_USER_PRIVILEGE',
-    //     label: t('sourcePage.grantPrivilege'),
-    //   },
-    //   {
-    //     id: 'REVOKE_USER_PRIVILEGE',
-    //     label: t('sourcePage.revertPrivilege'),
-    //   },
-    //   {
-    //     id: 'CREATE_TIMESERIES',
-    //     label: t('sourcePage.createTimeSeries'),
-    //   },
-    //   {
-    //     id: 'INSERT_TIMESERIES',
-    //     label: t('sourcePage.insertTimeSeries'),
-    //   },
-    //   { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
-    //   {
-    //     id: 'DELETE_TIMESERIES',
-    //     label: t('sourcePage.deleteTimeSeries'),
-    //   },
-    //   { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
-    //   { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
-    //   { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
-    //   { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
-    //   { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
-    //   { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
-    // ];
-    // const funcTypeTwo = [
-    //   {
-    //     id: 'CREATE_TIMESERIES',
-    //     label: t('sourcePage.createTimeSeries'),
-    //   },
-    //   {
-    //     id: 'INSERT_TIMESERIES',
-    //     label: t('sourcePage.insertTimeSeries'),
-    //   },
-    //   { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
-    //   {
-    //     id: 'DELETE_TIMESERIES',
-    //     label: t('sourcePage.deleteTimeSeries'),
-    //   },
-    // ];
     let funcTypeTwo = () => {
       return [
         {
@@ -647,7 +615,6 @@ export default {
      * index: 行顺序
      */
     const changeEditState = (scope) => {
-      console.log(scope.$index);
       authTableData.value[scope.$index].edit = true;
     };
     /**
@@ -784,13 +751,33 @@ export default {
      * scope当前行数据
      */
     const saveRowAuth = (scope) => {
-      let reqObj = scope.row;
-
+      let reqObj = JSON.parse(JSON.stringify(scope.row));
+      if (reqObj.type != 0 && reqObj.type != 1 && reqObj.type != 2 && reqObj.type != 3) {
+        ElMessage.error(t('sourcePage.submitTypeTips'));
+        return false;
+      }
+      if (reqObj.type == 1 && (!reqObj.groupPaths || !reqObj.groupPaths.length)) {
+        ElMessage.error(t('sourcePage.submitRangeTips'));
+        return false;
+      }
+      if (reqObj.type == 2 && (!reqObj.groupPaths || !reqObj.groupPaths.length || !reqObj.devicePaths || !reqObj.devicePaths.length)) {
+        ElMessage.error(t('sourcePage.submitRangeTips'));
+        return false;
+      }
+      if (reqObj.type == 3 && (!reqObj.groupPaths || !reqObj.groupPaths.length || !reqObj.devicePaths || !reqObj.devicePaths.length || !reqObj.timeseriesPaths || !reqObj.timeseriesPaths.length)) {
+        ElMessage.error(t('sourcePage.submitRangeTips'));
+        return false;
+      }
+      if (!reqObj.privileges || !reqObj.privileges.length) {
+        ElMessage.error(t('sourcePage.submitPrivilegesTips'));
+        return false;
+      }
       if (scope.row.new) {
         //用户新增权限
         reqObj.cancelPrivileges = [];
       } else {
         // 缓存权限信息
+        //根据后端要求设置功能数组组装开始
         let tempRow = userAuthInfoTemp.value.privilegesInfo[scope.$index].privileges;
         // 用户删除的权限
         let deleteArr = tempRow.filter(function (val) {
@@ -800,11 +787,125 @@ export default {
         let newArr = scope.row.privileges.filter(function (val) {
           return tempRow.indexOf(val) === -1;
         });
-
+        //交集
+        let intersection = tempRow.filter(function (val) {
+          return scope.row.privileges.indexOf(val) > -1;
+        });
+        newArr = newArr.concat(intersection);
         reqObj.privileges = newArr;
         reqObj.cancelPrivileges = deleteArr;
-      }
+        //根据后端要求设置功能数组组装结束
 
+        //根据后端要求设置范围数组组装开始
+        if (scope.row.type == 1) {
+          let tempGroupArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].groupPaths;
+          // 用户删除的权限
+          let deleteGroupArr = tempGroupArr.filter(function (val) {
+            return scope.row.groupPaths.indexOf(val) === -1;
+          });
+          // 用户新增的权限
+          let newGroupArr = scope.row.groupPaths.filter(function (val) {
+            return tempGroupArr.indexOf(val) === -1;
+          });
+          //交集
+          let intersection = tempGroupArr.filter(function (val) {
+            return scope.row.groupPaths.indexOf(val) > -1;
+          });
+          newGroupArr = newGroupArr.concat(intersection);
+          reqObj.delGroupPaths = deleteGroupArr;
+          reqObj.groupPaths = newGroupArr;
+        } else if (scope.row.type == 2) {
+          let tempGroupArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].groupPaths;
+          let tempDeviceArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].devicePaths;
+          if (tempGroupArr.toString() == scope.row.groupPaths.toString()) {
+            //未修改存储组
+            reqObj.delGroupPaths = [];
+            reqObj.groupPaths = scope.row.groupPaths;
+            let deleteDeviceArr = tempDeviceArr.filter(function (val) {
+              return scope.row.devicePaths.indexOf(val) === -1;
+            });
+            // 用户新增的权限
+            let newDeviceArr = scope.row.devicePaths.filter(function (val) {
+              return tempDeviceArr.indexOf(val) === -1;
+            });
+            //交集
+            let intersection = tempDeviceArr.filter(function (val) {
+              return scope.row.devicePaths.indexOf(val) > -1;
+            });
+            newDeviceArr = newDeviceArr.concat(intersection);
+            if (deleteDeviceArr.length) {
+              reqObj.delGroupPaths = tempGroupArr;
+            }
+            reqObj.delDevicePaths = deleteDeviceArr;
+            reqObj.devicePaths = newDeviceArr;
+            // reqObj.privileges = scope.row.privileges;
+          } else {
+            //修改了存储组
+            reqObj.delGroupPaths = tempGroupArr;
+            reqObj.groupPaths = scope.row.groupPaths;
+            reqObj.delDevicePaths = tempDeviceArr;
+            reqObj.devicePaths = scope.row.devicePaths;
+            // reqObj.privileges = scope.row.privileges;
+          }
+        } else if (scope.row.type == 3) {
+          let tempGroupArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].groupPaths;
+          let tempDeviceArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].devicePaths;
+          let tempTimeArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].timeseriesPaths;
+          if (tempGroupArr.toString() == scope.row.groupPaths.toString()) {
+            //未修改存储组
+            reqObj.delGroupPaths = [];
+            reqObj.groupPaths = scope.row.groupPaths;
+            if (tempDeviceArr.toString() == scope.row.devicePaths.toString()) {
+              // 未修改设备
+              reqObj.delDevicePaths = [];
+              reqObj.devicePaths = scope.row.devicePaths;
+              if (tempDeviceArr.toString() == scope.row.timeseriesPaths.toString()) {
+                // 未修改物理量
+                reqObj.delTimeseriesPaths = [];
+                reqObj.timeseriesPaths = scope.row.timeseriesPaths;
+              } else {
+                //修改了物理量
+                let deleteTimeArr = tempTimeArr.filter(function (val) {
+                  return scope.row.timeseriesPaths.indexOf(val) === -1;
+                });
+                // 用户新增的权限
+                let newTimeArr = scope.row.timeseriesPaths.filter(function (val) {
+                  return tempTimeArr.indexOf(val) === -1;
+                });
+                //交集
+                let intersection = tempTimeArr.filter(function (val) {
+                  return scope.row.timeseriesPaths.indexOf(val) > -1;
+                });
+                newTimeArr = newTimeArr.concat(intersection);
+                if (deleteTimeArr.length) {
+                  reqObj.delTimeseriesPaths = deleteTimeArr;
+                  reqObj.delGroupPaths = scope.row.groupPaths;
+                  reqObj.delDevicePaths = scope.row.devicePaths;
+                }
+                reqObj.timeseriesPaths = newTimeArr;
+
+                // reqObj.privileges = scope.row.privileges;
+              }
+            } else {
+              //修改了设备
+              reqObj.delDevicePaths = tempDeviceArr;
+              reqObj.devicePaths = scope.row.devicePaths;
+              reqObj.delTimeseriesPaths = tempTimeArr;
+              reqObj.timeseriesPaths = scope.row.timeseriesPaths;
+              reqObj.delGroupPaths = scope.row.groupPaths;
+              // reqObj.privileges = scope.row.privileges;
+            }
+          } else {
+            //修改了存储组
+            reqObj.delGroupPaths = tempGroupArr;
+            reqObj.groupPaths = scope.row.groupPaths;
+            reqObj.delDevicePaths = tempDeviceArr;
+            reqObj.devicePaths = scope.row.devicePaths;
+            reqObj.delTimeseriesPaths = tempTimeArr;
+            reqObj.timeseriesPaths = scope.row.timeseriesPaths;
+          }
+        }
+      }
       axios.post(`/servers/${serverId.value}/users/${activeIndex.value}`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
           ElMessage.success(t('sourcePage.operateAuthLabel'));
@@ -838,7 +939,6 @@ export default {
     const getDeviceByGroupName = (val, scope) => {
       scope.row.devicePaths = [];
       scope.row.timeseriesPaths = [];
-      console.log(val);
       axios.get(`/servers/${serverId.value}/storageGroups/${val}/devices`).then((rs) => {
         if (rs && rs.code == 0) {
           scope.row.allDevicePaths = rs.data || [];
@@ -998,6 +1098,9 @@ export default {
     right: 40px;
     color: #d32d2fff;
   }
+  .del-user {
+    right: 0;
+  }
   .info-box {
     padding: 10px 20px;
     position: relative;
@@ -1128,12 +1231,12 @@ export default {
         .row-select-range {
           display: block;
         }
-         .auth-tips {
-            font-size: 12px;
-            color: red;
-            line-height: 16px;
-            margin-left: 10px;
-          }
+        .auth-tips {
+          font-size: 12px;
+          color: red;
+          line-height: 16px;
+          margin-left: 10px;
+        }
         .tab-content {
           padding: 10px 16px;
           .password {
@@ -1161,7 +1264,6 @@ export default {
               cursor: pointer;
             }
           }
-         
         }
         .left-base-content {
           .el-input {

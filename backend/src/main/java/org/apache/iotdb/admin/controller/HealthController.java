@@ -9,7 +9,6 @@ import java.io.IOException;
 
 /**
  * 运维平台通过存活、就绪探针表示应用是否存活，就绪。这个类大家最好不好删除，url地址也不要改变
- *
  */
 @Controller
 public class HealthController {

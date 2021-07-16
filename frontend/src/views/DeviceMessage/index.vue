@@ -113,7 +113,7 @@ export default {
           width: '400px',
           itemID: 'keyword', //数据字段名
           suffixIcon: 'el-icon-search', // 后图标样式
-          placeholder: '请输入测点名称', //灰色提示文字
+          placeholder: 'device.serchPy', //灰色提示文字
         },
       ],
     });
@@ -302,7 +302,7 @@ $cursor: pointer;
   border-color: $theme-color;
 }
 .actionSpan {
-  height: 50px;
+  height: 65px;
   display: flex;
   align-items: center;
 }

@@ -28,8 +28,8 @@ public class QueryServiceImpl extends ServiceImpl<QueryMapper, Query> implements
     @Override
     public void save(Integer serverId, Query inputQuery) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",serverId);
-        queryWrapper.eq("query_name",inputQuery.getQueryName());
+        queryWrapper.eq("connection_id", serverId);
+        queryWrapper.eq("query_name", inputQuery.getQueryName());
         Query query = queryMapper.selectOne(queryWrapper);
         if (query == null) {
             Query newQuery = new Query();
@@ -39,13 +39,13 @@ public class QueryServiceImpl extends ServiceImpl<QueryMapper, Query> implements
             queryMapper.insert(newQuery);
             return;
         }
-        throw new BaseException(ErrorCode.QUERY_EXIST,ErrorCode.QUERY_EXIST_MSG);
+        throw new BaseException(ErrorCode.QUERY_EXIST, ErrorCode.QUERY_EXIST_MSG);
     }
 
     @Override
     public void update(Integer serverId, Query inputQuery) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",inputQuery.getId());
+        queryWrapper.eq("id", inputQuery.getId());
         Query query = queryMapper.selectOne(queryWrapper);
         if (query != null) {
             query.setQueryName(inputQuery.getQueryName());
@@ -53,18 +53,18 @@ public class QueryServiceImpl extends ServiceImpl<QueryMapper, Query> implements
             queryMapper.updateById(query);
             return;
         }
-        throw new BaseException(ErrorCode.QUERY_EXIST,ErrorCode.QUERY_EXIST_MSG);
+        throw new BaseException(ErrorCode.QUERY_EXIST, ErrorCode.QUERY_EXIST_MSG);
     }
 
     @Override
     public List<QueryVO> getQueryList(Integer serverId) {
         QueryWrapper<Query> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",serverId);
+        queryWrapper.eq("connection_id", serverId);
         List<Query> queries = queryMapper.selectList(queryWrapper);
         List<QueryVO> queryVOList = new ArrayList<>();
         for (Query query : queries) {
             QueryVO queryVO = new QueryVO();
-            BeanUtils.copyProperties(query,queryVO);
+            BeanUtils.copyProperties(query, queryVO);
             queryVOList.add(queryVO);
         }
         return queryVOList;
@@ -73,20 +73,20 @@ public class QueryServiceImpl extends ServiceImpl<QueryMapper, Query> implements
     @Override
     public void deleteQuery(Integer queryId) throws BaseException {
         QueryWrapper<Query> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",queryId);
+        queryWrapper.eq("id", queryId);
         int flag = queryMapper.delete(queryWrapper);
         if (flag <= 0) {
-            throw new BaseException(ErrorCode.QUERY_NOT_EXIST,ErrorCode.QUERY_NOT_EXIST_MSG);
+            throw new BaseException(ErrorCode.QUERY_NOT_EXIST, ErrorCode.QUERY_NOT_EXIST_MSG);
         }
     }
 
     @Override
     public Query getQuery(Integer queryId) throws BaseException {
         QueryWrapper<Query> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",queryId);
+        queryWrapper.eq("id", queryId);
         Query query = queryMapper.selectOne(queryWrapper);
         if (query == null) {
-            throw new BaseException(ErrorCode.QUERY_NOT_EXIST,ErrorCode.QUERY_NOT_EXIST_MSG);
+            throw new BaseException(ErrorCode.QUERY_NOT_EXIST, ErrorCode.QUERY_NOT_EXIST_MSG);
         }
         return query;
     }

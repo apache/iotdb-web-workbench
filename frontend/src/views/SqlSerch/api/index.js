@@ -32,3 +32,8 @@ export function queryStop(serverId, params) {
 export function getlink(params) {
   return axios.get(`/servers`, { params: params });
 }
+
+// 删除查询
+export function deleteQueryS(serverId, queryId) {
+  return axios.delete(`/servers/${serverId}/query/${queryId}`);
+}

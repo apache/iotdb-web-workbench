@@ -15,13 +15,13 @@ import java.util.List;
 public interface IotDBService {
     List<String> getAllStorageGroups(Connection connection) throws BaseException;
 
-    void saveStorageGroup(Connection connection,String groupName) throws BaseException;
+    void saveStorageGroup(Connection connection, String groupName) throws BaseException;
 
     void deleteStorageGroup(Connection connection, String groupName) throws BaseException;
 
-    CountDTO getDevicesByGroup(Connection connection, String groupName,Integer pageSize,Integer pageNum,String keyword) throws BaseException;
+    CountDTO getDevicesByGroup(Connection connection, String groupName, Integer pageSize, Integer pageNum, String keyword) throws BaseException;
 
-    CountDTO  getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum, String keyword) throws BaseException;
+    CountDTO getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum, String keyword) throws BaseException;
 
     List<String> getIotDBUserList(Connection connection) throws BaseException;
 
@@ -45,9 +45,9 @@ public interface IotDBService {
 
     SqlResultVO showTimeseries(Connection connection, String deviceName) throws BaseException;
 
-    List<Integer> getDevicesCount(Connection connection,List<String> groupNames) throws BaseException;
+    List<Integer> getDevicesCount(Connection connection, List<String> groupNames) throws BaseException;
 
-    void saveGroupTtl(Connection connection,String groupName,long l) throws BaseException;
+    void saveGroupTtl(Connection connection, String groupName, long l) throws BaseException;
 
     void cancelGroupTtl(Connection connection, String groupName) throws BaseException;
 
@@ -69,11 +69,11 @@ public interface IotDBService {
 
     List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
 
-    void setUserPrivileges(Connection connection, String userName,PrivilegeInfoDTO privilegeInfoDTO) throws BaseException;
+    void setUserPrivileges(Connection connection, String userName, PrivilegeInfoDTO privilegeInfoDTO) throws BaseException;
 
     RecordVO getRecords(Connection connection, String deviceName, String timeseriesName) throws BaseException;
 
-    List<SqlResultVO> queryAll(Connection connection, List<String> sqls,Long timestamp) throws BaseException;
+    List<SqlResultVO> queryAll(Connection connection, List<String> sqls, Long timestamp) throws BaseException;
 
     void updatePwd(Connection connection, IotDBUser iotDBUser) throws BaseException;
 

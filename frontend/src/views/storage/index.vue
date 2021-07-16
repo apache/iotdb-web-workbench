@@ -19,7 +19,7 @@
         <el-descriptions-item :label="$t('storagePage.alias') + ':'">{{ baseInfo.alias }}</el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.creator') + ':'">{{ baseInfo.creator }}</el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.createTime')">{{ baseInfo.createTime }}</el-descriptions-item>
-        <el-descriptions-item :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }} {{ baseInfo.ttlUnit }} </el-descriptions-item>
+        <el-descriptions-item :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }}{{ ttlValue['second'] }} </el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.description') + ':'">{{ baseInfo.description }}</el-descriptions-item>
       </el-descriptions>
     </div>
@@ -56,7 +56,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref } from 'vue';
+import { onActivated, onMounted, ref, watch } from 'vue';
 import { ElDescriptions, ElDescriptionsItem, ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage, ElPopconfirm } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -66,7 +66,8 @@ export default {
   name: 'Storage',
   props: ['data', 'func'],
   setup(props) {
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
+
     const router = useRouter();
     let baseInfo = ref({});
     let searchVal = ref(null);
@@ -74,9 +75,32 @@ export default {
     let currentPage = ref(1);
     const pageSize = ref(10);
     let total = ref(0);
+    let ttlMap = () => {
+      return {
+        second: t('storagePage.secondLabel'),
+        minute: t('storagePage.minuteLabel'),
+        hour: t('storagePage.hourLabel'),
+        day: t('storagePage.dayLabel'),
+        week: t('storagePage.weekLabel'),
+        month: t('storagePage.monthLabel'),
+        year: t('storagePage.yearLabel'),
+      };
+    };
+    let ttlValue = ref({
+      second: t('storagePage.secondLabel'),
+      minute: t('storagePage.minuteLabel'),
+      hour: t('storagePage.hourLabel'),
+      day: t('storagePage.dayLabel'),
+      week: t('storagePage.weekLabel'),
+      month: t('storagePage.monthLabel'),
+      year: t('storagePage.yearLabel'),
+    });
     // const handleSelectionChange = (selection) => {
     //   console.log(selection);
     // };
+    watch(locale, () => {
+      ttlValue.value = ttlMap();
+    });
     const handleCurrentChange = (val) => {
       currentPage.value = val;
       getDeviceList();
@@ -172,8 +196,13 @@ export default {
      */
     const newDevice = () => {
       props.func.updateTree([props.data.parent.id, props.data.id]);
-      props.func.addTab(`${props.data.id}:newdevice`);
+      props.func.addTab(`${props.data.id}:newdevice`, { getList: getDeviceList });
+      props.func.removeTab(props.data.id);
     };
+    onActivated(() => {
+      getGroupDetail();
+      getDeviceList();
+    });
     onMounted(() => {
       getGroupDetail();
       getDeviceList();
@@ -197,6 +226,7 @@ export default {
       getDeviceList,
       deleteDevice,
       search,
+      ttlValue,
     };
   },
   components: {

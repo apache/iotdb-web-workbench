@@ -11,16 +11,16 @@ import java.util.List;
 /**
  * @anthor fyx 2021/6/16
  */
-public interface DeviceService  {
-    List<Device> getDevices(Integer serverId, List<String> deviceNames);
+public interface DeviceService {
+    List<Device> getDevices(String host, List<String> deviceNames);
 
-    void deleteDeviceInfo(Integer serverId, String groupName) throws BaseException;
+    void deleteDeviceInfo(String host, String groupName) throws BaseException;
 
-    void deleteDeviceInfoByDeviceName(Integer serverId, String deviceName) throws BaseException;
+    void deleteDeviceInfoByDeviceName(String host, String deviceName) throws BaseException;
 
     void setDeviceInfo(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 
-    DeviceVO getDevice(Integer serverId, String deviceName);
+    DeviceVO getDevice(String host, String deviceName);
 
     void updateDeviceInfo(DeviceInfoDTO deviceInfoDTO) throws BaseException;
 }

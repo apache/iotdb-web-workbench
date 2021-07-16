@@ -27,6 +27,7 @@ export default {
           res.data.timeList[i * length] = formatDate(res.data.timeList[i * length]);
         }
         props.getDate(res.data.timeList[0], res.data.timeList[res.data.timeList.length - 1]);
+        let max = Math.max.apply(null, res.data.valueList);
         let myChart = echarts.init(document.getElementById('myChart'));
         myChart.setOption({
           title: { text: '总用户量' },
@@ -58,9 +59,9 @@ export default {
           },
           yAxis: {
             type: 'value',
-            max: 200,
+            max: max,
             min: 0,
-            splitNumber: 4,
+            splitNumber: 1,
             axisTick: {
               show: false,
             },

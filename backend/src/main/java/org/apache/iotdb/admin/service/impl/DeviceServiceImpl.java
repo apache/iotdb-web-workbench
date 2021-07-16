@@ -30,12 +30,12 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
     private DeviceMapper deviceMapper;
 
     @Override
-    public List<Device> getDevices(Integer serverId, List<String> deviceNames) {
+    public List<Device> getDevices(String host, List<String> deviceNames) {
         List<Device> devices = new ArrayList<>();
         for (String deviceName : deviceNames) {
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("connection_id",serverId);
-            queryWrapper.eq("device_name",deviceName);
+            queryWrapper.eq("host", host);
+            queryWrapper.eq("device_name", deviceName);
             Device device = deviceMapper.selectOne(queryWrapper);
             devices.add(device);
         }
@@ -43,33 +43,33 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
     }
 
     @Override
-    public void deleteDeviceInfo(Integer serverId, String groupName) throws BaseException {
+    public void deleteDeviceInfo(String host, String groupName) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",serverId);
-        queryWrapper.like("device_name",groupName);
+        queryWrapper.eq("host", host);
+        queryWrapper.like("device_name", groupName);
         try {
             deviceMapper.delete(queryWrapper);
         } catch (Exception e) {
-            throw new BaseException(ErrorCode.DELETE_DEVICE_INFO_FAIL,ErrorCode.DELETE_DEVICE_INFO_FAIL_MSG);
+            throw new BaseException(ErrorCode.DELETE_DEVICE_INFO_FAIL, ErrorCode.DELETE_DEVICE_INFO_FAIL_MSG);
         }
     }
 
     @Override
-    public void deleteDeviceInfoByDeviceName(Integer serverId, String deviceName) throws BaseException {
+    public void deleteDeviceInfoByDeviceName(String host, String deviceName) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",serverId);
-        queryWrapper.eq("device_name",deviceName);
+        queryWrapper.eq("host", host);
+        queryWrapper.eq("device_name", deviceName);
         try {
             deviceMapper.delete(queryWrapper);
         } catch (Exception e) {
-            throw new BaseException(ErrorCode.DELETE_DEVICE_INFO_FAIL,ErrorCode.DELETE_DEVICE_INFO_FAIL_MSG);
+            throw new BaseException(ErrorCode.DELETE_DEVICE_INFO_FAIL, ErrorCode.DELETE_DEVICE_INFO_FAIL_MSG);
         }
     }
 
     @Override
     public void setDeviceInfo(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",connection.getId());
+        queryWrapper.eq("host", connection.getHost());
         queryWrapper.eq("device_name", deviceInfoDTO.getDeviceName());
         Device existDevice = deviceMapper.selectOne(queryWrapper);
         if (existDevice == null) {
@@ -77,26 +77,26 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
             device.setCreator(connection.getUsername());
             device.setDeviceName(deviceInfoDTO.getDeviceName());
             device.setCreateTime(System.currentTimeMillis());
-            device.setConnectionId(connection.getId());
+            device.setHost(connection.getHost());
             device.setDescription(deviceInfoDTO.getDescription());
             int flag = deviceMapper.insert(device);
             if (flag <= 0) {
-                throw new BaseException(ErrorCode.SET_DEVICE_INFO_FAIL,ErrorCode.SET_DEVICE_INFO_FAIL_MSG);
+                throw new BaseException(ErrorCode.SET_DEVICE_INFO_FAIL, ErrorCode.SET_DEVICE_INFO_FAIL_MSG);
             }
             return;
         }
         existDevice.setDescription(deviceInfoDTO.getDescription());
         int flag = deviceMapper.updateById(existDevice);
         if (flag <= 0) {
-            throw new BaseException(ErrorCode.SET_DEVICE_INFO_FAIL,ErrorCode.SET_DEVICE_INFO_FAIL_MSG);
+            throw new BaseException(ErrorCode.SET_DEVICE_INFO_FAIL, ErrorCode.SET_DEVICE_INFO_FAIL_MSG);
         }
     }
 
     @Override
-    public DeviceVO getDevice(Integer serverId, String deviceName) {
+    public DeviceVO getDevice(String host, String deviceName) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",serverId);
-        queryWrapper.eq("device_name",deviceName);
+        queryWrapper.eq("host", host);
+        queryWrapper.eq("device_name", deviceName);
         Device device = deviceMapper.selectOne(queryWrapper);
         // 非系统创建的设备没有设备信息
         DeviceVO deviceVO = new DeviceVO();
@@ -117,13 +117,13 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
     @Override
     public void updateDeviceInfo(DeviceInfoDTO deviceInfoDTO) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("id",deviceInfoDTO.getDeviceId());
+        queryWrapper.eq("id", deviceInfoDTO.getDeviceId());
         Device existDevice = deviceMapper.selectOne(queryWrapper);
         if (existDevice != null) {
             existDevice.setDescription(deviceInfoDTO.getDescription());
             deviceMapper.updateById(existDevice);
             return;
         }
-        throw new BaseException(ErrorCode.NO_DEVICE_INFO,ErrorCode.NO_DEVICE_INFO_MSG);
+        throw new BaseException(ErrorCode.NO_DEVICE_INFO, ErrorCode.NO_DEVICE_INFO_MSG);
     }
 }

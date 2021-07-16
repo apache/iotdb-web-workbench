@@ -7,6 +7,7 @@
         :size="item.size"
         :style="{ width: item.width }"
         :placeholder="$t(item.placeholder)"
+        :disabled="item.disabled"
         @blur="getFormData"
         @keypress.enter.stop="getFormData"
         :suffix-icon="item.suffixIcon"

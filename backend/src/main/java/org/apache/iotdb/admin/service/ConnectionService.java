@@ -13,7 +13,7 @@ public interface ConnectionService {
 
     void insert(Connection connection) throws BaseException;
 
-    void deleteById(Integer serverId,Integer userId) throws BaseException;
+    void deleteById(Integer serverId, Integer userId) throws BaseException;
 
     Connection getById(Integer serverId) throws BaseException;
 
