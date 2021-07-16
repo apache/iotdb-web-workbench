@@ -87,7 +87,7 @@ export default {
       groupName: '',
       description: '',
       ttl: '',
-      ttlUnit: '',
+      ttiUnit: '',
     });
     /**
      * 取消新增存储组
@@ -118,7 +118,7 @@ export default {
     const submit = () => {
       formRef.value.validate((valid) => {
         if (valid) {
-          if ((form.ttl && !form.ttlUnit) || (!form.ttl && form.ttlUnit)) {
+          if ((form.ttl && !form.ttiUnit) || (!form.ttl && form.ttiUnit)) {
             ElMessage.error(t('storagePage.ttlErrTips'));
             return false;
           }
@@ -126,7 +126,7 @@ export default {
             groupName: form.groupName,
             description: form.description,
             ttl: form.ttl == '' || form.ttl == null ? null : +form.ttl,
-            ttlUnit: form.ttlUnit || null,
+            ttlUnit: form.ttiUnit || null,
           };
           axios.post(`/servers/${router.currentRoute.value.params.serverid}/storageGroups`, { ...reqObj }).then((res) => {
             if (res && res.code == 0) {
@@ -162,7 +162,7 @@ export default {
         console.log(route.params, 'update');
         form.groupName = null;
         form.ttl = null;
-        form.ttlUnit = null;
+        form.ttiUnit = null;
         form.description = null;
       }
     });
