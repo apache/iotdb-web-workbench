@@ -174,12 +174,14 @@ export default {
      * scope:要被删除的实体的信息
      */
     const deleteDevice = (scope) => {
-      axios.delete(`/servers/${props.data.connectionid}/storageGroups/${props.data.storagegroupid}/devices/${scope.row.deviceName}`).then(() => {
-        ElMessage({
-          type: 'success',
-          message: `${t('device.deleteSuccess')}!`,
-        });
-        getDeviceList();
+      axios.delete(`/servers/${props.data.connectionid}/storageGroups/${props.data.storagegroupid}/devices/${scope.row.deviceName}`).then((res) => {
+        if (res.code === '0') {
+          ElMessage({
+            type: 'success',
+            message: `${t('device.deleteSuccess')}!`,
+          });
+          getDeviceList();
+        }
       });
     };
     /**
