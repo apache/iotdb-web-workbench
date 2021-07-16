@@ -134,6 +134,12 @@ const en = {
       newSourceSuccessLabel: 'you have new or edit source successful',
       addAuthFirstLabel: 'please do auth add present first',
       authTips: 'attention please: after check the [LIST_USER], you can make the [CREATE_USER]、[DELETE_USER]、[MODIFY_PASSWORD]、[GRANT_USER_PRIVILEGE]、[REVOKE_USER_PRIVILEGE] take effect',
+      submitRangeTips: 'range must not be empty',
+      submitTypeTips: 'type must not be empty',
+      submitPrivilegesTips: 'function must not be empty',
+      groupNameLabel: 'group:',
+      deviceNameLabel: 'device:',
+      timeNameLabel: 'timeseries:',
     },
     storagePage: {
       alias: 'alias',
@@ -163,6 +169,7 @@ const en = {
       deleteDeviceConfirm: 'This operation will lead to the deletion of the device could not be resumed, confirmed to delete?',
     },
     device: {
+      serchPy: 'Please input the measuring physical name',
       dataconnection: 'data connection',
       selectdataconnection: 'Please select data link',
       devicename: 'device name',

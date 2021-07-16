@@ -80,7 +80,7 @@ export default {
           label: 'device.physicalname',
           prop: 'timeseries',
           type: 'INPUT', //控件类型
-          width: 350,
+          // width: 350,
           required: true, //必填标志
           size: 'small',
           event: checkVal,
@@ -89,7 +89,7 @@ export default {
           label: 'device.datatype',
           prop: 'dataType',
           type: 'SELECT',
-          width: 200,
+          // width: 200,
           options: [
             { label: 'BOOLEAN', value: 'BOOLEAN' },
             { label: 'INT32', value: 'INT32' },
@@ -105,7 +105,7 @@ export default {
           label: 'device.codingmode',
           prop: 'encoding',
           type: 'SELECTCH',
-          width: 200,
+          // width: 200,
           required: true,
           size: 'small',
           icon: 'el-icon-question',
@@ -114,13 +114,14 @@ export default {
           label: 'device.physicaldescr',
           prop: 'description',
           type: 'TEXT',
-          width: 700,
-          maxlength: 255,
+          width: 300,
+          // maxlength: 255,
           size: 'small',
         },
         {
           label: 'device.action',
           prop: 'action',
+          width: 100,
           align: 'center',
         },
       ],

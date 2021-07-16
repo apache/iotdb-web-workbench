@@ -135,7 +135,13 @@ const cn = {
       deleteSourceConfirm: '是否确认删除该数据连接?',
       newSourceSuccessLabel: '新增或编辑数据连接成功',
       addAuthFirstLabel: '请先完成当前权限的添加',
-      authTips: '注：勾选【查看用户】权限后，【创建用户】、【删除用户】、【修改密码】、【用户赋权】、【撤销赋权】才能生效',
+      authTips: '勾选【查看用户】权限后，【创建用户】、【删除用户】、【修改密码】、【用户赋权】、【撤销赋权】才能在账号权限模块生效',
+      submitRangeTips: '范围选项必选',
+      submitTypeTips: '权限粒度选项必选',
+      submitPrivilegesTips: '功能选项必选',
+      groupNameLabel: '存储组:',
+      deviceNameLabel: '实体:',
+      timeNameLabel: '物理量:',
     },
     storagePage: {
       alias: '数据连接',
@@ -165,6 +171,7 @@ const cn = {
       deleteDeviceConfirm: '你确定要删除该实体吗?删除后,该实体的数据会丢失,不可恢复。',
     },
     device: {
+      serchPy: '请输入物理量名称',
       dataconnection: '数据连接',
       selectdataconnection: '请选择数据连接',
       devicename: '实体名称',
