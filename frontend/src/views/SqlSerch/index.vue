@@ -24,7 +24,7 @@
             <eltooltip label="sqlserch.stop">
               <i class="el-icon-video-pause stop" @click="stopquery"></i>
             </eltooltip>
-            <eltooltip label="device.delete">
+            <eltooltip label="device.delete" v-if="routeData.obj.name !== '新建查询'">
               <i class="el-icon-delete" @click="deleteQuery"></i>
             </eltooltip>
           </div>
