@@ -6,7 +6,7 @@
           <div>
             <span>{{ $t('device.dataconnection') }}：{{ routeData.obj.connectId }}</span>
           </div>
-          <div class="rightIcon flex" style="width: 60px">
+          <div class="rightIcon flex">
             <eltooltip label="sqlserch.save">
               <span>
                 <svg class="icon icon-1" aria-hidden="true" @click="centerDialogVisible = true" v-icon="`#icon-baocun-color`">
@@ -23,6 +23,9 @@
             </eltooltip>
             <eltooltip label="sqlserch.stop">
               <i class="el-icon-video-pause stop" @click="stopquery"></i>
+            </eltooltip>
+            <eltooltip label="device.delete" v-if="routeData.obj.name !== '新建查询'">
+              <i class="el-icon-delete" @click="deleteQuery"></i>
             </eltooltip>
           </div>
         </div>
@@ -56,8 +59,11 @@
                     <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line.list[index] }}</span>
                   </div>
                 </div>
-                <div class="tab_table">
+                <div class="tab_table" v-if="item">
                   <stand-table ref="standTable" :column="item" :tableData="tableData.list[index]" :lineHeight="5" :lineWidth="13" :maxHeight="divwerHeight" :pagination="pagination"> </stand-table>
+                </div>
+                <div class="tab_table" v-else>
+                  <span>{{ $t('sqlserch.sqlserchText') }}</span>
                 </div>
               </el-tab-pane>
               <!-- <el-tab-pane name="second2">
@@ -99,7 +105,7 @@
 </template>
 
 <script>
-import { ElContainer, ElMain, ElAside, ElHeader, ElFooter, ElTabs, ElTabPane, ElDialog, ElButton, ElInput, ElMessage } from 'element-plus';
+import { ElContainer, ElMain, ElAside, ElHeader, ElFooter, ElTabs, ElTabPane, ElDialog, ElButton, ElInput, ElMessage, ElMessageBox } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import formserch from './components/formserch';
 import formserchData from './components/formserchData';
@@ -107,8 +113,9 @@ import useElementResize from './hooks/useElementResize.js';
 import codemirror from './components/codemirror';
 import eltooltip from './components/eltooltip';
 import { ref, computed, nextTick, reactive, onActivated } from 'vue';
-import { querySql, saveQuery, getSql, queryStop, getGroup } from './api/index';
+import { querySql, saveQuery, getSql, queryStop, getGroup, deleteQueryS } from './api/index';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 export default {
   name: 'Sqlserch',
   props: {
@@ -119,6 +126,7 @@ export default {
     let centerDialogVisible = ref(false);
     let divwerHeight = ref(0);
     const route = useRoute();
+    const { t } = useI18n();
     let timeNumber = ref(0);
     let dividerRef = ref(null);
     let sqlName = ref(null);
@@ -176,25 +184,33 @@ export default {
           tableData.list = [];
           tabelNum.value = res.data.length;
           res.data.forEach((item) => {
-            time.list.push(item.line);
-            line.list.push(item.queryTime);
-            column.list.push({
-              list: item.metaDataList.map((eleitem, index) => {
-                return {
-                  label: eleitem,
-                  prop: `t${index}`,
-                };
-              }),
-            });
-            tableData.list.push({
-              list: item.valueList.map((eleitem) => {
-                const obj = {};
-                for (let i = 0; i < eleitem.length; i++) {
-                  obj[`t${i}`] = eleitem[i];
-                }
-                return obj;
-              }),
-            });
+            time.list.push(item.queryTime);
+            line.list.push(item.line);
+            if (item.metaDataList) {
+              column.list.push({
+                list: item.metaDataList.map((eleitem, index) => {
+                  return {
+                    label: eleitem,
+                    prop: `t${index}`,
+                  };
+                }),
+              });
+            } else {
+              column.list.push(null);
+            }
+            if (item.valueList) {
+              tableData.list.push({
+                list: item.valueList.map((eleitem) => {
+                  const obj = {};
+                  for (let i = 0; i < eleitem.length; i++) {
+                    obj[`t${i}`] = eleitem[i];
+                  }
+                  return obj;
+                }),
+              });
+            } else {
+              tableData.list.push(null);
+            }
           });
           runFlag.value = true;
         });
@@ -267,8 +283,34 @@ export default {
         console.log(res);
       });
     }
+    function deleteQuery() {
+      ElMessageBox.confirm(`${t('device.deletecontent1')}"${routeData.obj.name}"？${t('device.deletecontent2')}`, `${t('device.tips')}`, {
+        confirmButtonText: t('device.ok'),
+        cancelButtonText: t('device.cencel'),
+        type: 'warning',
+      })
+        .then(() => {
+          deleteQueryS(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
+            if (res.code === '0') {
+              ElMessage({
+                type: 'success',
+                message: `${t('device.deletetitle')}!`,
+              });
+              props.func.updateTree();
+              props.func.removeTab(routeData.obj.id);
+            }
+          });
+        })
+        .catch(() => {
+          ElMessage({
+            type: 'info',
+            message: `${t('device.canceldeletion')}!`,
+          });
+        });
+    }
     onActivated(() => {
       routeData.obj = route.params;
+      console.log(routeData.obj);
       if (route.params.forceupdate) {
         getSqlCode();
         getGroupList();
@@ -298,6 +340,7 @@ export default {
       activeName,
       getFunction,
       querySqlRun,
+      deleteQuery,
       routeData,
     };
   },
@@ -391,7 +434,7 @@ export default {
   border-bottom: 1px solid #ebeef5;
 }
 .rightIcon {
-  width: 40px;
+  width: 100px;
 }
 .flex {
   display: flex;

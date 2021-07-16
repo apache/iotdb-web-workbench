@@ -56,7 +56,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref } from 'vue';
+import { onActivated, onMounted, ref } from 'vue';
 import { ElDescriptions, ElDescriptionsItem, ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage, ElPopconfirm } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -172,8 +172,13 @@ export default {
      */
     const newDevice = () => {
       props.func.updateTree([props.data.parent.id, props.data.id]);
-      props.func.addTab(`${props.data.id}:newdevice`);
+      props.func.addTab(`${props.data.id}:newdevice`, { getList: getDeviceList });
+      props.func.removeTab(props.data.id);
     };
+    onActivated(() => {
+      getGroupDetail();
+      getDeviceList();
+    });
     onMounted(() => {
       getGroupDetail();
       getDeviceList();
@@ -253,9 +258,9 @@ export default {
         float: right;
       }
     }
-    .device-list{
+    .device-list {
       .el-button--text {
-        padding-left: 0!important;
+        padding-left: 0 !important;
       }
     }
     .el-pagination {

@@ -34,6 +34,7 @@
                   :key="route.fullPath"
                   :is="Component"
                   :data="tabData"
+                  :dividerWidth="dividerWidth"
                   :func="{
                     removeTab,
                     addTab,
@@ -140,9 +141,10 @@ export default {
       });
     });
 
-    const urlSkipMap = (data, forceupdate) => {
+    const urlSkipMap = (data, forceupdateparams) => {
       // console.log(data, 'ppppppp');
       let extraParams = data.extraParams;
+      let forceupdate = forceupdateparams ? forceupdateparams : '';
       if (data.type === 'connection') {
         //数据连接
         router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
@@ -153,7 +155,7 @@ export default {
       } else if (data.type === 'storageGroup') {
         //判断是进入存储组详情还是编辑存储组
         if (data.extraParams && data.extraParams.type == 'edit') {
-          router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name } });
+          router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
         } else {
           //存储组
           router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });

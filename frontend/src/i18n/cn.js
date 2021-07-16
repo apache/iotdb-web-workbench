@@ -6,6 +6,16 @@ const cn = {
     message: {
       hello: '你好，世界',
     },
+    about: {
+      'line-2': '关于我们',
+      'line-3': 'IotDB的可视化管理工具',
+      'line-4': 'IotDB Admin是IotDB的可视化管理工具，可对IotDB的数据进行增删改查、权限控制等，简化IotDB的使用及学习成本。',
+      'line-5': `在我们心中IotDB是最棒的时序数据库之一，我们将一直不遗余力地推动国产时序数据库IotDB的应用和发展，为本土开源能力的提高、开源生态的发展，贡献自己的力量，欢迎大家加入IotDB
+      Admin的开发及维护，期待你的加入：`,
+      'line-6-text': '微信扫一扫',
+      'line-7': '版本号: V0.12',
+      'back-btn': '返回工作页面',
+    },
     common: {
       submit: '确定',
       cancel: '取消',
@@ -155,8 +165,8 @@ const cn = {
       deleteDeviceConfirm: '你确定要删除该实体吗?删除后,该实体的数据会丢失,不可恢复。',
     },
     device: {
-      dataconnection: '数据链接',
-      selectdataconnection: '请选择数据链接',
+      dataconnection: '数据连接',
+      selectdataconnection: '请选择数据连接',
       devicename: '实体名称',
       description: '实体描述',
       selectp: '请选择存储组',
@@ -193,7 +203,7 @@ const cn = {
       selectdata: '物理量必须选择数据类型',
       savesuccess: '保存成功',
       minphysical: '物理量不能为0',
-      must: '请输入必填内容',
+      must: '数据格式填写错误',
       newquery: '新建查询',
       inputfunction: '请输入函数名称',
       deleteSuccess: '删除成功',
@@ -244,6 +254,7 @@ const cn = {
       save: '保存',
       run: '运行',
       stop: '暂停',
+      sqlserchText: '执行成功,该查询语句无数据返回',
     },
     standTable: {
       export: '批量导出',

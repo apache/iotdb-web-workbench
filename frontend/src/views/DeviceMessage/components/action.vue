@@ -1,5 +1,5 @@
 <template>
-  <div ref="eachrts" class="echartsBox"></div>
+  <div :id="id" class="echartsBox"></div>
 </template>
 <script>
 import * as echarts from 'echarts/core';
@@ -15,6 +15,7 @@ export default {
     echartsData: Object,
     getDate: Function,
     row: Object,
+    scope: Object,
   },
   setup(props) {
     const data = reactive(props.row);
@@ -22,13 +23,15 @@ export default {
     let eachrts = ref(null);
     const id = data.timeseries;
     onMounted(() => {
-      getehartsData(data);
+      setTimeout(() => {
+        getehartsData(data);
+      }, 500);
     });
     function getehartsData(data) {
       getData(eachrtsObj.connectionid, eachrtsObj.storagegroupid, eachrtsObj.name, data.timeseries).then((res) => {
         const timearr = res.data.timeList.slice(0, 20);
         const dataarr = res.data.valueList.slice(0, 20);
-        let myChart = echarts.init(eachrts.value);
+        let myChart = echarts.init(document.getElementById(data.timeseries));
         console.log(myChart.setOption);
         myChart.setOption({
           grid: {
@@ -79,7 +82,7 @@ export default {
 <style lang="scss" scoped>
 .echartsBox {
   width: 150px;
-  height: 60px;
+  height: 65px;
   margin-left: -15px;
 }
 </style>

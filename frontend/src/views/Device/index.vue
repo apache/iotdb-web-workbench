@@ -19,6 +19,7 @@
         :lineHeight="5"
         :encoding="encoding"
         :maxHeight="430"
+        @iconEvent="openWin"
       >
         <template #default="{ scope }">
           <el-button @click="deleteRow(scope.row, scope.$index)" type="text" size="small" style="color: red">
@@ -38,7 +39,7 @@
 import FormTable from '@/components/FormTable';
 import StandTable from '@/components/StandTable';
 import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
-import { onMounted, reactive, ref } from 'vue';
+import { onActivated, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
@@ -46,6 +47,7 @@ export default {
   name: 'DeviceAddEidt',
   props: {
     func: Object,
+    data: Object,
   },
   setup(props) {
     const route = useRoute();
@@ -175,13 +177,14 @@ export default {
       ],
     });
     function checkVal(scope, obj, val, ev) {
+      console.log(obj);
       if (!/^\w+$/.test(val)) {
         ElMessage.error(`"${val}"${t('device.pyname')}`);
-        obj.border = true;
+        tableData.list[scope.$index].border = true;
         ev.target.focus();
       } else if (val === null || val.length > 255) {
         ElMessage.error(`"${val}"${t('device.pynamel')}`);
-        obj.border = true;
+        tableData.list[scope.$index].border = true;
         ev.target.focus();
       } else {
         const arr = JSON.parse(JSON.stringify(tableData.list));
@@ -189,11 +192,11 @@ export default {
         arr.forEach((item) => {
           if (item.timeseries === val) {
             ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
-            obj.border = true;
+            tableData.list[scope.$index].border = true;
             obj.namecopy = true;
             ev.target.focus();
           } else {
-            obj.border = false;
+            tableData.list[scope.$index].border = false;
             obj.namecopy = false;
           }
         });
@@ -209,12 +212,14 @@ export default {
           type: 'warning',
         })
           .then(() => {
-            deleteData(deviceData.obj, row.timeseries).then(() => {
-              tableData.list.splice(index, 1);
-              ElMessage({
-                type: 'success',
-                message: `${t('device.deletetitle')}!`,
-              });
+            deleteData(deviceData.obj, row.timeseries).then((res) => {
+              if (res.code === '0') {
+                tableData.list.splice(index, 1);
+                ElMessage({
+                  type: 'success',
+                  message: `${t('device.deletetitle')}!`,
+                });
+              }
             });
           })
           .catch(() => {
@@ -252,7 +257,7 @@ export default {
     function sumbitData() {
       let checkfalg = true;
       tableData.list.forEach((item) => {
-        if (item.timeseries === null || item.dataType === null) {
+        if (item.timeseries === null || item.dataType === null || item.border) {
           checkfalg = false;
           item.border = true;
         } else {
@@ -261,16 +266,18 @@ export default {
       });
       if (checkfalg && form.formData.deviceName) {
         if (tableData.list.length > 0) {
-          deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then(() => {
-            ElMessage({
-              type: 'success',
-              message: `${t('device.savesuccess')}!`,
-            });
-            deviceData.obj.name = form.formData.deviceName;
-            console.log(`${route.params.parentid}${form.formData.deviceName}device`);
-            props.func.updateTree();
-            props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-            props.func.removeTab(route.params.id);
+          deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then((res) => {
+            if (res.code === '0') {
+              ElMessage({
+                type: 'success',
+                message: `${t('device.savesuccess')}!`,
+              });
+              deviceData.obj.name = form.formData.deviceName;
+              props.func.updateTree();
+              props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+              props.data.extraParams.getList();
+              props.func.removeTab(route.params.id);
+            }
           });
         } else {
           if (tableData.list.length <= 0) {
@@ -297,8 +304,10 @@ export default {
         });
       });
     }
-    onMounted(() => {
-      console.log(route.params);
+    function openWin() {
+      window.open('https://iotdb.apache.org/zh/UserGuide/Master/Data-Concept/Encoding.html', '_blank');
+    }
+    onActivated(() => {
       deviceData.obj = route.params;
       if (route.params.name !== '新建实体') {
         getdData();
@@ -318,6 +327,7 @@ export default {
       addItem,
       getListData,
       closeTab,
+      openWin,
       pagination,
       encoding,
       totalCount,

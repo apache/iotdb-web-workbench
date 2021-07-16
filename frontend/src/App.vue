@@ -52,9 +52,9 @@
 }
 .move-resize {
   cursor: w-resize !important;
-  .el-tree {
-    cursor: w-resize !important;
-  }
+  user-select: none;
+  .el-tree,
+  .el-tree-node__content,
   li {
     cursor: w-resize !important;
   }
