@@ -11,17 +11,17 @@ import java.util.List;
  * @anthor fyx 2021/6/16
  */
 public interface GroupService {
-    List<String> getGroupDescription(Integer serverId, List<String> groupNames) throws BaseException;
+    List<String> getGroupDescription(String host, List<String> groupNames) throws BaseException;
 
     void setStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException;
 
-    boolean isExist(Integer serverId, String groupName);
+    boolean isExist(String host, String groupName);
 
-    void deleteGroupInfo(Integer serverId, String groupName) throws BaseException;
+    void deleteGroupInfo(String host, String groupName) throws BaseException;
 
-    StorageGroup getGroupInfo(Integer serverId, String groupName);
+    StorageGroup getGroupInfo(String host, String groupName);
 
     void updateStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException;
 
-    Integer getGroupId(Integer serverId, String groupName);
+    Integer getGroupId(String host, String groupName);
 }

@@ -19,8 +19,8 @@ public class Device implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    @NotNull(message = "未指定连接")
-    private Integer connectionId;
+    @NotNull(message = "未指定所属主机")
+    private String host;
 
     private String description;
 

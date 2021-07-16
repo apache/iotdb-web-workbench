@@ -29,31 +29,31 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
     private static final Logger logger = LoggerFactory.getLogger(IotDBServiceImpl.class);
 
     @Override
-    public void deleteMeasurementInfo(Integer serverId, String groupName) throws BaseException {
+    public void deleteMeasurementInfo(String host, String groupName) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",serverId);
-        queryWrapper.like("measurement_name",groupName);
+        queryWrapper.eq("host", host);
+        queryWrapper.like("measurement_name", groupName);
         try {
             measurementMapper.delete(queryWrapper);
         } catch (Exception e) {
-            throw new BaseException(ErrorCode.DELETE_MEASUREMENT_INFO_FAIL,ErrorCode.DELETE_MEASUREMENT_INFO_FAIL_MSG);
+            throw new BaseException(ErrorCode.DELETE_MEASUREMENT_INFO_FAIL, ErrorCode.DELETE_MEASUREMENT_INFO_FAIL_MSG);
         }
     }
 
     @Override
-    public void deleteMeasurementInfoByDeviceName(Integer serverId, String deviceName) throws BaseException {
+    public void deleteMeasurementInfoByDeviceName(String host, String deviceName) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",serverId);
-        queryWrapper.like("measurement_name",deviceName);
+        queryWrapper.eq("host", host);
+        queryWrapper.like("measurement_name", deviceName);
         try {
             measurementMapper.delete(queryWrapper);
         } catch (Exception e) {
-            throw new BaseException(ErrorCode.DELETE_MEASUREMENT_INFO_FAIL,ErrorCode.DELETE_MEASUREMENT_INFO_FAIL_MSG);
+            throw new BaseException(ErrorCode.DELETE_MEASUREMENT_INFO_FAIL, ErrorCode.DELETE_MEASUREMENT_INFO_FAIL_MSG);
         }
     }
 
     @Override
-    public void setMeasurementsInfo(Integer serverId, DeviceInfoDTO deviceInfoDTO) throws BaseException {
+    public void setMeasurementsInfo(String host, DeviceInfoDTO deviceInfoDTO) throws BaseException {
         List<String> descriptions = new ArrayList<>();
         List<String> measurements = new ArrayList<>();
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
@@ -64,25 +64,25 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
             Measurement mea = new Measurement();
             mea.setDescription(descriptions.get(i));
             mea.setMeasurementName(measurements.get(i));
-            mea.setConnectionId(serverId);
+            mea.setHost(host);
             int flag = measurementMapper.insert(mea);
             if (flag <= 0) {
-                throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL,ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
+                throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL, ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
             }
         }
     }
 
     @Override
-    public String getDescription(Integer serverId, String timeseries) throws BaseException {
+    public String getDescription(String host, String timeseries) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("connection_id",serverId);
-        queryWrapper.eq("measurement_name",timeseries);
+        queryWrapper.eq("host", host);
+        queryWrapper.eq("measurement_name", timeseries);
         Measurement measurement = null;
         try {
             measurement = measurementMapper.selectOne(queryWrapper);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.GET_MSM_DES_FAIL,ErrorCode.GET_MSM_DES_FAIL_MSG);
+            throw new BaseException(ErrorCode.GET_MSM_DES_FAIL, ErrorCode.GET_MSM_DES_FAIL_MSG);
         }
         if (measurement != null) {
             return measurement.getDescription();
@@ -91,7 +91,7 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
     }
 
     @Override
-    public void updateMeasurementsInfo(Integer serverId, DeviceInfoDTO deviceInfoDTO) throws BaseException {
+    public void updateMeasurementsInfo(String host, DeviceInfoDTO deviceInfoDTO) throws BaseException {
         List<String> descriptions = new ArrayList<>();
         List<String> measurements = new ArrayList<>();
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
@@ -100,18 +100,18 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
         }
         for (int i = 0; i < measurements.size(); i++) {
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("connection_id",serverId);
-            queryWrapper.eq("measurement_name",measurements.get(i));
+            queryWrapper.eq("host", host);
+            queryWrapper.eq("measurement_name", measurements.get(i));
             Measurement existMeasurement = measurementMapper.selectOne(queryWrapper);
             // 未创建的测点
             if (existMeasurement == null) {
                 Measurement mea = new Measurement();
                 mea.setDescription(descriptions.get(i));
                 mea.setMeasurementName(measurements.get(i));
-                mea.setConnectionId(serverId);
+                mea.setHost(host);
                 int flag = measurementMapper.insert(mea);
                 if (flag <= 0) {
-                    throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL,ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
+                    throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL, ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
                 }
                 continue;
             }
@@ -119,7 +119,7 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
             existMeasurement.setDescription(descriptions.get(i));
             int flag = measurementMapper.updateById(existMeasurement);
             if (flag <= 0) {
-                throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL,ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
+                throw new BaseException(ErrorCode.SET_MEASUREMENT_INFO_FAIL, ErrorCode.SET_MEASUREMENT_INFO_FAIL_MSG);
             }
         }
     }

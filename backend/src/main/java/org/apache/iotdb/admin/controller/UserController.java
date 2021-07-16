@@ -42,37 +42,37 @@ public class UserController {
 
     @PostMapping("/login")
     @ApiOperation("登录")
-    public BaseVO<ConnectionVO> login(@RequestParam("name")String name, @RequestParam("password") String password, HttpServletResponse response) throws BaseException {
+    public BaseVO<ConnectionVO> login(@RequestParam("name") String name, @RequestParam("password") String password, HttpServletResponse response) throws BaseException {
         if (name == null || password == null || name.length() < 4 || password.length() < 4) {
-            throw new BaseException(ErrorCode.WRONG_USER_PARAM,ErrorCode.WRONG_USER_PARAM_MSG);
+            throw new BaseException(ErrorCode.WRONG_USER_PARAM, ErrorCode.WRONG_USER_PARAM_MSG);
         }
         User user = userService.login(name, password);
         int userId = user.getId();
         List<ConnVO> connVOs = connectionService.getAllConnections(userId);
-        ConnectionVO connectionVO = new ConnectionVO(connVOs,userId,name);
-        response.addHeader("Authorization",getToken(user));
-        return BaseVO.success("登录成功",connectionVO);
+        ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, name);
+        response.addHeader("Authorization", getToken(user));
+        return BaseVO.success("登录成功", connectionVO);
     }
 
     @PostMapping("/save")
     @ApiOperation("创建用户  (未使用)")
     public BaseVO save(@RequestBody User user) throws BaseException {
         userService.insert(user);
-        return BaseVO.success("保存成功",null);
+        return BaseVO.success("保存成功", null);
     }
 
 
     @DeleteMapping("/delete")
     @ApiOperation("删除用户  (未使用)")
     public BaseVO delete(@RequestParam("userId") Integer userId, HttpServletRequest request) throws BaseException {
-        AuthenticationUtils.userAuthentication(userId,request);
+        AuthenticationUtils.userAuthentication(userId, request);
         userService.delete(userId);
-        return BaseVO.success("删除成功",null);
+        return BaseVO.success("删除成功", null);
     }
 
     @GetMapping("/get")
     @ApiOperation("二次登录获取用户信息")
-    public BaseVO<User> getUser(HttpServletRequest request){
+    public BaseVO<User> getUser(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
         DecodedJWT decode = JWT.decode(authorization);
         User user = new User();
@@ -82,23 +82,23 @@ public class UserController {
             user.setId(userId);
             user.setName(name);
         }
-        return BaseVO.success("获取成功",user);
+        return BaseVO.success("获取成功", user);
     }
 
     private String getToken(User user) throws BaseException {
         Calendar instance = Calendar.getInstance();
         try {
-            instance.add(Calendar.HOUR,24);
-            String token  = JWT.create()
+            instance.add(Calendar.HOUR, 24);
+            String token = JWT.create()
                     .withClaim("userId", user.getId())
                     .withClaim("name", user.getName())
                     .withExpiresAt(instance.getTime())
-                    .sign(Algorithm.HMAC256("IOTDB:"+InetAddress.getLocalHost().getHostAddress()));
-            logger.info(user.getName()+"登录成功");
+                    .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
+            logger.info(user.getName() + "登录成功");
             return token;
         } catch (Exception e) {
             logger.info(e.getMessage());
-            throw new BaseException(ErrorCode.GET_TOKEN_FAIL,ErrorCode.GET_TOKEN_FAIL_MSG);
+            throw new BaseException(ErrorCode.GET_TOKEN_FAIL, ErrorCode.GET_TOKEN_FAIL_MSG);
         }
     }
 }
