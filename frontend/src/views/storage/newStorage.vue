@@ -9,8 +9,8 @@
         <el-input v-model="form.description"></el-input>
       </el-form-item>
       <el-form-item :label="$t('storagePage.ttl')" class="form-input-item">
-        <el-input v-model="form.ttl" type="number" class="ttl-input"></el-input>
-        <el-select v-model="form.ttlUnit" class="ttl-input unit" placeholder="  ">
+        <el-input v-model="form.ttl" type="number" min="0" class="ttl-input"></el-input>
+        <el-select v-model="form.ttiUnit" class="ttl-input unit" clearable placeholder="  ">
           <el-option :label="$t('storagePage.secondLabel')" value="second"> </el-option>
           <el-option :label="$t('storagePage.minuteLabel')" value="minute"> </el-option>
           <el-option :label="$t('storagePage.hourLabel')" value="hour"> </el-option>
@@ -106,7 +106,7 @@ export default {
         if (res && res.code == 0) {
           form.groupName = res.data.groupName;
           form.ttl = res.data.ttl;
-          form.ttlUnit = res.data.ttlUnit;
+          form.ttiUnit = res.data.ttiUnit;
           form.description = res.data.description;
           alias.value = res.data.alias;
         }
