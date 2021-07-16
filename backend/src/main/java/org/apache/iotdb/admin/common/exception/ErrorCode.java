@@ -33,6 +33,9 @@ public class ErrorCode {
     public static final String TIME_OUT = "CONN-0009";
     public static final String TIME_OUT_MSG = "连接超时";
 
+    public static final String TEST_CONN_FAIL_PWD = "CONN-0010";
+    public static final String TEST_CONN_FAIL_PWD_MSG = "连接失败，用户名或密码错误";
+
     // 登录相关
     public static final String LOGIN_FAIL_USER = "USER-0001";
     public static final String LOGIN_FAIL_USER_MSG = "登录失败,用户不存在";
