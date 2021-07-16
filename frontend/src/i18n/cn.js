@@ -165,6 +165,7 @@ const cn = {
       deleteDeviceConfirm: '你确定要删除该实体吗?删除后,该实体的数据会丢失,不可恢复。',
     },
     device: {
+      serchPy: '请输入物理量名称',
       dataconnection: '数据连接',
       selectdataconnection: '请选择数据连接',
       devicename: '实体名称',
