@@ -302,7 +302,7 @@ $cursor: pointer;
   border-color: $theme-color;
 }
 .actionSpan {
-  height: 50px;
+  height: 65px;
   display: flex;
   align-items: center;
 }
