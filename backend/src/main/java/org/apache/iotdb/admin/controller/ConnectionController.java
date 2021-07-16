@@ -30,56 +30,56 @@ public class ConnectionController {
     @PostMapping("/servers")
     @ApiOperation("保存或更新连接")
     public BaseVO saveOrUpdateConnection(@RequestBody Connection connection, HttpServletRequest request) throws BaseException {
-        AuthenticationUtils.userAuthentication(connection.getUserId(),request);
-        if (connection.getId() != null){
+        AuthenticationUtils.userAuthentication(connection.getUserId(), request);
+        if (connection.getId() != null) {
             connectionService.update(connection);
-            return BaseVO.success("更新成功",null);
+            return BaseVO.success("更新成功", null);
         }
         connectionService.insert(connection);
-        return BaseVO.success("保存成功",null);
+        return BaseVO.success("保存成功", null);
     }
 
     @DeleteMapping("/servers/{serverId}")
     @ApiOperation("删除连接")
     public BaseVO deleteConnection(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
         Integer userId = AuthenticationUtils.getUserId(request);
-        connectionService.check(serverId,userId);
-        connectionService.deleteById(serverId,userId);
-        return BaseVO.success("删除成功",null);
+        connectionService.check(serverId, userId);
+        connectionService.deleteById(serverId, userId);
+        return BaseVO.success("删除成功", null);
     }
 
     @GetMapping("/servers/{serverId}")
     @ApiOperation("获取连接具体配置")
     public BaseVO<Connection> getConnection(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
         Integer userId = AuthenticationUtils.getUserId(request);
-        connectionService.check(serverId,userId);
-        return BaseVO.success("获取成功",connectionService.getById(serverId));
+        connectionService.check(serverId, userId);
+        return BaseVO.success("获取成功", connectionService.getById(serverId));
     }
 
     @GetMapping("/servers")
     @ApiOperation("获取所有连接")
     public BaseVO<ConnectionVO> getAllConnections(@RequestParam("userId") Integer userId, HttpServletRequest request) throws BaseException {
-        AuthenticationUtils.userAuthentication(userId,request);
+        AuthenticationUtils.userAuthentication(userId, request);
         List<ConnVO> connVOs = connectionService.getAllConnections(userId);
-        ConnectionVO connectionVO = new ConnectionVO(connVOs,userId,null);
-        return BaseVO.success("获取成功",connectionVO);
+        ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, null);
+        return BaseVO.success("获取成功", connectionVO);
     }
 
     @GetMapping("/test")
     @ApiOperation("连通性测试")
     public BaseVO<ConnectionVO> testConnection(String host) throws BaseException {
         if (host == null || !host.matches("^((2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3})|(localhost)$")) {
-            throw new BaseException(ErrorCode.TEST_CONN_WRONG,ErrorCode.TEST_CONN_WRONG_MSG);
+            throw new BaseException(ErrorCode.TEST_CONN_WRONG, ErrorCode.TEST_CONN_WRONG_MSG);
         }
         try {
-            InetAddress address  = InetAddress.getByName(host);
+            InetAddress address = InetAddress.getByName(host);
             if (address.isReachable(5000)) {
-                return BaseVO.success("连通成功",null);
+                return BaseVO.success("连通成功", null);
             }
         } catch (Exception e) {
-            throw new BaseException(ErrorCode.TEST_CONN_FAIL,ErrorCode.TEST_CONN_FAIL_MSG);
+            throw new BaseException(ErrorCode.TEST_CONN_FAIL, ErrorCode.TEST_CONN_FAIL_MSG);
         }
-        throw new BaseException(ErrorCode.TEST_CONN_FAIL,ErrorCode.TEST_CONN_FAIL_MSG);
+        throw new BaseException(ErrorCode.TEST_CONN_FAIL, ErrorCode.TEST_CONN_FAIL_MSG);
     }
 
 }

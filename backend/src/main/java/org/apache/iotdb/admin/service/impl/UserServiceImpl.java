@@ -23,33 +23,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public User login(String name,String password) throws BaseException {
+    public User login(String name, String password) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("name",name);
+        queryWrapper.eq("name", name);
         User user = userMapper.selectOne(queryWrapper);
         if (user != null) {
-            if(!bCryptPasswordEncoder.matches(password,user.getPassword())){
-                throw new BaseException(ErrorCode.LOGIN_FAIL_PWD,ErrorCode.LOGIN_FAIL_PWD_MSG);
+            if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
+                throw new BaseException(ErrorCode.LOGIN_FAIL_PWD, ErrorCode.LOGIN_FAIL_PWD_MSG);
             }
             return user;
-        }else {
-            throw new BaseException(ErrorCode.LOGIN_FAIL_USER,ErrorCode.LOGIN_FAIL_USER_MSG);
+        } else {
+            throw new BaseException(ErrorCode.LOGIN_FAIL_USER, ErrorCode.LOGIN_FAIL_USER_MSG);
         }
     }
 
     @Override
     public void insert(User user) throws BaseException {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("name",user.getName());
+        queryWrapper.eq("name", user.getName());
         User existUser = userMapper.selectOne(queryWrapper);
         if (existUser == null) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             try {
                 userMapper.insert(user);
             } catch (Exception e) {
-                throw new BaseException(ErrorCode.INSERT_USER_FAIL,ErrorCode.INSERT_USER_FAIL_MSG);
+                throw new BaseException(ErrorCode.INSERT_USER_FAIL, ErrorCode.INSERT_USER_FAIL_MSG);
             }
-        }else {
+        } else {
             throw new BaseException(ErrorCode.USER_EXIST, ErrorCode.USER_EXIST_MSG);
         }
     }

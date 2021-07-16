@@ -155,13 +155,13 @@ public class ErrorCode {
 
     public static final String PRIV_ROOT_FAIL = "IOTDB-0029";
     public static final String PRIV_ROOT_FAIL_MSG = "根路径权限操作失败";
-    
+
     public static final String PRIV_GROUP_FAIL = "IOTDB-0030";
     public static final String PRIV_GROUP_FAIL_MSG = "组路径权限操作失败";
-    
+
     public static final String PRIV_DEVICE_FAIL = "IOTDB-0031";
     public static final String PRIV_DEVICE_FAIL_MSG = "实体路径权限操作失败";
-    
+
     public static final String PRIV_TIMESERIES_FAIL = "IOTDB-0032";
     public static final String PRIV_TIMESERIES_FAIL_MSG = "测点路径权限操作失败";
 
@@ -201,7 +201,7 @@ public class ErrorCode {
     public static final String NO_PRI_READ_TIMESERIES = "IOTDB-0044";
     public static final String NO_PRI_READ_TIMESERIES_MSG = "没有权限查看测点";
 
-    public static final String NO_PRI_DELETE_TIMESERIES = "IOTDB-0045";;
+    public static final String NO_PRI_DELETE_TIMESERIES = "IOTDB-0045";
     public static final String NO_PRI_DELETE_TIMESERIES_MSG = "没有权限删除测点";
 
     public static final String CONN_REFUSED = "IOTDB-0046";
@@ -211,7 +211,7 @@ public class ErrorCode {
     public static final String WRONG_USER_MSG = "连接用户名或密码错误";
 
     public static final String NO_PRI_SET_GROUP = "IOTDB-0048";
-    public static final String NO_PRI_SET_GROUP_MSG = "没有权限创建存储组";
+    public static final String NO_PRI_SET_GROUP_MSG = "没有权限操作存储组";
 
     public static final String NO_PRI_DELETE_GROUP = "IOTDB-0048";
     public static final String NO_PRI_DELETE_GROUP_MSG = "没有权限删除存储组";
@@ -244,7 +244,8 @@ public class ErrorCode {
     public static final String QUERY_EXIST = "QUERY-0001";
     public static final String QUERY_EXIST_MSG = "脚本名已存在";
 
-    public static final String QUERY_NOT_EXIST = "QUERY-0002";;
+    public static final String QUERY_NOT_EXIST = "QUERY-0002";
+    ;
     public static final String QUERY_NOT_EXIST_MSG = "脚本不存在";
 
     // 参数校验相关
