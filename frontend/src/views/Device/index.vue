@@ -153,6 +153,7 @@ export default {
           itemID: 'deviceName', //数据字段名
           placeholder: 'device.inputdevice', //灰色提示文字
           required: true, //是否必填
+          disabled: false,
           message: 'device.inputdevice', //报错提示信息
         },
         {
@@ -303,6 +304,7 @@ export default {
           groupName: deviceData.obj.storagegroupid,
           deviceId: res.data.deviceId,
         });
+        form.formItem[0].disabled = true;
       });
     }
     function openWin() {
