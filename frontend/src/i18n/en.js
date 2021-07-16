@@ -189,7 +189,7 @@ const en = {
       look: 'look',
       inputdevice: 'Please enter entity name',
       inputdecr: 'Please enter entity description',
-      pyname: 'Physical quantities must be composed of words, numbers and underscores and chinese',
+      pyname: 'Physical quantities must be composed of words, numbers and underscores',
       pynamel: 'The physical quantity must be composed of words, numbers and underscores. The physical quantity must be 0 characters and 255 characters',
       pynamecopy: 'Duplicate physical quantity name, please modify',
       deletetitle: 'Successfully deleted',

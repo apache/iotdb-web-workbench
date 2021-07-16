@@ -47,6 +47,7 @@ export default {
   name: 'DeviceAddEidt',
   props: {
     func: Object,
+    data: Object,
   },
   setup(props) {
     const route = useRoute();
@@ -176,13 +177,14 @@ export default {
       ],
     });
     function checkVal(scope, obj, val, ev) {
-      if (!/^[\w\u4e00-\u9fa5]+$/.test(val)) {
+      console.log(obj);
+      if (!/^\w+$/.test(val)) {
         ElMessage.error(`"${val}"${t('device.pyname')}`);
-        obj.border = true;
+        tableData.list[scope.$index].border = true;
         ev.target.focus();
       } else if (val === null || val.length > 255) {
         ElMessage.error(`"${val}"${t('device.pynamel')}`);
-        obj.border = true;
+        tableData.list[scope.$index].border = true;
         ev.target.focus();
       } else {
         const arr = JSON.parse(JSON.stringify(tableData.list));
@@ -190,11 +192,11 @@ export default {
         arr.forEach((item) => {
           if (item.timeseries === val) {
             ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
-            obj.border = true;
+            tableData.list[scope.$index].border = true;
             obj.namecopy = true;
             ev.target.focus();
           } else {
-            obj.border = false;
+            tableData.list[scope.$index].border = false;
             obj.namecopy = false;
           }
         });
@@ -255,7 +257,7 @@ export default {
     function sumbitData() {
       let checkfalg = true;
       tableData.list.forEach((item) => {
-        if (item.timeseries === null || item.dataType === null) {
+        if (item.timeseries === null || item.dataType === null || item.border) {
           checkfalg = false;
           item.border = true;
         } else {
@@ -271,9 +273,9 @@ export default {
                 message: `${t('device.savesuccess')}!`,
               });
               deviceData.obj.name = form.formData.deviceName;
-              console.log(`${route.params.parentid}${form.formData.deviceName}device`);
               props.func.updateTree();
               props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+              props.data.extraParams.getList();
               props.func.removeTab(route.params.id);
             }
           });
@@ -306,7 +308,6 @@ export default {
       window.open('https://iotdb.apache.org/zh/UserGuide/Master/Data-Concept/Encoding.html', '_blank');
     }
     onActivated(() => {
-      console.log(route.params);
       deviceData.obj = route.params;
       if (route.params.name !== '新建实体') {
         getdData();
