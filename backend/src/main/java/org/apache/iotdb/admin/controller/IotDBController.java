@@ -159,7 +159,6 @@ public class IotDBController<T> {
         groupName = "root." + groupName;
         String host = connection.getHost();
         StorageGroup group = groupService.getGroupInfo(host, groupName);
-//        StorageGroup group = groupService.getGroupInfo(connection.getHost(), groupName);
         String ttl = iotDBService.getGroupTTL(connection, groupName);
         String ttlUnit;
         GroupVO groupVO = new GroupVO();
@@ -329,7 +328,7 @@ public class IotDBController<T> {
     }
 
     @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/info")
-    @ApiOperation("获取指定实体(设备)下的测点列表详情")
+    @ApiOperation("获取指定实体(设备)下的物理量列表详情")
     public BaseVO<MeasuremtnInfoVO> getMeasurementsByDeviceName(@PathVariable("serverId") Integer serverId,
                                                                 @PathVariable("groupName") String groupName,
                                                                 @PathVariable("deviceName") String deviceName,
@@ -373,7 +372,7 @@ public class IotDBController<T> {
     }
 
     @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/{timeseriesName}")
-    @ApiOperation("获取指定测点的最新两百条数据记录")
+    @ApiOperation("获取指定物理量的最新两百条数据记录")
     public BaseVO<RecordVO> getMeasurementInfo(@PathVariable("serverId") Integer serverId,
                                                @PathVariable("groupName") String groupName,
                                                @PathVariable("deviceName") String deviceName,
@@ -412,7 +411,7 @@ public class IotDBController<T> {
     }
 
     @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/info")
-    @ApiOperation("指定设备下的所有测点  (未使用)")
+    @ApiOperation("指定设备下的所有物理量  (未使用)")
     public BaseVO<SqlResultVO> showTimeseries(@PathVariable("serverId") Integer serverId,
                                               @PathVariable("groupName") String groupName,
                                               @PathVariable("deviceName") String deviceName,
@@ -429,7 +428,7 @@ public class IotDBController<T> {
     }
 
     @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries")
-    @ApiOperation("指定设备下的测点列表")
+    @ApiOperation("指定设备下的物理量列表")
     public BaseVO<List<String>> getTimeseries(@PathVariable("serverId") Integer serverId,
                                               @PathVariable("groupName") String groupName,
                                               @PathVariable("deviceName") String deviceName,
@@ -450,7 +449,7 @@ public class IotDBController<T> {
     }
 
     @DeleteMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/{timeseriesName}")
-    @ApiOperation("删除测点")
+    @ApiOperation("删除物理量")
     public BaseVO<List<String>> deleteTimeseries(@PathVariable("serverId") Integer serverId,
                                                  @PathVariable("groupName") String groupName,
                                                  @PathVariable("deviceName") String deviceName,
