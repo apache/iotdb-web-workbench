@@ -170,6 +170,7 @@ const en = {
       deleteDeviceConfirm: 'This operation will lead to the deletion of the device could not be resumed, confirmed to delete?',
     },
     device: {
+      serchPy: 'Please input the measuring physical name',
       dataconnection: 'data connection',
       selectdataconnection: 'Please select data link',
       devicename: 'device name',

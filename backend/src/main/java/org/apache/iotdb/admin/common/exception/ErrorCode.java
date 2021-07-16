@@ -124,13 +124,13 @@ public class ErrorCode {
     public static final String INSERT_DEV_FAIL_MSG = "插入实体失败";
 
     public static final String GET_MSM_FAIL = "IOTDB-0019";
-    public static final String GET_MSM_FAIL_MSG = "获取测点数据信息失败";
+    public static final String GET_MSM_FAIL_MSG = "获取物理量数据信息失败";
 
     public static final String NO_SUCH_FIELD = "IOTDB-0020";
     public static final String NO_SUCH_FIELD_MSG = "返回集没此属性";
 
     public static final String GET_LAST_VALUE_FAIL = "IOTDB-0021";
-    public static final String GET_LAST_VALUE_FAIL_MSG = "获取测点最新值失败";
+    public static final String GET_LAST_VALUE_FAIL_MSG = "获取物理量最新值失败";
 
     public static final String SET_GROUP_FAIL = "IOTDB-0022";
     public static final String SET_GROUP_FAIL_MSG = "创建存储组失败";
@@ -163,10 +163,10 @@ public class ErrorCode {
     public static final String PRIV_DEVICE_FAIL_MSG = "实体路径权限操作失败";
 
     public static final String PRIV_TIMESERIES_FAIL = "IOTDB-0032";
-    public static final String PRIV_TIMESERIES_FAIL_MSG = "测点路径权限操作失败";
+    public static final String PRIV_TIMESERIES_FAIL_MSG = "物理量路径权限操作失败";
 
     public static final String GET_RECORD_FAIL = "IOTDB-0033";
-    public static final String GET_RECORD_FAIL_MSG = "获取测点记录失败";
+    public static final String GET_RECORD_FAIL_MSG = "获取物理量记录失败";
 
     public static final String NO_SQL = "IOTDB-0034";
     public static final String NO_SQL_MSG = "没有sql执行语句";
@@ -196,13 +196,13 @@ public class ErrorCode {
     public static final String NO_PRI_SET_TTL_MSG = "没有权限设置ttl";
 
     public static final String NO_PRI_CREATE_TIMESERIES = "IOTDB-0043";
-    public static final String NO_PRI_CREATE_TIMESERIES_MSG = "没有权限创建测点";
+    public static final String NO_PRI_CREATE_TIMESERIES_MSG = "没有权限创建物理量";
 
     public static final String NO_PRI_READ_TIMESERIES = "IOTDB-0044";
-    public static final String NO_PRI_READ_TIMESERIES_MSG = "没有权限查看测点";
+    public static final String NO_PRI_READ_TIMESERIES_MSG = "没有权限查看物理量";
 
     public static final String NO_PRI_DELETE_TIMESERIES = "IOTDB-0045";
-    public static final String NO_PRI_DELETE_TIMESERIES_MSG = "没有权限删除测点";
+    public static final String NO_PRI_DELETE_TIMESERIES_MSG = "没有权限删除物理量";
 
     public static final String CONN_REFUSED = "IOTDB-0046";
     public static final String CONN_REFUSED_MSG = "连接错误,检查输入";
@@ -230,15 +230,15 @@ public class ErrorCode {
     public static final String SET_DEVICE_INFO_FAIL = "DEV-0002";
     public static final String SET_DEVICE_INFO_FAIL_MSG = "插入实体信息失败";
 
-    // 测点表相关
+    // 物理量表相关
     public static final String DELETE_MEASUREMENT_INFO_FAIL = "MEASU-0001";
-    public static final String DELETE_MEASUREMENT_INFO_FAIL_MSG = "删除测点信息失败";
+    public static final String DELETE_MEASUREMENT_INFO_FAIL_MSG = "删除物理量信息失败";
 
     public static final String SET_MEASUREMENT_INFO_FAIL = "MEASU-0002";
-    public static final String SET_MEASUREMENT_INFO_FAIL_MSG = "插入测点信息失败";
+    public static final String SET_MEASUREMENT_INFO_FAIL_MSG = "插入物理量信息失败";
 
     public static final String GET_MSM_DES_FAIL = "MEASU-0003";
-    public static final String GET_MSM_DES_FAIL_MSG = "获取测点描述信息失败";
+    public static final String GET_MSM_DES_FAIL_MSG = "获取物理量描述信息失败";
 
     // 查询表相关
     public static final String QUERY_EXIST = "QUERY-0001";
