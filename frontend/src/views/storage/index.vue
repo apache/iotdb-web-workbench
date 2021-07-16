@@ -34,8 +34,8 @@
         <!-- @selection-change="handleSelectionChange" -->
         <el-table :data="tableData" style="width: 100%">
           <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
-          <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('storagePage.alias')" width="180" sortable> </el-table-column>
-          <el-table-column show-overflow-tooltip prop="description" :label="$t('storagePage.description')"> </el-table-column>
+          <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('device.devicename')" width="180" sortable> </el-table-column>
+          <el-table-column show-overflow-tooltip prop="description" :label="$t('device.description')"> </el-table-column>
           <el-table-column prop="line" :label="$t('storagePage.line')"> </el-table-column>
           <el-table-column prop="creator" :label="$t('storagePage.creator')"> </el-table-column>
           <el-table-column :label="$t('storagePage.operation')">
