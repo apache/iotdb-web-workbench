@@ -83,7 +83,7 @@ export default {
 <style lang="scss" scoped>
 .echartsBox {
   width: 150px;
-  height: 65px;
+  height: 70px;
   margin-left: -15px;
 }
 </style>

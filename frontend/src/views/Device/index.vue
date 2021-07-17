@@ -28,7 +28,7 @@
         </template>
       </stand-table>
     </div>
-    <div class="footer">
+    <div class="footer" :style="{ left: dividerWidth + 'px', width: widths - dividerWidth + 'px' }">
       <el-button type="info" @click="closeTab">{{ $t('device.cencel') }}</el-button>
       <el-button type="primary" class="sumbitButton" @click="sumbitData">{{ $t('device.ok') }}</el-button>
     </div>
@@ -48,12 +48,14 @@ export default {
   props: {
     func: Object,
     data: Object,
+    dividerWidth: Object,
   },
   setup(props) {
     const route = useRoute();
     const standtable = ref(null);
     const { t } = useI18n();
     let totalCount = ref(0);
+    let widths = ref(window.screen.width);
     const deviceData = reactive({
       obj: {},
     });
@@ -331,6 +333,7 @@ export default {
       getListData,
       closeTab,
       openWin,
+      widths,
       pagination,
       encoding,
       totalCount,
@@ -377,6 +380,10 @@ export default {
   position: absolute;
   bottom: 10px;
   left: 50%;
+  background: #fff;
+  height: 52px;
+  line-height: 52px;
+  z-index: 9;
   // text-align: center;
 }
 </style>
