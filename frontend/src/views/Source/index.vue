@@ -22,7 +22,7 @@
     <div class="permission-box">
       <div class="info-head">
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-xinzengshujulianjie"></use>
+          <use xlink:href="#icon-yonghuquanxian-color"></use>
         </svg>
         {{ $t('sourcePage.accountPermit') }}
       </div>
@@ -202,7 +202,7 @@
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-cunchuzu-color"></use>
         </svg>
-        {{ $t('sourcePage.groupInfo') }}({{groupTotal}})
+        {{ $t('sourcePage.groupInfo') }}({{ groupTotal }})
       </div>
       <el-table :data="tableData" class="group-table" max-height="280" height="280">
         <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
@@ -727,7 +727,7 @@ export default {
       axios.get(`/servers/${serverId.value}/storageGroups/info`, {}).then((res) => {
         if (res && res.code == 0) {
           tableData.value = res.data;
-          groupTotal.value = res.data && res.data.length || 0;
+          groupTotal.value = (res.data && res.data.length) || 0;
           let temp = [];
           for (let i = 0; i < res.data.length; i++) {
             temp.push(res.data[i].groupName);
@@ -737,7 +737,6 @@ export default {
           tableData.value = [];
           allGroupPaths.value = [];
           groupTotal.value = 0;
-
         }
       });
     };
@@ -1095,7 +1094,7 @@ export default {
       goGroupDetail,
       goEditGroup,
       cancelNew1,
-      groupTotal
+      groupTotal,
     };
   },
   components: {
@@ -1143,7 +1142,7 @@ export default {
     right: 0;
   }
   .info-box {
-    padding: 10px 20px;
+    padding: 10px 20px 14px;
     position: relative;
     .icon {
       position: absolute;
@@ -1187,8 +1186,14 @@ export default {
           font-size: 12px;
           font-weight: 400;
           line-height: 20px;
+          font-size: 12px;
+          color: #d32d2fff;
+          line-height: 16px;
+          margin-left: 10px;
+          padding: 3px 8px;
           color: rgba(34, 34, 34, 0.65);
-          padding: 0 16px 10px;
+          padding: 0 8px 10px 16px;
+
           button {
             float: right;
             font-size: 12px;
@@ -1229,6 +1234,7 @@ export default {
       .right-part {
         flex: 1;
         position: relative;
+
         .auth-add-btn {
           position: absolute;
           right: 10px;
@@ -1260,8 +1266,15 @@ export default {
           }
         }
         &::v-deep .el-checkbox__input.is-disabled + span.el-checkbox__label {
-          color: #606266;
+          color: #222222;
           cursor: default;
+        }
+        &::v-deep .el-checkbox__label {
+          font-size: 12px !important;
+          font-weight: 400;
+        }
+        &::v-deep .el-input .el-input__inner {
+          font-size: 12px !important;
         }
         .el-select {
           width: 100%;
@@ -1274,9 +1287,12 @@ export default {
         }
         .auth-tips {
           font-size: 12px;
-          color: red;
+          color: #d32d2fff;
           line-height: 16px;
           margin-left: 10px;
+          background: rgba(211, 45, 47, 0.04);
+          padding: 3px 8px;
+          margin: 16px 18px 16px 14px;
         }
         .tab-content {
           padding: 10px 16px;
