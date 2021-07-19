@@ -25,7 +25,7 @@
               <i class="el-icon-video-pause stop" @click="stopquery"></i>
             </eltooltip>
             <eltooltip label="device.delete" v-if="routeData.obj.name !== '新建查询'">
-              <i class="el-icon-delete" @click="deleteQuery"></i>
+              <i class="el-icon-delete stop" @click="deleteQuery"></i>
             </eltooltip>
           </div>
         </div>
@@ -59,6 +59,7 @@
                     <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line.list[index] }}</span>
                   </div>
                 </div>
+                <div class="table_top_border"></div>
                 <div class="tab_table" v-if="item">
                   <stand-table ref="standTable" :column="item" :tableData="tableData.list[index]" :lineHeight="5" :lineWidth="13" :maxHeight="divwerHeight" :pagination="pagination"> </stand-table>
                 </div>
@@ -218,14 +219,14 @@ export default {
           runFlag.value = true;
         }, 5000);
       } else {
-        ElMessage.error('查询正在运行中，请勿重复操作');
+        ElMessage.error(`${t('sqlserch.sqlrun')}`);
       }
     }
     function centerDialog() {
       centerDialogVisible.value = false;
       ElMessage({
         type: 'info',
-        message: '已取消保存',
+        message: t('device.cencel'),
       });
     }
     function centerDialogOk() {
@@ -242,7 +243,7 @@ export default {
       saveQuery(routeData.obj.connectionid, data).then(() => {
         ElMessage({
           type: 'success',
-          message: '保存成功!',
+          message: t('device.savesuccess'),
         });
         centerDialogVisible.value = false;
         props.func.updateTree();
@@ -366,7 +367,7 @@ export default {
 
 <style lang="scss" scoped>
 .stop:hover {
-  color: rgb(84, 95, 255);
+  color: rgb(156, 182, 246);
 }
 .dilog_div {
   display: flex;
@@ -403,7 +404,7 @@ export default {
   .divider {
     // width: 1px;
     height: 1px;
-    background-color: #f0f0f0;
+    background-color: #efefef;
     cursor: n-resize;
     &:hover {
       background-color: $theme-color !important;
@@ -422,8 +423,9 @@ export default {
     .header_messge {
       padding: 10px 23px;
     }
-    .tab_table {
-      padding-top: 5px;
+    .table_top_border {
+      height: 1px;
+      background: #eff0f4;
     }
   }
 }
@@ -434,6 +436,7 @@ export default {
   border-bottom: 1px solid #ebeef5;
 }
 .rightIcon {
+  font-size: 16px;
   width: 100px;
 }
 .flex {

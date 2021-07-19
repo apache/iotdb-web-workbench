@@ -2,7 +2,7 @@
   <div class="new-storage-container">
     <p>{{ $t('storagePage.alias') }}:{{ alias }}</p>
     <el-form ref="formRef" :model="form" :rules="rules" class="source-form" label-position="top">
-      <el-form-item :label="$t('storagePage.groupName')" prop="groupName" class="form-input-item">
+      <el-form-item :label="$t('storagePage.groupName')" prop="groupName" class="form-input-item require-style">
         <el-input :disabled="router.currentRoute.value.params.groupname" v-model="form.groupName" :placeholder="$t('storagePage.groupNamePlaceholder')"></el-input>
       </el-form-item>
       <el-form-item :label="$t('storagePage.groupDescription')" prop="description" class="form-input-item">
@@ -87,7 +87,7 @@ export default {
       groupName: '',
       description: '',
       ttl: '',
-      ttlUnit: '',
+      ttiUnit: '',
     });
     /**
      * 取消新增存储组
@@ -118,7 +118,7 @@ export default {
     const submit = () => {
       formRef.value.validate((valid) => {
         if (valid) {
-          if ((form.ttl && !form.ttlUnit) || (!form.ttl && form.ttlUnit)) {
+          if ((form.ttl && !form.ttiUnit) || (!form.ttl && form.ttiUnit)) {
             ElMessage.error(t('storagePage.ttlErrTips'));
             return false;
           }
@@ -126,7 +126,7 @@ export default {
             groupName: form.groupName,
             description: form.description,
             ttl: form.ttl == '' || form.ttl == null ? null : +form.ttl,
-            ttlUnit: form.ttlUnit || null,
+            ttlUnit: form.ttiUnit || null,
           };
           axios.post(`/servers/${router.currentRoute.value.params.serverid}/storageGroups`, { ...reqObj }).then((res) => {
             if (res && res.code == 0) {
@@ -162,7 +162,7 @@ export default {
         console.log(route.params, 'update');
         form.groupName = null;
         form.ttl = null;
-        form.ttlUnit = null;
+        form.ttiUnit = null;
         form.description = null;
       }
     });
@@ -198,6 +198,9 @@ export default {
     .form-input-item {
       width: 450px;
     }
+    .require-style {
+      margin-left: -11px;
+    }
     .ttl-input {
       display: inline-block;
       width: 350px;
@@ -213,6 +216,7 @@ export default {
   }
 
   .submit-btns {
+    text-align: center;
     .el-button {
       width: 110px;
       padding-left: 0 !important;

@@ -46,7 +46,7 @@
         </div>
       </template>
     </stand-table>
-    <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px', width: widths - dividerWidth + 'px' }">
+    <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px', width: widths - dividerWidth + 150 + 'px' }">
       <div class="drawertitle">
         <div>{{ routeData.obj.timeseries }}{{ $t('device.datatrend') }}</div>
         <div>
@@ -132,6 +132,7 @@ export default {
           // suffixIcon: "el-icon-search", // 后图标样式
           startPlaceholder: '开始日期', //灰色提示文字
           endPlaceholder: '结束日期', //灰色提示文字
+          Event: checkDateValue,
         },
       ],
     });
@@ -198,7 +199,7 @@ export default {
       console.log(val);
     }
     function getDate(timeS, timeE) {
-      formdate.formData.time = [new Date(timeS), new Date(timeE)];
+      formdate.formData.time = [timeS, timeE];
     }
     function creatDevice() {
       funcs.addTab(`${routeData.obj.parentid}:newdevice`);
@@ -216,7 +217,7 @@ export default {
           deleteDevice(routeData.obj).then(() => {
             ElMessage({
               type: 'success',
-              message: '删除成功!',
+              message: `${t('device.deleteSuccess')}!`,
             });
             props.func.updateTree();
             props.func.removeTab(routeData.obj.id);
@@ -225,7 +226,7 @@ export default {
         .catch(() => {
           ElMessage({
             type: 'info',
-            message: '已取消删除',
+            message: t('device.cencel'),
           });
         });
     }
@@ -248,6 +249,10 @@ export default {
       getDeviceDate(routeData.obj).then((res) => {
         deviceObj.deviceData = res.data;
       });
+    }
+    function checkDateValue() {
+      console.log(formdate.formData.time);
+      drawerRef.value.setEchartsTime(formdate.formData.time);
     }
     onActivated(() => {
       routeData.obj = route.params;
@@ -302,7 +307,7 @@ $cursor: pointer;
   border-color: $theme-color;
 }
 .actionSpan {
-  height: 50px;
+  height: 70px;
   display: flex;
   align-items: center;
 }

@@ -133,6 +133,7 @@ const cn = {
       newGroupSuccessLabel: '新增或编辑存储组成功',
       deleteAuthConfirm: '是否确定删除该权限?',
       deleteSourceConfirm: '是否确认删除该数据连接?',
+      deleteUserConfirm: '是否确认删除该用户?',
       newSourceSuccessLabel: '新增或编辑数据连接成功',
       addAuthFirstLabel: '请先完成当前权限的添加',
       authTips: '勾选【查看用户】权限后，【创建用户】、【删除用户】、【修改密码】、【用户赋权】、【撤销赋权】才能在账号权限模块生效',
@@ -173,10 +174,10 @@ const cn = {
     device: {
       serchPy: '请输入物理量名称',
       dataconnection: '数据连接',
-      selectdataconnection: '请选择数据连接',
+      selectdataconnection: '请选择存储组',
       devicename: '实体名称',
       description: '实体描述',
-      selectp: '请选择存储组',
+      selectp: '请选择实体',
       group: '所属存储组',
       physical: '实体物理量',
       addphysical: '添加物理量',
@@ -262,6 +263,7 @@ const cn = {
       run: '运行',
       stop: '暂停',
       sqlserchText: '执行成功,该查询语句无数据返回',
+      sqlrun: '查询正在运行中，请勿重复操作',
     },
     standTable: {
       export: '批量导出',

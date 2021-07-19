@@ -267,6 +267,8 @@ export default {
     background-color: #f0f0f0;
     &:hover {
       cursor: w-resize;
+      background-color: $theme-color;
+      width: 2px;
     }
   }
   .router-container {

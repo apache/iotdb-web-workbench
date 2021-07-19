@@ -6,7 +6,7 @@ import * as echarts from 'echarts/core';
 import { GridComponent } from 'echarts/components';
 import { LineChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
-import { onMounted, reactive } from '@vue/runtime-core';
+import { onMounted, reactive, ref } from '@vue/runtime-core';
 import { getData } from '../views/DeviceMessage/api';
 echarts.use([GridComponent, LineChart, CanvasRenderer]);
 export default {
@@ -17,101 +17,146 @@ export default {
   },
   setup(props) {
     const data = reactive(props.echartsData);
+    const time = reactive({
+      list: [],
+    });
+    const value = reactive({
+      list: [],
+    });
+    const timeCopy = reactive({
+      list: [],
+    });
+    const valueCopy = reactive({
+      list: [],
+    });
+    let max = ref(0);
     onMounted(() => {
       getehartsData(data);
     });
-    function getehartsData(data) {
-      getData(data.connectionid, data.storagegroupid, data.name, data.timeseries).then((res) => {
-        let length = res.data.timeList.length / 5;
-        for (let i = 0; i < 5; i++) {
-          res.data.timeList[i * length] = formatDate(res.data.timeList[i * length]);
+    function setEchartsTime(times) {
+      let startTime = Date.parse(times[0]);
+      let endTime = Date.parse(times[1]);
+      time.list = [];
+      value.list = [];
+      timeCopy.list.forEach((item, index) => {
+        if (Date.parse(item) > startTime && Date.parse(item) < endTime) {
+          time.list.push(timeCopy.list[index]);
+          value.list.push(valueCopy.list[index]);
         }
-        props.getDate(res.data.timeList[0], res.data.timeList[res.data.timeList.length - 1]);
-        let myChart = echarts.init(document.getElementById('myChart'));
-        myChart.setOption({
-          title: { text: '总用户量' },
-          tooltip: {},
-          grid: {
-            left: '30px',
-            top: '10px',
-            width: '100%',
-          },
-          xAxis: {
-            data: res.data.timeList,
-            boundaryGap: false,
-            axisTick: {
-              show: false,
-            },
-            axisLine: {
-              show: true,
-              onZero: true,
-              lineStyle: { color: '#ebeef5' },
-            },
-            axisLabel: {
-              show: true,
-              align: 'left',
-              textStyle: {
-                color: 'black',
-              },
-              interval: length - 1,
+      });
+      setEcharts();
+    }
+    function setEcharts() {
+      let length = time.list.length / 5;
+      time.list.forEach((item, index) => {
+        time.list[index] = formatDate(item);
+      });
+      let myChart = echarts.init(document.getElementById('myChart'));
+      myChart.setOption({
+        title: { text: '总用户量' },
+        grid: {
+          left: '40px',
+          top: '10px',
+          width: '100%',
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985',
             },
           },
-          yAxis: {
-            type: 'value',
-            max: 200,
-            min: 0,
-            splitNumber: 4,
-            axisTick: {
-              show: false,
+        },
+        xAxis: {
+          type: 'category',
+          data: time.list,
+          boundaryGap: false,
+          axisTick: {
+            show: false,
+          },
+          axisLine: {
+            show: true,
+            onZero: true,
+            lineStyle: { color: '#ebeef5' },
+          },
+          axisLabel: {
+            show: true,
+            align: 'left',
+            textStyle: {
+              color: 'black',
             },
-            axisLabel: {
-              show: true,
-              textStyle: {
-                color: 'black',
-              },
-            },
-            axisLine: {
-              show: true,
-              lineStyle: { color: '#ebeef5' },
-            },
-            splitLine: {
-              show: false,
-              interval: 'auto',
+            interval: length - 1,
+          },
+        },
+        yAxis: {
+          type: 'value',
+          max: max,
+          min: 0,
+          splitNumber: 1,
+          axisTick: {
+            show: false,
+          },
+          axisLabel: {
+            show: true,
+            textStyle: {
+              color: 'black',
             },
           },
-          series: [
-            {
-              type: 'line',
-              data: res.data.valueList,
-              symbol: 'none',
-              itemStyle: {
-                normal: {
-                  lineStyle: {
-                    color: '#0cc100',
-                  },
+          axisLine: {
+            show: true,
+            lineStyle: { color: '#ebeef5' },
+          },
+          splitLine: {
+            show: false,
+            interval: 'auto',
+          },
+        },
+        series: [
+          {
+            type: 'line',
+            data: value.list,
+            symbol: 'none',
+            itemStyle: {
+              normal: {
+                lineStyle: {
+                  color: '#0cc100',
                 },
               },
             },
-          ],
-        });
-        window.onresize = function () {
-          //自适应大小
-          myChart.resize();
-        };
+          },
+        ],
+      });
+      window.onresize = function () {
+        //自适应大小
+        myChart.resize();
+      };
+    }
+    function getehartsData(data) {
+      getData(data.connectionid, data.storagegroupid, data.name, data.timeseries).then((res) => {
+        time.list = res.data.timeList;
+        timeCopy.list = JSON.parse(JSON.stringify(res.data.timeList.reverse()));
+        value.list = res.data.valueList;
+        valueCopy.list = JSON.parse(JSON.stringify(res.data.valueList.reverse()));
+        props.getDate(res.data.timeList[res.data.timeList.length - 1], res.data.timeList[0]);
+        max = Math.max(...res.data.valueList);
+        setEcharts();
       });
     }
     function formatDate(datec) {
-      var date = new Date(datec);
-      var YY = date.getFullYear() + '-';
-      var MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-      var DD = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
-      var hh = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
-      var mm = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
-      var ss = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
-      return YY + MM + DD + ' ' + hh + mm + ss;
+      let date = new Date(datec);
+      let YY = date.getFullYear() + '-';
+      let MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+      let DD = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+      let hh = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+      let mm = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+      let ss = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+      let hs = date.getMilliseconds();
+      return YY + MM + DD + ' ' + hh + mm + ss + ':' + hs;
     }
     return {
       getehartsData,
+      setEchartsTime,
     };
   },
 };

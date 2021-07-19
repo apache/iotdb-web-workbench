@@ -7,6 +7,7 @@
         :size="item.size"
         :style="{ width: item.width }"
         :placeholder="$t(item.placeholder)"
+        :disabled="item.disabled"
         @blur="getFormData"
         @keypress.enter.stop="getFormData"
         :suffix-icon="item.suffixIcon"
@@ -23,6 +24,7 @@
         type="datetimerange"
         :start-placeholder="item.startPlaceholder"
         :end-placeholder="item.endPlaceholder"
+        @blur="item.Event"
       >
       </el-date-picker>
     </el-form-item>
