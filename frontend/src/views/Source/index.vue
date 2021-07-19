@@ -34,9 +34,9 @@
           </p>
           <ul class="user-list">
             <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
-              <el-tooltip class="item" width="200" effect="dark" :content="item.username" placement="top">
-                <span class="content">{{ item.username }}</span>
-              </el-tooltip>
+              <!-- <el-tooltip class="item" width="200" effect="dark" :content="item.username" placement="top"> -->
+              <span class="content">{{ item.username }}</span>
+              <!-- </el-tooltip> -->
               <el-popconfirm placement="top" :title="$t('sourcePage.deleteUserConfirm')" @confirm="deleteUser(item)">
                 <template #reference>
                   <span class="icon-del del-user">
@@ -57,9 +57,12 @@
                 <div v-if="!isNew" class="tab-content left-base-content">
                   <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
                     <el-form-item :label="$t('sourcePage.userNameTitle')">
-                      <el-tooltip class="item" width="200" effect="dark" :content="baseInfoForm.userName" placement="top">
-                        <div class="user-name">{{ baseInfoForm.userName }}</div>
-                      </el-tooltip>
+                      <div v-if="baseInfoForm.userName && baseInfoForm.userName.length > 80">
+                        <el-tooltip class="item" width="200" effect="dark" :content="baseInfoForm.userName" placement="top">
+                          <div class="user-name">{{ baseInfoForm.userName }}</div>
+                        </el-tooltip>
+                      </div>
+                      <div v-else class="user-name">{{ baseInfoForm.userName }}</div>
                     </el-form-item>
                     <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
                       <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
@@ -1250,7 +1253,7 @@ export default {
             }
           }
           .user-name {
-            max-width: calc(100vw - 550px);
+            max-width: calc(100% - 50px);
 
             overflow: hidden;
             text-overflow: ellipsis;
