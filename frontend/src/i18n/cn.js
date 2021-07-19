@@ -133,6 +133,7 @@ const cn = {
       newGroupSuccessLabel: '新增或编辑存储组成功',
       deleteAuthConfirm: '是否确定删除该权限?',
       deleteSourceConfirm: '是否确认删除该数据连接?',
+      deleteUserConfirm: '是否确认删除该用户?',
       newSourceSuccessLabel: '新增或编辑数据连接成功',
       addAuthFirstLabel: '请先完成当前权限的添加',
       authTips: '勾选【查看用户】权限后，【创建用户】、【删除用户】、【修改密码】、【用户赋权】、【撤销赋权】才能在账号权限模块生效',

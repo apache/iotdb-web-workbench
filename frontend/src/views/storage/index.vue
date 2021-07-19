@@ -19,7 +19,8 @@
         <el-descriptions-item :label="$t('storagePage.alias') + ':'">{{ baseInfo.alias }}</el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.creator') + ':'">{{ baseInfo.creator }}</el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.createTime')">{{ baseInfo.createTime }}</el-descriptions-item>
-        <el-descriptions-item :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }}{{ ttlValue['second'] }} </el-descriptions-item>
+        <el-descriptions-item v-if="baseInfo.ttl" :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }}{{ ttlValue[baseInfo.ttiUnit] }} </el-descriptions-item>
+        <el-descriptions-item v-else :label="$t('storagePage.ttl')"> ∞ </el-descriptions-item>
         <el-descriptions-item :label="$t('storagePage.description') + ':'">{{ baseInfo.description }}</el-descriptions-item>
       </el-descriptions>
     </div>
@@ -33,8 +34,8 @@
         <!-- @selection-change="handleSelectionChange" -->
         <el-table :data="tableData" style="width: 100%">
           <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
-          <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('storagePage.alias')" width="180" sortable> </el-table-column>
-          <el-table-column show-overflow-tooltip prop="description" :label="$t('storagePage.description')"> </el-table-column>
+          <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('device.devicename')" width="180" sortable> </el-table-column>
+          <el-table-column show-overflow-tooltip prop="description" :label="$t('device.description')"> </el-table-column>
           <el-table-column prop="line" :label="$t('storagePage.line')"> </el-table-column>
           <el-table-column prop="creator" :label="$t('storagePage.creator')"> </el-table-column>
           <el-table-column :label="$t('storagePage.operation')">
@@ -174,12 +175,14 @@ export default {
      * scope:要被删除的实体的信息
      */
     const deleteDevice = (scope) => {
-      axios.delete(`/servers/${props.data.connectionid}/storageGroups/${props.data.storagegroupid}/devices/${scope.row.deviceName}`).then(() => {
-        ElMessage({
-          type: 'success',
-          message: `${t('device.deleteSuccess')}!`,
-        });
-        getDeviceList();
+      axios.delete(`/servers/${props.data.connectionid}/storageGroups/${props.data.storagegroupid}/devices/${scope.row.deviceName}`).then((res) => {
+        if (res.code === '0') {
+          ElMessage({
+            type: 'success',
+            message: `${t('device.deleteSuccess')}!`,
+          });
+          getDeviceList();
+        }
       });
     };
     /**

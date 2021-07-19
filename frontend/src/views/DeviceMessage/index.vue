@@ -132,6 +132,7 @@ export default {
           // suffixIcon: "el-icon-search", // 后图标样式
           startPlaceholder: '开始日期', //灰色提示文字
           endPlaceholder: '结束日期', //灰色提示文字
+          Event: checkDateValue,
         },
       ],
     });
@@ -198,7 +199,7 @@ export default {
       console.log(val);
     }
     function getDate(timeS, timeE) {
-      formdate.formData.time = [new Date(timeS), new Date(timeE)];
+      formdate.formData.time = [timeS, timeE];
     }
     function creatDevice() {
       funcs.addTab(`${routeData.obj.parentid}:newdevice`);
@@ -248,6 +249,10 @@ export default {
       getDeviceDate(routeData.obj).then((res) => {
         deviceObj.deviceData = res.data;
       });
+    }
+    function checkDateValue() {
+      console.log(formdate.formData.time);
+      drawerRef.value.setEchartsTime(formdate.formData.time);
     }
     onActivated(() => {
       routeData.obj = route.params;
@@ -302,7 +307,7 @@ $cursor: pointer;
   border-color: $theme-color;
 }
 .actionSpan {
-  height: 65px;
+  height: 70px;
   display: flex;
   align-items: center;
 }

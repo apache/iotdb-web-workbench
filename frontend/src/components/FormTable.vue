@@ -24,6 +24,7 @@
         type="datetimerange"
         :start-placeholder="item.startPlaceholder"
         :end-placeholder="item.endPlaceholder"
+        @blur="item.Event"
       >
       </el-date-picker>
     </el-form-item>
