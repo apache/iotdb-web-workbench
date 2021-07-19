@@ -163,7 +163,7 @@ export default {
       } else if (data.type === 'newdevice') {
         //新建实体
         console.log(data);
-        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
+        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'device') {
         //实体
         console.log(data);
