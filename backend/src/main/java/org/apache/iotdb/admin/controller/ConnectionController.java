@@ -68,7 +68,7 @@ public class ConnectionController {
 
     @PostMapping("/test")
     @ApiOperation("连通性测试")
-    public BaseVO<ConnectionVO> testConnection(@RequestBody ConnectionDTO conn) throws BaseException {
+    public BaseVO testConnection(@RequestBody ConnectionDTO conn) throws BaseException {
         Socket socket = null;
         try {
             socket = new Socket();
