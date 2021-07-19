@@ -135,9 +135,9 @@ export default {
     function getehartsData(data) {
       getData(data.connectionid, data.storagegroupid, data.name, data.timeseries).then((res) => {
         time.list = res.data.timeList;
-        timeCopy.list = JSON.parse(JSON.stringify(res.data.timeList));
+        timeCopy.list = JSON.parse(JSON.stringify(res.data.timeList.reverse()));
         value.list = res.data.valueList;
-        valueCopy.list = JSON.parse(JSON.stringify(res.data.valueList));
+        valueCopy.list = JSON.parse(JSON.stringify(res.data.valueList.reverse()));
         props.getDate(res.data.timeList[res.data.timeList.length - 1], res.data.timeList[0]);
         max = Math.max(...res.data.valueList);
         setEcharts();
