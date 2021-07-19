@@ -163,7 +163,7 @@ export default {
       } else if (data.type === 'newdevice') {
         //新建实体
         console.log(data);
-        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, forceupdate, ...extraParams } });
+        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'device') {
         //实体
         console.log(data);
@@ -264,7 +264,7 @@ export default {
     z-index: 10;
     width: 1px;
     height: 100%;
-    background-color: #f0f0f0;
+    background-color: #e0e0e0;
     &:hover {
       cursor: w-resize;
       background-color: $theme-color;

@@ -62,6 +62,7 @@ export default {
 
 <style lang="scss" scoped>
 .serch_div {
+  font-size: 14px;
   padding: 20px 20px 0px 20px;
   background: #fff;
   &.maxheight {

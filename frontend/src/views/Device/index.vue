@@ -28,7 +28,7 @@
         </template>
       </stand-table>
     </div>
-    <div class="footer" :style="{ left: dividerWidth + 'px', width: widths - dividerWidth + 140 + 'px' }">
+    <div class="footer" :style="{ left: dividerWidth + 'px', width: widths - dividerWidth + 'px' }">
       <el-button type="info" @click="closeTab">{{ $t('device.cencel') }}</el-button>
       <el-button type="primary" class="sumbitButton" @click="sumbitData">{{ $t('device.ok') }}</el-button>
     </div>
@@ -52,9 +52,11 @@ export default {
   },
   setup(props) {
     const route = useRoute();
+    // const router = useRouter();
     const standtable = ref(null);
     const { t } = useI18n();
     let totalCount = ref(0);
+    let erroflag = ref(true);
     let widths = ref(window.screen.width);
     const deviceData = reactive({
       obj: {},
@@ -183,11 +185,17 @@ export default {
     function checkVal(scope, obj, val, ev) {
       console.log(obj);
       if (!/^\w+$/.test(val)) {
-        ElMessage.error(`"${val}"${t('device.pyname')}`);
+        if (erroflag.value) {
+          ElMessage.error(`"${val}"${t('device.pyname')}`);
+          erroflag.value = false;
+        }
         tableData.list[scope.$index].border = true;
         ev.target.focus();
       } else if (val === null || val.length > 255) {
-        ElMessage.error(`"${val}"${t('device.pynamel')}`);
+        if (erroflag.value) {
+          ElMessage.error(`"${val}"${t('device.pynamel')}`);
+          erroflag.value = false;
+        }
         tableData.list[scope.$index].border = true;
         ev.target.focus();
       } else {
@@ -195,7 +203,10 @@ export default {
         arr.splice(scope.$index, 1);
         arr.forEach((item) => {
           if (item.timeseries === val) {
-            ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
+            if (erroflag.value) {
+              ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
+              erroflag.value = false;
+            }
             tableData.list[scope.$index].border = true;
             obj.namecopy = true;
             ev.target.focus();
@@ -205,6 +216,9 @@ export default {
           }
         });
       }
+      setTimeout(() => {
+        erroflag.value = true;
+      }, 500);
     }
     function deleteRow(row, index) {
       console.log(row.timeseries);
@@ -256,12 +270,24 @@ export default {
         type: 'info',
         message: `${t('device.cencel')}!`,
       });
+      // router.go(-1);
+      // props.func.removeTab(route.params.id);
+      props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
       props.func.removeTab(route.params.id);
     }
     function sumbitData() {
       let checkfalg = true;
       tableData.list.forEach((item) => {
         if (item.timeseries === null || item.dataType === null || item.border) {
+          if (checkfalg) {
+            if (item.timeseries === null) {
+              ElMessage.error(`${t('device.pynamel')}`);
+            } else if (item.dataType === null) {
+              ElMessage.error(`"${item.timeseries}"${t('device.selectdatatype')}`);
+            } else if (item.namecopy) {
+              ElMessage.error(`"${item.timeseries}"${t('device.pynamecopy')}`);
+            }
+          }
           checkfalg = false;
           item.border = true;
         } else {
@@ -279,7 +305,6 @@ export default {
               deviceData.obj.name = form.formData.deviceName;
               props.func.updateTree();
               props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-              props.data.extraParams.getList();
               props.func.removeTab(route.params.id);
             }
           });
@@ -288,8 +313,6 @@ export default {
             ElMessage.error(`${t('device.minphysical')}`);
           }
         }
-      } else {
-        ElMessage.error(`${t('device.must')}`);
       }
     }
     function getListData() {
@@ -303,7 +326,7 @@ export default {
         form.formData = reactive({
           description: res.data.description,
           deviceName: deviceData.obj.name,
-          groupName: deviceData.obj.storagegroupid,
+          groupName: `${deviceData.obj.parentids}/${deviceData.obj.storagegroupid}`,
           deviceId: res.data.deviceId,
         });
         form.formItem[0].disabled = true;
@@ -314,6 +337,8 @@ export default {
     }
     onActivated(() => {
       deviceData.obj = route.params;
+      console.log(2134);
+      console.log(deviceData.obj);
       if (route.params.name !== '新建实体') {
         getdData();
         getListData();
@@ -321,7 +346,7 @@ export default {
         form.formData = reactive({
           description: null,
           deviceName: null,
-          groupName: deviceData.obj.storagegroupid,
+          groupName: `${deviceData.obj.parentids}/${deviceData.obj.storagegroupid}`,
           deviceId: null,
         });
       }
