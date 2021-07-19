@@ -190,7 +190,7 @@ const en = {
       physicalname: 'metrics',
       datatype: 'data type',
       codingmode: 'coding mode',
-      physicaldescr: 'description of physical metrics',
+      physicaldescr: 'description of metrics',
       action: 'operation',
       datatrends: 'data trends',
       datatrend: 'Trend of physical quantity data',

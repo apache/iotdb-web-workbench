@@ -202,7 +202,7 @@
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-cunchuzu-color"></use>
         </svg>
-        {{ $t('sourcePage.groupInfo') }}({{groupTotal}})
+        {{ $t('sourcePage.groupInfo') }}({{ groupTotal }})
       </div>
       <el-table :data="tableData" class="group-table" max-height="280" height="280">
         <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
@@ -727,7 +727,7 @@ export default {
       axios.get(`/servers/${serverId.value}/storageGroups/info`, {}).then((res) => {
         if (res && res.code == 0) {
           tableData.value = res.data;
-          groupTotal.value = res.data && res.data.length || 0;
+          groupTotal.value = (res.data && res.data.length) || 0;
           let temp = [];
           for (let i = 0; i < res.data.length; i++) {
             temp.push(res.data[i].groupName);
@@ -737,7 +737,6 @@ export default {
           tableData.value = [];
           allGroupPaths.value = [];
           groupTotal.value = 0;
-
         }
       });
     };
@@ -1095,7 +1094,7 @@ export default {
       goGroupDetail,
       goEditGroup,
       cancelNew1,
-      groupTotal
+      groupTotal,
     };
   },
   components: {
