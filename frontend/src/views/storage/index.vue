@@ -257,7 +257,7 @@ export default {
     padding: 20px;
   }
   .base-info {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #e0e0e0;
     position: relative;
     .btns {
       position: absolute;

@@ -80,7 +80,7 @@ export default {
     border-width: 0;
     border-bottom-width: 1px;
     border-style: solid;
-    border-color: #f0f0f0;
+    border-color: #e0e0e0;
     position: absolute;
     top: 0;
     left: 0;

@@ -10,7 +10,11 @@ function useLangSwitch(domRef, dividerWidth) {
     endX.value = e.clientX;
     document.onmousemove = function (e) {
       endX.value = e.clientX;
-      dividerWidth.value = initWidth + (endX.value - startX.value);
+      let val = initWidth + (endX.value - startX.value);
+      if (val < 200) {
+        return;
+      }
+      dividerWidth.value = val;
     };
     document.onmouseup = function () {
       document.documentElement.classList.remove('move-resize');

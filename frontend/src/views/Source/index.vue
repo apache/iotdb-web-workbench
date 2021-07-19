@@ -1180,7 +1180,7 @@ export default {
       .left-part {
         width: 240px;
         margin-top: 12px;
-        border-right: 1px solid #f0f0f0ff;
+        border-right: 1px solid #e0e0e0;
         .title {
           height: 17px;
           font-size: 12px;
