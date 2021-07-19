@@ -172,9 +172,9 @@ const en = {
     device: {
       serchPy: 'Please input the measuring physical name',
       dataconnection: 'data connection',
-      selectdataconnection: 'Please select data link',
-      devicename: 'entity name',
-      description: 'entity description',
+      selectdataconnection: 'Please select save group',
+      devicename: 'device name',
+      description: 'device description',
       group: 'storage group',
       physical: 'physical metrics',
       addphysical: 'add physical metrics',
@@ -211,7 +211,7 @@ const en = {
       must: 'Please enter the required content',
       newquery: 'New Query',
       inputfunction: 'Please enter a function name',
-      selectp: 'Please Select Group',
+      selectp: 'Please select entity',
       deleteSuccess: 'Delete Success',
     },
     sqlserch: {
@@ -261,6 +261,7 @@ const en = {
       run: 'run',
       stop: 'stop',
       sqlserchText: 'The query is executed successfully, and no data is returned',
+      sqlrun: 'The query is running. Please do not repeat the operation',
     },
     standTable: {
       export: 'export',
