@@ -172,15 +172,9 @@ const en = {
     device: {
       serchPy: 'Please input the measuring physical name',
       dataconnection: 'data connection',
-<<<<<<< HEAD
       selectdataconnection: 'Please select save group',
       devicename: 'device name',
       description: 'device description',
-=======
-      selectdataconnection: 'Please select data link',
-      devicename: 'entity name',
-      description: 'entity description',
->>>>>>> 392c38652f7362755a5adbe995ae91b1732974e1
       group: 'storage group',
       physical: 'physical metrics',
       addphysical: 'add physical metrics',
