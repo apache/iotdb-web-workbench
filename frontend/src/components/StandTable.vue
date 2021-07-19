@@ -11,6 +11,7 @@
       }"
       :header-cell-style="{
         color: 'black',
+        overflow: 'hidden',
         padding: `${lineHeight ? lineHeight : 0}px ${lineWidth ? lineWidth : 0}px !important`,
       }"
       @selection-change="handleSelectionChange"

@@ -175,10 +175,10 @@ const cn = {
     device: {
       serchPy: '请输入物理量名称',
       dataconnection: '数据连接',
-      selectdataconnection: '请选择数据连接',
+      selectdataconnection: '请选择存储组',
       devicename: '实体名称',
       description: '实体描述',
-      selectp: '请选择存储组',
+      selectp: '请选择实体',
       group: '所属存储组',
       physical: '实体物理量',
       addphysical: '添加物理量',
@@ -264,6 +264,7 @@ const cn = {
       run: '运行',
       stop: '暂停',
       sqlserchText: '执行成功,该查询语句无数据返回',
+      sqlrun: '查询正在运行中，请勿重复操作',
     },
     standTable: {
       export: '批量导出',

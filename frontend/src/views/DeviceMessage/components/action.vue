@@ -29,8 +29,8 @@ export default {
     });
     function getehartsData(data) {
       getData(eachrtsObj.connectionid, eachrtsObj.storagegroupid, eachrtsObj.name, data.timeseries).then((res) => {
-        const timearr = res.data.timeList.slice(0, 20);
-        const dataarr = res.data.valueList.slice(0, 20);
+        const timearr = res.data.timeList.reverse().slice(0, 20);
+        const dataarr = res.data.valueList.reverse().slice(0, 20);
         let max = Math.max.apply(null, dataarr);
         let myChart = echarts.init(document.getElementById(data.timeseries));
         console.log(myChart.setOption);

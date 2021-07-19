@@ -222,6 +222,7 @@ export default {
         .form-item {
           position: relative;
           .forget-btn {
+            cursor: pointer;
             position: absolute;
             right: 0;
             top: 0;
