@@ -235,7 +235,7 @@ export default {
 
     .el-button {
       width: 110px;
-      padding-left: 0 !important;
+      // padding-left: 0 !important;
     }
   }
 }
