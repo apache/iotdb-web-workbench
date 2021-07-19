@@ -214,8 +214,12 @@ public class IotDBController<T> {
         List<DeviceInfo> deviceInfos = new ArrayList<>();
         if (deviceNames != null) {
             for (int i = 0; i < deviceNames.size(); i++) {
+                String deviceName = deviceNames.get(i);
+                if (groupName.equals(deviceName)) {
+                    continue;
+                }
                 DeviceInfo deviceInfo = new DeviceInfo();
-                deviceInfo.setDeviceName(deviceNames.get(i).replaceFirst(groupName + ".", ""));
+                deviceInfo.setDeviceName(deviceName.replaceFirst(groupName + ".", ""));
                 deviceInfo.setLine(lines.get(i));
                 if (devices.get(i) != null) {
                     deviceInfo.setDeviceId(devices.get(i).getId());
@@ -766,16 +770,6 @@ public class IotDBController<T> {
         iotDBService.setIotDBRole(connection, iotDBRole);
         return BaseVO.success("创建成功", null);
     }
-
-
-//    @Scheduled(fixedRate = 1000 * 60 * 10)
-//    public void update(){
-//        for (String s : searchGroupSet) {
-//            String[] ip_groupPath = s.split(":");
-//            String ip = ip_groupPath[0];
-//            String groupPath = ip_groupPath[1];
-//        }
-//    }
 
     private void check(HttpServletRequest request, Integer serverId) throws BaseException {
         Integer userId = AuthenticationUtils.getUserId(request);

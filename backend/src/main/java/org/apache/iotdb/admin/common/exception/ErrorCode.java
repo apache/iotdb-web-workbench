@@ -70,7 +70,6 @@ public class ErrorCode {
     public static final String SET_JWT_FAIL = "USER-0011";
     public static final String SET_JWT_FAIL_MSG = "JWT编解码失败";
 
-
     // iotDB相关
     public static final String INSERT_TS_FAIL = "IOTDB-0001";
     public static final String INSERT_TS_FAIL_MSG = "插入时间序列失败";
@@ -219,6 +218,9 @@ public class ErrorCode {
     public static final String NO_PRI_DELETE_GROUP = "IOTDB-0048";
     public static final String NO_PRI_DELETE_GROUP_MSG = "没有权限删除存储组";
 
+    public static final String NO_SUPPORT_SQL = "IOTDB-0049";
+    public static final String NO_SUPPORT_SQL_MSG = "不支持此sql执行";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
@@ -248,7 +250,6 @@ public class ErrorCode {
     public static final String QUERY_EXIST_MSG = "脚本名已存在";
 
     public static final String QUERY_NOT_EXIST = "QUERY-0002";
-    ;
     public static final String QUERY_NOT_EXIST_MSG = "脚本不存在";
 
     // 参数校验相关

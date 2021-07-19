@@ -539,8 +539,7 @@ public class IotDBServiceImpl implements IotDBService {
     public String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         int index = timeseries.lastIndexOf(".");
-        String sql = "select " + timeseries.substring(index + 1) + " from " + timeseries.substring(0, index) + " limit 1 offset 0";
-//        String sql = "select last " + timeseries.substring(index + 1) + " from " + timeseries.substring(0, index);
+        String sql = "select last_value(" + timeseries.substring(index + 1) + ") from " + timeseries.substring(0, index);
         String value;
         try {
             value = executeQueryOneValue(sessionPool,sql);
@@ -730,6 +729,21 @@ public class IotDBServiceImpl implements IotDBService {
             }
             try {
                 if (QUERY_STOP.get(id_plus_timestamp)) {
+                    String sqlCheck = sql.toLowerCase();
+                    if (sqlCheck != null && sqlCheck.contains("insert")) {
+                        String s = sqlCheck;
+                        String[] split = s.split(".");
+                        if (split.length <= 2) {
+                            throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
+                        }
+                    }
+                    if (sqlCheck != null && sqlCheck.contains("create timeseries")) {
+                        String s = sqlCheck;
+                        String[] split = s.split(".");
+                        if (split.length <= 3) {
+                            throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
+                        }
+                    }
                     long start = System.currentTimeMillis();
                     sessionPool.executeNonQueryStatement(sql);
                     long end = System.currentTimeMillis();
@@ -1052,6 +1066,9 @@ public class IotDBServiceImpl implements IotDBService {
             throw new BaseException(ErrorCode.GET_SQL_ONE_VALUE_FAIL, ErrorCode.GET_SQL_ONE_VALUE_FAIL_MSG);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
+            if (e.getStatusCode() == 602 && sql != null && sql.contains("select")) {
+                throw new BaseException(ErrorCode.NO_PRI_READ_TIMESERIES, ErrorCode.NO_PRI_READ_TIMESERIES_MSG);
+            }
             throw new BaseException(ErrorCode.GET_SQL_ONE_VALUE_FAIL, ErrorCode.GET_SQL_ONE_VALUE_FAIL_MSG);
         } finally {
             if (sessionDataSetWrapper != null) {
@@ -1103,7 +1120,6 @@ public class IotDBServiceImpl implements IotDBService {
             ExecutorService service = Executors.newFixedThreadPool(1);
             Future submit = service.submit(call);
             sessionDataSetWrapper = (SessionDataSetWrapper) submit.get(60, TimeUnit.SECONDS);
-//            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
             int batchSize = sessionDataSetWrapper.getBatchSize();
             List<String> values = new ArrayList<>();
             if (batchSize > 0) {

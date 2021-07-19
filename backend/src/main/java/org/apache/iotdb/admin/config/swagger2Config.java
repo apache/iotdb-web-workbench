@@ -21,13 +21,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class swagger2Config {
 
     @Value("${swagger.enabled}")
-    private boolean enableSwaager;
+    private boolean enableSwagger;
 
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiinfo())
-                .enable(enableSwaager)
+                .enable(enableSwagger)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("org.apache.iotdb.admin.controller"))
                 .paths(PathSelectors.any())
