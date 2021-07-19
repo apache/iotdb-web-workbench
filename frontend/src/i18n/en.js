@@ -213,6 +213,7 @@ const en = {
       inputfunction: 'Please enter a function name',
       selectp: 'Please select entity',
       deleteSuccess: 'Delete Success',
+      selectdatatype: 'Please select data type',
     },
     sqlserch: {
       Aggregate: 'Aggregate',

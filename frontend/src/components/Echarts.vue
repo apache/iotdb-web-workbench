@@ -58,7 +58,7 @@ export default {
         },
         toolbox: {
           feature: {
-            saveAsImage: {},
+            // saveAsImage: {},
           },
         },
         grid: {

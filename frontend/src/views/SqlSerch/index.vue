@@ -240,13 +240,15 @@ export default {
         queryName: sqlName.value,
         sqls: codes,
       };
-      saveQuery(routeData.obj.connectionid, data).then(() => {
-        ElMessage({
-          type: 'success',
-          message: t('device.savesuccess'),
-        });
-        centerDialogVisible.value = false;
-        props.func.updateTree();
+      saveQuery(routeData.obj.connectionid, data).then((res) => {
+        if (res.code) {
+          ElMessage({
+            type: 'success',
+            message: t('device.savesuccess'),
+          });
+          centerDialogVisible.value = false;
+          props.func.updateTree();
+        }
       });
     }
     function getSqlCode() {

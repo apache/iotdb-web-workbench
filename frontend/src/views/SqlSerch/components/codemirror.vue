@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="font_fmiy">
     <textarea ref="textarea" @input="change(value)"></textarea>
   </div>
 </template>
@@ -127,7 +127,7 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="scss">
 .CodeMirror-linenumber {
   padding: 5px 3px 5px 0px !important;
 }
@@ -141,5 +141,11 @@ pre.CodeMirror-line {
 .CodeMirror-gutters {
   background-color: #efefef !important;
   width: 30px !important;
+}
+.font_fmiy {
+  .CodeMirror-line {
+    font-size: 11px !important;
+    font-family: 'PingFang SC, Arial, sans-serif' !important;
+  }
 }
 </style>
