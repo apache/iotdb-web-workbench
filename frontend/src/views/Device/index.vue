@@ -52,6 +52,7 @@ export default {
   },
   setup(props) {
     const route = useRoute();
+    // const router = useRouter();
     const standtable = ref(null);
     const { t } = useI18n();
     let totalCount = ref(0);
@@ -269,6 +270,9 @@ export default {
         type: 'info',
         message: `${t('device.cencel')}!`,
       });
+      // router.go(-1);
+      // props.func.removeTab(route.params.id);
+      props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
       props.func.removeTab(route.params.id);
     }
     function sumbitData() {
@@ -301,7 +305,6 @@ export default {
               deviceData.obj.name = form.formData.deviceName;
               props.func.updateTree();
               props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-              props.data.extraParams.getList();
               props.func.removeTab(route.params.id);
             }
           });
@@ -343,7 +346,7 @@ export default {
         form.formData = reactive({
           description: null,
           deviceName: null,
-          groupName: deviceData.obj.storagegroupid,
+          groupName: `${deviceData.obj.parentids}/${deviceData.obj.storagegroupid}`,
           deviceId: null,
         });
       }

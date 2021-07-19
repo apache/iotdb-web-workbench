@@ -92,17 +92,19 @@
       </div>
     </el-aside>
   </el-container>
-  <el-dialog :title="$t('standTable.savequery')" v-model="centerDialogVisible" width="30%" center>
-    <div class="dilog_div">
-      <span>{{ $t('standTable.queryname') }}：</span><el-input style="width: 50%" v-model="sqlName"></el-input>
-    </div>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="centerDialog">{{ $t('device.cencel') }}</el-button>
-        <el-button type="primary" @click="centerDialogOk">{{ $t('device.ok') }}</el-button>
-      </span>
-    </template>
-  </el-dialog>
+  <div class="footer_button">
+    <el-dialog :title="$t('standTable.savequery')" v-model="centerDialogVisible" width="30%" center>
+      <div class="dilog_div">
+        <span>{{ $t('standTable.queryname') }}：</span><el-input style="width: 50%" v-model="sqlName"></el-input>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="centerDialog">{{ $t('device.cencel') }}</el-button>
+          <el-button type="primary" @click="centerDialogOk">{{ $t('device.ok') }}</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -481,5 +483,10 @@ export default {
 .icon.icon-color {
   color: $theme-color;
   vertical-align: -0.2em !important;
+}
+.footer_button {
+  .el-dialog__footer {
+    text-align: right;
+  }
 }
 </style>
