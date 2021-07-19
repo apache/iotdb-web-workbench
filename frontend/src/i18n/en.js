@@ -172,7 +172,7 @@ const en = {
     device: {
       serchPy: 'Please input the measuring physical name',
       dataconnection: 'data connection',
-      selectdataconnection: 'Please select data link',
+      selectdataconnection: 'Please select save group',
       devicename: 'device name',
       description: 'device description',
       group: 'storage group',
@@ -211,7 +211,7 @@ const en = {
       must: 'Please enter the required content',
       newquery: 'New Query',
       inputfunction: 'Please enter a function name',
-      selectp: 'Please Select Group',
+      selectp: 'Please select entity',
       deleteSuccess: 'Delete Success',
     },
     sqlserch: {

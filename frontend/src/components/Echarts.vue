@@ -59,6 +59,15 @@ export default {
           top: '10px',
           width: '100%',
         },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985',
+            },
+          },
+        },
         xAxis: {
           type: 'category',
           data: time.list,

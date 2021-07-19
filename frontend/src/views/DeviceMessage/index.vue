@@ -46,7 +46,7 @@
         </div>
       </template>
     </stand-table>
-    <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px', width: widths - dividerWidth + 'px' }">
+    <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px', width: widths - dividerWidth + 150 + 'px' }">
       <div class="drawertitle">
         <div>{{ routeData.obj.timeseries }}{{ $t('device.datatrend') }}</div>
         <div>

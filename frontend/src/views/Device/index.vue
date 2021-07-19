@@ -28,7 +28,7 @@
         </template>
       </stand-table>
     </div>
-    <div class="footer" :style="{ left: dividerWidth + 'px', width: widths - dividerWidth + 'px' }">
+    <div class="footer" :style="{ left: dividerWidth + 'px', width: widths - dividerWidth + 140 + 'px' }">
       <el-button type="info" @click="closeTab">{{ $t('device.cencel') }}</el-button>
       <el-button type="primary" class="sumbitButton" @click="sumbitData">{{ $t('device.ok') }}</el-button>
     </div>
@@ -378,7 +378,7 @@ export default {
 }
 .footer {
   position: absolute;
-  bottom: 10px;
+  bottom: 0px;
   left: 50%;
   background: #fff;
   height: 52px;
