@@ -91,7 +91,7 @@
                       <el-input show-password v-model="baseInfoForm.password"></el-input>
 
                       <div>
-                        <el-button @click="cancelNew()">{{ $t('common.cancel') }}</el-button>
+                        <el-button @click="cancelNew1()">{{ $t('common.cancel') }}</el-button>
                         <el-button type="primary" @click="doCreate()">{{ $t('common.submit') }}</el-button>
                       </div>
                     </el-form-item>
@@ -202,7 +202,7 @@
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-cunchuzu-color"></use>
         </svg>
-        {{ $t('sourcePage.groupInfo') }}
+        {{ $t('sourcePage.groupInfo') }}({{groupTotal}})
       </div>
       <el-table :data="tableData" class="group-table" max-height="280" height="280">
         <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
@@ -366,6 +366,7 @@ export default {
     let activeIndex = ref(null);
     let edit = ref(false);
     let isNew = ref(false);
+    let groupTotal = ref(0);
     const serverId = ref(null);
     let funcTypeOne = () => {
       return [
@@ -480,6 +481,8 @@ export default {
       showDialog.value = false;
       types.value = 0;
       getBaseInfo();
+      getUserList(1);
+      getGroupList();
     };
     /**
      * 切换基本配置与账号权限的tab操作
@@ -551,7 +554,7 @@ export default {
           axios.post(`/servers/${serverId.value}/users/`, { ...reqObj }).then((rs) => {
             if (rs && rs.code == 0) {
               ElMessage.success(t('sourcePage.addSuccessLabel'));
-              cancelNew();
+              cancelNew(reqObj.userName);
             }
           });
         }
@@ -570,7 +573,7 @@ export default {
         if (rs && rs.code == 0) {
           ElMessage.success(t('sourcePage.deleteUserSuccessLabel'));
           activeIndex.value = null;
-          getUserList();
+          getUserList(1);
         }
       });
     };
@@ -598,11 +601,19 @@ export default {
     };
     /**
      * 取消新建用户
+     * userName
      */
-    const cancelNew = () => {
+    const cancelNew = (username) => {
       isNew.value = false;
-      activeIndex.value == 'new' && (activeIndex.value = null);
-      userList.value.shift();
+      // activeIndex.value == 'new' && (activeIndex.value = null);
+      getUserList();
+      if (username) {
+        activeIndex.value = username;
+        getUserAuth({ username });
+      }
+    };
+    const cancelNew1 = () => {
+      isNew.value = false;
       getUserList(1);
     };
     /**
@@ -629,7 +640,14 @@ export default {
       axios.get(`/servers/${serverId.value}`, {}).then((res) => {
         if (res && res.code == 0) {
           baseInfo.value = res.data;
+          // if (!func) {
+          //   baseInfoForm.userName = null;
+          //   baseInfoForm.password = null;
+          // } else {
           func && func(res.data);
+          // }
+        } else {
+          baseInfo.value = {};
         }
       });
     };
@@ -678,7 +696,11 @@ export default {
             checkAuth(res.data.privilegesInfo);
           }
         } else {
-          userAuthInfo = {};
+          userAuthInfo.value = {};
+          baseInfoForm.userName = null;
+          baseInfoForm.password = null;
+          authTableData.value = [];
+          baseInfo.value.privilegesInfo = [];
         }
       });
     };
@@ -705,11 +727,17 @@ export default {
       axios.get(`/servers/${serverId.value}/storageGroups/info`, {}).then((res) => {
         if (res && res.code == 0) {
           tableData.value = res.data;
+          groupTotal.value = res.data && res.data.length || 0;
           let temp = [];
           for (let i = 0; i < res.data.length; i++) {
             temp.push(res.data[i].groupName);
           }
           allGroupPaths.value = temp;
+        } else {
+          tableData.value = [];
+          allGroupPaths.value = [];
+          groupTotal.value = 0;
+
         }
       });
     };
@@ -725,10 +753,16 @@ export default {
             temp.push({ username: res.data[i] });
           }
           userList.value = temp;
-          if (type == 1) {
-            activeIndex.value = userList.value.length && userList.value[0].username;
+          if (type == 1 && userList.value.length) {
+            activeIndex.value = userList.value[0].username;
             getUserAuth(userList.value[0]);
           }
+        } else {
+          userList.value = [];
+          baseInfoForm.password = null;
+          baseInfoForm.userName = null;
+          authTableData.value = [];
+          baseInfo.value.privilegesInfo = [];
         }
       });
     };
@@ -1060,6 +1094,8 @@ export default {
       canAuth,
       goGroupDetail,
       goEditGroup,
+      cancelNew1,
+      groupTotal
     };
   },
   components: {

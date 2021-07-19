@@ -26,7 +26,7 @@
           <el-input v-model="form.password" show-password></el-input>
         </el-form-item>
         <el-form-item class="test-form-item" :label="$t('sourcePage.test')">
-          <el-button :disabled="!form.host" @click="testConnect()">{{ $t('sourcePage.testBtnLabel') }}</el-button>
+          <el-button @click="testConnect()">{{ $t('sourcePage.testBtnLabel') }}</el-button>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -206,6 +206,7 @@ export default {
      */
     const testConnect = () => {
       let patternReg = /^(((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?))|(localhost)$/;
+      let portReg = /^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/;
       if (!form.host) {
         ElMessage.error(t(`sourcePage.hostEmptyTip`));
         return false;
@@ -215,11 +216,29 @@ export default {
         return false;
       }
 
+      if (!form.port) {
+        ElMessage.error(t(`sourcePage.portEmptyTip`));
+        return false;
+      }
+      if (!portReg.test(form.port)) {
+        ElMessage.error(t(`sourcePage.portErrorTip`));
+        return false;
+      }
+
+      if (!form.username) {
+        ElMessage.error(t(`sourcePage.usernameEmptyTip`));
+        return false;
+      }
+      if (!form.password) {
+        ElMessage.error(t(`sourcePage.passwordEmptyTip`));
+        return false;
+      }
       axios
-        .get('/test', {
-          params: {
-            host: form.host,
-          },
+        .post('/test', {
+          host: form.host,
+          port: form.port,
+          username: form.username,
+          password: form.password,
         })
         .then((rs) => {
           if (rs && rs.code == 0) {

@@ -141,6 +141,7 @@ const en = {
       groupNameLabel: 'group:',
       deviceNameLabel: 'entity:',
       timeNameLabel: 'timeseries:',
+      ttlErrorTips: 'ttl must be an positive integer',
     },
     storagePage: {
       alias: 'connection',
