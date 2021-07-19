@@ -219,14 +219,14 @@ export default {
           runFlag.value = true;
         }, 5000);
       } else {
-        ElMessage.error('查询正在运行中，请勿重复操作');
+        ElMessage.error(`${t('sqlserch.sqlrun')}`);
       }
     }
     function centerDialog() {
       centerDialogVisible.value = false;
       ElMessage({
         type: 'info',
-        message: '已取消保存',
+        message: t('device.cencel'),
       });
     }
     function centerDialogOk() {
@@ -243,7 +243,7 @@ export default {
       saveQuery(routeData.obj.connectionid, data).then(() => {
         ElMessage({
           type: 'success',
-          message: '保存成功!',
+          message: t('device.savesuccess'),
         });
         centerDialogVisible.value = false;
         props.func.updateTree();

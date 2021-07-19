@@ -263,6 +263,7 @@ const cn = {
       run: '运行',
       stop: '暂停',
       sqlserchText: '执行成功,该查询语句无数据返回',
+      sqlrun: '查询正在运行中，请勿重复操作',
     },
     standTable: {
       export: '批量导出',

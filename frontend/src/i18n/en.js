@@ -261,6 +261,7 @@ const en = {
       run: 'run',
       stop: 'stop',
       sqlserchText: 'The query is executed successfully, and no data is returned',
+      sqlrun: 'The query is running. Please do not repeat the operation',
     },
     standTable: {
       export: 'export',

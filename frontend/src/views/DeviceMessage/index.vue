@@ -217,7 +217,7 @@ export default {
           deleteDevice(routeData.obj).then(() => {
             ElMessage({
               type: 'success',
-              message: '删除成功!',
+              message: `${t('device.deleteSuccess')}!`,
             });
             props.func.updateTree();
             props.func.removeTab(routeData.obj.id);
@@ -226,7 +226,7 @@ export default {
         .catch(() => {
           ElMessage({
             type: 'info',
-            message: '已取消删除',
+            message: t('device.cencel'),
           });
         });
     }
