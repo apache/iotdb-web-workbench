@@ -5,18 +5,19 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
+import org.apache.iotdb.admin.model.dto.ConnectionDTO;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.BaseVO;
 import org.apache.iotdb.admin.model.vo.ConnVO;
 import org.apache.iotdb.admin.model.vo.ConnectionVO;
 import org.apache.iotdb.admin.service.ConnectionService;
-import org.hibernate.validator.constraints.Range;
+import org.apache.iotdb.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.List;
 
 
@@ -65,21 +66,42 @@ public class ConnectionController {
         return BaseVO.success("获取成功", connectionVO);
     }
 
-    @GetMapping("/test")
+    @PostMapping("/test")
     @ApiOperation("连通性测试")
-    public BaseVO<ConnectionVO> testConnection(String host) throws BaseException {
-        if (host == null || !host.matches("^((2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3})|(localhost)$")) {
-            throw new BaseException(ErrorCode.TEST_CONN_WRONG, ErrorCode.TEST_CONN_WRONG_MSG);
-        }
+    public BaseVO testConnection(@RequestBody ConnectionDTO conn) throws BaseException {
+        Socket socket = null;
         try {
-            InetAddress address = InetAddress.getByName(host);
-            if (address.isReachable(5000)) {
-                return BaseVO.success("连通成功", null);
-            }
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(conn.getHost(), conn.getPort()), 5000);
         } catch (Exception e) {
             throw new BaseException(ErrorCode.TEST_CONN_FAIL, ErrorCode.TEST_CONN_FAIL_MSG);
+        } finally {
+            try {
+                if (socket != null) {
+                    socket.close();
+                }
+            } catch (Exception e) {
+                throw new BaseException(ErrorCode.TEST_CONN_FAIL, ErrorCode.TEST_CONN_FAIL_MSG);
+            }
         }
-        throw new BaseException(ErrorCode.TEST_CONN_FAIL, ErrorCode.TEST_CONN_FAIL_MSG);
+        Session session = null;
+        try {
+            session = new Session(conn.getHost(), conn.getPort(), conn.getUsername(), conn.getPassword());
+            session.open();
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.TEST_CONN_FAIL_PWD, ErrorCode.TEST_CONN_FAIL_PWD_MSG);
+        } finally {
+            try {
+                if (session != null) {
+                    session.close();
+                }
+            } catch (Exception e) {
+                throw new BaseException(ErrorCode.TEST_CONN_FAIL_PWD, ErrorCode.TEST_CONN_FAIL_PWD_MSG);
+            }
+        }
+        return BaseVO.success("连通成功", null);
     }
+
+
 
 }
