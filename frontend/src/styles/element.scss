@@ -96,3 +96,10 @@
     padding: 10px 10px 20px;
   }
 }
+.el-input__suffix {
+  height: 32px !important;
+  line-height: 32px !important;
+  .el-input__icon {
+    line-height: 34px !important;
+  }
+}

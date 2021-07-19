@@ -143,6 +143,7 @@ const cn = {
       groupNameLabel: '存储组:',
       deviceNameLabel: '实体:',
       timeNameLabel: '物理量:',
+      ttlErrorTips: '存活时间只能为正整数',
     },
     storagePage: {
       alias: '数据连接',
