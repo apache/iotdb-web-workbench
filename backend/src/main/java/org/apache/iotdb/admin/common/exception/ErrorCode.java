@@ -227,6 +227,9 @@ public class ErrorCode {
     public static final String NO_PRI_TIMESERIES_DATA = "IOTDB-0051";
     public static final String NO_PRI_TIMESERIES_DATA_MSG = "没有权限查看测点数据";
 
+    public static final String NO_SUP_CONTAIN_ROOT = "IOTDB-0052";
+    public static final String NO_SUP_CONTAIN_ROOT_MSG = "不支持包含\"root\"的输入";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
