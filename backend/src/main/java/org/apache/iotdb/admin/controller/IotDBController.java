@@ -16,9 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -99,6 +96,10 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         String groupName = groupDTO.getGroupName();
+        String checkName = groupName.toLowerCase();
+        if (checkName.contains("root")) {
+            throw new BaseException(ErrorCode.NO_SUP_CONTAIN_ROOT, ErrorCode.NO_SUP_CONTAIN_ROOT_MSG);
+        }
         groupName = "root." + groupName;
         Long ttl = groupDTO.getTtl();
         String ttlUnit = groupDTO.getTtlUnit();

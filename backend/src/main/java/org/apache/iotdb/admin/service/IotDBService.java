@@ -37,8 +37,6 @@ public interface IotDBService {
 
     void setIotDBRole(Connection connection, IotDBRole iotDBRole) throws BaseException;
 
-//    SqlResultVO query(Connection connection, String sql) throws BaseException;
-
     void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries) throws BaseException;
 
     void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException;

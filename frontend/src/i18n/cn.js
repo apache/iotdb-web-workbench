@@ -166,7 +166,7 @@ const cn = {
       groupDescription: '存储组描述:',
       tips: '注:不填代表无限大',
       ttlErrTips: '存活时间和存活时间单位必须同时填写',
-      groupNamePlaceholder: '请输入存储组名称',
+      groupNamePlaceholder: '请输入存储组名称，例如:factory.robotA',
       groupNameLengthTips: '存储组名称必须大于等于0个字符，小于等于255字符',
       descriptionLengthTips: '存储组描述长度大于等于0个字符，小于等于100字符',
       deleteGroupConfirm: '是否确认删除该存储组?',

@@ -164,7 +164,7 @@ const en = {
       groupDescription: 'group description:',
       tips: 'tips:it means that ttl will infinite if you do not fill',
       ttlErrTips: 'ttl and ttl unit must be exist at the same time',
-      groupNamePlaceholder: 'please input group name',
+      groupNamePlaceholder: 'please input group name,eg:factory.robotA',
       groupNameLengthTips: 'the length of group name must be contain with 0~255',
       descriptionLengthTips: 'the length of group name must be contain with 0~100',
       deleteGroupConfirm: 'are you sure to delete this group?',
