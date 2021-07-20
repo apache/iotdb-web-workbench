@@ -3,7 +3,9 @@
     <p>{{ $t('storagePage.alias') }}:{{ alias }}</p>
     <el-form ref="formRef" :model="form" :rules="rules" class="source-form" label-position="top">
       <el-form-item :label="$t('storagePage.groupName')" prop="groupName" class="form-input-item require-style">
-        <el-input :disabled="router.currentRoute.value.params.groupname" v-model="form.groupName" :placeholder="$t('storagePage.groupNamePlaceholder')"></el-input>
+        <el-input :disabled="router.currentRoute.value.params.groupname" v-model="form.groupName" :placeholder="$t('storagePage.groupNamePlaceholder')">
+          <template #prepend>root.</template>
+        </el-input>
       </el-form-item>
       <el-form-item :label="$t('storagePage.groupDescription')" prop="description" class="form-input-item">
         <el-input v-model="form.description"></el-input>
@@ -56,7 +58,7 @@ export default {
           trigger: 'blur',
         },
         {
-          pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+          pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5.]+$/,
           message: () => {
             return t(`sourcePage.newUserErrorTip`);
           },
@@ -209,7 +211,7 @@ export default {
       width: 450px;
     }
     .require-style {
-      margin-left: -11px;
+      // margin-left: -11px;
     }
     .ttl-input {
       display: inline-block;
