@@ -93,7 +93,7 @@ public class ErrorCode {
     public static final String CLOSE_DBCONN_FAIL_MSG = "关闭连接失败";
 
     public static final String SQL_EP = "IOTDB-0008";
-    public static final String SQL_EP_MSG = "sql异常";
+    public static final String SQL_EP_MSG = "没有权限或sql异常";
 
     public static final String QUERY_FAIL = "IOTDB-0009";
     public static final String QUERY_FAIL_MSG = "sql查询失败";
@@ -111,10 +111,10 @@ public class ErrorCode {
     public static final String GET_SQL_ONE_VALUE_FAIL_MSG = "获取值失败";
 
     public static final String SET_TTL_FAIL = "IOTDB-0014";
-    public static final String SET_TTL_FAIL_MSG = "设置ttl失败";
+    public static final String SET_TTL_FAIL_MSG = "设置存活时间失败";
 
     public static final String DEL_TTL_FAIL = "IOTDB-0015";
-    public static final String DEL_TTL_FAIL_MSG = "删除ttl失败";
+    public static final String DEL_TTL_FAIL_MSG = "删除存活时间失败";
 
     public static final String GET_SQL_ONE_COLUMN_FAIL = "IOTDB-0016";
     public static final String GET_SQL_ONE_COLUMN_FAIL_MSG = "获取列表失败";
@@ -195,7 +195,7 @@ public class ErrorCode {
     public static final String NO_ALL_NUM_SEARCH_MSG = "不支持纯数字查询";
 
     public static final String NO_PRI_SET_TTL = "IOTDB-0042";
-    public static final String NO_PRI_SET_TTL_MSG = "没有权限设置ttl";
+    public static final String NO_PRI_SET_TTL_MSG = "没有权限设置存活时间";
 
     public static final String NO_PRI_CREATE_TIMESERIES = "IOTDB-0043";
     public static final String NO_PRI_CREATE_TIMESERIES_MSG = "没有权限创建物理量";
@@ -220,6 +220,12 @@ public class ErrorCode {
 
     public static final String NO_SUPPORT_SQL = "IOTDB-0049";
     public static final String NO_SUPPORT_SQL_MSG = "不支持此sql执行";
+
+    public static final String TTL_WRONG = "IOTDB-0050";
+    public static final String TTL_WRONG_MSG = "存活时间必须大于等于0";
+
+    public static final String NO_PRI_TIMESERIES_DATA = "IOTDB-0051";
+    public static final String NO_PRI_TIMESERIES_DATA_MSG = "没有权限查看测点数据";
 
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
@@ -251,6 +257,7 @@ public class ErrorCode {
 
     public static final String QUERY_NOT_EXIST = "QUERY-0002";
     public static final String QUERY_NOT_EXIST_MSG = "脚本不存在";
+
 
     // 参数校验相关
     public static final String WRONG_PARAM = "PARAM-0001";
