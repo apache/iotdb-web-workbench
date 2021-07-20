@@ -8,8 +8,8 @@
       <el-form-item :label="$t('storagePage.groupDescription')" prop="description" class="form-input-item">
         <el-input v-model="form.description"></el-input>
       </el-form-item>
-      <el-form-item :label="$t('storagePage.ttl')" class="form-input-item">
-        <el-input v-model="form.ttl" type="number" min="0" class="ttl-input"></el-input>
+      <el-form-item :label="$t('storagePage.ttl')" class="form-input-item" prop="ttl">
+        <el-input v-model="form.ttl" min="0" class="ttl-input"></el-input>
         <el-select v-model="form.ttiUnit" class="ttl-input unit" clearable placeholder="  ">
           <el-option :label="$t('storagePage.secondLabel')" value="second"> </el-option>
           <el-option :label="$t('storagePage.minuteLabel')" value="minute"> </el-option>
@@ -78,6 +78,16 @@ export default {
           max: 100,
           message: () => {
             return t(`storagePage.descriptionLengthTips`);
+          },
+          trigger: 'blur',
+        },
+      ],
+      ttl: [
+        {
+          required: false,
+          pattern: /^[1-9]\d*$/,
+          message: () => {
+            return t(`sourcePage.ttlErrorTips`);
           },
           trigger: 'blur',
         },
@@ -212,14 +222,20 @@ export default {
     .tips {
       color: rgba(34, 34, 34, 0.4);
       font-size: 12px;
+      position: absolute;
+      width: 100px;
+      top: 46px;
+      left: 0px;
     }
   }
 
   .submit-btns {
     text-align: center;
+    margin-top: 35px;
+
     .el-button {
       width: 110px;
-      padding-left: 0 !important;
+      // padding-left: 0 !important;
     }
   }
 }

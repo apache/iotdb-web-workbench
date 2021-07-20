@@ -2,7 +2,7 @@
   <div id="myChart" class="echartsBox"></div>
 </template>
 <script>
-import * as echarts from 'echarts/core';
+import * as echarts from 'echarts';
 import { GridComponent } from 'echarts/components';
 import { LineChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -53,20 +53,18 @@ export default {
       });
       let myChart = echarts.init(document.getElementById('myChart'));
       myChart.setOption({
-        title: { text: '总用户量' },
+        tooltip: {
+          trigger: 'axis',
+        },
+        toolbox: {
+          feature: {
+            // saveAsImage: {},
+          },
+        },
         grid: {
           left: '40px',
           top: '10px',
           width: '100%',
-        },
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross',
-            label: {
-              backgroundColor: '#6a7985',
-            },
-          },
         },
         xAxis: {
           type: 'category',
@@ -114,6 +112,7 @@ export default {
         },
         series: [
           {
+            name: '值',
             type: 'line',
             data: value.list,
             symbol: 'none',

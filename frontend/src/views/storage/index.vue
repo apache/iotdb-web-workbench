@@ -190,9 +190,12 @@ export default {
      * row:要被删除的实体的信息
      */
     const editDevice = (row) => {
-      props.func.updateTree([props.data.parent.id, props.data.id]);
+      console.log(row);
+      console.log(props.data);
+      router.push({ name: 'Device', params: { name: row.deviceName, connectionid: props.data.connectionid, storagegroupid: props.data.storagegroupid, parentids: props.data.parent.name } });
+      // props.func.updateTree([props.data.parent.id, props.data.id]);
       // props.func.expandByIds([props.data.parent.id, props.data.id, `${props.data.id}${row.deviceName}device`]);
-      props.func.addTab(`${props.data.id}${row.deviceName}device`);
+      // props.func.addTab(`${props.data.id}${row.deviceName}device`);
     };
     /**
      * 新建实体
@@ -254,7 +257,7 @@ export default {
     padding: 20px;
   }
   .base-info {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #e0e0e0;
     position: relative;
     .btns {
       position: absolute;

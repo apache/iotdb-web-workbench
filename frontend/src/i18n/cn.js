@@ -143,6 +143,7 @@ const cn = {
       groupNameLabel: '存储组:',
       deviceNameLabel: '实体:',
       timeNameLabel: '物理量:',
+      ttlErrorTips: '存活时间只能为正整数',
     },
     storagePage: {
       alias: '数据连接',
@@ -215,6 +216,7 @@ const cn = {
       newquery: '新建查询',
       inputfunction: '请输入函数名称',
       deleteSuccess: '删除成功',
+      selectdatatype: '请选择数据类型',
     },
     sqlserch: {
       Aggregate: '聚合函数',

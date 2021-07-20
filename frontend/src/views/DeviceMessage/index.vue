@@ -38,7 +38,7 @@
       @getPagintions="getPagintions"
     >
       <template #default="{ scope }">
-        <div @click="searchRow(scope.row)" v-if="scope.row.newValue + '' * 1">
+        <div @click="searchRow(scope.row)" v-if="scope.row.newValue * 1">
           <action :echartsData="routeData.obj" :row="scope.row" :scope="scope"></action>
         </div>
         <div v-else class="actionSpan">
@@ -46,7 +46,7 @@
         </div>
       </template>
     </stand-table>
-    <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px', width: widths - dividerWidth + 150 + 'px' }">
+    <div class="drawer" v-if="drawerFlag" :style="{ height: drawer + 'px', width: widths - dividerWidth + 'px' }">
       <div class="drawertitle">
         <div>{{ routeData.obj.timeseries }}{{ $t('device.datatrend') }}</div>
         <div>
@@ -255,13 +255,17 @@ export default {
       drawerRef.value.setEchartsTime(formdate.formData.time);
     }
     onActivated(() => {
+      console.log(11234121);
+      console.log(routeData.obj);
       routeData.obj = route.params;
+      form.formData.keyword = '';
       if (route.params.forceupdate === 'true') {
-        form.formData.keyword = '';
         formdate.formData.time = [];
       }
-      getdData();
-      getListData();
+      setTimeout(() => {
+        getdData();
+        getListData();
+      }, 500);
     });
     return {
       form,

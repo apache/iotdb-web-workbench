@@ -164,7 +164,7 @@ export default {
     border-width: 0;
     border-bottom-width: 1px;
     border-style: solid;
-    border-color: #f0f0f0;
+    border-color: #e0e0e0;
     position: relative;
     .lang-btn {
       position: absolute;
@@ -186,7 +186,8 @@ export default {
     display: flex;
     height: calc(100vh - 64px);
     .left {
-      flex-basis: calc((100vh - 64px) * 0.52);
+      // flex-basis: calc((100vh - 64px) * 0.52);
+      flex-basis: 30vw;
       flex-shrink: 0;
       overflow: hidden;
       background-image: url(~@/assets/login.png);
@@ -222,6 +223,7 @@ export default {
         .form-item {
           position: relative;
           .forget-btn {
+            cursor: pointer;
             position: absolute;
             right: 0;
             top: 0;
