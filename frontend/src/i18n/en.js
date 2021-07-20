@@ -174,6 +174,7 @@ const en = {
       serchPy: 'Please input the measuring metrics',
       dataconnection: 'data connection',
       selectdataconnection: 'Please select save group',
+      selectdataconnections: 'Please select data connections',
       devicename: 'entity name',
       description: 'entity description',
       group: 'storage group',

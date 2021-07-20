@@ -4,9 +4,9 @@
       <template #footer>
         <div class="elform">
           <el-form ref="form" label-width="80px">
-            <el-form-item :label="$t('device.dataconnection')" :rules="{ required: true, message: $t('device.selectdataconnection'), trigger: 'blur' }">
+            <el-form-item :label="$t('device.dataconnection')" :rules="{ required: true, message: $t('device.selectdataconnections'), trigger: 'blur' }">
               <!-- <span>{{ $t('device.dataconnection') }}</span> -->
-              <el-select v-model="linkData" :placeholder="$t('device.selectdataconnection')">
+              <el-select v-model="linkData" :placeholder="$t('device.selectdataconnections')">
                 <el-option v-for="item in linkList.list" :key="item.value" :label="item.label" :value="item.value"></el-option>
               </el-select>
             </el-form-item>
