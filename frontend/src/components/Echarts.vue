@@ -47,7 +47,7 @@ export default {
       setEcharts();
     }
     function setEcharts() {
-      let length = time.list.length / 5;
+      let length = Math.floor(time.list.length / 5);
       time.list.forEach((item, index) => {
         time.list[index] = formatDate(item);
       });
@@ -137,7 +137,7 @@ export default {
         timeCopy.list = JSON.parse(JSON.stringify(res.data.timeList.reverse()));
         value.list = res.data.valueList;
         valueCopy.list = JSON.parse(JSON.stringify(res.data.valueList.reverse()));
-        props.getDate(res.data.timeList[res.data.timeList.length - 1], res.data.timeList[0]);
+        props.getDate(res.data.timeList[0], res.data.timeList[res.data.timeList.length - 1]);
         max = Math.max(...res.data.valueList);
         setEcharts();
       });
