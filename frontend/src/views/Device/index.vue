@@ -42,7 +42,7 @@ import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
 import { onActivated, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 export default {
   name: 'DeviceAddEidt',
   props: {
@@ -52,7 +52,7 @@ export default {
   },
   setup(props) {
     const route = useRoute();
-    // const router = useRouter();
+    const router = useRouter();
     const standtable = ref(null);
     const { t } = useI18n();
     let totalCount = ref(0);
@@ -270,10 +270,13 @@ export default {
         type: 'info',
         message: `${t('device.cencel')}!`,
       });
-      // router.go(-1);
+      if (deviceData.obj.dflag) {
+        router.go(-1);
+      } else {
+        props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+        props.func.removeTab(route.params.id);
+      }
       // props.func.removeTab(route.params.id);
-      props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-      props.func.removeTab(route.params.id);
     }
     function sumbitData() {
       let checkfalg = true;
@@ -303,9 +306,13 @@ export default {
                 message: `${t('device.savesuccess')}!`,
               });
               deviceData.obj.name = form.formData.deviceName;
-              props.func.updateTree();
-              props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-              props.func.removeTab(route.params.id);
+              if (deviceData.obj.dflag) {
+                router.go(-1);
+              } else {
+                props.func.updateTree();
+                props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+                props.func.removeTab(route.params.id);
+              }
             }
           });
         } else {
