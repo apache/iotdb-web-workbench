@@ -176,6 +176,7 @@ const cn = {
       serchPy: '请输入物理量名称',
       dataconnection: '数据连接',
       selectdataconnection: '请选择存储组',
+      selectdataconnections: '请选择数据连接',
       devicename: '实体名称',
       description: '实体描述',
       selectp: '请选择实体',
