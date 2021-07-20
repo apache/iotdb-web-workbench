@@ -264,7 +264,7 @@ export default {
     z-index: 10;
     width: 1px;
     height: 100%;
-    background-color: #f0f0f0;
+    background-color: #e0e0e0;
     &:hover {
       cursor: w-resize;
       background-color: $theme-color;

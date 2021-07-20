@@ -22,7 +22,7 @@
     <div class="permission-box">
       <div class="info-head">
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-xinzengshujulianjie"></use>
+          <use xlink:href="#icon-yonghuquanxian-color"></use>
         </svg>
         {{ $t('sourcePage.accountPermit') }}
       </div>
@@ -1142,7 +1142,7 @@ export default {
     right: 0;
   }
   .info-box {
-    padding: 10px 20px;
+    padding: 10px 20px 14px;
     position: relative;
     .icon {
       position: absolute;
@@ -1180,14 +1180,20 @@ export default {
       .left-part {
         width: 240px;
         margin-top: 12px;
-        border-right: 1px solid #f0f0f0ff;
+        border-right: 1px solid #e0e0e0;
         .title {
           height: 17px;
           font-size: 12px;
           font-weight: 400;
           line-height: 20px;
+          font-size: 12px;
+          color: #d32d2fff;
+          line-height: 16px;
+          margin-left: 10px;
+          padding: 3px 8px;
           color: rgba(34, 34, 34, 0.65);
-          padding: 0 16px 10px;
+          padding: 0 8px 10px 16px;
+
           button {
             float: right;
             font-size: 12px;
@@ -1228,6 +1234,7 @@ export default {
       .right-part {
         flex: 1;
         position: relative;
+
         .auth-add-btn {
           position: absolute;
           right: 10px;
@@ -1259,8 +1266,15 @@ export default {
           }
         }
         &::v-deep .el-checkbox__input.is-disabled + span.el-checkbox__label {
-          color: #606266;
+          color: #222222;
           cursor: default;
+        }
+        &::v-deep .el-checkbox__label {
+          font-size: 12px !important;
+          font-weight: 400;
+        }
+        &::v-deep .el-input .el-input__inner {
+          font-size: 12px !important;
         }
         .el-select {
           width: 100%;
@@ -1273,9 +1287,12 @@ export default {
         }
         .auth-tips {
           font-size: 12px;
-          color: red;
+          color: #d32d2fff;
           line-height: 16px;
           margin-left: 10px;
+          background: rgba(211, 45, 47, 0.04);
+          padding: 3px 8px;
+          margin: 16px 18px 16px 14px;
         }
         .tab-content {
           padding: 10px 16px;
