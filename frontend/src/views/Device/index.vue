@@ -326,7 +326,7 @@ export default {
         form.formData = reactive({
           description: res.data.description,
           deviceName: deviceData.obj.name,
-          groupName: `${deviceData.obj.parentids}/${deviceData.obj.storagegroupid}`,
+          groupName: `root.${deviceData.obj.storagegroupid}`,
           deviceId: res.data.deviceId,
         });
         form.formItem[0].disabled = true;
@@ -346,7 +346,7 @@ export default {
         form.formData = reactive({
           description: null,
           deviceName: null,
-          groupName: `${deviceData.obj.parentids}/${deviceData.obj.storagegroupid}`,
+          groupName: `root.${deviceData.obj.storagegroupid}`,
           deviceId: null,
         });
       }
