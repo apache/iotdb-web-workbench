@@ -105,8 +105,12 @@ public class IotDBController<T> {
         String ttlUnit = groupDTO.getTtlUnit();
         Integer groupId = groupDTO.getGroupId();
         groupDTO.setGroupName(groupName);
+
+        List<String> groupNames = iotDBService.getAllStorageGroups(connection);
         if (groupId == null) {
-            iotDBService.saveStorageGroup(connection, groupName);
+            if(!groupNames.contains(groupDTO.getGroupName())){
+                iotDBService.saveStorageGroup(connection, groupName);
+            }
             groupService.setStorageGroupInfo(connection, groupDTO);
         } else {
             groupService.updateStorageGroupInfo(connection, groupDTO);
