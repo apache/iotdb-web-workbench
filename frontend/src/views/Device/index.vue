@@ -270,12 +270,12 @@ export default {
         type: 'info',
         message: `${t('device.cencel')}!`,
       });
-      if (deviceData.obj.dflag) {
-        router.go(-1);
-      } else {
-        props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-        props.func.removeTab(route.params.id);
-      }
+      // if (deviceData.obj.dflag) {
+      router.go(-1);
+      // } else {
+      //   props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+      //   props.func.removeTab(route.params.id);
+      // }
       // props.func.removeTab(route.params.id);
     }
     function sumbitData() {
@@ -306,13 +306,13 @@ export default {
                 message: `${t('device.savesuccess')}!`,
               });
               deviceData.obj.name = form.formData.deviceName;
-              // if (deviceData.obj.dflag) {
-              //   router.go(-1);
-              // } else {
-              props.func.updateTree();
-              props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-              props.func.removeTab(route.params.id);
-              // }
+              if (deviceData.obj.dflag) {
+                router.go(-1);
+              } else {
+                props.func.updateTree();
+                props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+                props.func.removeTab(route.params.id);
+              }
             }
           });
         } else {
