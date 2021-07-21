@@ -192,7 +192,10 @@ export default {
     const editDevice = (row) => {
       console.log(row);
       console.log(props.data);
-      router.push({ name: 'Device', params: { name: row.deviceName, connectionid: props.data.connectionid, storagegroupid: props.data.storagegroupid, parentids: props.data.parent.name } });
+      router.push({
+        name: 'Device',
+        params: { name: row.deviceName, connectionid: props.data.connectionid, storagegroupid: props.data.storagegroupid, parentids: props.data.parent.name, dflag: true },
+      });
       // props.func.updateTree([props.data.parent.id, props.data.id]);
       // props.func.expandByIds([props.data.parent.id, props.data.id, `${props.data.id}${row.deviceName}device`]);
       // props.func.addTab(`${props.data.id}${row.deviceName}device`);

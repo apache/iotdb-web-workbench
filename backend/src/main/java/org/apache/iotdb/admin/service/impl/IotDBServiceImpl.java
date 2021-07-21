@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.*;
 import java.util.concurrent.*;
@@ -609,9 +610,6 @@ public class IotDBServiceImpl implements IotDBService {
         }
         cancelPathPrivileges(userName, privilegeInfoDTO, sessionPool);
         sessionPool.close();
-//        if (delType >= 1 && delType <= 3) {
-//        cancelPathPrivileges(userName,privilegeInfoDTO,sessionPool,delType);
-//        }
     }
 
     private void cancelPathPrivileges(String userName, PrivilegeInfoDTO privilegeInfoDTO, SessionPool sessionPool) {
@@ -722,8 +720,13 @@ public class IotDBServiceImpl implements IotDBService {
         for (String sql : sqls) {
             int firstSpaceIndex = sql.indexOf(" ");
             String judge = sql.substring(0, firstSpaceIndex);
-            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "select".equalsIgnoreCase(judge) || "list".equalsIgnoreCase(judge)) {
-                SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp);
+            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) ||  "list".equalsIgnoreCase(judge)) {
+                SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp,false);
+                results.add(sqlResultVO);
+                continue;
+            }
+            if ("select".equalsIgnoreCase(judge)) {
+                SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp,true);
                 results.add(sqlResultVO);
                 continue;
             }
@@ -957,7 +960,7 @@ public class IotDBServiceImpl implements IotDBService {
         return sqlResultVO;
     }
 
-    private SqlResultVO executeQuery(SessionPool sessionPool, String sql, Boolean closePool, String notStopKey) throws BaseException {
+    private SqlResultVO executeQuery(SessionPool sessionPool, String sql, Boolean closePool, String notStopKey,boolean timeFlag) throws BaseException {
         SqlResultVO sqlResultVO = new SqlResultVO();
         List<List<String>> valuelist = new ArrayList<>();
         try {
@@ -972,6 +975,13 @@ public class IotDBServiceImpl implements IotDBService {
                 while (sessionDataSetWrapper.hasNext() && QUERY_STOP.get(notStopKey)) {
                     List<String> strList = new ArrayList<>();
                     RowRecord rowRecord = sessionDataSetWrapper.next();
+                    if (timeFlag) {
+                        long timestamp = rowRecord.getTimestamp();
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                        Date date = new Date(timestamp);
+                        String timeStr = simpleDateFormat.format(date);
+                        strList.add(timeStr);
+                    }
                     count++;
                     for (org.apache.iotdb.tsfile.read.common.Field field : rowRecord.getFields()) {
                         strList.add(field.toString());
@@ -989,6 +999,9 @@ public class IotDBServiceImpl implements IotDBService {
             throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_TIMESERIES_DATA, ErrorCode.NO_PRI_TIMESERIES_DATA_MSG);
+            }
             throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
         } finally {
             if (sessionPool != null && closePool) {
@@ -1665,102 +1678,6 @@ public class IotDBServiceImpl implements IotDBService {
         }
         str.append("'" + privileges[len - 1] + "' on " + path);
         return str.toString();
-    }
-
-    private void customExecute(java.sql.Connection conn, String sql) throws BaseException {
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
-                }
-            }
-            closeConnection(conn);
-        }
-    }
-
-    private List<String> customExecuteQuery(java.sql.Connection conn, String sql) throws BaseException {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = conn.prepareStatement(sql);
-            resultSet = statement.executeQuery();
-            int columnCount = resultSet.getMetaData().getColumnCount();
-            List<String> list = new ArrayList<>();
-            while (resultSet.next()) {
-                for (int i = 0; i < columnCount; i++) {
-                    list.add(resultSet.getString(i + 1));
-                }
-            }
-            return list;
-        } catch (SQLException e) {
-            throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
-                }
-            }
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
-                }
-            }
-            closeConnection(conn);
-        }
-    }
-
-    private <T> List<T> customExecuteQuery(Class<T> clazz, java.sql.Connection conn, String sql) throws BaseException {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = conn.prepareStatement(sql);
-            resultSet = statement.executeQuery();
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            List<T> list = new ArrayList<>();
-            while (resultSet.next()) {
-                T t = clazz.newInstance();
-                for (int i = 0; i < columnCount; i++) {
-                    Object value = resultSet.getObject(i + 1);
-                    String columnName = metaData.getColumnLabel(i + 1);
-                    Field field = clazz.getDeclaredField(columnName);
-                    field.setAccessible(true);
-                    field.set(t, value);
-                }
-                list.add(t);
-            }
-            return list;
-        } catch (Exception e) {
-            throw new BaseException(ErrorCode.QUERY_FAIL, ErrorCode.QUERY_FAIL_MSG);
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw new BaseException(ErrorCode.QUERY_FAIL, ErrorCode.QUERY_FAIL_MSG);
-                }
-            }
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    throw new BaseException(ErrorCode.QUERY_FAIL, ErrorCode.QUERY_FAIL_MSG);
-                }
-            }
-            closeConnection(conn);
-        }
     }
 
 

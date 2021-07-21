@@ -16,9 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -99,6 +96,10 @@ public class IotDBController<T> {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         String groupName = groupDTO.getGroupName();
+        String checkName = groupName.toLowerCase();
+        if (checkName.contains("root")) {
+            throw new BaseException(ErrorCode.NO_SUP_CONTAIN_ROOT, ErrorCode.NO_SUP_CONTAIN_ROOT_MSG);
+        }
         groupName = "root." + groupName;
         Long ttl = groupDTO.getTtl();
         String ttlUnit = groupDTO.getTtlUnit();
@@ -115,7 +116,7 @@ public class IotDBController<T> {
                 Long times = switchTime(ttlUnit);
                 iotDBService.saveGroupTtl(connection, groupName, ttl * times);
             } else {
-                throw new BaseException(ErrorCode.SET_TTL_FAIL, ErrorCode.SET_TTL_FAIL_MSG);
+                throw new BaseException(ErrorCode.TTL_WRONG, ErrorCode.TTL_WRONG_MSG);
             }
         } else {
             if (ttl == null && ttlUnit == null) {
@@ -808,28 +809,35 @@ public class IotDBController<T> {
     }
 
     private String getTTL(Long time) {
+        long yearTime = 31104000000L;
+        long monthTime = 2592000000L;
+        long weekTime = 604800000L;
+        long dayTime = 86400000L;
+        long hourTime = 3600000L;
+        long minuteTime = 60000L;
+        long secondTime = 1000L;
         if (time == 0) {
             return "milliSecond";
         }
-        if (time / (12 * 30 * 24 * 60 * 60 * 1000) != 0 && time % (12 * 30 * 24 * 60 * 60 * 1000) == 0) {
+        if ((time / yearTime != 0) && (time % yearTime == 0)) {
             return "year";
         }
-        if (time / (30 * 24 * 60 * 60 * 1000) != 0 && time % (30 * 24 * 60 * 60 * 1000) == 0) {
+        if ((time / monthTime != 0) && (time % monthTime == 0)) {
             return "month";
         }
-        if (time / (7 * 24 * 60 * 60 * 1000) != 0 && time % (7 * 24 * 60 * 60 * 1000) == 0) {
+        if ((time / weekTime != 0) && (time % weekTime == 0)) {
             return "week";
         }
-        if (time / (24 * 60 * 60 * 1000) != 0 && time % (24 * 60 * 60 * 1000) == 0) {
+        if ((time / dayTime != 0) && (time % dayTime == 0)) {
             return "day";
         }
-        if (time / (60 * 60 * 1000) != 0 && time % (60 * 60 * 1000) == 0) {
+        if ((time / hourTime != 0) && (time % hourTime == 0)) {
             return "hour";
         }
-        if (time / (60 * 1000) != 0 && time % (60 * 1000) == 0) {
+        if ((time / minuteTime != 0) && (time % minuteTime == 0)) {
             return "minute";
         }
-        if (time / 1000 != 0 && time % 1000 == 0) {
+        if ((time / secondTime != 0) && (time % secondTime == 0)) {
             return "second";
         }
         return null;
