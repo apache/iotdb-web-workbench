@@ -204,9 +204,13 @@ export default {
      * 新建实体
      */
     const newDevice = () => {
-      props.func.updateTree([props.data.parent.id, props.data.id]);
-      props.func.addTab(`${props.data.id}:newdevice`, { getList: getDeviceList });
-      props.func.removeTab(props.data.id);
+      router.push({
+        name: 'Device',
+        params: { name: '新建实体', connectionid: props.data.connectionid, storagegroupid: props.data.storagegroupid, parentids: props.data.parent.name, dflag: true },
+      });
+      // props.func.updateTree([props.data.parent.id, props.data.id]);
+      // props.func.addTab(`${props.data.id}:newdevice`, { getList: getDeviceList, dflag: true });
+      // props.func.removeTab(props.data.id);
     };
     onActivated(() => {
       getGroupDetail();
