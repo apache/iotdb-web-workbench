@@ -306,9 +306,12 @@ export default {
                 message: `${t('device.savesuccess')}!`,
               });
               deviceData.obj.name = form.formData.deviceName;
-              props.func.updateTree();
-              // if (deviceData.obj.dflag) {
               router.go(-1);
+              if (deviceData.obj.dflag) {
+                props.func.updateTree();
+              }
+              // if (deviceData.obj.dflag) {
+              // router.go(-1);
               // } else {
               //   props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
               //   props.func.removeTab(route.params.id);

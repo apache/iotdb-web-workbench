@@ -255,9 +255,7 @@ export default {
       drawerRef.value.setEchartsTime(formdate.formData.time);
     }
     onActivated(() => {
-      console.log(11234121);
-      console.log(routeData.obj);
-      routeData.obj = route.params;
+      routeData.obj = Object.assign(routeData.obj, route.params);
       form.formData.keyword = '';
       if (route.params.forceupdate === 'true') {
         formdate.formData.time = [];
