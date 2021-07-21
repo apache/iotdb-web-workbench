@@ -270,12 +270,12 @@ export default {
         type: 'info',
         message: `${t('device.cencel')}!`,
       });
-      if (deviceData.obj.dflag) {
-        router.go(-1);
-      } else {
-        props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-        props.func.removeTab(route.params.id);
-      }
+      // if (deviceData.obj.dflag) {
+      router.go(-1);
+      // } else {
+      //   props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+      //   props.func.removeTab(route.params.id);
+      // }
       // props.func.removeTab(route.params.id);
     }
     function sumbitData() {
@@ -306,13 +306,16 @@ export default {
                 message: `${t('device.savesuccess')}!`,
               });
               deviceData.obj.name = form.formData.deviceName;
+              router.go(-1);
               if (deviceData.obj.dflag) {
-                router.go(-1);
-              } else {
                 props.func.updateTree();
-                props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-                props.func.removeTab(route.params.id);
               }
+              // if (deviceData.obj.dflag) {
+              // router.go(-1);
+              // } else {
+              //   props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
+              //   props.func.removeTab(route.params.id);
+              // }
             }
           });
         } else {
@@ -356,6 +359,17 @@ export default {
           groupName: `root.${deviceData.obj.storagegroupid}`,
           deviceId: null,
         });
+        tableData.list = [
+          {
+            timeseries: null,
+            dataType: null,
+            encoding: null,
+            description: null,
+            display: true,
+            border: false,
+            namecopy: false,
+          },
+        ];
       }
     });
     return {
