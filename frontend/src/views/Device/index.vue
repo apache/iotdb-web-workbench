@@ -182,7 +182,7 @@ export default {
         },
       ],
     });
-    function checkVal(scope, obj, val, ev) {
+    function checkVal(scope, obj, val) {
       console.log(obj);
       if (!/^\w+$/.test(val)) {
         if (erroflag.value) {
@@ -190,31 +190,33 @@ export default {
           erroflag.value = false;
         }
         tableData.list[scope.$index].border = true;
-        ev.target.focus();
       } else if (val === null || val.length > 255) {
         if (erroflag.value) {
           ElMessage.error(`"${val}"${t('device.pynamel')}`);
           erroflag.value = false;
         }
         tableData.list[scope.$index].border = true;
-        ev.target.focus();
       } else {
         const arr = JSON.parse(JSON.stringify(tableData.list));
         arr.splice(scope.$index, 1);
-        arr.forEach((item) => {
-          if (item.timeseries === val) {
-            if (erroflag.value) {
-              ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
-              erroflag.value = false;
+        if (arr.length) {
+          arr.forEach((item) => {
+            if (item.timeseries === val) {
+              if (erroflag.value) {
+                ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
+                erroflag.value = false;
+              }
+              tableData.list[scope.$index].border = true;
+              obj.namecopy = true;
+            } else {
+              tableData.list[scope.$index].border = false;
+              obj.namecopy = false;
             }
-            tableData.list[scope.$index].border = true;
-            obj.namecopy = true;
-            ev.target.focus();
-          } else {
-            tableData.list[scope.$index].border = false;
-            obj.namecopy = false;
-          }
-        });
+          });
+        } else {
+          tableData.list[scope.$index].border = false;
+          obj.namecopy = false;
+        }
       }
       setTimeout(() => {
         erroflag.value = true;
@@ -249,7 +251,6 @@ export default {
       } else {
         tableData.list.splice(index, 1);
       }
-      // deleteData(9, 'mytest', 'test1',row.timeseries)
     }
     function addItem() {
       if (tableData.list.length > 2000) {
@@ -270,16 +271,11 @@ export default {
         type: 'info',
         message: `${t('device.cencel')}!`,
       });
-      // if (deviceData.obj.dflag) {
       router.go(-1);
-      // } else {
-      //   props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-      //   props.func.removeTab(route.params.id);
-      // }
-      // props.func.removeTab(route.params.id);
     }
     function sumbitData() {
       let checkfalg = true;
+      console.log(tableData.list);
       tableData.list.forEach((item) => {
         if (item.timeseries === null || item.dataType === null || item.border) {
           if (checkfalg) {
@@ -293,8 +289,6 @@ export default {
           }
           checkfalg = false;
           item.border = true;
-        } else {
-          item.border = false;
         }
       });
       if (checkfalg && form.formData.deviceName) {
@@ -310,12 +304,6 @@ export default {
               if (deviceData.obj.dflag) {
                 props.func.updateTree();
               }
-              // if (deviceData.obj.dflag) {
-              // router.go(-1);
-              // } else {
-              //   props.func.addTab(`${route.params.parentid}${form.formData.deviceName}device`);
-              //   props.func.removeTab(route.params.id);
-              // }
             }
           });
         } else {
