@@ -3,9 +3,6 @@ import zhLocale from 'element-plus/lib/locale/lang/zh-cn';
 const cn = {
   [zhLocale.name]: {
     el: zhLocale.el,
-    message: {
-      hello: '你好，世界',
-    },
     about: {
       'line-2': '关于我们',
       'line-3': 'IotDB的可视化管理工具',

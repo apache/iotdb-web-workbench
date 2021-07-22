@@ -83,11 +83,11 @@ public class IotDBServiceImpl implements IotDBService {
         try {
             sessionPool.setStorageGroup(groupName);
         } catch (StatementExecutionException e) {
-            // 300为存储组重复
+            // 300为存储组重复或者其前/后路径上已经有存储组了
             if (e.getStatusCode() == 602) {
                 throw new BaseException(ErrorCode.NO_PRI_SET_GROUP, ErrorCode.NO_PRI_SET_GROUP_MSG);
             }
-            if (e.getStatusCode() != 300) {
+            if (e.getStatusCode() == 300) {
                 throw new BaseException(ErrorCode.SET_GROUP_FAIL, ErrorCode.SET_GROUP_FAIL_MSG);
             }
             logger.error(e.getMessage());
@@ -1231,13 +1231,8 @@ public class IotDBServiceImpl implements IotDBService {
                 // 判断相同的权限集合 放入同一list
                 if (privilegeOne.containsKey(str)) {
                     List<String> typeList = privilegeOne.get(str);
-                    // 相同粒度 同一范围下做前缀判断 相同则为一个并集
-                    int existEnd = typeList.get(0).lastIndexOf(".");
-                    int end = s.lastIndexOf(".");
-                    if (typeList.get(0).substring(0, existEnd).equals(s.substring(0, end))) {
-                        typeList.add(s);
-                        continue;
-                    }
+                    typeList.add(s);
+                    continue;
                 }
                 ArrayList<String> newStr = new ArrayList();
                 newStr.add(s);
@@ -1245,8 +1240,10 @@ public class IotDBServiceImpl implements IotDBService {
                 continue;
             }
             if (type == 2) {
+                // 判断相同的权限集合 放入同一list
                 if (privilegeTwo.containsKey(str)) {
                     List<String> typeList = privilegeTwo.get(str);
+                    // 相同粒度 同一范围下做前缀判断 相同则为一个并集
                     int existEnd = typeList.get(0).lastIndexOf(".");
                     int end = s.lastIndexOf(".");
                     if (typeList.get(0).substring(0, existEnd).equals(s.substring(0, end))) {

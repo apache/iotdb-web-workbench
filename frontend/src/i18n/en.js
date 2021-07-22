@@ -3,9 +3,6 @@ import enLocale from 'element-plus/lib/locale/lang/en';
 const en = {
   [enLocale.name]: {
     el: enLocale.el,
-    message: {
-      hello: 'hello world',
-    },
     about: {
       'line-2': 'About us',
       'line-3': 'Visual management tool of IotDB',

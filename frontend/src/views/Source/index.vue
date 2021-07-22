@@ -230,7 +230,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, onActivated } from 'vue';
 import {
   ElButton,
   ElTable,
@@ -280,6 +280,7 @@ export default {
     // 是否可以用户赋权
     let canAuth = ref(false);
     const router = useRouter();
+
     let pathList = ref([
       { label: t('sourcePage.selectAlias'), value: 0 },
       { label: t('sourcePage.selectGroup'), value: 1 },
@@ -1030,15 +1031,23 @@ export default {
       props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', {}, true);
     };
     onMounted(() => {
-      serverId.value = router.currentRoute.value.params.serverid;
-      getBaseInfo((data) => {
-        //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
-        getUserAuth(data, 1);
-      });
-      getGroupList();
-      getUserList(1);
+      // serverId.value = router.currentRoute.value.params.serverid;
+      // getBaseInfo((data) => {
+      //   //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
+      //   getUserAuth(data, 1);
+      // });
+      // getGroupList();
+      // getUserList(1);
     });
-
+    onActivated(() => {
+        serverId.value = router.currentRoute.value.params.serverid;
+        getBaseInfo((data) => {
+          //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
+          getUserAuth(data, 1);
+        });
+        getGroupList();
+        getUserList(1);
+    });
     return {
       editSource,
       close,
@@ -1234,7 +1243,9 @@ export default {
       .right-part {
         flex: 1;
         position: relative;
-
+        &::v-deep .el-input__suffix .el-input__icon {
+          line-height: 42px !important;
+        }
         .auth-add-btn {
           position: absolute;
           right: 10px;
