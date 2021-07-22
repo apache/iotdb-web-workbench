@@ -102,6 +102,7 @@ export default {
             { label: 'DOUBLE', value: 'DOUBLE' },
             { label: 'TEXT', value: 'TEXT' },
           ],
+          event: changeBorder,
           required: true,
           size: 'small',
         },
@@ -182,6 +183,9 @@ export default {
         },
       ],
     });
+    function changeBorder(scope) {
+      tableData.list[scope.$index].seBorder = false;
+    }
     function checkVal(scope, obj, val) {
       console.log(obj);
       if (!/^\w+$/.test(val)) {
@@ -200,19 +204,24 @@ export default {
         const arr = JSON.parse(JSON.stringify(tableData.list));
         arr.splice(scope.$index, 1);
         if (arr.length) {
-          arr.forEach((item) => {
-            if (item.timeseries === val) {
-              if (erroflag.value) {
-                ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
-                erroflag.value = false;
+          try {
+            arr.forEach((item) => {
+              if (item.timeseries === val) {
+                if (erroflag.value) {
+                  ElMessage.error(`"${val}"${t('device.pynamecopy')}`);
+                  erroflag.value = false;
+                }
+                tableData.list[scope.$index].border = true;
+                obj.namecopy = true;
+                throw Error();
+              } else {
+                tableData.list[scope.$index].border = false;
+                obj.namecopy = false;
               }
-              tableData.list[scope.$index].border = true;
-              obj.namecopy = true;
-            } else {
-              tableData.list[scope.$index].border = false;
-              obj.namecopy = false;
-            }
-          });
+            });
+          } catch (e) {
+            console.log('erro');
+          }
         } else {
           tableData.list[scope.$index].border = false;
           obj.namecopy = false;
@@ -263,6 +272,8 @@ export default {
           description: null,
           display: true,
           border: false,
+          namecopy: false,
+          seBorder: false,
         });
       }
     }
@@ -277,18 +288,20 @@ export default {
       let checkfalg = true;
       console.log(tableData.list);
       tableData.list.forEach((item) => {
-        if (item.timeseries === null || item.dataType === null || item.border) {
+        if (item.timeseries === null || item.dataType === null || item.border || item.seBorder) {
           if (checkfalg) {
             if (item.timeseries === null) {
+              item.border = true;
               ElMessage.error(`${t('device.pynamel')}`);
             } else if (item.dataType === null) {
+              item.seBorder = true;
               ElMessage.error(`"${item.timeseries}"${t('device.selectdatatype')}`);
             } else if (item.namecopy) {
+              item.border = true;
               ElMessage.error(`"${item.timeseries}"${t('device.pynamecopy')}`);
             }
           }
           checkfalg = false;
-          item.border = true;
         }
       });
       if (checkfalg && form.formData.deviceName) {
@@ -356,6 +369,7 @@ export default {
             display: true,
             border: false,
             namecopy: false,
+            seBorder: false,
           },
         ];
       }

@@ -44,10 +44,11 @@
           </el-input>
           <el-select
             v-model="scope.row[item.prop]"
-            :class="{ borderRed: !scope.row[item.prop] && scope.row.border }"
+            :class="{ borderRed: !scope.row[item.prop] && scope.row.seBorder }"
             :placeholder="$t(item.label)"
             v-if="item.type === 'SELECT' && (!scope.row[item.prop] || scope.row.display)"
             :size="item.size"
+            @change="item.event(scope, scope.row)"
           >
             <el-option v-for="item in item.options" :key="item.value" :label="item.label" :value="item.value" @click="selectEncoding(item.value, scope.row)">
               <span style="float: left">{{ item.label }}</span>
@@ -55,7 +56,7 @@
           </el-select>
           <el-select
             v-model="scope.row[item.prop]"
-            :class="{ borderRed: !scope.row[item.prop] && scope.row.border }"
+            :class="{ borderRed: !scope.row[item.prop] && scope.row.seBorder }"
             :placeholder="$t(item.label)"
             v-if="item.type === 'SELECTCH' && (!scope.row[item.prop] || scope.row.display)"
             :size="item.size"
