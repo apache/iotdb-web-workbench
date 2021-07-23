@@ -735,14 +735,14 @@ public class IotDBServiceImpl implements IotDBService {
                     String sqlCheck = sql.toLowerCase();
                     if (sqlCheck != null && sqlCheck.contains("insert")) {
                         String s = sqlCheck;
-                        String[] split = s.split(".");
+                        String[] split = s.split("\\.");
                         if (split.length <= 2) {
                             throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
                         }
                     }
                     if (sqlCheck != null && sqlCheck.contains("create timeseries")) {
                         String s = sqlCheck;
-                        String[] split = s.split(".");
+                        String[] split = s.split("\\.");
                         if (split.length <= 3) {
                             throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
                         }
