@@ -348,30 +348,33 @@ export default {
     }
     onActivated(() => {
       deviceData.obj = route.params;
-      console.log(2134);
+      console.log(291751);
       console.log(deviceData.obj);
-      if (route.params.type !== 'newdevice') {
-        getdData();
-        getListData();
-      } else {
-        form.formData = reactive({
-          description: null,
-          deviceName: null,
-          groupName: `root.${deviceData.obj.storagegroupid}`,
-          deviceId: null,
-        });
-        tableData.list = [
-          {
-            timeseries: null,
-            dataType: null,
-            encoding: null,
+      let keys = Object.keys(deviceData.obj);
+      if (keys.length > 3) {
+        if (route.params.type !== 'newdevice') {
+          getdData();
+          getListData();
+        } else {
+          form.formData = reactive({
             description: null,
-            display: true,
-            border: false,
-            namecopy: false,
-            seBorder: false,
-          },
-        ];
+            deviceName: null,
+            groupName: `root.${deviceData.obj.storagegroupid}`,
+            deviceId: null,
+          });
+          tableData.list = [
+            {
+              timeseries: null,
+              dataType: null,
+              encoding: null,
+              description: null,
+              display: true,
+              border: false,
+              namecopy: false,
+              seBorder: false,
+            },
+          ];
+        }
       }
     });
     return {
