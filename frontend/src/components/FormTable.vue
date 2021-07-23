@@ -9,7 +9,7 @@
         :placeholder="$t(item.placeholder)"
         :disabled="item.disabled"
         @blur="getFormData"
-        @keypress.enter.stop="getFormData"
+        @keyup.enter="getFormData"
         :suffix-icon="item.suffixIcon"
         :prefix-icon="item.prefixIcon"
       >
@@ -28,6 +28,7 @@
       >
       </el-date-picker>
     </el-form-item>
+    <input id="hiddenText" type="text" style="display: none" />
   </el-form>
 </template>
 

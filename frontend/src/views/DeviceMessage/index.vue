@@ -180,7 +180,6 @@ export default {
         drawerFlag.value = false;
         setTimeout(() => {
           drawerFlag.value = true;
-          console.log(routeData.obj);
           drawerRef.value.getehartsData(routeData.obj);
         }, 10);
       }
