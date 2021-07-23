@@ -206,7 +206,7 @@ export default {
     const newDevice = () => {
       router.push({
         name: 'Device',
-        params: { name: '新建实体', connectionid: props.data.connectionid, storagegroupid: props.data.storagegroupid, parentids: props.data.parent.name, dflag: true },
+        params: { name: '新建实体', connectionid: props.data.connectionid, storagegroupid: props.data.storagegroupid, parentids: props.data.parent.name, dflag: true, type: 'newdevice' },
       });
       // props.func.updateTree([props.data.parent.id, props.data.id]);
       // props.func.addTab(`${props.data.id}:newdevice`, { getList: getDeviceList, dflag: true });

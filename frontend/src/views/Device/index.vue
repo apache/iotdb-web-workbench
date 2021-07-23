@@ -350,7 +350,7 @@ export default {
       deviceData.obj = route.params;
       console.log(2134);
       console.log(deviceData.obj);
-      if (route.params.name !== '新建实体' && route.params.name !== 'New entity') {
+      if (route.params.type !== 'newdevice') {
         getdData();
         getListData();
       } else {

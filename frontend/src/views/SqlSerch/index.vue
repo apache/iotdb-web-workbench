@@ -253,24 +253,21 @@ export default {
         }
       });
     }
-    function getRunSql() {
-      let data = '';
-      getSql(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
-        sqlName.value = res.data.queryName;
-        data = res.data.sqls;
-        codeArr = res.data.sqls.split('\n');
-        codemirror.value.setCode(data);
-        setTimeout(() => {
-          codemirror.value.setEvent(data);
-        }, 1000);
-      });
-    }
     function getSqlCode() {
-      if (route.params.name !== '新建查询' && route.params.name !== 'New query') {
-        getRunSql();
+      let data = '';
+      if (route.params.type !== 'newquery') {
+        getSql(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
+          sqlName.value = res.data.queryName;
+          data = res.data.sqls;
+          codeArr = res.data.sqls.split('\n');
+          codemirror.value.setCode(data);
+          setTimeout(() => {
+            codemirror.value.setEvent(data);
+          }, 1000);
+        });
       } else {
         setTimeout(() => {
-          codemirror.value.setEvent('');
+          codemirror.value.setEvent(data);
         }, 1000);
       }
     }
