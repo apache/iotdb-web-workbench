@@ -253,21 +253,24 @@ export default {
         }
       });
     }
-    function getSqlCode() {
+    function getRunSql() {
       let data = '';
-      if (route.params.name !== '新建查询') {
-        getSql(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
-          sqlName.value = res.data.queryName;
-          data = res.data.sqls;
-          codeArr = res.data.sqls.split('\n');
-          codemirror.value.setCode(data);
-          setTimeout(() => {
-            codemirror.value.setEvent(data);
-          }, 1000);
-        });
-      } else {
+      getSql(routeData.obj.connectionid, routeData.obj.queryid).then((res) => {
+        sqlName.value = res.data.queryName;
+        data = res.data.sqls;
+        codeArr = res.data.sqls.split('\n');
+        codemirror.value.setCode(data);
         setTimeout(() => {
           codemirror.value.setEvent(data);
+        }, 1000);
+      });
+    }
+    function getSqlCode() {
+      if (route.params.name !== '新建查询' && route.params.name !== 'New query') {
+        getRunSql();
+      } else {
+        setTimeout(() => {
+          codemirror.value.setEvent('');
         }, 1000);
       }
     }
@@ -315,6 +318,7 @@ export default {
     }
     onActivated(() => {
       routeData.obj = route.params;
+      console.log(11111);
       console.log(routeData.obj);
       if (route.params.forceupdate) {
         getSqlCode();
