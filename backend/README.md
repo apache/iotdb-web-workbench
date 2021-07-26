@@ -4,6 +4,8 @@
 
 [IotDB admin快速入门](doc/intro.md)
 
+[项目部署](doc/deploy.md)
+
 [常用实践约定](doc/promise.md)
 
 [Maven配置](doc/maven.md)
