@@ -1,4 +1,5 @@
-
+backend/.gradle/
+backend/gradle/
 .idea/
 .mvn/
 *.iml
