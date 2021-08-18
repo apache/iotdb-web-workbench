@@ -1,11 +1,10 @@
 package org.apache.iotdb.admin.controller;
 
+import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * 运维平台通过存活、就绪探针表示应用是否存活，就绪。这个类大家最好不好删除，url地址也不要改变
@@ -19,7 +18,6 @@ public class HealthController {
      */
     @GetMapping(value = "/healthz/liveness")
     public void liveness(HttpServletResponse response) throws IOException, BaseException {
-        // boolean isAlive = true;
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

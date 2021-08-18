@@ -8,12 +8,12 @@
     <version>2.3.3.RELEASE</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
-  <groupId>cn.cisdigital.demo</groupId>
-  <artifactId>service</artifactId>
+  <groupId>org.apache.iotdb.admin</groupId>
+  <artifactId>workbench</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
-  <name>demo项目</name>
-  <description>Spring boot的服务框架</description>
+  <name>IoTDB Workbench</name>
+  <description>Apache IoTDB Workbench开源项目</description>
 
   <properties>
     <!-- 对应java 1.8，如果编译错误，可能需要调整 -->
@@ -184,6 +184,7 @@
           </execution>
         </executions>
       </plugin>
+      <!--https://blog.csdn.net/eguid/article/details/78291497-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -194,7 +195,6 @@
           <executable>${JAVA_HOME}/bin/javac</executable>
         </configuration>
       </plugin>
-
     </plugins>
 
   </build>
