@@ -1,6 +1,6 @@
-## Maven 仓库配置
+# Maven 仓库配置
 
-如何配置Maven仓库
+本文介绍如何配置Maven仓库
 
 ## Maven 安装
 
