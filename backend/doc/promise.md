@@ -1,6 +1,6 @@
 # 常用实践约定
 
-本章讨论常用默认的IotDB admin约定
+本章讨论常用默认的IoTDB-Workbench约定
 
 ## 理论约定
 

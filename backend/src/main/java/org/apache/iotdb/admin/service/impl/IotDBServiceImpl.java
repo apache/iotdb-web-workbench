@@ -1,5 +1,6 @@
 package org.apache.iotdb.admin.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.*;
@@ -24,7 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.*;
 import java.util.concurrent.*;
-
 
 @Service
 public class IotDBServiceImpl implements IotDBService {
@@ -127,33 +127,126 @@ public class IotDBServiceImpl implements IotDBService {
     public CountDTO getDevicesByGroup(Connection connection, String groupName, Integer pageSize, Integer pageNum, String keyword) throws BaseException {
         paramValid(groupName);
         SessionPool sessionPool = getSessionPool(connection);
-        String sql;
-        if (keyword == null || "".equals(keyword)) {
-            sql = "show devices " + groupName;
-        } else if (keyword.matches("^[0-9]*$")) {
-            throw new BaseException(ErrorCode.NO_ALL_NUM_SEARCH, ErrorCode.NO_ALL_NUM_SEARCH_MSG);
-        } else {
-            sql = "show devices " + groupName + "." + keyword + "*";
+        String sql = "show devices " + groupName;
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            List<String> values = new ArrayList<>();
+            int count = 0;
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                    if (keyword != null || "".equals(keyword)) {
+                        String deviceName = fields.get(0).toString();
+                        deviceName = StringUtils.removeStart(deviceName, groupName + ".");
+                        if (deviceName.contains(keyword)) {
+                            count++;
+                        } else {
+                            continue;
+                        }
+                        if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
+                            values.add(fields.get(0).toString());
+                        }
+                    } else {
+                        count++;
+                        if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
+                            values.add(fields.get(0).toString());
+                        }
+                    }
+                }
+            }
+            CountDTO countDTO = new CountDTO();
+            countDTO.setObjects(values);
+            countDTO.setTotalCount(count);
+            Integer totalPage = count % pageSize == 0 ? count / pageSize : count / pageSize + 1;
+            countDTO.setTotalPage(totalPage);
+            return countDTO;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
+            }
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
         }
-        CountDTO countDTO = executeQueryOneColumn(sessionPool, sql, pageSize, pageNum);
-        sessionPool.close();
-        return countDTO;
     }
 
     @Override
     public CountDTO getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum, String keyword) throws BaseException {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
-        String sql;
-        if (keyword == null || "".equals(keyword)) {
-            sql = "show timeseries " + deviceName;
-        } else if (keyword.matches("^[0-9]*$")) {
-            throw new BaseException(ErrorCode.NO_ALL_NUM_SEARCH, ErrorCode.NO_ALL_NUM_SEARCH_MSG);
-        } else {
-            sql = "show timeseries " + deviceName + "." + keyword + "*";
+        String sql = "show timeseries " + deviceName;
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            List<MeasurementDTO> results = new ArrayList<>();
+            int batchSize = sessionDataSetWrapper.getBatchSize();
+            int count = 0;
+            if (batchSize > 0) {
+                while (sessionDataSetWrapper.hasNext()) {
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                    if (keyword != null || "".equals(keyword)) {
+                        String measurementName = fields.get(0).toString();
+                        measurementName = StringUtils.removeStart(measurementName, deviceName + ".");
+                        if (measurementName.contains(keyword)) {
+                            count++;
+                        } else {
+                            continue;
+                        }
+                        if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
+                            MeasurementDTO t = new MeasurementDTO();
+                            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+                            for (int i = 0; i < fields.size(); i++) {
+                                Field field = MeasurementDTO.class.getDeclaredField(columnNames.get(i).replaceAll(" ", ""));
+                                field.setAccessible(true);
+                                field.set(t, fields.get(i).toString());
+                            }
+                            results.add(t);
+                        }
+                    } else {
+                        count++;
+                        if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
+                            MeasurementDTO t = new MeasurementDTO();
+                            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+                            for (int i = 0; i < fields.size(); i++) {
+                                Field field = MeasurementDTO.class.getDeclaredField(columnNames.get(i).replaceAll(" ", ""));
+                                field.setAccessible(true);
+                                field.set(t, fields.get(i).toString());
+                            }
+                            results.add(t);
+                        }
+                    }
+                }
+            }
+            CountDTO countDTO = new CountDTO();
+            countDTO.setObjects(results);
+            countDTO.setTotalCount(count);
+            Integer totalPage = count % pageSize == 0 ? count / pageSize : count / pageSize + 1;
+            countDTO.setTotalPage(totalPage);
+            return countDTO;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_MSM_FAIL, ErrorCode.GET_MSM_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_MSM_FAIL, ErrorCode.GET_MSM_FAIL_MSG);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_MSM_FAIL, ErrorCode.GET_MSM_FAIL_MSG);
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
+            }
         }
-        CountDTO countDTO = executeQuery(MeasurementDTO.class, sessionPool, sql, pageSize, pageNum);
-        return countDTO;
     }
 
     @Override
@@ -543,7 +636,7 @@ public class IotDBServiceImpl implements IotDBService {
         String sql = "select last_value(" + timeseries.substring(index + 1) + ") from " + timeseries.substring(0, index);
         String value;
         try {
-            value = executeQueryOneValue(sessionPool,sql);
+            value = executeQueryOneValue(sessionPool, sql);
         } finally {
             sessionPool.close();
         }
@@ -713,60 +806,64 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public List<SqlResultVO> queryAll(Connection connection, List<String> sqls, Long timestamp) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
-        List<SqlResultVO> results = new ArrayList<>();
-        Integer id = connection.getId();
-        String id_plus_timestamp = id + ":" + timestamp;
-        QUERY_STOP.put(id_plus_timestamp, true);
-        for (String sql : sqls) {
-            int firstSpaceIndex = sql.indexOf(" ");
-            String judge = sql.substring(0, firstSpaceIndex);
-            if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) ||  "list".equalsIgnoreCase(judge)) {
-                SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp,false);
-                results.add(sqlResultVO);
-                continue;
-            }
-            if ("select".equalsIgnoreCase(judge)) {
-                SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp,true);
-                results.add(sqlResultVO);
-                continue;
-            }
-            try {
-                if (QUERY_STOP.get(id_plus_timestamp)) {
-                    String sqlCheck = sql.toLowerCase();
-                    if (sqlCheck != null && sqlCheck.contains("insert")) {
-                        String s = sqlCheck;
-                        String[] split = s.split("\\.");
-                        if (split.length <= 2) {
-                            throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
-                        }
-                    }
-                    if (sqlCheck != null && sqlCheck.contains("create timeseries")) {
-                        String s = sqlCheck;
-                        String[] split = s.split("\\.");
-                        if (split.length <= 3) {
-                            throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
-                        }
-                    }
-                    long start = System.currentTimeMillis();
-                    sessionPool.executeNonQueryStatement(sql);
-                    long end = System.currentTimeMillis();
-                    double time = (end - start + 0.0d) / 1000;
-                    String queryTime = time + "s";
-                    SqlResultVO sqlResultVO = new SqlResultVO();
-                    sqlResultVO.setQueryTime(queryTime);
-                    sqlResultVO.setLine(0L);
+        List<SqlResultVO> results;
+        String id_plus_timestamp;
+        try {
+            results = new ArrayList<>();
+            Integer id = connection.getId();
+            id_plus_timestamp = id + ":" + timestamp;
+            QUERY_STOP.put(id_plus_timestamp, true);
+            for (String sql : sqls) {
+                int firstSpaceIndex = sql.indexOf(" ");
+                String judge = sql.substring(0, firstSpaceIndex);
+                if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "list".equalsIgnoreCase(judge)) {
+                    SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp, false);
                     results.add(sqlResultVO);
+                    continue;
                 }
-            } catch (StatementExecutionException e) {
-                logger.error(e.getMessage());
-                throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG + ":" + sql + "执行出错,错误信息[" + e.getMessage() + "]");
-            } catch (IoTDBConnectionException e) {
-                logger.error(e.getMessage());
-                throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG + ":" + sql + "执行出错,错误信息[" + e.getMessage() + "]");
-            } finally {
-                if (sessionPool != null) {
-                    sessionPool.close();
+                if ("select".equalsIgnoreCase(judge)) {
+                    SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp, true);
+                    results.add(sqlResultVO);
+                    continue;
                 }
+                try {
+                    if (QUERY_STOP.get(id_plus_timestamp)) {
+                        String sqlCheck = sql.toLowerCase();
+                        if (sqlCheck != null && sqlCheck.contains("insert")) {
+                            String s = sqlCheck;
+                            String[] split = s.split("\\.");
+                            if (split.length <= 2) {
+                                throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
+                            }
+                        }
+                        if (sqlCheck != null && sqlCheck.contains("create timeseries")) {
+                            String s = sqlCheck;
+                            String[] split = s.split("\\.");
+                            if (split.length <= 3) {
+                                throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
+                            }
+                        }
+                        long start = System.currentTimeMillis();
+                        sessionPool.executeNonQueryStatement(sql);
+                        long end = System.currentTimeMillis();
+                        double time = (end - start + 0.0d) / 1000;
+                        String queryTime = time + "s";
+                        SqlResultVO sqlResultVO = new SqlResultVO();
+                        sqlResultVO.setQueryTime(queryTime);
+                        sqlResultVO.setLine(0L);
+                        results.add(sqlResultVO);
+                    }
+                } catch (StatementExecutionException e) {
+                    logger.error(e.getMessage());
+                    throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG + ":" + sql + "执行出错,错误信息[" + e.getMessage() + "]");
+                } catch (IoTDBConnectionException e) {
+                    logger.error(e.getMessage());
+                    throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG + ":" + sql + "执行出错,错误信息[" + e.getMessage() + "]");
+                }
+            }
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
             }
         }
         QUERY_STOP.remove(id_plus_timestamp);
@@ -796,7 +893,7 @@ public class IotDBServiceImpl implements IotDBService {
             QUERY_STOP.put(notStopKey, false);
             return;
         }
-        throw new BaseException(ErrorCode.No_QUERY, ErrorCode.NO_QUERY_MSG);
+        throw new BaseException(ErrorCode.NO_QUERY, ErrorCode.NO_QUERY_MSG);
     }
 
 
@@ -960,7 +1057,7 @@ public class IotDBServiceImpl implements IotDBService {
         return sqlResultVO;
     }
 
-    private SqlResultVO executeQuery(SessionPool sessionPool, String sql, Boolean closePool, String notStopKey,boolean timeFlag) throws BaseException {
+    private SqlResultVO executeQuery(SessionPool sessionPool, String sql, Boolean closePool, String notStopKey, boolean timeFlag) throws BaseException {
         SqlResultVO sqlResultVO = new SqlResultVO();
         List<List<String>> valuelist = new ArrayList<>();
         try {
@@ -1013,7 +1110,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
 
-    private <T> CountDTO executeQuery(Class<T> clazz, SessionPool sessionPool, String sql, Integer pageSize, Integer pageNum) throws BaseException {
+    private <T> CountDTO executeQuery(Class<T> clazz, SessionPool sessionPool, String sql, Integer pageSize, Integer pageNum, String keyword) throws BaseException {
         SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
             sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);

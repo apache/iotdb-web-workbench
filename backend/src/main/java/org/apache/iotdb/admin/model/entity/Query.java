@@ -7,9 +7,6 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-/**
- * @anthor fyx 2021/7/1
- */
 @Data
 public class Query implements Serializable {
 

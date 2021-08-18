@@ -9,19 +9,12 @@ import org.apache.iotdb.admin.model.dto.GroupDTO;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.entity.StorageGroup;
 import org.apache.iotdb.admin.service.GroupService;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @anthor fyx 2021/6/16
- */
 @Service
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup> implements GroupService {
 

@@ -4,9 +4,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * @anthor fyx 2021/6/28
- */
 @Data
 public class DeviceDTO implements Serializable {
 

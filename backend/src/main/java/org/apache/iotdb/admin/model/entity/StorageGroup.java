@@ -10,9 +10,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
-/**
- * @anthor fyx 2021/6/16
- */
 @Data
 public class StorageGroup implements Serializable {
 

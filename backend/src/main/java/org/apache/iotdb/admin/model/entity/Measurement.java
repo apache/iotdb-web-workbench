@@ -8,9 +8,6 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-/**
- * @anthor fyx 2021/6/16
- */
 @Data
 public class Measurement implements Serializable {
 

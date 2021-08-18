@@ -10,7 +10,6 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
-
 @Data
 public class User implements Serializable {
 

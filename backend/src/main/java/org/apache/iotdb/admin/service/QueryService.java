@@ -6,9 +6,6 @@ import org.apache.iotdb.admin.model.vo.QueryVO;
 
 import java.util.List;
 
-/**
- * @anthor fyx 2021/7/1
- */
 public interface QueryService {
     void save(Integer serverId, Query query) throws BaseException;
 

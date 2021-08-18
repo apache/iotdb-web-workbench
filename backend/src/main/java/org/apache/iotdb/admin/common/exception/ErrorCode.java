@@ -61,8 +61,8 @@ public class ErrorCode {
     public static final String USER_AUTH_FAIL = "USER-0008";
     public static final String USER_AUTH_FAIL_MSG = "用户不一致,不能进行操作";
 
-    public static final String Token_Err = "USER-0009";
-    public static final String Token_Err_MSG = "请登录或token失效";
+    public static final String TOKEN_ERR = "USER-0009";
+    public static final String TOKEN_ERR_MSG = "请登录或token失效";
 
     public static final String GET_TOKEN_FAIL = "USER-0010";
     public static final String GET_TOKEN_FAIL_MSG = "获取token失败";
@@ -188,7 +188,7 @@ public class ErrorCode {
     public static final String UPDATE_PWD_FAIL = "IOTDB-0039";
     public static final String UPDATE_PWD_FAIL_MSG = "修改账号密码失败";
 
-    public static final String No_QUERY = "IOTDB-0040";
+    public static final String NO_QUERY = "IOTDB-0040";
     public static final String NO_QUERY_MSG = "不存在此查询";
 
     public static final String NO_ALL_NUM_SEARCH = "IOTDB-0041";

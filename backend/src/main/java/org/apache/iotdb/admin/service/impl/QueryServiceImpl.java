@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.mapper.QueryMapper;
-import org.apache.iotdb.admin.model.dto.QueryDTO;
 import org.apache.iotdb.admin.model.entity.Query;
 import org.apache.iotdb.admin.model.vo.QueryVO;
 import org.apache.iotdb.admin.service.QueryService;
@@ -16,9 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @anthor fyx 2021/7/1
- */
 @Service
 public class QueryServiceImpl extends ServiceImpl<QueryMapper, Query> implements QueryService {
 

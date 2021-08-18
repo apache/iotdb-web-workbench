@@ -20,9 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-/**
- * @anthor fyx 2021/7/1
- */
 @RestController
 @Api(value = "查询相关接口")
 @RequestMapping("/servers/{serverId}")

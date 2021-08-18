@@ -7,9 +7,6 @@ import org.apache.iotdb.admin.model.entity.StorageGroup;
 
 import java.util.List;
 
-/**
- * @anthor fyx 2021/6/16
- */
 public interface GroupService {
     List<String> getGroupDescription(String host, List<String> groupNames) throws BaseException;
 

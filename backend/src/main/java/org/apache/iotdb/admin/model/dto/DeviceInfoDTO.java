@@ -7,9 +7,6 @@ import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * @anthor fyx 2021/6/22
- */
 @Data
 public class DeviceInfoDTO implements Serializable {
 

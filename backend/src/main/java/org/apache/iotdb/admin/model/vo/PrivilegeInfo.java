@@ -5,9 +5,6 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * @anthor fyx 2021/6/29
- */
 @Data
 public class PrivilegeInfo implements Serializable {
     // 0 1 2 3 对应 root、storageGroup、device、timeseries

@@ -30,7 +30,7 @@ public class TokenFilter implements HandlerInterceptor {
             jwtVerifier.verify(authorization);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BaseException(ErrorCode.Token_Err, ErrorCode.Token_Err_MSG);
+            throw new BaseException(ErrorCode.TOKEN_ERR, ErrorCode.TOKEN_ERR_MSG);
         }
         return true;
     }

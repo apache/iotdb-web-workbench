@@ -1,4 +1,4 @@
-## 阿里巴巴java规范checkstyle
+# 阿里巴巴java规范checkstyle
 
 我们使用阿里巴巴java规范泰山版（1.6.0）
 

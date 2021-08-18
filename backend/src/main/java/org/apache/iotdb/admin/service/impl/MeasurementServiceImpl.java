@@ -17,9 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @anthor fyx 2021/6/16
- */
 @Service
 public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measurement> implements MeasurementService {
 

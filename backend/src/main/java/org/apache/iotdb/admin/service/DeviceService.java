@@ -8,9 +8,6 @@ import org.apache.iotdb.admin.model.vo.DeviceVO;
 
 import java.util.List;
 
-/**
- * @anthor fyx 2021/6/16
- */
 public interface DeviceService {
     List<Device> getDevices(String host, List<String> deviceNames);
 

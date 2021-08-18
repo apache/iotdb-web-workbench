@@ -1,45 +1,44 @@
-#### 部署流程
+# 部署流程
 
-##### 1. 后端部署
+## 后端部署
 
-1.1 指定环境配置
+1 通过backend/src/main/resources/application-xxx.properties文件配置项目，注意修改数据源的路径。
 
-![1626683289(1)](image/img_1.png)
+![](image/配置文件.png)
 
-项目打包前，指定环境配置数据源iotdb.db的服务器地址信息
+2 打包
 
-![1626682537(1)](image/img_2.png)
+![](image/打包.png)
 
-1.2 打包
+3 打包之后，将jar包上传到指定服务器并运行。  
 
-![1626682842(1)](image/img_3.png)
+首先请确定服务器上安装了sqlite3（一般Linux系统自带sqlite3，如果没有请安装）。  
+通过如下命令将jar包挂载到后台运行:  
+nohup java -jar xxx.jar >/dev/null 2>&1 &
 
-1.3 打包之后，将jar包安装到指定服务器
+至此后端部署完成。
 
-通过命令将jar包挂载到后台运行:
+## 前端结合后端部署
 
-nohup java -jar xxx.jar &
-
-后端部署完成
-
-##### 2 .前端结合后端部署
-
-2.1 在服务器安装nginx服务器，命令如下:
+1 在服务器安装nginx服务器，命令如下:
 
 yum install -y nginx
 
-2.2 安装完成后，配置nginx的配置文件，可通过nginx -t 获取配置文件路径:
+2 安装完成后，配置nginx的配置文件，可通过nginx -t 获取配置文件路径:
 
-![1626683925(1)](image/img_4.png)
+![](image/nginx配置文件位置.png)
 
-2.3 vim xxx.conf编辑配置
+3 vim xxx.conf编辑nginx配置
 
 配置信息如下:
 
-![1626684237(1)](image/img_5.png)
+![](image/nginx配置文件.png)
 
-黄框内容为监听端口号配置，红框内容以“/”映射前端资源文件，绿框以“/api”映射后台服务地址;多个服务需要配置多个server;.
+黄框内容为监听端口号配置；  
+红框内容以“/”映射前端资源文件，请指定为你的dist文件路径；  
+绿框以“/api”映射后台服务地址，与application-xxx.properties文件中配置的端口号和上下文根保持一致；  
+如果你需要多个服务则需配置多个server
 
-2.4 保存配置后，命令行输入nginx启动nginx
+4 保存配置后，命令行输入nginx启动nginx
 
-浏览器调用服务器地址，请求到服务器资源即配置成功。
+浏览器调用服务器ip地址，端口号为黄框里指定的端口号，请求到服务器资源则部署成功。

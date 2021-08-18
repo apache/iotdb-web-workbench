@@ -3,7 +3,6 @@ package org.apache.iotdb.admin.service;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.entity.User;
 
-
 public interface UserService {
     User login(String name, String password) throws BaseException;
 

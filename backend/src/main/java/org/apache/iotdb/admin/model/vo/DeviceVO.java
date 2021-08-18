@@ -4,9 +4,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * @anthor fyx 2021/6/24
- */
 @Data
 public class DeviceVO implements Serializable {
     private String description;

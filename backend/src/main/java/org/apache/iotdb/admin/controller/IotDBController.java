@@ -21,11 +21,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 @RestController
 @Api(value = "iotdb操作相关接口")
 @RequestMapping("/servers/{serverId}")
-public class IotDBController<T> {
+public class IotDBController {
 
     @Autowired
     private ConnectionService connectionService;
@@ -403,7 +402,7 @@ public class IotDBController<T> {
 
     @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries")
     @ApiOperation("创建时间序列  (未使用)")
-    public BaseVO<List<String>> insertTimeseries(@PathVariable("serverId") Integer serverId,
+    public BaseVO insertTimeseries(@PathVariable("serverId") Integer serverId,
                                                  @PathVariable("groupName") String groupName,
                                                  @PathVariable("deviceName") String deviceName,
                                                  @RequestBody Timeseries timeseries,
@@ -459,7 +458,7 @@ public class IotDBController<T> {
 
     @DeleteMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/{timeseriesName}")
     @ApiOperation("删除物理量")
-    public BaseVO<List<String>> deleteTimeseries(@PathVariable("serverId") Integer serverId,
+    public BaseVO deleteTimeseries(@PathVariable("serverId") Integer serverId,
                                                  @PathVariable("groupName") String groupName,
                                                  @PathVariable("deviceName") String deviceName,
                                                  @PathVariable("timeseriesName") String timeseriesName,
