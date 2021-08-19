@@ -276,7 +276,7 @@ export default {
     width: 100%;
     overflow: auto;
   }
-  &::v-deep .content-container {
+  &:deep(.content-container) {
     height: 100%;
     .el-aside {
       height: 100%;

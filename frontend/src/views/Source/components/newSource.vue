@@ -283,10 +283,10 @@ export default {
   .test-form-item {
     margin-top: 20px;
   }
-  &::v-deep .el-form-item__content {
+  &:deep(.el-form-item__content) {
     line-height: 20px;
   }
-  &::v-deep .el-dialog {
+  &:deep(.el-dialog) {
     margin-top: 10vh !important;
   }
 }

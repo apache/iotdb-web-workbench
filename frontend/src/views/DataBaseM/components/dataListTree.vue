@@ -369,7 +369,7 @@ export default {
   .data-list-input {
     margin: 0 20px 15px;
   }
-  &::v-deep .el-tree {
+  &:deep(.el-tree) {
     height: calc(100% - 50px);
     width: 100%;
     overflow: auto;

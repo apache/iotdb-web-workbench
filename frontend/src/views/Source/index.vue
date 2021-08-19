@@ -1040,13 +1040,13 @@ export default {
       // getUserList(1);
     });
     onActivated(() => {
-        serverId.value = router.currentRoute.value.params.serverid;
-        getBaseInfo((data) => {
-          //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
-          getUserAuth(data, 1);
-        });
-        getGroupList();
-        getUserList(1);
+      serverId.value = router.currentRoute.value.params.serverid;
+      getBaseInfo((data) => {
+        //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
+        getUserAuth(data, 1);
+      });
+      getGroupList();
+      getUserList(1);
     });
     return {
       editSource,
@@ -1134,11 +1134,11 @@ export default {
 .source-detail-container {
   height: 100%;
   text-align: left;
-  &::v-deep .el-tabs__nav-wrap::after {
+  &:deep(.el-tabs__nav-wrap::after) {
     display: none !important;
   }
 
-  &::v-deep .el-tabs__header .el-tabs__nav .el-tabs__item.is-active {
+  &:deep(.el-tabs__header .el-tabs__nav .el-tabs__item.is-active) {
     background: #fff !important;
   }
   .icon-del {
@@ -1243,7 +1243,7 @@ export default {
       .right-part {
         flex: 1;
         position: relative;
-        &::v-deep .el-input__suffix .el-input__icon {
+        &:deep(.el-input__suffix .el-input__icon) {
           line-height: 42px !important;
         }
         .auth-add-btn {
@@ -1252,39 +1252,33 @@ export default {
           top: 6px;
           z-index: 1000;
         }
-        &::v-deep .el-tabs__active-bar {
-          // width: 23px !important;
-          // margin-left: 14px;
-        }
+
         .tabs {
           position: relative;
         }
         .show-only {
-          // &::v-deep .el-checkbox__input {
-          //   display: none;
-          // }
-          &::v-deep .el-checkbox {
+          &:deep(.el-checkbox) {
             display: none;
           }
-          &::v-deep .is-checked {
+          &:deep(.is-checked) {
             display: inline-block !important;
             .is-checked {
               display: none !important;
             }
           }
-          &::v-deep .el-checkbox__input {
+          &:deep(.el-checkbox__input) {
             display: none;
           }
         }
-        &::v-deep .el-checkbox__input.is-disabled + span.el-checkbox__label {
+        &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
           color: #222222;
           cursor: default;
         }
-        &::v-deep .el-checkbox__label {
+        &:deep(.el-checkbox__label) {
           font-size: 12px !important;
           font-weight: 400;
         }
-        &::v-deep .el-input .el-input__inner {
+        &:deep(.el-input .el-input__inner) {
           font-size: 12px !important;
         }
         .el-select {
@@ -1363,11 +1357,6 @@ export default {
     .group-table {
       width: 100%;
       padding: 10px;
-      // overflow: auto;
-      // &::v-deep .el-table__body-wrapper {
-      //   max-height: 30vh;
-      //   overflow: auto !important;
-      // }
       .el-button {
         padding-left: 0 !important;
       }

@@ -4,9 +4,9 @@
 
 目前支持的开发环境如下：
 
-- node XX 及以上
-- npm XX及以上
-- 推荐使用visual studio code XX
+- node 10.0.0 及以上
+- npm 6.0.0及以上
+- 推荐使用visual studio code
 
 ## 安装依赖
 
