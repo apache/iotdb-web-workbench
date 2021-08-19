@@ -110,7 +110,7 @@ export default {
 
 <style scoped lang="scss">
 .root {
-  &::v-deep .el-header {
+  &:deep(.el-header) {
     height: 64px !important;
     border-width: 0;
     border-bottom-width: 1px;
