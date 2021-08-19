@@ -1,5 +1,7 @@
-backend/.gradle/
-backend/gradle/
+.gradle
+.gradle/
+gradle/
+build/
 .idea/
 .mvn/
 *.iml
