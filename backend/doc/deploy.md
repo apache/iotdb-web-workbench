@@ -4,7 +4,7 @@
 
 1 通过backend/src/main/resources/application-xxx.properties文件配置项目，注意修改数据源的路径。
 
-![](image/配置文件.png)
+![](image/配置文件.PNG)
 
 2 打包
 
