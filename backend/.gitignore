@@ -1,0 +1,10 @@
+.gradle
+.gradle/
+gradle/
+build/
+.idea/
+.mvn/
+*.iml
+target/
+*.versionsBackup
+
