@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="ERROR">
+
+    <Properties>
+        <!--应用名-->
+        <property name="app">IoTDB-Workbench</property>
+        <property name="log.root.level">INFO</property>
+        <property name="log.home">/data/applogs/app-prod</property>
+        <property name="log.default.pattern">%-d{yyyy-MM-dd HH:mm:ss.SSS} [%p] [${app}] %l %m%n</property>
+        <property name="log.stats.pattern">%m%n</property>
+    </Properties>
+
+    <appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout>
+                <Pattern>${log.default.pattern}</Pattern>
+            </PatternLayout>
+        </Console>
+
+        <RollingFile name="ROLLING_DEBUG" fileName="${log.home}/${app}_debug.log"
+                     filePattern="${log.home}/debug.log.%i">
+            <PatternLayout>
+                <Pattern>${log.default.pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+            <!--<DirectWriteRolloverStrategy maxFiles="10"/>-->
+            <Filters>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT"/>
+            </Filters>
+        </RollingFile>
+
+        <RollingFile name="ROLLING_INFO" fileName="${log.home}/${app}_info.log"
+                     filePattern="${log.home}/info.log.%i">
+            <PatternLayout>
+                <Pattern>${log.default.pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT"/>
+            </Filters>
+        </RollingFile>
+
+        <RollingFile name="ROLLING_WARN" fileName="${log.home}/${app}_warn.log"
+                     filePattern="${log.home}/warn.log.%i">
+            <PatternLayout>
+                <Pattern>${log.default.pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT"/>
+            </Filters>
+        </RollingFile>
+
+        <RollingFile name="ROLLING_ERROR" fileName="${log.home}/${app}_error.log"
+                     filePattern="${log.home}/error.log.%i">
+            <PatternLayout>
+                <Pattern>${log.default.pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+            <!--<DirectWriteRolloverStrategy maxFiles="10"/>-->
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT"/>
+            </Filters>
+        </RollingFile>
+
+
+
+    </appenders>
+
+    <loggers>
+        <!--level日志级别: ALL < TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
+        <Root level="${log.root.level}">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ROLLING_INFO"/>
+            <AppenderRef ref="ROLLING_WARN"/>
+            <AppenderRef ref="ROLLING_ERROR"/>
+            <!--<AppenderRef ref="ROLLING_DEBUG"/>-->
+        </Root>
+
+
+        <!--<logger name="com.alibaba" level="ERROR"/>-->
+        <!--<logger name="org" level="ERROR"/>-->
+
+    </loggers>
+
+</configuration>
+
