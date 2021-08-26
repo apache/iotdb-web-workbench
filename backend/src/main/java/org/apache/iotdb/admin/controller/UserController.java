@@ -82,6 +82,22 @@ public class UserController {
         return BaseVO.success("获取成功", user);
     }
 
+    @GetMapping("/")
+    public String welcome(){
+        String str="<!DOCTYPE html>\n" +
+                "<html lang=\"ch\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title>welcome</title>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "<h1>你已成功启动IoTDB-Workbench!</h1>\n" +
+                "<h2>为了更好的体验IoTDB-Workbench，请参考<a href=\"https://github.com/loveher147/iotdb-admin/blob/main/backend/doc/deploy.md\">部署文档</a>进行部署</h2>\n" +
+                "</body>\n" +
+                "</html>";
+        return str;
+    }
+
     private String getToken(User user) throws BaseException {
         Calendar instance = Calendar.getInstance();
         try {

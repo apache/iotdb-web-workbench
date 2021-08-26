@@ -28,7 +28,9 @@
 项目提供maven、gradle两种构建工具,以maven为例启动项目：  
 首先通过IntelliJ IDEA打开本项目，右键点击pom.xml,点击Add as Maven Project导入项目相关依赖。
 ![](image/pom.PNG)  
-导入完成后启动AdminApplication项目，如果未报错并出现如下界面则代表项目运行成功。  
+导入完成后启动AdminApplication项目，启动成功后你应该能看到如下界面。  
 ![](image/启动成功.PNG)  
+接着，你可以通过浏览器访问127.0.0.1:8080/api，看到如下页面则代表后端启动成功。
+![](image/welcome.PNG)  
+具体部署步骤请参考[部署文档](deploy.md)  
 本系统默认登录用户为root,密码为123456。  
-具体部署步骤请参考[部署文档](deploy.md)
