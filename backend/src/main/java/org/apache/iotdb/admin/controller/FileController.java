@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
+import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.BaseVO;
 import org.apache.iotdb.admin.model.vo.ImportDataVO;
@@ -41,6 +42,7 @@ public class FileController {
     @PostMapping("/servers/{serverId}/importData")
     public BaseVO<ImportDataVO> importData(@RequestParam("file") MultipartFile file,
                                            @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+        check(request, serverId);
         if (!file.getOriginalFilename().toLowerCase().endsWith(".csv")) {
             throw new BaseException(ErrorCode.FILE_NAME_ILLEGAL, ErrorCode.FILE_NAME_ILLEGAL_MSG);
         }
@@ -61,6 +63,7 @@ public class FileController {
     @PostMapping("/servers/{serverId}/exportData")
     public ResponseEntity<Resource> exportData(@PathVariable("serverId") Integer serverId,
                                                @RequestBody String sql, HttpServletRequest request) throws BaseException {
+        check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 
         String host = connection.getHost();
@@ -86,5 +89,10 @@ public class FileController {
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
                 .body(resource);
+    }
+
+    private void check(HttpServletRequest request, Integer serverId) throws BaseException {
+        Integer userId = AuthenticationUtils.getUserId(request);
+        connectionService.check(serverId, userId);
     }
 }

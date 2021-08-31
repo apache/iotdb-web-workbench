@@ -1,0 +1,12 @@
+.gradle
+.gradle/
+gradle/
+build/
+.idea/
+.mvn/
+*.iml
+*.csv
+*.txt
+target/
+*.versionsBackup
+
