@@ -70,6 +70,40 @@ public class ErrorCode {
     public static final String SET_JWT_FAIL = "USER-0011";
     public static final String SET_JWT_FAIL_MSG = "JWT编解码失败";
 
+    //导入导出csv相关
+    public static final String FILE_NAME_ILLEGAL = "CSV-0001";
+    public static final String FILE_NAME_ILLEGAL_MSG = "文件必须以.csv结尾";
+
+    public static final String UPLOAD_FILE_FAIL = "CSV-0002";
+    public static final String UPLOAD_FILE_FAIL_MSG = "上传CSV文件失败";
+
+    public static final String FILE_FIRST_LINE_ILLEGAL = "CSV-0003";
+    public static final String FILE_FIRST_LINE_ILLEGAL_MSG = "CSV文件格式有误，请检查第1行";
+
+    public static final String FILE_LINE_ILLEGAL = "CSV-0004";
+    public static final String FILE_LINE_ILLEGAL_MSG = "CSV文件格式有误，非法行:";
+
+    public static final String FILE_FORMAT_ILLEGAL = "CSV-0005";
+    public static final String FILE_FORMAT_ILLEGAL_MSG = "CSV文件格式有误，数据行的列数不能小于第一行的列数";
+
+    public static final String FILE_TIME_ILLEGAL = "CSV-0006";
+    public static final String FILE_TIME_ILLEGAL_MSG = "CSV文件时间戳格式有误";
+
+    public static final String FILE_IO_FAIL = "CSV-0007";
+    public static final String FILE_IO_FAIL_MSG = "文件读取或写入失败，由于:";
+
+    public static final String IMPORT_CSV_FAIL = "CSV-0008";
+    public static final String IMPORT_CSV_FAIL_MSG = "导入csv文件失败，由于:";
+
+    public static final String CREATE_FILE_FAIL = "CSV-0009";
+    public static final String CREATE_FILE_FAIL_MSG = "创建文件失败";
+
+    public static final String EXPORT_CSV_FAIL = "CSV-0010";
+    public static final String EXPORT_CSV_FAIL_MSG = "导出csv文件失败，由于:";
+
+    public static final String FILE_NOT_FOUND = "CSV-0011";
+    public static final String FILE_NOT_FOUND_MSG = "文件未找到";
+
     // iotDB相关
     public static final String INSERT_TS_FAIL = "IOTDB-0001";
     public static final String INSERT_TS_FAIL_MSG = "插入时间序列失败";
@@ -87,10 +121,10 @@ public class ErrorCode {
     public static final String GET_DBCONN_FAIL_MSG = "获取数据库连接失败";
 
     public static final String GET_SESSION_FAIL = "IOTDB-0006";
-    public static final String GET_SESSION_FAIL_MSG = "获取session失败";
+    public static final String GET_SESSION_FAIL_MSG = "连接IoTDB失败";
 
     public static final String CLOSE_DBCONN_FAIL = "IOTDB-0007";
-    public static final String CLOSE_DBCONN_FAIL_MSG = "关闭连接失败";
+    public static final String CLOSE_DBCONN_FAIL_MSG = "关闭IoTDB连接失败";
 
     public static final String SQL_EP = "IOTDB-0008";
     public static final String SQL_EP_MSG = "没有权限或sql异常";
@@ -171,10 +205,10 @@ public class ErrorCode {
     public static final String GET_RECORD_FAIL_MSG = "获取物理量记录失败";
 
     public static final String NO_SQL = "IOTDB-0034";
-    public static final String NO_SQL_MSG = "没有sql执行语句";
+    public static final String NO_SQL_MSG = "查询脚本没有sql语句";
 
     public static final String UPDATE_GROUP_INFO_FAIL = "IOTDB-0035";
-    public static final String UPDATE_GROUP_INFO_FAIL_MSG = "更新组信息失败";
+    public static final String UPDATE_GROUP_INFO_FAIL_MSG = "更新存储组信息失败";
 
     public static final String NO_GROUP_INFO = "IOTDB-0036";
     public static final String NO_GROUP_INFO_MSG = "不存在存储组信息";
@@ -189,7 +223,7 @@ public class ErrorCode {
     public static final String UPDATE_PWD_FAIL_MSG = "修改账号密码失败";
 
     public static final String NO_QUERY = "IOTDB-0040";
-    public static final String NO_QUERY_MSG = "不存在此查询";
+    public static final String NO_QUERY_MSG = "不存在此查询或该查询已结束";
 
     public static final String NO_ALL_NUM_SEARCH = "IOTDB-0041";
     public static final String NO_ALL_NUM_SEARCH_MSG = "不支持纯数字查询";
