@@ -1,0 +1,104 @@
+<template>
+  <div class="drawer">
+    <el-dialog :title="$t('device.newquery')" v-model="centerDialogVisible" width="30%" center @close="centerDialogV">
+      <template #footer>
+        <div class="elform">
+          <el-form ref="form" label-width="80px">
+            <el-form-item :label="$t('device.dataconnection')" :rules="{ required: true, message: $t('device.selectdataconnections'), trigger: 'blur' }">
+              <!-- <span>{{ $t('device.dataconnection') }}</span> -->
+              <el-select v-model="linkData" :placeholder="$t('device.selectdataconnections')">
+                <el-option v-for="item in linkList.list" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+        </div>
+        <span class="dialog-footer">
+          <el-button @click="centerDialogV">{{ $t('device.cencel') }}</el-button>
+          <el-button type="primary" @click="centerDialog">{{ $t('device.ok') }}</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { ElDialog, ElButton, ElForm, ElSelect, ElOption, ElFormItem, ElMessage } from 'element-plus';
+import { onMounted, reactive, ref } from 'vue';
+import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
+import { getlink } from '../api/index';
+export default {
+  name: 'sqldrawer',
+  props: ['func'],
+  setup(props, { emit }) {
+    const { t } = useI18n();
+    const uerInfo = useStore();
+    const linkList = reactive({
+      list: [],
+    });
+    const linkData = ref(null);
+    function centerDialog() {
+      if (linkData.value) {
+        props.func.updateTree([`${linkData.value}connection`, `${linkData.value}connection:querylist`]);
+        props.func.addTab(`${linkData.value}connection:querylist:newquery`);
+        emit('coloseDrawer');
+      } else {
+        ElMessage.error(`${t('device.selectdataconnection')}!`);
+      }
+    }
+    function centerDialogV() {
+      emit('coloseDrawer');
+    }
+    onMounted(() => {
+      getlink({ userId: uerInfo.state.userInfo.userId }).then((res) => {
+        linkList.list = res.data.aliasList.map((item) => {
+          return {
+            label: item.alias,
+            value: item.id,
+          };
+        });
+      });
+    });
+    const centerDialogVisible = ref(true);
+    return { centerDialogVisible, linkList, linkData, centerDialog, centerDialogV };
+  },
+  components: {
+    ElDialog,
+    ElButton,
+    ElForm,
+    ElSelect,
+    ElOption,
+    ElFormItem,
+  },
+};
+</script>
+
+<style lang="scss">
+.drawer {
+  .el-dialog__header {
+    border-bottom: 1px solid #efefef;
+  }
+}
+.elform {
+  //   margin-left: -60px;
+  .el-form-item {
+    display: flex;
+    width: 100%;
+  }
+  .el-form-item__label {
+    line-height: 40px !important;
+    text-align: right;
+    width: 120px !important;
+  }
+  .el-select {
+    width: 90%;
+  }
+  .el-input__suffix {
+    top: -2px;
+  }
+  .el-form-item__content {
+    margin-left: -20px !important;
+    width: 90%;
+  }
+}
+</style>

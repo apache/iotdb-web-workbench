@@ -1,0 +1,108 @@
+.el-button--primary {
+  background-color: $theme-color !important;
+  border-color: $theme-color !important;
+  span {
+    color: #fff;
+  }
+}
+.el-button {
+  height: 30px !important;
+  line-height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 12px !important;
+}
+.el-button--text {
+  color: $theme-color !important;
+}
+.el-button-delete {
+  color: #d32d2fff !important;
+  &:hover {
+    color: #f56c6c !important;
+  }
+}
+.el-tree--highlight-current .el-tree-node {
+  &.is-current {
+    & > .el-tree-node__content {
+      border-style: solid;
+      border-color: transparent;
+      border-width: 10px 16px;
+      color: $theme-color;
+      background-color: rgba(69, 117, 246, 0.04);
+      position: relative;
+      &::after {
+        content: '';
+        width: 4px;
+        background-color: $theme-color;
+        position: absolute;
+        left: -16px;
+        top: -10px;
+        bottom: -10px;
+      }
+    }
+  }
+  .el-tree-node__content {
+    border-style: solid;
+    border-color: transparent;
+    border-width: 10px 16px;
+  }
+}
+.el-dialog {
+  margin: 0 auto;
+  border-radius: 10px;
+  .el-dialog__header {
+    padding: 10px 20px;
+    text-align: left;
+    .el-dialog__title {
+      font-size: 16px;
+    }
+    .el-dialog__headerbtn {
+      top: 10px;
+    }
+  }
+  .el-dialog__body {
+    text-align: left;
+    padding: 6px 20px;
+  }
+}
+
+.el-input {
+  .el-input__inner {
+    height: 32px;
+    line-height: 32px;
+  }
+}
+.el-form {
+  .el-form-item {
+    margin-bottom: 12px;
+    .el-form-item__label {
+      line-height: 28px;
+    }
+  }
+}
+.el-table th,
+.el-table td {
+  padding: 3px 0 !important;
+  font-size: 12px !important;
+}
+.el-table th {
+  color: #222222 !important;
+}
+
+.el-input__icon {
+  cursor: pointer;
+}
+.el-popover {
+  .el-popconfirm__main {
+    padding: 10px 10px 20px;
+  }
+}
+.el-input__suffix {
+  height: 32px !important;
+  line-height: 32px !important;
+  .el-input__icon {
+    line-height: 34px !important;
+  }
+}
+.el-tabs__active-bar {
+  background-color: #4575f6ff !important;
+}
