@@ -255,6 +255,7 @@ public class IotDBController {
             if (groupName.equals(s)) {
                 continue;
             } else {
+                // TODO: 现在返回全名了，名字不用做替换了
                 deviceName = s.replaceFirst(groupName + ".", "");
             }
             deviceNames.add(deviceName);
@@ -263,8 +264,8 @@ public class IotDBController {
     }
 
     @PostMapping("/storageGroups/{groupName}/devices")
-    @ApiOperation("新增或编辑实体(设备)")
-    public BaseVO<List<String>> saveOrUpdateDevice(@PathVariable("serverId") Integer serverId,
+    @ApiOperation("新增或编辑实体(设备)  (变更，1.2)")
+    public BaseVO saveOrUpdateDevice(@PathVariable("serverId") Integer serverId,
                                                    @PathVariable("groupName") String groupName,
                                                    @RequestBody DeviceInfoDTO deviceInfoDTO,
                                                    HttpServletRequest request) throws BaseException {
@@ -277,12 +278,15 @@ public class IotDBController {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         groupName = "root." + groupName;
+        // TODO: 设备名为空的情况有待考虑
         deviceInfoDTO.setDeviceName(groupName + "." + deviceInfoDTO.getDeviceName());
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
             deviceDTO.setTimeseries(deviceInfoDTO.getDeviceName() + "." + deviceDTO.getTimeseries());
         }
-        String host = connection.getHost();
         iotDBService.createDeviceWithMeasurements(connection, deviceInfoDTO);
+
+        String host = connection.getHost();
+        //TODO: 编辑实体时，如果前端没传id回来，会有问题，有待优化
         if (deviceInfoDTO.getDeviceId() == null) {
             deviceService.setDeviceInfo(connection, deviceInfoDTO);
             measurementService.setMeasurementsInfo(host, deviceInfoDTO);
@@ -323,6 +327,7 @@ public class IotDBController {
                                           @PathVariable("groupName") String groupName,
                                           @PathVariable("deviceName") String deviceName,
                                           HttpServletRequest request) throws BaseException {
+        // TODO: 设备名为空的情况有待考虑
         if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
@@ -459,10 +464,10 @@ public class IotDBController {
     @DeleteMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/{timeseriesName}")
     @ApiOperation("删除物理量")
     public BaseVO deleteTimeseries(@PathVariable("serverId") Integer serverId,
-                                                 @PathVariable("groupName") String groupName,
-                                                 @PathVariable("deviceName") String deviceName,
-                                                 @PathVariable("timeseriesName") String timeseriesName,
-                                                 HttpServletRequest request) throws BaseException {
+                                   @PathVariable("groupName") String groupName,
+                                   @PathVariable("deviceName") String deviceName,
+                                   @PathVariable("timeseriesName") String timeseriesName,
+                                   HttpServletRequest request) throws BaseException {
         if (timeseriesName == null || !timeseriesName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
@@ -475,6 +480,63 @@ public class IotDBController {
         String host = connection.getHost();
         measurementService.deleteMeasurementInfo(host, timeseriesName);
         return BaseVO.success("删除成功", null);
+    }
+
+    @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/data")
+    @ApiOperation("获取指定设备下的物理量数据  (新增2.4)")
+    public BaseVO<DataVO> getDataByDevice(@PathVariable("serverId") Integer serverId,
+                                                @PathVariable("groupName") String groupName,
+                                                @PathVariable("deviceName") String deviceName,
+                                                @RequestParam("pageSize") Integer pageSize,
+                                                @RequestParam("pageNum") Integer pageNum,
+                                                @RequestBody DataQueryDTO dataQueryDTO,
+                                                HttpServletRequest request) throws BaseException {
+        // TODO: 设备名为空的情况有待考虑
+        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        groupName = "root." + groupName;
+        deviceName = groupName + "." + deviceName;
+        DataVO dataVO = iotDBService.getDataByDevice(connection, deviceName, pageSize, pageNum , dataQueryDTO);
+        return BaseVO.success("获取物理量数据成功", dataVO);
+    }
+
+    @PutMapping("/storageGroups/{groupName}/devices/{deviceName}/data")
+    @ApiOperation("编辑物理量数据  (新增2.5)")
+    public BaseVO updateDataByDevice(@PathVariable("serverId") Integer serverId,
+                                          @PathVariable("groupName") String groupName,
+                                          @PathVariable("deviceName") String deviceName,
+                                          @RequestBody DataUpdateDTO dataUpdateDTO,
+                                          HttpServletRequest request) throws BaseException {
+        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        groupName = "root." + groupName;
+        deviceName = groupName + "." + deviceName;
+        iotDBService.updateDataByDevice(connection, deviceName, dataUpdateDTO);
+        return BaseVO.success("编辑物理量数据成功", null);
+    }
+
+    @DeleteMapping("/storageGroups/{groupName}/devices/{deviceName}/data")
+    @ApiOperation("删除物理量数据  (新增2.6)")
+    public BaseVO deleteDataByDevice(@PathVariable("serverId") Integer serverId,
+                                     @PathVariable("groupName") String groupName,
+                                     @PathVariable("deviceName") String deviceName,
+                                     @RequestBody DataDeleteDTO dataDeleteDTO,
+                                     HttpServletRequest request) throws BaseException {
+        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        groupName = "root." + groupName;
+        deviceName = groupName + "." + deviceName;
+        iotDBService.deleteDataByDevice(connection, deviceName, dataDeleteDTO);
+        return BaseVO.success("删除物理量数据成功", null);
     }
 
     @GetMapping("/users")
@@ -766,7 +828,7 @@ public class IotDBController {
 
     @PostMapping("/roles")
     @ApiOperation("创建数据角色   (未使用)")
-    public BaseVO setIotDBUser(@PathVariable("serverId") Integer serverId,
+    public BaseVO setIotDBRole(@PathVariable("serverId") Integer serverId,
                                @RequestBody IotDBRole iotDBRole,
                                HttpServletRequest request) throws BaseException {
         check(request, serverId);
@@ -844,5 +906,11 @@ public class IotDBController {
             return "second";
         }
         return null;
+    }
+
+    @ApiOperation("测试")
+    @GetMapping("/tt")
+    public BaseVO<Boolean> test(){
+        return BaseVO.success("test",null);
     }
 }

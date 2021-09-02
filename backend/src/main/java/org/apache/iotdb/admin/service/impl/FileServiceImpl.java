@@ -1,7 +1,5 @@
 package org.apache.iotdb.admin.service.impl;
 
-
-
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.config.FileProperties;
@@ -46,7 +44,6 @@ public class FileServiceImpl implements FileService {
         Path filePath;
         try {
             filePath = this.fileStorageLocation.resolve(fileName).normalize();
-            System.out.println(filePath.toUri());
             Resource resource = new UrlResource(filePath.toUri());
             if(resource.exists()) {
                 return resource;

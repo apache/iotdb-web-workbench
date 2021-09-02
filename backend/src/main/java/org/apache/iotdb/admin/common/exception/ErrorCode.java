@@ -115,7 +115,7 @@ public class ErrorCode {
     public static final String DB_BOOL_WRONG_MSG = "Boolean值输入错误,0为false，1为true";
 
     public static final String DB_DATATYPE_WRONG = "IOTDB-0004";
-    public static final String DB_DATATYPE_WRONG_MSG = "TSDataType类型传入错误";
+    public static final String DB_DATATYPE_WRONG_MSG = "物理量数据类型传入错误";
 
     public static final String GET_DBCONN_FAIL = "IOTDB-005";
     public static final String GET_DBCONN_FAIL_MSG = "获取数据库连接失败";
@@ -160,7 +160,7 @@ public class ErrorCode {
     public static final String INSERT_DEV_FAIL_MSG = "插入实体失败";
 
     public static final String GET_MSM_FAIL = "IOTDB-0019";
-    public static final String GET_MSM_FAIL_MSG = "获取物理量数据信息失败";
+    public static final String GET_MSM_FAIL_MSG = "获取物理量信息失败";
 
     public static final String NO_SUCH_FIELD = "IOTDB-0020";
     public static final String NO_SUCH_FIELD_MSG = "返回集没此属性";
@@ -263,6 +263,15 @@ public class ErrorCode {
 
     public static final String NO_SUP_CONTAIN_ROOT = "IOTDB-0052";
     public static final String NO_SUP_CONTAIN_ROOT_MSG = "不支持包含\"root\"的输入";
+
+    public static final String GET_DATA_FAIL = "IOTDB-0053";
+    public static final String GET_DATA_FAIL_MSG = "获取物理量数据失败";
+
+    public static final String UPDATE_DATA_FAIL = "IOTDB-0054";
+    public static final String UPDATE_DATA_FAIL_MSG = "编辑物理量数据失败";
+
+    public static final String DELETE_DATA_FAIL = "IOTDB-0055";
+    public static final String DELETE_DATA_FAIL_MSG = "删除物理量数据失败";
 
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";

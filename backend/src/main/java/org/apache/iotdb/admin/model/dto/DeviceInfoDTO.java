@@ -12,6 +12,7 @@ public class DeviceInfoDTO implements Serializable {
 
     private List<DeviceDTO> deviceDTOList;
 
+    // TODO: 现在设备名可以为空了
     @NotNull(message = "设备名不能为null")
     @Pattern(regexp = "^[^ ]+$",message = "不能包含空格")
     private String deviceName;

@@ -689,6 +689,158 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
+    public DataVO getDataByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum, DataQueryDTO dataQueryDTO) throws BaseException {
+        SessionPool sessionPool = null;
+        long startTime = dataQueryDTO.getStartTime().getTime();
+        long endTime = dataQueryDTO.getEndTime().getTime();
+        List<String> measurementList = dataQueryDTO.getMeasurementList();
+        String basicSql = "select " + String.join(",", measurementList) + " from " + deviceName;
+        String whereClause = " where time >= " + startTime + " and time < " + endTime;
+        String limitClause = " limit " + pageSize + " offset " + (pageNum-1)*pageSize;
+        String sql = basicSql + whereClause + limitClause;
+        try {
+            sessionPool = getSessionPool(connection);
+            DataVO dataVO = getDataBySql(sql, sessionPool);
+            Integer totalLine = getLineBySql(basicSql + whereClause, sessionPool);
+            dataVO.setTotalCount(totalLine);
+            int totalPage = (totalLine + pageSize -1) / pageSize;
+            dataVO.setTotalPage(totalPage);
+            return dataVO;
+        } finally {
+            if (sessionPool != null){
+                sessionPool.close();
+            }
+        }
+    }
+
+    private DataVO getDataBySql(String sql, SessionPool sessionPool) throws BaseException {
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        DataVO dataVO = new DataVO();
+        List<List<String>> valueList = new ArrayList<>();
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            List<String> columnTypes = sessionDataSetWrapper.getColumnTypes();
+            dataVO.setTypeList(columnTypes);
+            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+            dataVO.setMetaDataList(columnNames);
+            if ("Time".equals(columnNames.get(0))){
+                while (sessionDataSetWrapper.hasNext()){
+                    List<String> lineValueList = new ArrayList<>();
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    long timestamp = rowRecord.getTimestamp();
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
+                    Date date = new Date(timestamp);
+                    String timeStr = simpleDateFormat.format(date);
+                    lineValueList.add(timeStr);
+                    for (org.apache.iotdb.tsfile.read.common.Field field : rowRecord.getFields()) {
+                        lineValueList.add(field.toString());
+                    }
+                    valueList.add(lineValueList);
+                }
+            }else {
+                while (sessionDataSetWrapper.hasNext()){
+                    List<String> lineValueList = new ArrayList<>();
+                    RowRecord rowRecord = sessionDataSetWrapper.next();
+                    for (org.apache.iotdb.tsfile.read.common.Field field : rowRecord.getFields()) {
+                        lineValueList.add(field.toString());
+                    }
+                    valueList.add(lineValueList);
+                }
+            }
+            dataVO.setValueList(valueList);
+            return dataVO;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_TIMESERIES_DATA, ErrorCode.NO_PRI_TIMESERIES_DATA_MSG);
+            } else {
+                throw new BaseException(ErrorCode.GET_DATA_FAIL, ErrorCode.GET_DATA_FAIL_MSG);
+            }
+        } finally {
+            if (sessionPool != null){
+                sessionPool.closeResultSet(sessionDataSetWrapper);
+            }
+        }
+    }
+
+    private Integer getLineBySql(String sql, SessionPool sessionPool) throws BaseException {
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            int lineCount = 0;
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            while (sessionDataSetWrapper.hasNext()){
+                lineCount++;
+            }
+            return lineCount;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            if (e.getStatusCode() == 602) {
+                throw new BaseException(ErrorCode.NO_PRI_TIMESERIES_DATA, ErrorCode.NO_PRI_TIMESERIES_DATA_MSG);
+            } else {
+                throw new BaseException(ErrorCode.GET_DATA_FAIL, ErrorCode.GET_DATA_FAIL_MSG);
+            }
+        } finally {
+            if (sessionPool != null){
+                sessionPool.closeResultSet(sessionDataSetWrapper);
+            }
+        }
+    }
+
+    @Override
+    public void updateDataByDevice(Connection connection, String deviceName, DataUpdateDTO dataUpdateDTO) throws BaseException {
+        SessionPool sessionPool = null;
+        long timestamp = dataUpdateDTO.getTimestamp().getTime();
+        List<String> measurementList = dataUpdateDTO.getMeasurementList();
+        List<String> valueList = dataUpdateDTO.getValueList();
+        try {
+            sessionPool = getSessionPool(connection);
+            sessionPool.insertRecord(deviceName,timestamp,measurementList,valueList);
+        } catch (IoTDBConnectionException e) {
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL,ErrorCode.GET_SESSION_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            throw new BaseException(ErrorCode.UPDATE_DATA_FAIL,ErrorCode.UPDATE_DATA_FAIL_MSG);
+        } finally {
+            if(sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public void deleteDataByDevice(Connection connection, String deviceName, DataDeleteDTO dataDeleteDTO) throws BaseException {
+        SessionPool sessionPool = null;
+        List<Date> timestampList = dataDeleteDTO.getTimestampList();
+        List<String> timestampStrList = new ArrayList<>();
+        for (Date date : timestampList) {
+            timestampStrList.add(Long.toString(date.getTime()));
+        }
+        List<String> measurementList = dataDeleteDTO.getMeasurementList();
+        try {
+            sessionPool = getSessionPool(connection);
+            for (String measurement : measurementList) {
+                for (String timestamp : timestampStrList) {
+                    String sql = "delete from " + deviceName + "." + measurement +" where time="+timestamp;
+                    sessionPool.executeNonQueryStatement(sql);
+                }
+            }
+        } catch (StatementExecutionException e) {
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL,ErrorCode.GET_SESSION_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            throw new BaseException(ErrorCode.DELETE_DATA_FAIL,ErrorCode.DELETE_DATA_FAIL_MSG);
+        } finally {
+            if(sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
     public void setUserPrivileges(Connection connection, String userName, PrivilegeInfoDTO privilegeInfoDTO) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         // 授权
@@ -816,6 +968,7 @@ public class IotDBServiceImpl implements IotDBService {
             for (String sql : sqls) {
                 int firstSpaceIndex = sql.indexOf(" ");
                 String judge = sql.substring(0, firstSpaceIndex);
+                //TODO: 执行如select count(*) from root这样的语句时会有bug，有待修改
                 if ("show".equalsIgnoreCase(judge) || "count".equalsIgnoreCase(judge) || "list".equalsIgnoreCase(judge)) {
                     SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp, false);
                     results.add(sqlResultVO);
@@ -829,6 +982,7 @@ public class IotDBServiceImpl implements IotDBService {
                 try {
                     if (QUERY_STOP.get(id_plus_timestamp)) {
                         String sqlCheck = sql.toLowerCase();
+                        //TODO: 允许存储组和设备同名后删除下面2个判断
                         if (sqlCheck != null && sqlCheck.contains("insert")) {
                             String s = sqlCheck;
                             String[] split = s.split("\\.");
@@ -1101,6 +1255,7 @@ public class IotDBServiceImpl implements IotDBService {
             }
             throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
         } finally {
+            //TODO：结果集没关
             if (sessionPool != null && closePool) {
                 sessionPool.close();
             }

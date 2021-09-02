@@ -3,6 +3,7 @@ package org.apache.iotdb.admin.service;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
+import org.apache.iotdb.admin.model.vo.DataVO;
 import org.apache.iotdb.admin.model.vo.IotDBUserVO;
 import org.apache.iotdb.admin.model.vo.RecordVO;
 import org.apache.iotdb.admin.model.vo.SqlResultVO;
@@ -63,6 +64,12 @@ public interface IotDBService {
     List<String> getDevices(Connection connection, String groupName) throws BaseException;
 
     List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
+
+    DataVO getDataByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum , DataQueryDTO dataQueryDTO) throws BaseException;
+
+    void updateDataByDevice(Connection connection, String deviceName, DataUpdateDTO dataUpdateDTO) throws BaseException;
+
+    void deleteDataByDevice(Connection connection, String deviceName, DataDeleteDTO dataDeleteDTO) throws BaseException;
 
     void setUserPrivileges(Connection connection, String userName, PrivilegeInfoDTO privilegeInfoDTO) throws BaseException;
 

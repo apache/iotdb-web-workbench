@@ -21,6 +21,7 @@ public class FilterConfig implements WebMvcConfigurer {
         List<String> paths = new ArrayList();
         paths.add("/servers/**");
         paths.add("/get");
+        paths.add("/downloadFile/**");
         interceptorRegistration.addPathPatterns(paths);
     }
 
