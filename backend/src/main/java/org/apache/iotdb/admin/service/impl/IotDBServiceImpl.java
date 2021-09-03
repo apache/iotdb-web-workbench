@@ -662,6 +662,81 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
+    public DeviceNodeVO getDeviceList(Connection connection, String groupName) throws BaseException {
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            String sql = "show devices " + groupName;
+            List<String> devices = executeQueryOneColumn(sessionPool, sql);
+            String ancestryName = null;
+            if (devices.size() == 0) {
+                return null;
+            } else if (groupName.equals(devices.get(0))) {
+                ancestryName = groupName;
+            }
+            DeviceNodeVO ancestry = new DeviceNodeVO(ancestryName);
+            assembleDeviceList(ancestry, groupName, sessionPool);
+            return ancestry;
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    private void assembleDeviceList(DeviceNodeVO node, String deviceName, SessionPool sessionPool) throws BaseException {
+        List<String> descendants = findDescendants(deviceName, sessionPool);
+        if (descendants.size() == 0) {
+            return;
+        }
+        List<String> children = findChildren(descendants);
+        for (String child : children) {
+            DeviceNodeVO childNode = new DeviceNodeVO(child);
+            assembleDeviceList(childNode, child, sessionPool);
+            node.initDeviceChildren().add(childNode);
+        }
+    }
+
+    private List<String> findChildren(List<String> descendants) {
+        List<String> children = new ArrayList<>();
+        for (int i = 0; i < descendants.size(); i++) {
+            int tag = 0;
+            for (int j = 0; j < descendants.size(); j++) {
+                if (descendants.get(i).contains(descendants.get(j))) {
+                    tag++;
+                }
+            }
+            if (tag == 1) {
+                children.add(descendants.get(i));
+            }
+        }
+        return children;
+    }
+
+    private List<String> findDescendants(String deviceName, SessionPool sessionPool) throws BaseException {
+        List<String> descendants = executeQueryOneColumn(sessionPool, "show devices " + deviceName);
+        if (descendants.size() != 0 && deviceName.equals(descendants.get(0))) {
+            descendants.remove(0);
+        }
+        return descendants;
+    }
+
+    @Override
+    public Boolean deviceExist(Connection connection, String groupName, String deviceName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        String sql = "show devices " + groupName;
+        List<String> devices = executeQueryOneColumn(sessionPool, sql);
+        Boolean isExist = false;
+        for (String device : devices) {
+            if (deviceName.equals(device)) {
+                isExist = true;
+                break;
+            }
+        }
+        return isExist;
+    }
+
+    @Override
     public List<String> getTimeseries(Connection connection, String deviceName) throws BaseException {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
@@ -696,18 +771,18 @@ public class IotDBServiceImpl implements IotDBService {
         List<String> measurementList = dataQueryDTO.getMeasurementList();
         String basicSql = "select " + String.join(",", measurementList) + " from " + deviceName;
         String whereClause = " where time >= " + startTime + " and time < " + endTime;
-        String limitClause = " limit " + pageSize + " offset " + (pageNum-1)*pageSize;
+        String limitClause = " limit " + pageSize + " offset " + (pageNum - 1) * pageSize;
         String sql = basicSql + whereClause + limitClause;
         try {
             sessionPool = getSessionPool(connection);
             DataVO dataVO = getDataBySql(sql, sessionPool);
             Integer totalLine = getLineBySql(basicSql + whereClause, sessionPool);
             dataVO.setTotalCount(totalLine);
-            int totalPage = (totalLine + pageSize -1) / pageSize;
+            int totalPage = (totalLine + pageSize - 1) / pageSize;
             dataVO.setTotalPage(totalPage);
             return dataVO;
         } finally {
-            if (sessionPool != null){
+            if (sessionPool != null) {
                 sessionPool.close();
             }
         }
@@ -723,8 +798,8 @@ public class IotDBServiceImpl implements IotDBService {
             dataVO.setTypeList(columnTypes);
             List<String> columnNames = sessionDataSetWrapper.getColumnNames();
             dataVO.setMetaDataList(columnNames);
-            if ("Time".equals(columnNames.get(0))){
-                while (sessionDataSetWrapper.hasNext()){
+            if ("Time".equals(columnNames.get(0))) {
+                while (sessionDataSetWrapper.hasNext()) {
                     List<String> lineValueList = new ArrayList<>();
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     long timestamp = rowRecord.getTimestamp();
@@ -737,8 +812,8 @@ public class IotDBServiceImpl implements IotDBService {
                     }
                     valueList.add(lineValueList);
                 }
-            }else {
-                while (sessionDataSetWrapper.hasNext()){
+            } else {
+                while (sessionDataSetWrapper.hasNext()) {
                     List<String> lineValueList = new ArrayList<>();
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     for (org.apache.iotdb.tsfile.read.common.Field field : rowRecord.getFields()) {
@@ -760,7 +835,7 @@ public class IotDBServiceImpl implements IotDBService {
                 throw new BaseException(ErrorCode.GET_DATA_FAIL, ErrorCode.GET_DATA_FAIL_MSG);
             }
         } finally {
-            if (sessionPool != null){
+            if (sessionPool != null) {
                 sessionPool.closeResultSet(sessionDataSetWrapper);
             }
         }
@@ -771,7 +846,7 @@ public class IotDBServiceImpl implements IotDBService {
         try {
             int lineCount = 0;
             sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
-            while (sessionDataSetWrapper.hasNext()){
+            while (sessionDataSetWrapper.hasNext()) {
                 lineCount++;
             }
             return lineCount;
@@ -786,7 +861,7 @@ public class IotDBServiceImpl implements IotDBService {
                 throw new BaseException(ErrorCode.GET_DATA_FAIL, ErrorCode.GET_DATA_FAIL_MSG);
             }
         } finally {
-            if (sessionPool != null){
+            if (sessionPool != null) {
                 sessionPool.closeResultSet(sessionDataSetWrapper);
             }
         }
@@ -800,13 +875,15 @@ public class IotDBServiceImpl implements IotDBService {
         List<String> valueList = dataUpdateDTO.getValueList();
         try {
             sessionPool = getSessionPool(connection);
-            sessionPool.insertRecord(deviceName,timestamp,measurementList,valueList);
+            sessionPool.insertRecord(deviceName, timestamp, measurementList, valueList);
         } catch (IoTDBConnectionException e) {
-            throw new BaseException(ErrorCode.GET_SESSION_FAIL,ErrorCode.GET_SESSION_FAIL_MSG);
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         } catch (StatementExecutionException e) {
-            throw new BaseException(ErrorCode.UPDATE_DATA_FAIL,ErrorCode.UPDATE_DATA_FAIL_MSG);
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.UPDATE_DATA_FAIL, ErrorCode.UPDATE_DATA_FAIL_MSG);
         } finally {
-            if(sessionPool != null) {
+            if (sessionPool != null) {
                 sessionPool.close();
             }
         }
@@ -825,16 +902,18 @@ public class IotDBServiceImpl implements IotDBService {
             sessionPool = getSessionPool(connection);
             for (String measurement : measurementList) {
                 for (String timestamp : timestampStrList) {
-                    String sql = "delete from " + deviceName + "." + measurement +" where time="+timestamp;
+                    String sql = "delete from " + deviceName + "." + measurement + " where time=" + timestamp;
                     sessionPool.executeNonQueryStatement(sql);
                 }
             }
         } catch (StatementExecutionException e) {
-            throw new BaseException(ErrorCode.GET_SESSION_FAIL,ErrorCode.GET_SESSION_FAIL_MSG);
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         } catch (IoTDBConnectionException e) {
-            throw new BaseException(ErrorCode.DELETE_DATA_FAIL,ErrorCode.DELETE_DATA_FAIL_MSG);
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.DELETE_DATA_FAIL, ErrorCode.DELETE_DATA_FAIL_MSG);
         } finally {
-            if(sessionPool != null) {
+            if (sessionPool != null) {
                 sessionPool.close();
             }
         }
@@ -1397,7 +1476,7 @@ public class IotDBServiceImpl implements IotDBService {
             return values;
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
