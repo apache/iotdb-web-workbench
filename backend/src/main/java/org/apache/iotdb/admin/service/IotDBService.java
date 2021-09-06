@@ -8,6 +8,8 @@ import org.apache.iotdb.admin.model.vo.*;
 import java.util.List;
 
 public interface IotDBService {
+    DataCountVO getDataCount(Connection connection) throws BaseException;
+
     List<String> getAllStorageGroups(Connection connection) throws BaseException;
 
     void saveStorageGroup(Connection connection, String groupName) throws BaseException;

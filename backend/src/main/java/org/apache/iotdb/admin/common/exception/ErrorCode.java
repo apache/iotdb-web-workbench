@@ -273,6 +273,9 @@ public class ErrorCode {
     public static final String DELETE_DATA_FAIL = "IOTDB-0055";
     public static final String DELETE_DATA_FAIL_MSG = "删除物理量数据失败";
 
+    public static final String GET_DATA_COUNT_FAIL = "IOTDB-0056";
+    public static final String GET_DATA_COUNT_FAIL_MSG = "获取数据统计信息失败";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";

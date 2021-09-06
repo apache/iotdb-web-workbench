@@ -68,6 +68,37 @@ public class IotDBServiceImpl implements IotDBService {
 
 
     @Override
+    public DataCountVO getDataCount(Connection connection) throws BaseException {
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            String groupCountStr = executeQueryOneValue(sessionPool, "count storage group");
+            int groupCount = Integer.parseInt(groupCountStr);
+            String deviceCountStr = executeQueryOneValue(sessionPool, "count devices");
+            int deviceCount = Integer.parseInt(deviceCountStr);
+            String measurementCountStr = executeQueryOneValue(sessionPool, "count timeseries");
+            int measurementCount = Integer.parseInt(measurementCountStr);
+            List<String> dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root");
+            int dataCount = 0;
+            for (String dataCountStr : dataCountList) {
+                dataCount += Integer.parseInt(dataCountStr);
+            }
+            DataCountVO dataCountVO = new DataCountVO();
+            dataCountVO.setGroupCount(groupCount);
+            dataCountVO.setDeviceCount(deviceCount);
+            dataCountVO.setMeasurementCount(measurementCount);
+            dataCountVO.setDataCount(dataCount);
+            return dataCountVO;
+        } catch (NumberFormatException e) {
+            throw new BaseException(ErrorCode.GET_DATA_COUNT_FAIL, ErrorCode.GET_DATA_COUNT_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
     public List<String> getAllStorageGroups(Connection connection) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         String sql = "show storage group";
@@ -774,14 +805,15 @@ public class IotDBServiceImpl implements IotDBService {
         for (String measurement : measurementList) {
             newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
         }
+        // TODO 这样会将子实体的数据也查出来，有待优化
         String basicSql = "select " + String.join(",", newMeasurementList) + " from " + deviceName;
         String whereClause = " where time >= " + startTime + " and time < " + endTime;
         String limitClause = " limit " + pageSize + " offset " + (pageNum - 1) * pageSize;
         String sql = basicSql + whereClause + limitClause;
         try {
             sessionPool = getSessionPool(connection);
-            DataVO dataVO = getDataBySql(sql, sessionPool);
-            Integer totalLine = getLineBySql(basicSql + whereClause, sessionPool);
+            DataVO dataVO = getDataBySql(sql, deviceName, sessionPool);
+            Integer totalLine = getDataLineBySql(basicSql + whereClause, deviceName, sessionPool);
             dataVO.setTotalCount(totalLine);
             int totalPage = (totalLine + pageSize - 1) / pageSize;
             dataVO.setTotalPage(totalPage);
@@ -793,7 +825,7 @@ public class IotDBServiceImpl implements IotDBService {
         }
     }
 
-    private DataVO getDataBySql(String sql, SessionPool sessionPool) throws BaseException {
+    private DataVO getDataBySql(String sql, String deviceName, SessionPool sessionPool) throws BaseException {
         SessionDataSetWrapper sessionDataSetWrapper = null;
         DataVO dataVO = new DataVO();
         List<List<String>> valueList = new ArrayList<>();
@@ -846,7 +878,7 @@ public class IotDBServiceImpl implements IotDBService {
         }
     }
 
-    private Integer getLineBySql(String sql, SessionPool sessionPool) throws BaseException {
+    private Integer getDataLineBySql(String sql, String deviceName, SessionPool sessionPool) throws BaseException {
         SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
             int lineCount = 0;
@@ -1227,9 +1259,36 @@ public class IotDBServiceImpl implements IotDBService {
         return false;
     }
 
-    private String executeQueryOneLine(SessionPool sessionPool, String sql, String queryField) throws BaseException {
+    private List<String> executeQueryOneLine(SessionPool sessionPool, String sql) throws BaseException {
+        SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
-            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            List<String> valueList = new ArrayList<>();
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            if (sessionDataSetWrapper.hasNext()) {
+                RowRecord rowRecord = sessionDataSetWrapper.next();
+                List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                for (org.apache.iotdb.tsfile.read.common.Field field : fields) {
+                    valueList.add(field.toString());
+                }
+            }
+            return valueList;
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
+            }
+        }
+    }
+
+    private String executeQueryOneLine(SessionPool sessionPool, String sql, String queryField) throws BaseException {
+        SessionDataSetWrapper sessionDataSetWrapper = null;
+        try {
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
             List<String> columnNames = sessionDataSetWrapper.getColumnNames();
             int index = -1;
             for (int i = 0; i < columnNames.size(); i++) {
@@ -1253,6 +1312,10 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
+        } finally {
+            if (sessionDataSetWrapper != null) {
+                sessionDataSetWrapper.close();
+            }
         }
         throw new BaseException(ErrorCode.NO_GROUP, ErrorCode.NO_GROUP_MSG);
     }

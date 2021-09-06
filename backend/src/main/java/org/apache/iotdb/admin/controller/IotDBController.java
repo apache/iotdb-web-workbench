@@ -41,6 +41,14 @@ public class IotDBController {
     @Autowired
     private MeasurementService measurementService;
 
+    @GetMapping("/dataCount")
+    @ApiOperation("获取iotdb数据统计信息  (新增2.1)")
+    public BaseVO getDataCount(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        DataCountVO dataCountVO = iotDBService.getDataCount(connection);
+        return BaseVO.success("获取统计信息成功", dataCountVO);
+    }
 
     @GetMapping("/storageGroups/info")
     @ApiOperation("获得存储组信息列表")
