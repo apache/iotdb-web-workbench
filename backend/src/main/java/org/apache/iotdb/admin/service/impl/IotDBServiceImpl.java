@@ -140,7 +140,6 @@ public class IotDBServiceImpl implements IotDBService {
                     List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
                     if (keyword != null || "".equals(keyword)) {
                         String deviceName = fields.get(0).toString();
-                        deviceName = StringUtils.removeStart(deviceName, groupName + ".");
                         if (deviceName.contains(keyword)) {
                             count++;
                         } else {
@@ -183,6 +182,7 @@ public class IotDBServiceImpl implements IotDBService {
     public CountDTO getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum, String keyword) throws BaseException {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
+        // 这样会将子实体的物理量也查出来，有待改进
         String sql = "show timeseries " + deviceName;
         SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
@@ -740,6 +740,7 @@ public class IotDBServiceImpl implements IotDBService {
     public List<String> getTimeseries(Connection connection, String deviceName) throws BaseException {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
+        //TODO 这样会将子实体的物理量也查出来，有待改进
         String sql = "show timeseries " + deviceName;
         SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, true);
         List<String> metaDataList = sqlResultVO.getMetaDataList();
@@ -769,7 +770,11 @@ public class IotDBServiceImpl implements IotDBService {
         long startTime = dataQueryDTO.getStartTime().getTime();
         long endTime = dataQueryDTO.getEndTime().getTime();
         List<String> measurementList = dataQueryDTO.getMeasurementList();
-        String basicSql = "select " + String.join(",", measurementList) + " from " + deviceName;
+        List<String> newMeasurementList = new ArrayList<>();
+        for (String measurement : measurementList) {
+            newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
+        }
+        String basicSql = "select " + String.join(",", newMeasurementList) + " from " + deviceName;
         String whereClause = " where time >= " + startTime + " and time < " + endTime;
         String limitClause = " limit " + pageSize + " offset " + (pageNum - 1) * pageSize;
         String sql = basicSql + whereClause + limitClause;
@@ -873,9 +878,13 @@ public class IotDBServiceImpl implements IotDBService {
         long timestamp = dataUpdateDTO.getTimestamp().getTime();
         List<String> measurementList = dataUpdateDTO.getMeasurementList();
         List<String> valueList = dataUpdateDTO.getValueList();
+        List<String> newMeasurementList = new ArrayList<>();
+        for (String measurement : measurementList) {
+            newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
+        }
         try {
             sessionPool = getSessionPool(connection);
-            sessionPool.insertRecord(deviceName, timestamp, measurementList, valueList);
+            sessionPool.insertRecord(deviceName, timestamp, newMeasurementList, valueList);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
@@ -902,7 +911,7 @@ public class IotDBServiceImpl implements IotDBService {
             sessionPool = getSessionPool(connection);
             for (String measurement : measurementList) {
                 for (String timestamp : timestampStrList) {
-                    String sql = "delete from " + deviceName + "." + measurement + " where time=" + timestamp;
+                    String sql = "delete from " + measurement + " where time=" + timestamp;
                     sessionPool.executeNonQueryStatement(sql);
                 }
             }
