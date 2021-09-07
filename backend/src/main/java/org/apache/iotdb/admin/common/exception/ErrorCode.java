@@ -291,6 +291,9 @@ public class ErrorCode {
     public static final String UPSERT_ATTRIBUTES_FAIL = "IOTDB-0061";
     public static final String UPSERT_ATTRIBUTES_FAIL_MSG = "设置属性失败";
 
+    public static final String GET_MEASUREMENT_DATA_COUNT_FAIL = "IOTDB-0062";
+    public static final String GET_MEASUREMENT_DATA_COUNT_FAIL_MSG = "获取物理量数据统计信息失败";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";

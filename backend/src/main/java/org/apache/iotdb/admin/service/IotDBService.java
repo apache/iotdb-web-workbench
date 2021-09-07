@@ -62,6 +62,8 @@ public interface IotDBService {
 
     Integer getMeasurementsCount(Connection connection, String deviceName) throws BaseException;
 
+    Integer getOneDataCount(Connection connection, String deviceName, String measurementName) throws BaseException;
+
     String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException;
 
     String getGroupTTL(Connection connection, String groupName) throws BaseException;

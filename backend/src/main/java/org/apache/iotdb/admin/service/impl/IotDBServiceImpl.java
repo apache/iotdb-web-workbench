@@ -215,7 +215,6 @@ public class IotDBServiceImpl implements IotDBService {
     public CountDTO getMeasurementsByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum, String keyword) throws BaseException {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
-        // 这样会将子实体的物理量也查出来，有待改进
         String sql = "show timeseries " + deviceName;
         SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
@@ -227,9 +226,12 @@ public class IotDBServiceImpl implements IotDBService {
                 while (sessionDataSetWrapper.hasNext()) {
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
+                    String measurementName = fields.get(0).toString();
+                    if (StringUtils.removeStart(measurementName, deviceName + ".").contains(".")){
+                        continue;
+                    }
                     if (keyword != null || "".equals(keyword)) {
-                        String measurementName = fields.get(0).toString();
-                        measurementName = StringUtils.removeStart(measurementName, deviceName + ".");
+//                        measurementName = StringUtils.removeStart(measurementName, deviceName + ".");
                         if (measurementName.contains(keyword)) {
                             count++;
                         } else {
@@ -759,6 +761,23 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
+    public Integer getOneDataCount(Connection connection, String deviceName, String measurementName) throws BaseException {
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            String sql = "select count(*) from "+deviceName;
+            String countStr = executeQueryOneLine(sessionPool, sql, "count(" + measurementName + ")");
+            return Integer.parseInt(countStr);
+        } catch (BaseException e) {
+            throw new BaseException(ErrorCode.GET_MEASUREMENT_DATA_COUNT_FAIL, ErrorCode.GET_MEASUREMENT_DATA_COUNT_FAIL_MSG);
+        } finally {
+            if (sessionPool != null){
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
     public String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         int index = timeseries.lastIndexOf(".");
@@ -869,7 +888,6 @@ public class IotDBServiceImpl implements IotDBService {
     public List<String> getTimeseries(Connection connection, String deviceName) throws BaseException {
         paramValid(deviceName);
         SessionPool sessionPool = getSessionPool(connection);
-        //TODO 这样会将子实体的物理量也查出来，有待改进
         String sql = "show timeseries " + deviceName;
         SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, true);
         List<String> metaDataList = sqlResultVO.getMetaDataList();
@@ -888,6 +906,10 @@ public class IotDBServiceImpl implements IotDBService {
         List<List<String>> valueList = sqlResultVO.getValueList();
         List<String> timeseries = new ArrayList<>();
         for (List<String> list : valueList) {
+            String measurementName = list.get(0);
+            if (StringUtils.removeStart(measurementName, deviceName + ".").contains(".")){
+                continue;
+            }
             timeseries.add(list.get(index));
         }
         return timeseries;
@@ -1415,14 +1437,15 @@ public class IotDBServiceImpl implements IotDBService {
                 sessionDataSetWrapper.close();
             }
         }
-        throw new BaseException(ErrorCode.NO_GROUP, ErrorCode.NO_GROUP_MSG);
+        throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP);
     }
 
     private SqlResultVO executeQuery(SessionPool sessionPool, String sql, Boolean closePool) throws BaseException {
         SqlResultVO sqlResultVO = new SqlResultVO();
         List<List<String>> valuelist = new ArrayList<>();
+        SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
-            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
             long start = System.currentTimeMillis();
             List<String> columnNames = sessionDataSetWrapper.getColumnNames();
             sqlResultVO.setMetaDataList(columnNames);
@@ -1453,6 +1476,7 @@ public class IotDBServiceImpl implements IotDBService {
             throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
         } finally {
             if (sessionPool != null && closePool) {
+                sessionPool.closeResultSet(sessionDataSetWrapper);
                 sessionPool.close();
             }
         }

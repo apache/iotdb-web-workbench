@@ -1,7 +1,10 @@
 package org.apache.iotdb.admin.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
@@ -17,10 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+@Slf4j
 @RestController
 @Api(value = "iotdb操作相关接口")
 @RequestMapping("/servers/{serverId}")
@@ -349,9 +351,8 @@ public class IotDBController {
         return BaseVO.success("获取成功", deviceVO);
     }
 
-    // TODO 待修改
     @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/info")
-    @ApiOperation("获取指定实体(设备)下的物理量列表详情")
+    @ApiOperation("获取指定实体(设备)下的物理量列表详情  (变更1.3)")
     public BaseVO<MeasuremtnInfoVO> getMeasurementsByDeviceName(@PathVariable("serverId") Integer serverId,
                                                                 @PathVariable("groupName") String groupName,
                                                                 @PathVariable("deviceName") String deviceName,
@@ -377,13 +378,27 @@ public class IotDBController {
             for (MeasurementDTO measurementDTO : measurementDTOList) {
                 MeasurementVO measurementVO = new MeasurementVO();
                 BeanUtils.copyProperties(measurementDTO, measurementVO);
-                if (measurementVO.getTimeseries() != null) {
-                    measurementVO.setTimeseries(measurementVO.getTimeseries().replaceFirst(deviceName + ".", ""));
-                }
+//                if (measurementVO.getTimeseries() != null) {
+//                    measurementVO.setTimeseries(measurementVO.getTimeseries().replaceFirst(deviceName + ".", ""));
+//                }
                 String description = measurementService.getDescription(host, measurementDTO.getTimeseries());
                 String newValue = iotDBService.getLastMeasurementValue(connection, measurementDTO.getTimeseries());
+                Integer dataCount = iotDBService.getOneDataCount(connection, deviceName, measurementDTO.getTimeseries());
+                measurementVO.setDataCount(dataCount);
                 measurementVO.setNewValue(newValue);
                 measurementVO.setDescription(description);
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    if (!"null".equals(measurementDTO.getTags())) {
+                        measurementVO.setTags(mapper.readValue(measurementDTO.getTags(),Map.class));
+                    }
+                    if (!"null".equals(measurementDTO.getAttributes())) {
+                        measurementVO.setAttributes(mapper.readValue(measurementDTO.getAttributes(),Map.class));
+                    }
+                } catch (JsonProcessingException e) {
+                    log.error(e.getMessage());
+                    throw new BaseException(ErrorCode.GET_MSM_FAIL, ErrorCode.GET_MSM_FAIL_MSG);
+                }
                 measurementVOList.add(measurementVO);
             }
         }
