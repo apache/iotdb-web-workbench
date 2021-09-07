@@ -409,13 +409,13 @@ public class IotDBController {
         return BaseVO.success("获取成功", measuremtnInfoVO);
     }
 
-    // TODO 待修改
     @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/{timeseriesName}")
-    @ApiOperation("获取指定物理量的最新两百条数据记录")
+    @ApiOperation("获取指定物理量的最新两百条数据记录 (变更1.4)")
     public BaseVO<RecordVO> getMeasurementInfo(@PathVariable("serverId") Integer serverId,
                                                @PathVariable("groupName") String groupName,
                                                @PathVariable("deviceName") String deviceName,
                                                @PathVariable("timeseriesName") String timeseriesName,
+                                               @RequestParam("dataType") String dataType,
                                                HttpServletRequest request) throws BaseException {
         if (groupName == null || !groupName.matches("^[^ ]+$")) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
@@ -427,7 +427,7 @@ public class IotDBController {
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
 //        deviceName = groupName + "." + deviceName;
-        RecordVO recordVO = iotDBService.getRecords(connection, deviceName, timeseriesName);
+        RecordVO recordVO = iotDBService.getRecords(connection, deviceName, timeseriesName, dataType);
         return BaseVO.success("获取成功", recordVO);
     }
 

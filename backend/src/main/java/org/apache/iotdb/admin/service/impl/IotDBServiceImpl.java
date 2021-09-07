@@ -227,7 +227,7 @@ public class IotDBServiceImpl implements IotDBService {
                     RowRecord rowRecord = sessionDataSetWrapper.next();
                     List<org.apache.iotdb.tsfile.read.common.Field> fields = rowRecord.getFields();
                     String measurementName = fields.get(0).toString();
-                    if (StringUtils.removeStart(measurementName, deviceName + ".").contains(".")){
+                    if (StringUtils.removeStart(measurementName, deviceName + ".").contains(".")) {
                         continue;
                     }
                     if (keyword != null || "".equals(keyword)) {
@@ -689,7 +689,7 @@ public class IotDBServiceImpl implements IotDBService {
             sessionPool = getSessionPool(connection);
             for (DeviceDTO deviceDTO : deviceDTOList) {
                 String tags = executeQueryOneLine(sessionPool, "show timeseries " + deviceDTO.getTimeseries(), "tags");
-                if (!"null".equals(tags)){
+                if (!"null".equals(tags)) {
                     String patternStr = "\"([^\"]+)\":";
                     Pattern pattern = Pattern.compile(patternStr);
                     Matcher matcher = pattern.matcher(tags);
@@ -701,7 +701,7 @@ public class IotDBServiceImpl implements IotDBService {
                 }
                 Map<String, String> newTags = deviceDTO.getTags();
                 for (String key : newTags.keySet()) {
-                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add tags "+key+"="+newTags.get(key));
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add tags " + key + "=" + newTags.get(key));
                 }
             }
         } catch (BaseException | StatementExecutionException e) {
@@ -736,7 +736,7 @@ public class IotDBServiceImpl implements IotDBService {
                 }
                 Map<String, String> newAttributes = deviceDTO.getAttributes();
                 for (String key : newAttributes.keySet()) {
-                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes "+key+"="+newAttributes.get(key));
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes " + key + "=" + newAttributes.get(key));
                 }
             }
         } catch (BaseException | StatementExecutionException e) {
@@ -765,13 +765,13 @@ public class IotDBServiceImpl implements IotDBService {
         SessionPool sessionPool = null;
         try {
             sessionPool = getSessionPool(connection);
-            String sql = "select count(*) from "+deviceName;
+            String sql = "select count(*) from " + deviceName;
             String countStr = executeQueryOneLine(sessionPool, sql, "count(" + measurementName + ")");
             return Integer.parseInt(countStr);
         } catch (BaseException e) {
             throw new BaseException(ErrorCode.GET_MEASUREMENT_DATA_COUNT_FAIL, ErrorCode.GET_MEASUREMENT_DATA_COUNT_FAIL_MSG);
         } finally {
-            if (sessionPool != null){
+            if (sessionPool != null) {
                 sessionPool.close();
             }
         }
@@ -907,7 +907,7 @@ public class IotDBServiceImpl implements IotDBService {
         List<String> timeseries = new ArrayList<>();
         for (List<String> list : valueList) {
             String measurementName = list.get(0);
-            if (StringUtils.removeStart(measurementName, deviceName + ".").contains(".")){
+            if (StringUtils.removeStart(measurementName, deviceName + ".").contains(".")) {
                 continue;
             }
             timeseries.add(list.get(index));
@@ -1164,35 +1164,52 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public RecordVO getRecords(Connection connection, String deviceName, String timeseriesName) throws BaseException {
-        SessionPool sessionPool = getSessionPool(connection);
+    public RecordVO getRecords(Connection connection, String deviceName, String timeseriesName, String dataType) throws BaseException {
+        SessionPool sessionPool = null;
+        SessionDataSetWrapper sessionDataSetWrapper = null;
         RecordVO recordVO = new RecordVO();
         List<Date> timeList = new ArrayList<>();
-        List<Long> valueList = new ArrayList<>();
-        String sql = "select time," + timeseriesName + " from " + deviceName + " order by time desc limit 200 offset 0";
+        List<String> valueList = new ArrayList<>();
+        Map<String, Integer> textCount = new HashMap<>();
+        String sql = "select " + StringUtils.removeStart(timeseriesName, deviceName + ".") + " from " + deviceName + " order by time desc limit 200 offset 0";
         try {
-            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
-            int batchSize = sessionDataSetWrapper.getBatchSize();
-            if (batchSize > 0) {
-                while (sessionDataSetWrapper.hasNext()) {
+            sessionPool = getSessionPool(connection);
+            sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+            while (sessionDataSetWrapper.hasNext()) {
+                if ("TEXT".equals(dataType)) {
+                    RowRecord next = sessionDataSetWrapper.next();
+                    String text = next.getFields().get(0).toString();
+                    if (textCount.containsKey(text)) {
+                        textCount.put(text, textCount.get(text) + 1);
+                    } else {
+                        textCount.put(text, 1);
+                    }
+                } else if (StringUtils.equalsAny(dataType, "INT32", "INT64", "BOOLEAN", "FLOAT", "DOUBLE")) {
                     RowRecord next = sessionDataSetWrapper.next();
                     Date date = new Date(next.getTimestamp());
                     timeList.add(date);
                     List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
-                    Long value = Long.valueOf(fields.get(0).toString());
-                    valueList.add(value);
+                    valueList.add(fields.get(0).toString());
+                } else {
+                    throw new BaseException(ErrorCode.DB_DATATYPE_WRONG, ErrorCode.DB_DATATYPE_WRONG_MSG);
                 }
             }
+            recordVO.setTimeList(timeList);
+            recordVO.setValueList(valueList);
+            recordVO.setTextCount(textCount);
+            return recordVO;
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_RECORD_FAIL, ErrorCode.GET_RECORD_FAIL_MSG);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_RECORD_FAIL, ErrorCode.GET_RECORD_FAIL_MSG);
+        } finally {
+            if (sessionPool != null){
+                sessionPool.closeResultSet(sessionDataSetWrapper);
+                sessionPool.close();
+            }
         }
-        recordVO.setTimeList(timeList);
-        recordVO.setValueList(valueList);
-        return recordVO;
     }
 
     @Override
