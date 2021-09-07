@@ -273,9 +273,8 @@ public class IotDBController {
         return BaseVO.success("获取成功", isExist);
     }
 
-    //TODO 待修改
     @PostMapping("/storageGroups/{groupName}/devices")
-    @ApiOperation("新增或编辑实体(设备)")
+    @ApiOperation("新增或编辑实体(设备)  (变更1.2)")
     public BaseVO saveOrUpdateDevice(@PathVariable("serverId") Integer serverId,
                                      @PathVariable("groupName") String groupName,
                                      @RequestBody DeviceInfoDTO deviceInfoDTO,
@@ -289,18 +288,18 @@ public class IotDBController {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
-        // TODO: 设备名为空的情况有待考虑
-        deviceInfoDTO.setDeviceName(groupName + "." + deviceInfoDTO.getDeviceName());
-        for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
-            deviceDTO.setTimeseries(deviceInfoDTO.getDeviceName() + "." + deviceDTO.getTimeseries());
-        }
+//        deviceInfoDTO.setDeviceName(groupName + "." + deviceInfoDTO.getDeviceName());
+//        for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
+//            deviceDTO.setTimeseries(deviceInfoDTO.getDeviceName() + "." + deviceDTO.getTimeseries());
+//        }
         iotDBService.createDeviceWithMeasurements(connection, deviceInfoDTO);
-
+        iotDBService.upsertMeasurementAlias(connection, deviceInfoDTO.getDeviceDTOList());
+        iotDBService.upsertMeasurementTags(connection, deviceInfoDTO.getDeviceDTOList());
+        iotDBService.upsertMeasurementAttributes(connection, deviceInfoDTO.getDeviceDTOList());
         String host = connection.getHost();
-        //TODO: 编辑实体时，如果前端没传id回来，会有问题，有待优化
         if (deviceInfoDTO.getDeviceId() == null) {
             deviceService.setDeviceInfo(connection, deviceInfoDTO);
-            measurementService.setMeasurementsInfo(host, deviceInfoDTO);
+            measurementService.updateMeasurementsInfo(host, deviceInfoDTO);
         } else {
             deviceService.updateDeviceInfo(deviceInfoDTO);
             measurementService.updateMeasurementsInfo(host, deviceInfoDTO);

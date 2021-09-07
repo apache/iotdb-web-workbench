@@ -25,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class IotDBServiceImpl implements IotDBService {
@@ -617,22 +619,22 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public void createDeviceWithMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException {
-        SessionPool sessionPool = getSessionPool(connection);
-        List<String> typesStr = new ArrayList<>();
-        List<String> encodingsStr = new ArrayList<>();
-        List<String> measurements = new ArrayList<>();
-        for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
-            typesStr.add(deviceDTO.getDataType());
-            encodingsStr.add(deviceDTO.getEncoding());
-            measurements.add(deviceDTO.getTimeseries());
-        }
-        List<TSDataType> types = handleTypeStr(typesStr);
-        List<TSEncoding> encodings = handleEncodingStr(encodingsStr);
-        List<CompressionType> compressionTypes = new ArrayList<>();
-        for (int i = 0; i < types.size(); i++) {
-            compressionTypes.add(CompressionType.SNAPPY);
-        }
+        SessionPool sessionPool = null;
         try {
+            List<String> typesStr = new ArrayList<>();
+            List<String> encodingsStr = new ArrayList<>();
+            List<String> measurements = new ArrayList<>();
+            List<String> compressionStr = new ArrayList<>();
+            for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
+                typesStr.add(deviceDTO.getDataType());
+                encodingsStr.add(deviceDTO.getEncoding());
+                measurements.add(deviceDTO.getTimeseries());
+                compressionStr.add(deviceDTO.getCompression());
+            }
+            List<TSDataType> types = handleTypeStr(typesStr);
+            List<TSEncoding> encodings = handleEncodingStr(encodingsStr);
+            List<CompressionType> compressionTypes = handleCompressionStr(compressionStr);
+            sessionPool = getSessionPool(connection);
             sessionPool.createMultiTimeseries(measurements, types, encodings, compressionTypes, null, null, null, null);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
@@ -645,6 +647,102 @@ public class IotDBServiceImpl implements IotDBService {
                 logger.error(e.getMessage());
                 throw new BaseException(ErrorCode.INSERT_DEV_FAIL, ErrorCode.INSERT_DEV_FAIL_MSG);
             }
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public void upsertMeasurementAlias(Connection connection, List<DeviceDTO> deviceDTOList) throws BaseException {
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            for (DeviceDTO deviceDTO : deviceDTOList) {
+                String alias = deviceDTO.getAlias();
+                if (alias == null || StringUtils.isBlank(alias)) {
+                    continue;
+                } else {
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " upsert alias=" + alias);
+                }
+            }
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.UPSERT_ALIAS_FAIL, ErrorCode.UPSERT_ALIAS_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public void upsertMeasurementTags(Connection connection, List<DeviceDTO> deviceDTOList) throws BaseException {
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            for (DeviceDTO deviceDTO : deviceDTOList) {
+                String tags = executeQueryOneLine(sessionPool, "show timeseries " + deviceDTO.getTimeseries(), "tags");
+                if (!"null".equals(tags)){
+                    String patternStr = "\"([^\"]+)\":";
+                    Pattern pattern = Pattern.compile(patternStr);
+                    Matcher matcher = pattern.matcher(tags);
+                    List<String> oldTags = new ArrayList<>();
+                    while (matcher.find()) {
+                        oldTags.add(matcher.group(1));
+                    }
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " drop " + String.join(",", oldTags));
+                }
+                Map<String, String> newTags = deviceDTO.getTags();
+                for (String key : newTags.keySet()) {
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add tags "+key+"="+newTags.get(key));
+                }
+            }
+        } catch (BaseException | StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.UPSERT_TAGS_FAIL, ErrorCode.UPSERT_TAGS_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public void upsertMeasurementAttributes(Connection connection, List<DeviceDTO> deviceDTOList) throws BaseException {
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            for (DeviceDTO deviceDTO : deviceDTOList) {
+                String attributes = executeQueryOneLine(sessionPool, "show timeseries " + deviceDTO.getTimeseries(), "attributes");
+                if (!"null".equals(attributes)) {
+                    String patternStr = "\"([^\"]+)\":";
+                    Pattern pattern = Pattern.compile(patternStr);
+                    Matcher matcher = pattern.matcher(attributes);
+                    List<String> oldAttributes = new ArrayList<>();
+                    while (matcher.find()) {
+                        oldAttributes.add(matcher.group(1));
+                    }
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " drop " + String.join(",", oldAttributes));
+                }
+                Map<String, String> newAttributes = deviceDTO.getAttributes();
+                for (String key : newAttributes.keySet()) {
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes "+key+"="+newAttributes.get(key));
+                }
+            }
+        } catch (BaseException | StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.UPSERT_ATTRIBUTES_FAIL, ErrorCode.UPSERT_ATTRIBUTES_FAIL_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         } finally {
             if (sessionPool != null) {
                 sessionPool.close();
@@ -812,7 +910,7 @@ public class IotDBServiceImpl implements IotDBService {
         String sql = basicSql + whereClause + limitClause;
         try {
             sessionPool = getSessionPool(connection);
-            DataVO dataVO = getDataBySql(sql, deviceName, sessionPool);
+            DataVO dataVO = getDataBySql(sql, sessionPool);
             Integer totalLine = getDataLineBySql(basicSql + whereClause, deviceName, sessionPool);
             dataVO.setTotalCount(totalLine);
             int totalPage = (totalLine + pageSize - 1) / pageSize;
@@ -825,7 +923,7 @@ public class IotDBServiceImpl implements IotDBService {
         }
     }
 
-    private DataVO getDataBySql(String sql, String deviceName, SessionPool sessionPool) throws BaseException {
+    private DataVO getDataBySql(String sql, SessionPool sessionPool) throws BaseException {
         SessionDataSetWrapper sessionDataSetWrapper = null;
         DataVO dataVO = new DataVO();
         List<List<String>> valueList = new ArrayList<>();
@@ -1891,7 +1989,7 @@ public class IotDBServiceImpl implements IotDBService {
         return 3;
     }
 
-    private List<TSEncoding> handleEncodingStr(List<String> encoding) {
+    private List<TSEncoding> handleEncodingStr(List<String> encoding) throws BaseException {
         List<TSEncoding> list = new ArrayList<>();
         for (String s : encoding) {
             switch (s) {
@@ -1922,6 +2020,43 @@ public class IotDBServiceImpl implements IotDBService {
                 case "GORILLA":
                     list.add(TSEncoding.GORILLA);
                     break;
+                default:
+                    throw new BaseException(ErrorCode.DB_ENCODING_WRONG, ErrorCode.DB_ENCODING_WRONG_MSG);
+            }
+        }
+        return list;
+    }
+
+    private List<CompressionType> handleCompressionStr(List<String> compression) throws BaseException {
+        List<CompressionType> list = new ArrayList<>();
+        for (String s : compression) {
+            switch (s) {
+                case "UNCOMPRESSED":
+                    list.add(CompressionType.UNCOMPRESSED);
+                    break;
+                case "SNAPPY":
+                    list.add(CompressionType.SNAPPY);
+                    break;
+                case "GZIP":
+                    list.add(CompressionType.GZIP);
+                    break;
+                case "LZ4":
+                    list.add(CompressionType.LZ4);
+                    break;
+                case "LZO":
+                    list.add(CompressionType.LZO);
+                    break;
+                case "PLA":
+                    list.add(CompressionType.PLA);
+                    break;
+                case "PAA":
+                    list.add(CompressionType.PAA);
+                    break;
+                case "SDT":
+                    list.add(CompressionType.SDT);
+                    break;
+                default:
+                    throw new BaseException(ErrorCode.DB_COMPRESSION_WRONG, ErrorCode.DB_COMPRESSION_WRONG_MSG);
             }
         }
         return list;

@@ -276,6 +276,21 @@ public class ErrorCode {
     public static final String GET_DATA_COUNT_FAIL = "IOTDB-0056";
     public static final String GET_DATA_COUNT_FAIL_MSG = "获取数据统计信息失败";
 
+    public static final String DB_COMPRESSION_WRONG = "IOTDB-0057";
+    public static final String DB_COMPRESSION_WRONG_MSG = "物理量压缩方式传入错误";
+
+    public static final String DB_ENCODING_WRONG = "IOTDB-0058";
+    public static final String DB_ENCODING_WRONG_MSG = "物理量编码方式传入错误";
+
+    public static final String UPSERT_ALIAS_FAIL = "IOTDB-0059";
+    public static final String UPSERT_ALIAS_FAIL_MSG = "设置别名失败，请检查当前实体下是否已存在该别名";
+
+    public static final String UPSERT_TAGS_FAIL = "IOTDB-0060";
+    public static final String UPSERT_TAGS_FAIL_MSG = "设置标签失败";
+
+    public static final String UPSERT_ATTRIBUTES_FAIL = "IOTDB-0061";
+    public static final String UPSERT_ATTRIBUTES_FAIL_MSG = "设置属性失败";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";

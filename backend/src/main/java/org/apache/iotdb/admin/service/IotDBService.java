@@ -54,6 +54,12 @@ public interface IotDBService {
 
     void createDeviceWithMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 
+    void upsertMeasurementAlias(Connection connection, List<DeviceDTO> deviceDTOList) throws BaseException;
+
+    void upsertMeasurementTags(Connection connection, List<DeviceDTO> deviceDTOList) throws BaseException;
+
+    void upsertMeasurementAttributes(Connection connection, List<DeviceDTO> deviceDTOList) throws BaseException;
+
     Integer getMeasurementsCount(Connection connection, String deviceName) throws BaseException;
 
     String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException;

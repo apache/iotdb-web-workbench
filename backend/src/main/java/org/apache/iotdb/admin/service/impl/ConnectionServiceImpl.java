@@ -44,9 +44,9 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
         if (existConnection != null) {
             throw new BaseException(ErrorCode.ALIAS_REPEAT, ErrorCode.ALIAS_REPEAT_MSG);
         }
-        if ("127.0.0.1".equals(connection.getHost())) {
-            connection.setHost("localhost");
-        }
+//        if ("127.0.0.1".equals(connection.getHost())) {
+//            connection.setHost("localhost");
+//        }
         int flag = connectionMapper.insert(connection);
         if (flag <= 0) {
             throw new BaseException(ErrorCode.INSERT_CONN_FAIL, ErrorCode.INSERT_CONN_FAIL_MSG);
