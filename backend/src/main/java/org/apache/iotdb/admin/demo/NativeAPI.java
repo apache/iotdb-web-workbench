@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.iotdb.admin.demo;
 
 import org.apache.iotdb.rpc.IoTDBConnectionException;
@@ -20,7 +38,7 @@ public class NativeAPI {
 
     public static void main(String[] args) throws IoTDBConnectionException, StatementExecutionException {
         //建立连接
-        Session session = new Session("localhost", 6667,"root","root");
+        Session session = new Session("localhost", 6667, "root", "root");
         session.open();
 //        SessionPool sessionPool = new SessionPool("localhost", 6667,"root","root",3);
 //        sessionPool.insertRecord();
@@ -53,7 +71,7 @@ public class NativeAPI {
          *        PAA
          *        PLA
          */
-        session.createTimeseries("root.fyx.cq.dev.temp", TSDataType.FLOAT, TSEncoding.RLE, CompressionType.SNAPPY,null,null,null,null);
+        session.createTimeseries("root.fyx.cq.dev.temp", TSDataType.FLOAT, TSEncoding.RLE, CompressionType.SNAPPY, null, null, null, null);
         //创建多个时间序列
 //        session.createMultiTimeseries();
         //插入数据
@@ -65,7 +83,7 @@ public class NativeAPI {
             List<Object> values = new ArrayList<>();
             values.add(time * 6.6f);
             //如果不加type,服务器会做类型推断，会有额外耗时
-            session.insertRecord("root.fyx.cq.dev",time,measurements,types,values);
+            session.insertRecord("root.fyx.cq.dev", time, measurements, types, values);
         }
         //执行非查询语句的sql
         session.executeNonQueryStatement("insert into root.fyx.cq.dev(timestamp,temp) values(now(),66.66)");

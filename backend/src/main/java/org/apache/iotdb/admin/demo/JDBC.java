@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.iotdb.admin.demo;
 
 
@@ -7,6 +25,7 @@ import java.sql.*;
  * JDBC demo代码
  */
 public class JDBC {
+
     public static void main(String[] args) throws SQLException {
         Connection connection = getConnection();
         if (connection == null) {
@@ -27,7 +46,7 @@ public class JDBC {
         //不同的数据类型有不同的编码方式. 这里以INT32作为例子
         try {
             statement.execute("CREATE TIMESERIES root.demo.s0 WITH DATATYPE=INT32,ENCODING=RLE;");
-        }catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         //展示时间序列
@@ -63,7 +82,7 @@ public class JDBC {
 
         //精确的查询语句
         sql = "select s0 from root.demo where time = 4;";
-        resultSet= statement.executeQuery(sql);
+        resultSet = statement.executeQuery(sql);
         System.out.println("sql: " + sql);
         outputResult(resultSet);
 

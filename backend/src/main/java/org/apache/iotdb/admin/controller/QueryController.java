@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.iotdb.admin.controller;
 
 import io.swagger.annotations.Api;
@@ -37,8 +55,8 @@ public class QueryController {
     @PostMapping("/querySql")
     @ApiOperation("用于查询器查询")
     public BaseVO<List<SqlResultVO>> query(@PathVariable("serverId") Integer serverId,
-                                           @RequestBody SearchDTO searchDTO,
-                                           HttpServletRequest request) throws BaseException {
+        @RequestBody SearchDTO searchDTO,
+        HttpServletRequest request) throws BaseException {
         List<String> sqls = searchDTO.getSqls();
         if (sqls == null || sqls.size() == 0) {
             throw new BaseException(ErrorCode.NO_SQL, ErrorCode.NO_SQL_MSG);
@@ -53,8 +71,8 @@ public class QueryController {
     @PostMapping("/query")
     @ApiOperation("用于查询脚本保存或编辑")
     public BaseVO saveQuery(@PathVariable("serverId") Integer serverId,
-                            @RequestBody Query query,
-                            HttpServletRequest request) throws BaseException {
+        @RequestBody Query query,
+        HttpServletRequest request) throws BaseException {
         String sqls = query.getSqls();
         if (sqls == null || "".equals(sqls)) {
             throw new BaseException(ErrorCode.NO_SQL, ErrorCode.NO_SQL_MSG);
@@ -71,7 +89,7 @@ public class QueryController {
     @GetMapping("/query")
     @ApiOperation("获取脚本列表")
     public BaseVO<List<QueryVO>> getQueries(@PathVariable("serverId") Integer serverId,
-                                            HttpServletRequest request) throws BaseException {
+        HttpServletRequest request) throws BaseException {
         check(request, serverId);
         List<QueryVO> queryVOList = queryService.getQueryList(serverId);
         return BaseVO.success("获取成功", queryVOList);
@@ -80,8 +98,8 @@ public class QueryController {
     @DeleteMapping("/query/{queryId}")
     @ApiOperation("删除脚本")
     public BaseVO deleteQuery(@PathVariable("serverId") Integer serverId,
-                              @PathVariable("queryId") Integer queryId,
-                              HttpServletRequest request) throws BaseException {
+        @PathVariable("queryId") Integer queryId,
+        HttpServletRequest request) throws BaseException {
         check(request, serverId);
         queryService.deleteQuery(queryId);
         return BaseVO.success("删除成功", null);
@@ -90,8 +108,8 @@ public class QueryController {
     @GetMapping("/query/{queryId}")
     @ApiOperation("获取指定脚本")
     public BaseVO<Query> getQuery(@PathVariable("serverId") Integer serverId,
-                                  @PathVariable("queryId") Integer queryId,
-                                  HttpServletRequest request) throws BaseException {
+        @PathVariable("queryId") Integer queryId,
+        HttpServletRequest request) throws BaseException {
         check(request, serverId);
         Query query = queryService.getQuery(queryId);
         return BaseVO.success("获取成功", query);
@@ -99,7 +117,8 @@ public class QueryController {
 
     @GetMapping("/stop")
     @ApiOperation("用于查询终止")
-    public BaseVO query(@PathVariable("serverId") Integer serverId, @RequestParam("timestamp") Long timestamp, HttpServletRequest request) throws BaseException {
+    public BaseVO query(@PathVariable("serverId") Integer serverId, @RequestParam("timestamp") Long timestamp, HttpServletRequest request)
+        throws BaseException {
         check(request, serverId);
         iotDBService.stopQuery(serverId, timestamp);
         return BaseVO.success("停止成功", null);

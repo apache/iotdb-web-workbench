@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.iotdb.admin.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
@@ -717,7 +735,7 @@ public class IotDBServiceImpl implements IotDBService {
                     for (String delGroupPath : delGroupPaths) {
                         for (String privilegesStr : privileges) {
                             String sql = "revoke user " + userName + " privileges '" + privilegesStr + "' on root."
-                                    + delGroupPath;
+                                + delGroupPath;
                             try {
                                 sessionPool.executeNonQueryStatement(sql);
                             } catch (StatementExecutionException e) {
@@ -736,7 +754,7 @@ public class IotDBServiceImpl implements IotDBService {
                     for (String delDevicePath : delDevicePaths) {
                         for (String privilegesStr : privileges) {
                             String sql = "revoke user " + userName + " privileges '" + privilegesStr + "' on root."
-                                    + onlyGroupPath + "." + delDevicePath;
+                                + onlyGroupPath + "." + delDevicePath;
                             try {
                                 sessionPool.executeNonQueryStatement(sql);
                             } catch (StatementExecutionException e) {
@@ -756,7 +774,7 @@ public class IotDBServiceImpl implements IotDBService {
                     for (String delTimeseriesPath : delTimeseriesPaths) {
                         for (String privilegesStr : privileges) {
                             String sql = "revoke user " + userName + " privileges '" + privilegesStr + "' on root."
-                                    + onlyGroupPath + "." + onlyDevicePath + "." + delTimeseriesPath;
+                                + onlyGroupPath + "." + onlyDevicePath + "." + delTimeseriesPath;
                             try {
                                 sessionPool.executeNonQueryStatement(sql);
                             } catch (StatementExecutionException e) {
@@ -897,7 +915,8 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
 
-    private void grantOrRevoke(String word, List<String> privileges, String userName, PrivilegeInfoDTO privilegesInfo, SessionPool sessionPool) throws BaseException {
+    private void grantOrRevoke(String word, List<String> privileges, String userName, PrivilegeInfoDTO privilegesInfo, SessionPool sessionPool)
+        throws BaseException {
         Integer type = privilegesInfo.getType();
 //        String privilegesStr = String.join("','", privileges); 一起存会有bug
         for (String privilegesStr : privileges) {
@@ -917,7 +936,7 @@ public class IotDBServiceImpl implements IotDBService {
                 if (notNullAndNotZero(groupPaths)) {
                     for (String groupPath : groupPaths) {
                         String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
-                                + groupPath;
+                            + groupPath;
                         try {
                             sessionPool.executeNonQueryStatement(sql);
                         } catch (StatementExecutionException e) {
@@ -936,7 +955,7 @@ public class IotDBServiceImpl implements IotDBService {
                     String onlyGroupPath = groupPaths.get(0);
                     for (String devicePath : devicePaths) {
                         String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
-                                + onlyGroupPath + "." + devicePath;
+                            + onlyGroupPath + "." + devicePath;
                         try {
                             sessionPool.executeNonQueryStatement(sql);
                         } catch (StatementExecutionException e) {
@@ -953,12 +972,12 @@ public class IotDBServiceImpl implements IotDBService {
                 List<String> devicePaths = privilegesInfo.getDevicePaths();
                 List<String> timeseriesPaths = privilegesInfo.getTimeseriesPaths();
                 if (notNullAndNotZero(groupPaths) && groupPaths.size() == 1 && notNullAndNotZero(devicePaths)
-                        && devicePaths.size() == 1 && notNullAndNotZero(timeseriesPaths)) {
+                    && devicePaths.size() == 1 && notNullAndNotZero(timeseriesPaths)) {
                     String onlyGroupPath = groupPaths.get(0);
                     String onlyDevicePath = devicePaths.get(0);
                     for (String timeseriesPath : timeseriesPaths) {
                         String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root."
-                                + onlyGroupPath + "." + onlyDevicePath + "." + timeseriesPath;
+                            + onlyGroupPath + "." + onlyDevicePath + "." + timeseriesPath;
                         try {
                             sessionPool.executeNonQueryStatement(sql);
                         } catch (StatementExecutionException e) {
@@ -1110,7 +1129,8 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
 
-    private <T> CountDTO executeQuery(Class<T> clazz, SessionPool sessionPool, String sql, Integer pageSize, Integer pageNum, String keyword) throws BaseException {
+    private <T> CountDTO executeQuery(Class<T> clazz, SessionPool sessionPool, String sql, Integer pageSize, Integer pageNum, String keyword)
+        throws BaseException {
         SessionDataSetWrapper sessionDataSetWrapper = null;
         try {
             sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
