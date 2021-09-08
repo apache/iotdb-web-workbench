@@ -603,11 +603,16 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public void deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException {
-        SessionPool sessionPool = getSessionPool(connection);
-        String sql = "delete timeseries " + deviceName + ".*";
+    public List<String> deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException {
+        SessionPool sessionPool = null;
         try {
-            sessionPool.executeNonQueryStatement(sql);
+            sessionPool = getSessionPool(connection);
+            List<String> timeseriesList = getTimeseries(connection, deviceName);
+            for (String timeseries : timeseriesList) {
+                String sql = "delete timeseries " + timeseries;
+                sessionPool.executeNonQueryStatement(sql);
+            }
+            return timeseriesList;
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             if (e.getStatusCode() == 602) {
@@ -617,6 +622,10 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
         }
     }
 
@@ -926,7 +935,6 @@ public class IotDBServiceImpl implements IotDBService {
         for (String measurement : measurementList) {
             newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
         }
-        // TODO 这样会将子实体的数据也查出来，有待优化
         String basicSql = "select " + String.join(",", newMeasurementList) + " from " + deviceName;
         String whereClause = " where time >= " + startTime + " and time < " + endTime;
         String limitClause = " limit " + pageSize + " offset " + (pageNum - 1) * pageSize;
@@ -1084,8 +1092,8 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public void randomImport(Connection connection, String deviceName, RandomImportDTO randomImportDTO) throws BaseException {
         SessionPool sessionPool = null;
-        Integer totalLine = randomImportDTO.getTotalLine();
-        Integer stepSize = randomImportDTO.getStepSize();
+        int totalLine = randomImportDTO.getTotalLine();
+        int stepSize = randomImportDTO.getStepSize();
         Long startTime = randomImportDTO.getStartTime().getTime();
 
         List<Long> times = new ArrayList<>();
@@ -1110,6 +1118,7 @@ public class IotDBServiceImpl implements IotDBService {
                 }
             }
             if (timeseriesIndex == -1 || dataTypeIndex == -1) {
+                logger.error(ErrorCode.RANDOM_IMPORT_DATA_FAIL_MSG);
                 throw new BaseException(ErrorCode.RANDOM_IMPORT_DATA_FAIL, ErrorCode.RANDOM_IMPORT_DATA_FAIL_MSG);
             }
 
@@ -1127,6 +1136,7 @@ public class IotDBServiceImpl implements IotDBService {
                 tpyesStr.add(dataType);
             }
             if (measurements.size() == 0) {
+                logger.error(ErrorCode.NO_MEASUREMENT_MSG);
                 throw new BaseException(ErrorCode.NO_MEASUREMENT, ErrorCode.NO_MEASUREMENT_MSG);
             }
 
@@ -1138,13 +1148,17 @@ public class IotDBServiceImpl implements IotDBService {
                 List<Object> values = createRandomData(tpyesStr);
                 valuesList.add(values);
 
-                times.add(i + startTime);
+                times.add(stepSize * i + startTime);
             }
 
             sessionPool.insertOneDeviceRecords(deviceName, times, measurementsList, typesList, valuesList, false);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.NO_MEASUREMENT, ErrorCode.NO_MEASUREMENT_MSG);
         } finally {
             if (sessionPool != null) {
                 sessionPool.close();

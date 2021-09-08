@@ -330,9 +330,11 @@ public class IotDBController {
 //        groupName = "root." + groupName;
 //        deviceName = groupName + "." + deviceName;
         String host = connection.getHost();
-        iotDBService.deleteTimeseriesByDevice(connection, deviceName);
+        List<String> deletedTimeseriesList = iotDBService.deleteTimeseriesByDevice(connection, deviceName);
         deviceService.deleteDeviceInfoByDeviceName(host, deviceName);
-        measurementService.deleteMeasurementInfoByDeviceName(host, deviceName);
+        for (String timeseries : deletedTimeseriesList) {
+            measurementService.deleteMeasurementInfo(host, timeseries);
+        }
         return BaseVO.success("删除成功", null);
     }
 
