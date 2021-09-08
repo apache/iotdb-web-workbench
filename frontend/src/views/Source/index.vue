@@ -1145,7 +1145,7 @@ export default {
     position: absolute;
     top: 0px;
     right: 40px;
-    color: #d32d2fff;
+    color: #FB5151FF;
   }
   .del-user {
     right: 0;
@@ -1196,7 +1196,7 @@ export default {
           font-weight: 400;
           line-height: 20px;
           font-size: 12px;
-          color: #d32d2fff;
+          color: #FB5151FF;
           line-height: 16px;
           margin-left: 10px;
           padding: 3px 8px;
@@ -1292,7 +1292,7 @@ export default {
         }
         .auth-tips {
           font-size: 12px;
-          color: #d32d2fff;
+          color: #FB5151FF;
           line-height: 16px;
           margin-left: 10px;
           background: rgba(211, 45, 47, 0.04);

@@ -2,10 +2,26 @@
   <div class="storage-container">
     <div class="base-info">
       <div class="btns">
-        <svg class="icon" aria-hidden="true" @click="editGroup()">
+        <!-- <svg class="icon" aria-hidden="true" @click="editGroup()">
           <use xlink:href="#icon-se-icon-f-edit"></use>
-        </svg>
+        </svg> -->
+        <el-button @click="editGroup()"
+          ><svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-se-icon-f-edit"></use></svg
+          >{{ $t('common.edit') }}</el-button
+        >
         <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup()">
+          <template #reference>
+            <span class="icon-del">
+              <el-button
+                ><svg class="icon del-icon" aria-hidden="true">
+                  <use xlink:href="#icon-se-icon-delete"></use></svg
+                >{{ $t('common.delete') }}</el-button
+              >
+            </span>
+          </template>
+        </el-popconfirm>
+        <!-- <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup()">
           <template #reference>
             <span class="icon-del">
               <svg class="icon" aria-hidden="true">
@@ -13,43 +29,52 @@
               </svg>
             </span>
           </template>
-        </el-popconfirm>
+        </el-popconfirm> -->
       </div>
-      <el-descriptions :title="baseInfo.groupName">
-        <el-descriptions-item :label="$t('storagePage.alias') + ':'">{{ baseInfo.alias }}</el-descriptions-item>
-        <el-descriptions-item :label="$t('storagePage.creator') + ':'">{{ baseInfo.creator }}</el-descriptions-item>
-        <el-descriptions-item :label="$t('storagePage.createTime')">{{ baseInfo.createTime }}</el-descriptions-item>
-        <el-descriptions-item v-if="baseInfo.ttl" :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }}{{ ttlValue[baseInfo.ttiUnit] }} </el-descriptions-item>
-        <el-descriptions-item v-else :label="$t('storagePage.ttl')"> ∞ </el-descriptions-item>
-        <el-descriptions-item :label="$t('storagePage.description') + ':'">{{ baseInfo.description }}</el-descriptions-item>
-      </el-descriptions>
+      <div class="descript-container">
+        <el-descriptions :title="baseInfo.groupName">
+          <el-descriptions-item :label="$t('storagePage.alias') + ':'">{{ baseInfo.alias }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('storagePage.creator') + ':'">{{ baseInfo.creator }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('storagePage.createTime')">{{ baseInfo.createTime }}</el-descriptions-item>
+          <el-descriptions-item v-if="baseInfo.ttl" :label="$t('storagePage.ttl')"> {{ baseInfo.ttl }}{{ ttlValue[baseInfo.ttiUnit] }} </el-descriptions-item>
+          <el-descriptions-item v-else :label="$t('storagePage.ttl')"> ∞ </el-descriptions-item>
+          <el-descriptions-item :label="$t('storagePage.description') + ':'">{{ baseInfo.description }}</el-descriptions-item>
+        </el-descriptions>
+      </div>
     </div>
     <div class="device-content">
-      <div class="search-panel clearfix">
-        <span class="search-title">{{ $t('storagePage.deviceName') }}</span>
-        <el-input v-model="searchVal" suffix-icon="el-icon-search" @blur="search()" @keyup.enter="search()"></el-input>
-        <el-button type="primary" class="search-btn" @click="newDevice">{{ $t('storagePage.newDevice') }}</el-button>
-      </div>
-      <div class="device-list">
-        <!-- @selection-change="handleSelectionChange" -->
-        <el-table :data="tableData" style="width: 100%">
-          <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
-          <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('device.devicename')" width="180" sortable> </el-table-column>
-          <el-table-column show-overflow-tooltip prop="description" :label="$t('device.description')"> </el-table-column>
-          <el-table-column prop="line" :label="$t('storagePage.line')"> </el-table-column>
-          <el-table-column prop="creator" :label="$t('storagePage.creator')"> </el-table-column>
-          <el-table-column :label="$t('storagePage.operation')">
-            <template #default="scope">
-              <el-button type="text" size="small" @click="editDevice(scope.row)">{{ $t('common.edit') }}{{ scope.row.ttl }}</el-button>
-              <el-popconfirm placement="top" :title="$t('storagePage.deleteDeviceConfirm')" @confirm="deleteDevice(scope)">
-                <template #reference>
-                  <el-button type="text" size="small" class="el-button-delete">{{ $t('common.delete') }}</el-button>
-                </template>
-              </el-popconfirm>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-pagination @current-change="handleCurrentChange" :currentPage="currentPage" :page-size="pageSize" layout="total, prev, pager, next" :total="total"> </el-pagination>
+      <div class="device-padding">
+        <div class="search-panel clearfix">
+          <!-- <span class="search-title">{{ $t('storagePage.deviceName') }}</span> -->
+          <el-button type="primary" @click="newDevice">{{ $t('storagePage.newDevice') }}</el-button>
+
+          <el-input v-model="searchVal" class="search-btn" suffix-icon="el-icon-search" @blur="search()" @keyup.enter="search()"></el-input>
+        </div>
+        <div class="device-list">
+          <!-- @selection-change="handleSelectionChange" -->
+          <el-table :data="tableData" style="width: 100%">
+            <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
+            <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('device.devicename')" width="180" sortable>
+              <template #default="scope">
+                <a @click="goToEntity(scope)">{{ scope.row.deviceName }}</a>
+              </template>
+            </el-table-column>
+            <el-table-column show-overflow-tooltip prop="description" :label="$t('device.description')"> </el-table-column>
+            <el-table-column prop="line" :label="$t('storagePage.line')"> </el-table-column>
+            <el-table-column prop="creator" :label="$t('storagePage.creator')"> </el-table-column>
+            <el-table-column :label="$t('storagePage.operation')">
+              <template #default="scope">
+                <el-button type="text" size="small" @click="editDevice(scope.row)">{{ $t('common.edit') }}{{ scope.row.ttl }}</el-button>
+                <el-popconfirm placement="top" :title="$t('storagePage.deleteDeviceConfirm')" @confirm="deleteDevice(scope)">
+                  <template #reference>
+                    <el-button type="text" size="small" class="el-button-delete">{{ $t('common.delete') }}</el-button>
+                  </template>
+                </el-popconfirm>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination @current-change="handleCurrentChange" :currentPage="currentPage" :page-size="pageSize" layout="total, prev, pager, next" :total="total"> </el-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -212,6 +237,10 @@ export default {
       // props.func.addTab(`${props.data.id}:newdevice`, { getList: getDeviceList, dflag: true });
       // props.func.removeTab(props.data.id);
     };
+    const goToEntity = (scope) => {
+      props.func.updateTree([props.data.parent.id, props.data.id]);
+      props.func.addTab(`${props.data.id}${scope.row.deviceName}device`, {});
+    };
     onActivated(() => {
       getGroupDetail();
       getDeviceList();
@@ -231,6 +260,7 @@ export default {
       total,
       // handleSelectionChange,
       newDevice,
+      goToEntity,
       handleCurrentChange,
       editGroup,
       editDevice,
@@ -259,32 +289,64 @@ export default {
 .storage-container {
   height: 100%;
   text-align: left;
+
+  background: #f9fbfc;
   .base-info,
   .device-content {
     padding: 20px;
   }
+
   .base-info {
-    border-bottom: 1px solid #e0e0e0;
+    // border-bottom: 1px solid #e0e0e0;
     position: relative;
+    background: #fff;
+    .descript-container {
+      border-radius: 4px;
+      border: 1px solid #eaecf0;
+      padding: 16px 20px 0;
+      &:deep(.el-descriptions__label, .el-descriptions__content) {
+        font-size: 12px !important;
+      }
+      &:deep(.el-descriptions__header) {
+        margin-bottom: 10px;
+      }
+      &:deep(.el-descriptions :not(.is-bordered) th, .el-descriptions :not(.is-bordered) td) {
+        margin-bottom: 0px;
+      }
+    }
     .btns {
       position: absolute;
-      right: 20px;
+      right: 40px;
+      top: 30px;
+      button:first-child {
+        margin-left: 10px;
+      }
       .icon {
         cursor: pointer;
+        margin-right: 4px !important;
       }
 
       .icon:first-child {
-        margin-right: 20px;
         color: $theme-color;
       }
-      .icon:last-child {
+      .icon-del {
         margin-right: 0px;
-        color: #d32d2fff;
+        .icon {
+          color: #fb5151ff;
+        }
       }
     }
   }
   .device-content {
+    .device-padding {
+      background: #fff;
+      padding: 20px;
+
+      border-radius: 4px;
+      border: 1px solid #eaecf0;
+    }
     .search-panel {
+      margin-bottom: 10px;
       .search-title {
         font-size: 14px;
       }
@@ -294,6 +356,9 @@ export default {
       }
       .search-btn {
         float: right;
+        &:deep(.el-input__suffix .el-input__icon) {
+          line-height: 18px !important;
+        }
       }
     }
     .device-list {
