@@ -40,16 +40,224 @@
 
         <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')">
           <template #reference>
-              <el-button @confirm="deleteSource()"
-                ><svg aria-hidden="true" class="icon icon-delete">
-                  <use xlink:href="#icon-se-icon-delete"></use></svg
-                >{{ $t('common.delete') }}</el-button
-              >
+            <el-button @confirm="deleteSource()" class="button-delete"
+              ><svg aria-hidden="true" class="icon icon-delete">
+                <use xlink:href="#icon-se-icon-delete"></use></svg
+              >{{ $t('common.delete') }}</el-button
+            >
           </template>
         </el-popconfirm>
       </div>
     </div>
-    <div class="permission-box">
+    <div class="tabs-wraper">
+      <el-tabs v-model="sourceTabs" @tab-click="handleClickSource" class="tabs">
+        <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
+          <div class="tab-content">ss</div>
+        </el-tab-pane>
+        <el-tab-pane :label="$t('sourcePage.accountPermit')" name="a">
+          <div class="tab-content">
+            <div class="permit-content">
+              <div class="left-part">
+                <p class="title clearfix">
+                  {{ $t('sourcePage.userAccount') }}
+                  <el-button type="text" @click="newUser()">{{ $t('sourcePage.newAccount') }}</el-button>
+                </p>
+                <ul class="user-list">
+                  <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
+                    <!-- <el-tooltip class="item" width="200" effect="dark" :content="item.username" placement="top"> -->
+                    <span class="content">{{ item.username }}</span>
+                    <!-- </el-tooltip> -->
+                    <el-popconfirm placement="top" :title="$t('sourcePage.deleteUserConfirm')" @confirm="deleteUser(item)">
+                      <template #reference>
+                        <span class="icon-del del-user">
+                          <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true">
+                            <use xlink:href="#icon-se-icon-delete"></use>
+                          </svg>
+                        </span>
+                      </template>
+                    </el-popconfirm>
+                  </li>
+                </ul>
+              </div>
+              <div class="right-part">
+                <el-button class="auth-add-btn" type="text" v-if="activeName == '2' && baseInfoForm.userName !== 'root'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
+                <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs">
+                  <el-tab-pane :label="$t('sourcePage.baseConfig')" name="1">
+                    <template v-if="activeIndex !== null">
+                      <div v-if="!isNew" class="tab-content left-base-content">
+                        <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
+                          <el-form-item :label="$t('sourcePage.userNameTitle')">
+                            <div v-if="baseInfoForm.userName && baseInfoForm.userName.length > 80">
+                              <el-tooltip class="item" width="200" effect="dark" :content="baseInfoForm.userName" placement="top">
+                                <div class="user-name">{{ baseInfoForm.userName }}</div>
+                              </el-tooltip>
+                            </div>
+                            <div v-else class="user-name">{{ baseInfoForm.userName }}</div>
+                          </el-form-item>
+                          <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
+                            <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
+
+                            <svg v-if="!edit && baseInfoForm.userName != 'root'" class="icon" aria-hidden="true" @click="editBaseInfo()">
+                              <use xlink:href="#icon-se-icon-f-edit"></use>
+                            </svg>
+                            <div v-if="!edit" class="password">
+                              <el-tooltip class="item" effect="dark" :content="baseInfoForm.password" placement="top">
+                                <div>{{ baseInfoForm.password }}</div>
+                              </el-tooltip>
+                            </div>
+                            <div v-if="edit">
+                              <el-button @click="cancelEdit()">{{ $t('common.cancel') }}</el-button>
+                              <el-button type="primary" @click="doEdit()">{{ $t('common.submit') }}</el-button>
+                            </div>
+                          </el-form-item>
+                        </el-form>
+                      </div>
+                      <div v-else class="tab-content left-base-content">
+                        <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
+                          <el-form-item prop="userName" :label="$t('sourcePage.userNameTitle')" class="userName-form-item">
+                            <el-input v-model="baseInfoForm.userName"></el-input>
+                          </el-form-item>
+                          <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
+                            <el-input show-password v-model="baseInfoForm.password"></el-input>
+
+                            <div>
+                              <el-button @click="cancelNew1()">{{ $t('common.cancel') }}</el-button>
+                              <el-button type="primary" @click="doCreate()">{{ $t('common.submit') }}</el-button>
+                            </div>
+                          </el-form-item>
+                        </el-form>
+                      </div>
+                    </template>
+                  </el-tab-pane>
+                  <el-tab-pane v-if="!isNew" :label="$t('sourcePage.accountPermit')" name="2">
+                    <template v-if="activeIndex !== null">
+                      <p class="auth-tips">{{ $t('sourcePage.authTips') }}</p>
+                      <el-table :data="authTableData" style="width: 100%">
+                        <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
+                          <template #default="scope">
+                            <span v-if="!scope.row.edit">{{ pathMap[scope.row.type] }}</span>
+                            <el-select v-if="scope.row.edit" v-model="scope.row.type" :disabled="!scope.row.new" @change="changeType(scope.row.type, scope)">
+                              <el-option v-for="item in pathList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                          </template>
+                        </el-table-column>
+                        <el-table-column :label="$t('sourcePage.range')">
+                          <template #default="scope">
+                            <div v-if="scope.row.type == 0">-</div>
+                            <div v-else-if="scope.row.type == 1">
+                              <div v-if="scope.row.edit">
+                                <el-select v-model="scope.row.groupPaths" multiple>
+                                  <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                                </el-select>
+                              </div>
+                              <div v-else>
+                                <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                                <span v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</span>
+                              </div>
+                            </div>
+                            <div v-else-if="scope.row.type == 2">
+                              <div v-if="scope.row.edit">
+                                <el-select class="row-select-range" v-model="scope.row.groupPaths[0]" @change="getDeviceByGroupName(scope.row.groupPaths[0], scope)">
+                                  <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                                </el-select>
+                                <el-select class="row-select-range" v-model="scope.row.devicePaths" multiple>
+                                  <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
+                                </el-select>
+                              </div>
+                              <div v-else>
+                                <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                                <span class="device-path">{{ scope.row.groupPaths[0] }}</span>
+                                <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
+                                <span v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</span>
+                              </div>
+                            </div>
+                            <div v-else-if="scope.row.type == 3">
+                              <div v-if="scope.row.edit">
+                                <el-select class="row-select-range" v-model="scope.row.groupPaths[0]" @change="getDeviceByGroupName(scope.row.groupPaths[0], scope)">
+                                  <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
+                                </el-select>
+                                <el-select class="row-select-range" v-model="scope.row.devicePaths[0]" @change="getTimeSeriesByDeviceName(scope.row.devicePaths[0], scope)">
+                                  <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
+                                </el-select>
+                                <el-select class="row-select-range" v-model="scope.row.timeseriesPaths" multiple>
+                                  <el-option v-for="item in scope.row.allTimeseriesPaths" :key="item" :value="item" :label="item"></el-option>
+                                </el-select>
+                              </div>
+                              <div v-else>
+                                <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                                <span class="device-path">{{ scope.row.groupPaths[0] }}</span>
+                                <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
+                                <span class="device-path">{{ scope.row.devicePaths[0] }}</span>
+                                <p>{{ $t('sourcePage.timeNameLabel') }}</p>
+                                <span v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</span>
+                              </div>
+                            </div>
+                          </template>
+                        </el-table-column>
+                        <el-table-column :label="$t('sourcePage.func')">
+                          <template #default="scope">
+                            <el-checkbox-group v-model="scope.row.privileges" :class="scope.row.edit ? '' : 'show-only'">
+                              <el-checkbox :disabled="!scope.row.edit" v-for="item in funcList[scope.row.type]" :label="item.id" :key="item.id" @change="changeCheckItem(scope)">{{
+                                item.label
+                              }}</el-checkbox>
+                            </el-checkbox-group>
+                          </template>
+                        </el-table-column>
+
+                        <el-table-column :label="$t('common.operation')">
+                          <template #default="scope">
+                            <div v-if="scope.row.edit">
+                              <el-button type="text" size="small" @click="saveRowAuth(scope)">{{ $t('common.save') }}</el-button>
+                              <el-button type="text" size="small" class="el-button-delete" @click="cancelRowAuth()">{{ $t('common.cancel') }}</el-button>
+                            </div>
+                            <div v-else>
+                              <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
+                              <el-popconfirm placement="top" :title="$t('sourcePage.deleteAuthConfirm')" @confirm="deleteRowAuth(scope)">
+                                <template #reference>
+                                  <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" class="el-button-delete">{{ $t('common.delete') }}</el-button>
+                                </template>
+                              </el-popconfirm>
+                            </div>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </template>
+                  </el-tab-pane>
+                </el-tabs>
+              </div>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane :label="$t('sourcePage.accountRole')" name="r">
+          <div class="tab-content">dsff</div>
+        </el-tab-pane>
+        <el-tab-pane :label="$t('sourcePage.groupInfo') + '(' + groupTotal + ')'" name="g">
+          <div class="tab-content">
+            <el-table :data="tableData" class="group-table" height="100%">
+              <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
+              <el-table-column prop="description" :label="$t('sourcePage.description')"> </el-table-column>
+              <el-table-column prop="deviceCount" :label="$t('sourcePage.line')"> </el-table-column>
+              <el-table-column :label="$t('common.operation')">
+                <template #default="scope">
+                  <!-- @click="handleClick(scope.row)" -->
+                  <el-button type="text" size="small" @click="goGroupDetail(scope)">{{ $t('common.detail') }}</el-button>
+                  <el-button type="text" size="small" @click="goEditGroup(scope)">
+                    {{ $t('common.edit') }}
+                  </el-button>
+                  <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup(scope)">
+                    <template #reference>
+                      <el-button type="text" size="small" class="el-button-delete" :disable="canGroupSet"> {{ $t('common.delete') }} </el-button>
+                    </template>
+                  </el-popconfirm>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+
+    <!-- <div class="permission-box">
       <div class="info-head">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-yonghuquanxian-color"></use>
@@ -64,9 +272,7 @@
           </p>
           <ul class="user-list">
             <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
-              <!-- <el-tooltip class="item" width="200" effect="dark" :content="item.username" placement="top"> -->
               <span class="content">{{ item.username }}</span>
-              <!-- </el-tooltip> -->
               <el-popconfirm placement="top" :title="$t('sourcePage.deleteUserConfirm')" @confirm="deleteUser(item)">
                 <template #reference>
                   <span class="icon-del del-user">
@@ -226,8 +432,8 @@
           </el-tabs>
         </div>
       </div>
-    </div>
-    <div class="storage-box">
+    </div> -->
+    <!-- <div class="storage-box">
       <div class="info-head">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-cunchuzu-color"></use>
@@ -240,7 +446,6 @@
         <el-table-column prop="deviceCount" :label="$t('sourcePage.line')"> </el-table-column>
         <el-table-column :label="$t('common.operation')">
           <template #default="scope">
-            <!-- @click="handleClick(scope.row)" -->
             <el-button type="text" size="small" @click="goGroupDetail(scope)">{{ $t('common.detail') }}</el-button>
             <el-button type="text" size="small" @click="goEditGroup(scope)">
               {{ $t('common.edit') }}
@@ -253,7 +458,7 @@
           </template>
         </el-table-column>
       </el-table>
-    </div>
+    </div> -->
     <NewSource v-if="showDialog" :func="func" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
   </div>
 </template>
@@ -297,6 +502,7 @@ export default {
     let showDialog = ref(false);
     let types = ref(0);
     let activeName = ref('1');
+    let sourceTabs = ref('d');
     // 是否可以创建用户
     let canCreateUser = ref(false);
     //是否可以创建存储组，用于判断是否可以删除存储组
@@ -520,6 +726,12 @@ export default {
      */
     const handleClick = (tab) => {
       activeName.value = tab.paneName;
+    };
+    /**
+     * 切换数据源展示类型tab操作
+     */
+    const handleClickSource = (tab) => {
+      sourceTabs.value = tab.paneName;
     };
     /**
      * 选中用户列表某一个用户
@@ -1092,6 +1304,8 @@ export default {
       handleUser,
       handleClick,
       activeName,
+      sourceTabs,
+      handleClickSource,
       baseInfoForm,
       baseInfoFormRef,
       baseRules,
@@ -1162,7 +1376,7 @@ export default {
 
 <style scoped lang="scss">
 .source-detail-container {
-  height: 100%;
+  height: calc(100% - 16px);
   text-align: left;
   &:deep(.el-tabs__nav-wrap::after) {
     display: none !important;
@@ -1219,7 +1433,7 @@ export default {
     position: absolute;
     top: 16px;
     right: 16px;
-   
+
     .icon-edit {
       color: $theme-color;
       margin-right: 4px;
@@ -1229,164 +1443,340 @@ export default {
       margin-right: 4px;
     }
   }
-  .permission-box {
-    .permit-content {
-      display: flex;
-      flex-direction: row;
-      .left-part {
-        width: 240px;
-        margin-top: 12px;
-        border-right: 1px solid #e0e0e0;
-        .title {
-          height: 17px;
-          font-size: 12px;
-          font-weight: 400;
-          line-height: 20px;
-          font-size: 12px;
-          color: #fb5151ff;
-          line-height: 16px;
-          margin-left: 10px;
-          padding: 3px 8px;
-          color: rgba(34, 34, 34, 0.65);
-          padding: 0 8px 10px 16px;
+  .tabs-wraper {
+    height: calc(100% - 130px);
+    &:deep(.el-tabs) {
+      height: 100%;
+    }
+    &:deep(.el-tabs__content) {
+      background: #f9fbfc;
+      padding: 16px;
+      height: calc(100% - 74px);
+    }
+    &:deep(.el-tab-pane) {
+      height: 100%;
+    }
+    .tab-content {
+      background: #fff;
+      height: calc(100% - 16px * 2);
+      border: 1px solid #eaecf0;
+      padding: 16px;
+      .permit-content {
+        display: flex;
+        flex-direction: row;
+        .left-part {
+          width: 240px;
+          margin-top: 12px;
+          border-right: 1px solid #e0e0e0;
+          .title {
+            height: 17px;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 20px;
+            font-size: 12px;
+            color: #fb5151ff;
+            line-height: 16px;
+            margin-left: 10px;
+            padding: 3px 8px;
+            color: rgba(34, 34, 34, 0.65);
+            padding: 0 8px 10px 16px;
 
-          button {
-            float: right;
-            font-size: 12px;
-            margin-top: -7px;
-            padding-right: 0;
+            button {
+              float: right;
+              font-size: 12px;
+              margin-top: -7px;
+              padding-right: 0;
+            }
           }
-        }
-        .user-list {
-          margin-bottom: 10px;
-          max-height: 250px;
-          overflow: auto;
-          .active {
-            background: rgba(69, 117, 246, 0.04);
-            color: $theme-color;
-          }
-          li {
-            height: 36px;
-            line-height: 36px;
-            position: relative;
-            font-size: 12px;
-            padding: 0 16px;
-            cursor: pointer;
-            .content {
-              display: inline-block;
-              max-width: 150px;
-              overflow: hidden;
-              text-overflow: ellipsis;
+          .user-list {
+            margin-bottom: 10px;
+            max-height: 250px;
+            overflow: auto;
+            .active {
+              background: rgba(69, 117, 246, 0.04);
+              color: $theme-color;
+            }
+            li {
               height: 36px;
-            }
-            .icon {
-              position: absolute;
-              right: 16px;
-              top: 12px;
+              line-height: 36px;
+              position: relative;
+              font-size: 12px;
+              padding: 0 16px;
+              cursor: pointer;
+              .content {
+                display: inline-block;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                height: 36px;
+              }
+              .icon {
+                position: absolute;
+                right: 16px;
+                top: 12px;
+              }
             }
           }
         }
-      }
-      .right-part {
-        flex: 1;
-        position: relative;
-        &:deep(.el-input__suffix .el-input__icon) {
-          line-height: 42px !important;
-        }
-        .auth-add-btn {
-          position: absolute;
-          right: 10px;
-          top: 6px;
-          z-index: 1000;
-        }
-
-        .tabs {
+        .right-part {
+          flex: 1;
           position: relative;
-        }
-        .show-only {
-          &:deep(.el-checkbox) {
-            display: none;
+          &:deep(.el-input__suffix .el-input__icon) {
+            line-height: 42px !important;
           }
-          &:deep(.is-checked) {
-            display: inline-block !important;
-            .is-checked {
-              display: none !important;
+          .auth-add-btn {
+            position: absolute;
+            right: 10px;
+            top: 6px;
+            z-index: 1000;
+          }
+
+          .tabs {
+            position: relative;
+          }
+          .show-only {
+            &:deep(.el-checkbox) {
+              display: none;
+            }
+            &:deep(.is-checked) {
+              display: inline-block !important;
+              .is-checked {
+                display: none !important;
+              }
+            }
+            &:deep(.el-checkbox__input) {
+              display: none;
             }
           }
-          &:deep(.el-checkbox__input) {
-            display: none;
+          &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
+            color: #222222;
+            cursor: default;
           }
-        }
-        &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
-          color: #222222;
-          cursor: default;
-        }
-        &:deep(.el-checkbox__label) {
-          font-size: 12px !important;
-          font-weight: 400;
-        }
-        &:deep(.el-input .el-input__inner) {
-          font-size: 12px !important;
-        }
-        .el-select {
-          width: 100%;
-        }
-        .device-path {
-          margin-right: 10px;
-        }
-        .row-select-range {
-          display: block;
-        }
-        .auth-tips {
-          font-size: 12px;
-          color: #fb5151ff;
-          line-height: 16px;
-          margin-left: 10px;
-          background: rgba(211, 45, 47, 0.04);
-          padding: 3px 8px;
-          margin: 16px 18px 16px 14px;
-        }
-        .tab-content {
-          padding: 10px 16px;
-          .password {
-            div {
-              max-width: 200px;
+          &:deep(.el-checkbox__label) {
+            font-size: 12px !important;
+            font-weight: 400;
+          }
+          &:deep(.el-input .el-input__inner) {
+            font-size: 12px !important;
+          }
+          .el-select {
+            width: 100%;
+          }
+          .device-path {
+            margin-right: 10px;
+          }
+          .row-select-range {
+            display: block;
+          }
+          .auth-tips {
+            font-size: 12px;
+            color: #fb5151ff;
+            line-height: 16px;
+            margin-left: 10px;
+            background: rgba(211, 45, 47, 0.04);
+            padding: 3px 8px;
+            margin: 16px 18px 16px 14px;
+          }
+          .tab-content {
+            padding: 10px 16px;
+            .password {
+              div {
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+            }
+            .user-name {
+              max-width: calc(100% - 50px);
+
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
             }
-          }
-          .user-name {
-            max-width: calc(100% - 50px);
+            .password-form-item {
+              position: relative;
 
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-          .password-form-item {
-            position: relative;
-
-            .icon {
-              color: $theme-color;
-              position: absolute;
-              top: -31px;
-              left: 100px;
-              cursor: pointer;
+              .icon {
+                color: $theme-color;
+                position: absolute;
+                top: -31px;
+                left: 100px;
+                cursor: pointer;
+              }
             }
           }
-        }
-        .left-base-content {
-          .el-input {
-            width: 200px;
-            // display: block;
-            .el-input__suffix {
-              top: auto;
+          .left-base-content {
+            .el-input {
+              width: 200px;
+              // display: block;
+              .el-input__suffix {
+                top: auto;
+              }
             }
           }
         }
       }
     }
   }
+  // .permission-box {
+  //   .permit-content {
+  //     display: flex;
+  //     flex-direction: row;
+  //     .left-part {
+  //       width: 240px;
+  //       margin-top: 12px;
+  //       border-right: 1px solid #e0e0e0;
+  //       .title {
+  //         height: 17px;
+  //         font-size: 12px;
+  //         font-weight: 400;
+  //         line-height: 20px;
+  //         font-size: 12px;
+  //         color: #fb5151ff;
+  //         line-height: 16px;
+  //         margin-left: 10px;
+  //         padding: 3px 8px;
+  //         color: rgba(34, 34, 34, 0.65);
+  //         padding: 0 8px 10px 16px;
+
+  //         button {
+  //           float: right;
+  //           font-size: 12px;
+  //           margin-top: -7px;
+  //           padding-right: 0;
+  //         }
+  //       }
+  //       .user-list {
+  //         margin-bottom: 10px;
+  //         max-height: 250px;
+  //         overflow: auto;
+  //         .active {
+  //           background: rgba(69, 117, 246, 0.04);
+  //           color: $theme-color;
+  //         }
+  //         li {
+  //           height: 36px;
+  //           line-height: 36px;
+  //           position: relative;
+  //           font-size: 12px;
+  //           padding: 0 16px;
+  //           cursor: pointer;
+  //           .content {
+  //             display: inline-block;
+  //             max-width: 150px;
+  //             overflow: hidden;
+  //             text-overflow: ellipsis;
+  //             height: 36px;
+  //           }
+  //           .icon {
+  //             position: absolute;
+  //             right: 16px;
+  //             top: 12px;
+  //           }
+  //         }
+  //       }
+  //     }
+  //     .right-part {
+  //       flex: 1;
+  //       position: relative;
+  //       &:deep(.el-input__suffix .el-input__icon) {
+  //         line-height: 42px !important;
+  //       }
+  //       .auth-add-btn {
+  //         position: absolute;
+  //         right: 10px;
+  //         top: 6px;
+  //         z-index: 1000;
+  //       }
+
+  //       .tabs {
+  //         position: relative;
+  //       }
+  //       .show-only {
+  //         &:deep(.el-checkbox) {
+  //           display: none;
+  //         }
+  //         &:deep(.is-checked) {
+  //           display: inline-block !important;
+  //           .is-checked {
+  //             display: none !important;
+  //           }
+  //         }
+  //         &:deep(.el-checkbox__input) {
+  //           display: none;
+  //         }
+  //       }
+  //       &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
+  //         color: #222222;
+  //         cursor: default;
+  //       }
+  //       &:deep(.el-checkbox__label) {
+  //         font-size: 12px !important;
+  //         font-weight: 400;
+  //       }
+  //       &:deep(.el-input .el-input__inner) {
+  //         font-size: 12px !important;
+  //       }
+  //       .el-select {
+  //         width: 100%;
+  //       }
+  //       .device-path {
+  //         margin-right: 10px;
+  //       }
+  //       .row-select-range {
+  //         display: block;
+  //       }
+  //       .auth-tips {
+  //         font-size: 12px;
+  //         color: #fb5151ff;
+  //         line-height: 16px;
+  //         margin-left: 10px;
+  //         background: rgba(211, 45, 47, 0.04);
+  //         padding: 3px 8px;
+  //         margin: 16px 18px 16px 14px;
+  //       }
+  //       .tab-content {
+  //         padding: 10px 16px;
+  //         .password {
+  //           div {
+  //             max-width: 200px;
+  //             overflow: hidden;
+  //             text-overflow: ellipsis;
+  //             white-space: nowrap;
+  //           }
+  //         }
+  //         .user-name {
+  //           max-width: calc(100% - 50px);
+
+  //           overflow: hidden;
+  //           text-overflow: ellipsis;
+  //           white-space: nowrap;
+  //         }
+  //         .password-form-item {
+  //           position: relative;
+
+  //           .icon {
+  //             color: $theme-color;
+  //             position: absolute;
+  //             top: -31px;
+  //             left: 100px;
+  //             cursor: pointer;
+  //           }
+  //         }
+  //       }
+  //       .left-base-content {
+  //         .el-input {
+  //           width: 200px;
+  //           // display: block;
+  //           .el-input__suffix {
+  //             top: auto;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
   .info-head {
     height: 40px;
     line-height: 40px;
@@ -1400,13 +1790,16 @@ export default {
       margin-right: 4px;
     }
   }
-  .storage-box {
-    .group-table {
-      width: 100%;
-      padding: 10px;
-      .el-button {
-        padding-left: 0 !important;
-      }
+  .group-table {
+    width: 100%;
+    padding: 10px;
+    height: 100% !important;
+    max-height: initial !important;
+    &:deep(.el-table__body-wrapper) {
+      height: calc(100% - 32px) !important;
+    }
+    .el-button {
+      padding-left: 0 !important;
     }
   }
 }

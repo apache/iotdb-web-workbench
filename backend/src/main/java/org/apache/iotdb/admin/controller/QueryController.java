@@ -47,7 +47,7 @@ public class QueryController {
         Connection connection = connectionService.getById(serverId);
         Long timestamp = searchDTO.getTimestamp();
         List<SqlResultVO> sqlResultVOList = iotDBService.queryAll(connection, sqls, timestamp);
-        return BaseVO.success("查询成功", sqlResultVOList);
+        return BaseVO.success("查询脚本执行成功", sqlResultVOList);
     }
 
     @PostMapping("/query")
@@ -62,10 +62,10 @@ public class QueryController {
         check(request, serverId);
         if (query.getId() != null) {
             queryService.update(serverId, query);
-            return BaseVO.success("更新成功", null);
+            return BaseVO.success("更新查询脚本成功", null);
         }
         queryService.save(serverId, query);
-        return BaseVO.success("保存成功", null);
+        return BaseVO.success("保存查询脚本成功", null);
     }
 
     @GetMapping("/query")
@@ -74,7 +74,7 @@ public class QueryController {
                                             HttpServletRequest request) throws BaseException {
         check(request, serverId);
         List<QueryVO> queryVOList = queryService.getQueryList(serverId);
-        return BaseVO.success("获取成功", queryVOList);
+        return BaseVO.success("获取脚本列表成功", queryVOList);
     }
 
     @DeleteMapping("/query/{queryId}")
@@ -84,7 +84,7 @@ public class QueryController {
                               HttpServletRequest request) throws BaseException {
         check(request, serverId);
         queryService.deleteQuery(queryId);
-        return BaseVO.success("删除成功", null);
+        return BaseVO.success("删除查询脚本成功", null);
     }
 
     @GetMapping("/query/{queryId}")
@@ -94,7 +94,7 @@ public class QueryController {
                                   HttpServletRequest request) throws BaseException {
         check(request, serverId);
         Query query = queryService.getQuery(queryId);
-        return BaseVO.success("获取成功", query);
+        return BaseVO.success("获取指定脚本成功", query);
     }
 
     @GetMapping("/stop")
@@ -102,7 +102,7 @@ public class QueryController {
     public BaseVO query(@PathVariable("serverId") Integer serverId, @RequestParam("timestamp") Long timestamp, HttpServletRequest request) throws BaseException {
         check(request, serverId);
         iotDBService.stopQuery(serverId, timestamp);
-        return BaseVO.success("停止成功", null);
+        return BaseVO.success("停止查询成功", null);
     }
 
     public void check(HttpServletRequest request, Integer serverId) throws BaseException {

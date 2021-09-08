@@ -115,7 +115,7 @@ public class ErrorCode {
     public static final String DB_BOOL_WRONG_MSG = "Boolean值输入错误,0为false，1为true";
 
     public static final String DB_DATATYPE_WRONG = "IOTDB-0004";
-    public static final String DB_DATATYPE_WRONG_MSG = "TSDataType类型传入错误";
+    public static final String DB_DATATYPE_WRONG_MSG = "物理量数据类型传入错误";
 
     public static final String GET_DBCONN_FAIL = "IOTDB-005";
     public static final String GET_DBCONN_FAIL_MSG = "获取数据库连接失败";
@@ -160,7 +160,7 @@ public class ErrorCode {
     public static final String INSERT_DEV_FAIL_MSG = "插入实体失败";
 
     public static final String GET_MSM_FAIL = "IOTDB-0019";
-    public static final String GET_MSM_FAIL_MSG = "获取物理量数据信息失败";
+    public static final String GET_MSM_FAIL_MSG = "获取物理量信息失败";
 
     public static final String NO_SUCH_FIELD = "IOTDB-0020";
     public static final String NO_SUCH_FIELD_MSG = "返回集没此属性";
@@ -263,6 +263,42 @@ public class ErrorCode {
 
     public static final String NO_SUP_CONTAIN_ROOT = "IOTDB-0052";
     public static final String NO_SUP_CONTAIN_ROOT_MSG = "不支持包含\"root\"的输入";
+
+    public static final String GET_DATA_FAIL = "IOTDB-0053";
+    public static final String GET_DATA_FAIL_MSG = "获取物理量数据失败";
+
+    public static final String UPDATE_DATA_FAIL = "IOTDB-0054";
+    public static final String UPDATE_DATA_FAIL_MSG = "编辑物理量数据失败";
+
+    public static final String DELETE_DATA_FAIL = "IOTDB-0055";
+    public static final String DELETE_DATA_FAIL_MSG = "删除物理量数据失败";
+
+    public static final String GET_DATA_COUNT_FAIL = "IOTDB-0056";
+    public static final String GET_DATA_COUNT_FAIL_MSG = "获取数据统计信息失败";
+
+    public static final String DB_COMPRESSION_WRONG = "IOTDB-0057";
+    public static final String DB_COMPRESSION_WRONG_MSG = "物理量压缩方式传入错误";
+
+    public static final String DB_ENCODING_WRONG = "IOTDB-0058";
+    public static final String DB_ENCODING_WRONG_MSG = "物理量编码方式传入错误";
+
+    public static final String UPSERT_ALIAS_FAIL = "IOTDB-0059";
+    public static final String UPSERT_ALIAS_FAIL_MSG = "设置别名失败，请检查当前实体下是否已存在该别名";
+
+    public static final String UPSERT_TAGS_FAIL = "IOTDB-0060";
+    public static final String UPSERT_TAGS_FAIL_MSG = "设置标签失败";
+
+    public static final String UPSERT_ATTRIBUTES_FAIL = "IOTDB-0061";
+    public static final String UPSERT_ATTRIBUTES_FAIL_MSG = "设置属性失败";
+
+    public static final String GET_MEASUREMENT_DATA_COUNT_FAIL = "IOTDB-0062";
+    public static final String GET_MEASUREMENT_DATA_COUNT_FAIL_MSG = "获取物理量数据统计信息失败";
+
+    public static final String RANDOM_IMPORT_DATA_FAIL = "IOTDB-0063";
+    public static final String RANDOM_IMPORT_DATA_FAIL_MSG = "随机导入物理量数据失败";
+
+    public static final String NO_MEASUREMENT = "IOTDB-0064";
+    public static final String NO_MEASUREMENT_MSG = "该实体下没有物理量，不能插入数据";
 
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";

@@ -170,8 +170,10 @@ public class ImportCsv {
                                     Arrays.asList(
                                             StringUtils.splitByWholeSeparator(e.getMessage(), "org.apache.iotdb.db.exception.StorageEngineException: ")));
                         } else {
-                            throw e;
+                            throw new BaseException(ErrorCode.IMPORT_CSV_FAIL, ErrorCode.IMPORT_CSV_FAIL_MSG + e.getMessage());
                         }
+                    } catch (IoTDBConnectionException e) {
+                        throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
                     }
                     devices = new ArrayList<>();
                     times = new ArrayList<>();
@@ -180,15 +182,19 @@ public class ImportCsv {
                 }
             }
             try {
-                session.insertRecords(devices, times, measurementsList, valuesList);
+                if (lineNumber % 10000 != 0){
+                    session.insertRecords(devices, times, measurementsList, valuesList);
+                }
             } catch (StatementExecutionException e) {
                 if (e.getMessage().contains("failed to insert measurements")) {
                     insertErrorInfo.addAll(
                             Arrays.asList(
                                     StringUtils.splitByWholeSeparator(e.getMessage(), "org.apache.iotdb.db.exception.StorageEngineException: ")));
                 } else {
-                    throw e;
+                    throw new BaseException(ErrorCode.IMPORT_CSV_FAIL, ErrorCode.IMPORT_CSV_FAIL_MSG + e.getMessage());
                 }
+            } catch (IoTDBConnectionException e) {
+                throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
             }
 
             for (String s : insertErrorInfo) {
@@ -204,8 +210,6 @@ public class ImportCsv {
             throw new BaseException(ErrorCode.UPLOAD_FILE_FAIL, ErrorCode.UPLOAD_FILE_FAIL_MSG);
         } catch (IOException e) {
             throw new BaseException(ErrorCode.FILE_IO_FAIL, ErrorCode.FILE_IO_FAIL_MSG + e.getMessage());
-        } catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new BaseException(ErrorCode.IMPORT_CSV_FAIL, ErrorCode.IMPORT_CSV_FAIL_MSG + e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new BaseException(ErrorCode.FILE_FORMAT_ILLEGAL, ErrorCode.FILE_FORMAT_ILLEGAL_MSG);
         }
