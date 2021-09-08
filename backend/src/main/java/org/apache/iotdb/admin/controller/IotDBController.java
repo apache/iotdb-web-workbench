@@ -60,7 +60,7 @@ public class IotDBController {
 
     @GetMapping("/dataCount")
     @ApiOperation("获取iotdb数据统计信息  (新增2.1)")
-    public BaseVO getDataCount(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+    public BaseVO<DataCountVO> getDataCount(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         DataCountVO dataCountVO = iotDBService.getDataCount(connection);
@@ -160,9 +160,7 @@ public class IotDBController {
     public BaseVO deleteStorageGroup(@PathVariable("serverId") Integer serverId,
                                      @PathVariable("groupName") String groupName,
                                      HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         String host = connection.getHost();
@@ -178,9 +176,7 @@ public class IotDBController {
     public BaseVO<GroupVO> getStorageGroup(@PathVariable("serverId") Integer serverId,
                                            @PathVariable("groupName") String groupName,
                                            HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         String host = connection.getHost();
@@ -219,12 +215,7 @@ public class IotDBController {
                                                           @RequestParam("pageNum") Integer pageNum,
                                                           @RequestParam(value = "keyword", required = false) String keyword,
                                                           HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        if (pageSize == null || pageNum == null) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         CountDTO countDTO = iotDBService.getDevicesByGroup(connection, groupName, pageSize, pageNum, keyword);
@@ -263,9 +254,7 @@ public class IotDBController {
     public BaseVO<DeviceNodeVO> getDevicesByGroupName(@PathVariable("serverId") Integer serverId,
                                                       @PathVariable("groupName") String groupName,
                                                       HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         DeviceNodeVO deviceList = iotDBService.getDeviceList(connection, groupName);
@@ -278,12 +267,7 @@ public class IotDBController {
                                        @PathVariable("groupName") String groupName,
                                        @PathVariable("deviceName") String deviceName,
                                        HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName, deviceName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         Boolean isExist = iotDBService.deviceExist(connection, groupName, deviceName);
@@ -296,11 +280,11 @@ public class IotDBController {
                                      @PathVariable("groupName") String groupName,
                                      @RequestBody DeviceInfoDTO deviceInfoDTO,
                                      HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
         if (deviceInfoDTO.getDeviceDTOList() == null || deviceInfoDTO.getDeviceDTOList().size() == 0) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
+            checkParameter(groupName, deviceInfoDTO.getDeviceName(), deviceDTO.getTimeseries());
         }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
@@ -331,12 +315,7 @@ public class IotDBController {
                                @PathVariable("groupName") String groupName,
                                @PathVariable("deviceName") String deviceName,
                                HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName, deviceName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
@@ -356,9 +335,7 @@ public class IotDBController {
                                           @PathVariable("groupName") String groupName,
                                           @PathVariable("deviceName") String deviceName,
                                           HttpServletRequest request) throws BaseException {
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName, deviceName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
@@ -377,12 +354,7 @@ public class IotDBController {
                                                                 @RequestParam("pageNum") Integer pageNum,
                                                                 @RequestParam(value = "keyword", required = false) String keyword,
                                                                 HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName, deviceName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
@@ -434,12 +406,7 @@ public class IotDBController {
                                                @PathVariable("timeseriesName") String timeseriesName,
                                                @RequestParam("dataType") String dataType,
                                                HttpServletRequest request) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName, deviceName, timeseriesName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
@@ -489,12 +456,7 @@ public class IotDBController {
                                               @PathVariable("groupName") String groupName,
                                               @PathVariable("deviceName") String deviceName,
                                               HttpServletRequest request) throws BaseException {
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        if (groupName == null || !deviceName.contains(groupName)) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName, deviceName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
@@ -510,9 +472,7 @@ public class IotDBController {
                                    @PathVariable("deviceName") String deviceName,
                                    @PathVariable("timeseriesName") String timeseriesName,
                                    HttpServletRequest request) throws BaseException {
-        if (timeseriesName == null || !timeseriesName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName, deviceName, timeseriesName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
@@ -533,12 +493,7 @@ public class IotDBController {
                                           @RequestParam("pageNum") Integer pageNum,
                                           @RequestBody DataQueryDTO dataQueryDTO,
                                           HttpServletRequest request) throws BaseException {
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        if (groupName == null || !deviceName.contains(groupName)) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
+        checkParameter(groupName, deviceName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
 //        groupName = "root." + groupName;
@@ -554,8 +509,11 @@ public class IotDBController {
                                      @PathVariable("deviceName") String deviceName,
                                      @RequestBody DataUpdateDTO dataUpdateDTO,
                                      HttpServletRequest request) throws BaseException {
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
+        if (dataUpdateDTO.getValueList().size() != dataUpdateDTO.getMeasurementList().size()) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        for (String measurement : dataUpdateDTO.getMeasurementList()) {
+            checkParameter(groupName, deviceName, measurement);
         }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
@@ -572,8 +530,8 @@ public class IotDBController {
                                      @PathVariable("deviceName") String deviceName,
                                      @RequestBody DataDeleteDTO dataDeleteDTO,
                                      HttpServletRequest request) throws BaseException {
-        if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        for (String measurement : dataDeleteDTO.getMeasurementList()) {
+            checkParameter(groupName, deviceName, measurement);
         }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
@@ -590,7 +548,7 @@ public class IotDBController {
                                @PathVariable("deviceName") String deviceName,
                                @RequestBody RandomImportDTO randomImportDTO,
                                HttpServletRequest request) throws BaseException {
-        checkPathParameter(groupName, deviceName);
+        checkParameter(groupName, deviceName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         iotDBService.randomImport(connection, deviceName, randomImportDTO);
@@ -604,7 +562,7 @@ public class IotDBController {
                                                @PathVariable("deviceName") String deviceName,
                                                @RequestBody DataQueryDTO dataQueryDTO,
                                                HttpServletRequest request) throws BaseException {
-        checkPathParameter(groupName, deviceName);
+        checkParameter(groupName, deviceName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         String host = connection.getHost();
@@ -934,22 +892,24 @@ public class IotDBController {
         connectionService.check(serverId, userId);
     }
 
-    private void checkPathParameter(String groupName) throws BaseException {
-        if (groupName == null || !groupName.matches("^[^ ]+$")) {
+    private void checkParameter(String groupName) throws BaseException {
+        if (!groupName.matches("^root\\.[^ ]+$")
+                || StringUtils.removeStart(groupName, "root.").toLowerCase().contains("root.")) {
+            throw new BaseException(ErrorCode.NO_SUP_CONTAIN_ROOT, ErrorCode.NO_SUP_CONTAIN_ROOT_MSG);
+        }
+    }
+
+    private void checkParameter(String groupName, String deviceName) throws BaseException {
+        checkParameter(deviceName);
+        checkParameter(groupName);
+        if (!deviceName.startsWith(groupName)) {
             throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
         }
     }
 
-    private void checkPathParameter(String groupName, String deviceName) throws BaseException {
-        checkPathParameter(deviceName);
-        if (groupName == null || !groupName.matches("^[^ ]+$") || !deviceName.contains(groupName)) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-    }
-
-    private void checkPathParameter(String groupName, String deviceName, String timeseriesName) throws BaseException {
-        checkPathParameter(deviceName, timeseriesName);
-        checkPathParameter(groupName, deviceName);
+    private void checkParameter(String groupName, String deviceName, String timeseriesName) throws BaseException {
+        checkParameter(deviceName, timeseriesName);
+        checkParameter(groupName, deviceName);
     }
 
     private Long switchTime(String ttlUnit) throws BaseException {

@@ -262,7 +262,7 @@ public class ErrorCode {
     public static final String NO_PRI_TIMESERIES_DATA_MSG = "没有权限查看测点数据";
 
     public static final String NO_SUP_CONTAIN_ROOT = "IOTDB-0052";
-    public static final String NO_SUP_CONTAIN_ROOT_MSG = "不支持包含\"root\"的输入";
+    public static final String NO_SUP_CONTAIN_ROOT_MSG = "\"root.\"必须且只能出现在路径开头";
 
     public static final String GET_DATA_FAIL = "IOTDB-0053";
     public static final String GET_DATA_FAIL_MSG = "获取物理量数据失败";

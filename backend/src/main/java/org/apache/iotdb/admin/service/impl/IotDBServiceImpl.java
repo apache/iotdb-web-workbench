@@ -1322,6 +1322,7 @@ public class IotDBServiceImpl implements IotDBService {
             throw new BaseException(ErrorCode.GET_RECORD_FAIL, ErrorCode.GET_RECORD_FAIL_MSG);
         } finally {
             if (sessionPool != null) {
+                // TODO 待优化，结果集可能为空
                 sessionPool.closeResultSet(sessionDataSetWrapper);
                 sessionPool.close();
             }
