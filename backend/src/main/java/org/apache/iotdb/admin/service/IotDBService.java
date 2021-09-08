@@ -24,6 +24,8 @@ public interface IotDBService {
 
     List<String> getIotDBRoleList(Connection connection) throws BaseException;
 
+    RoleVO getIotDBRoleInfo(Connection connection, String roleName) throws BaseException;
+
     IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException;
 
     void deleteIotDBUser(Connection connection, String userName) throws BaseException;

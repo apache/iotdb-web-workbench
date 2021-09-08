@@ -12,6 +12,7 @@ import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
 import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.entity.Device;
+import org.apache.iotdb.admin.model.entity.Role;
 import org.apache.iotdb.admin.model.entity.StorageGroup;
 import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.*;
@@ -51,6 +52,9 @@ public class IotDBController {
 
     @Autowired
     private MeasurementService measurementService;
+
+    @Autowired
+    private RoleService roleService;
 
     @Autowired
     private FileService fileService;
@@ -280,9 +284,6 @@ public class IotDBController {
                                      @PathVariable("groupName") String groupName,
                                      @RequestBody DeviceInfoDTO deviceInfoDTO,
                                      HttpServletRequest request) throws BaseException {
-        if (deviceInfoDTO.getDeviceDTOList() == null || deviceInfoDTO.getDeviceDTOList().size() == 0) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
         for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
             checkParameter(groupName, deviceInfoDTO.getDeviceName(), deviceDTO.getTimeseries());
         }
@@ -589,6 +590,31 @@ public class IotDBController {
                 .body(resource);
     }
 
+    @PostMapping("/users")
+    @ApiOperation("创建数据库用户")
+    public BaseVO setIotDBUser(@PathVariable("serverId") Integer serverId,
+                               @RequestBody IotDBUser iotDBUser,
+                               HttpServletRequest request) throws BaseException {
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        iotDBService.setIotDBUser(connection, iotDBUser);
+        return BaseVO.success("创建成功", null);
+    }
+
+    @DeleteMapping("/users/{userName}")
+    @ApiOperation("删除数据库用户")
+    public BaseVO deleteIotDBUser(@PathVariable("serverId") Integer serverId,
+                                  @PathVariable("userName") String userName,
+                                  HttpServletRequest request) throws BaseException {
+        if (userName == null || !userName.matches("^[^ ]+$")) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        iotDBService.deleteIotDBUser(connection, userName);
+        return BaseVO.success("删除成功", null);
+    }
+
     @GetMapping("/users")
     @ApiOperation("获取数据库用户列表")
     public BaseVO<List<String>> getIotDBUserList(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
@@ -613,13 +639,68 @@ public class IotDBController {
         return BaseVO.success("获取成功", newUsers);
     }
 
+    @PostMapping("/users/pwd")
+    @ApiOperation("改变用户密码")
+    public BaseVO updatePassword(@PathVariable("serverId") Integer serverId,
+                                 @RequestBody IotDBUser iotDBUser,
+                                 HttpServletRequest request) throws BaseException {
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        iotDBService.updatePwd(connection, iotDBUser);
+        return BaseVO.success("修改成功", null);
+    }
+
+    @PostMapping("/roles")
+    @ApiOperation("新增或编辑角色   (新增2.11)")
+    public BaseVO upsertIotDBRole(@PathVariable("serverId") Integer serverId,
+                                  @RequestBody IotDBRole iotDBRole,
+                                  HttpServletRequest request) throws BaseException {
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        if (iotDBRole.getId() == null) {
+            iotDBService.setIotDBRole(connection, iotDBRole);
+        }
+        roleService.upsertRoleInfo(connection.getHost(), connection.getPort(), iotDBRole);
+        return BaseVO.success("创建或更新成功", null);
+    }
+
+    @DeleteMapping("/roles/{roleName}")
+    @ApiOperation("删除数据库角色  (新增2.12)")
+    public BaseVO deleteIotDBRole(@PathVariable("serverId") Integer serverId,
+                                  @PathVariable("roleName") String roleName,
+                                  HttpServletRequest request) throws BaseException {
+        if (roleName == null || !roleName.matches("^[^ ]{4,}$")) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        iotDBService.deleteIotDBRole(connection, roleName);
+        roleService.deleteRoleInfo(connection.getHost(), connection.getPort(), roleName);
+        return BaseVO.success("删除成功", null);
+    }
+
     @GetMapping("/roles")
-    @ApiOperation("获取数据库角色列表   (未使用)")
-    public BaseVO<List<String>> getIotDBRoleList(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+    @ApiOperation("获取数据库角色列表   (新增2.13)")
+    public BaseVO<List<String>> getIotDBRoleList(@PathVariable("serverId") Integer serverId,
+                                                 HttpServletRequest request) throws BaseException {
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         List<String> roles = iotDBService.getIotDBRoleList(connection);
         return BaseVO.success("获取成功", roles);
+    }
+
+    @GetMapping("/roles/{roleName}")
+    @ApiOperation("获取指定角色的信息和用户列表   (新增2.14)")
+    public BaseVO<RoleVO> getIotDBRoleInfo(@PathVariable("serverId") Integer serverId,
+                                           @PathVariable("roleName") String roleName,
+                                           HttpServletRequest request) throws BaseException {
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        RoleVO roleVO = iotDBService.getIotDBRoleInfo(connection, roleName);
+        Role roleInfo = roleService.getRoleInfo(connection.getHost(), connection.getPort(), roleName);
+        roleVO.setId(roleInfo.getId());
+        roleVO.setDescription(roleInfo.getDescription());
+        return BaseVO.success("获取成功", roleVO);
     }
 
     @GetMapping("/users/{userName}")
@@ -824,67 +905,6 @@ public class IotDBController {
 //            return 1;
 //        }
 //        return 0;
-    }
-
-    @PostMapping("/users/pwd")
-    @ApiOperation("改变用户密码")
-    public BaseVO updatePassword(@PathVariable("serverId") Integer serverId,
-                                 @RequestBody IotDBUser iotDBUser,
-                                 HttpServletRequest request) throws BaseException {
-        check(request, serverId);
-        Connection connection = connectionService.getById(serverId);
-        iotDBService.updatePwd(connection, iotDBUser);
-        return BaseVO.success("修改成功", null);
-    }
-
-    @DeleteMapping("/users/{userName}")
-    @ApiOperation("删除数据库用户")
-    public BaseVO deleteIotDBUser(@PathVariable("serverId") Integer serverId,
-                                  @PathVariable("userName") String userName,
-                                  HttpServletRequest request) throws BaseException {
-        if (userName == null || !userName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        check(request, serverId);
-        Connection connection = connectionService.getById(serverId);
-        iotDBService.deleteIotDBUser(connection, userName);
-        return BaseVO.success("删除成功", null);
-    }
-
-    @DeleteMapping("/roles/{roleName}")
-    @ApiOperation("删除数据库角色  (未使用)")
-    public BaseVO deleteIotDBRole(@PathVariable("serverId") Integer serverId,
-                                  @PathVariable("roleName") String roleName,
-                                  HttpServletRequest request) throws BaseException {
-        if (roleName == null || roleName.matches("^[^ ]+$")) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-        }
-        check(request, serverId);
-        Connection connection = connectionService.getById(serverId);
-        iotDBService.deleteIotDBRole(connection, roleName);
-        return BaseVO.success("删除成功", null);
-    }
-
-    @PostMapping("/users")
-    @ApiOperation("创建数据库用户")
-    public BaseVO setIotDBUser(@PathVariable("serverId") Integer serverId,
-                               @RequestBody IotDBUser iotDBUser,
-                               HttpServletRequest request) throws BaseException {
-        check(request, serverId);
-        Connection connection = connectionService.getById(serverId);
-        iotDBService.setIotDBUser(connection, iotDBUser);
-        return BaseVO.success("创建成功", null);
-    }
-
-    @PostMapping("/roles")
-    @ApiOperation("创建数据角色   (未使用)")
-    public BaseVO setIotDBRole(@PathVariable("serverId") Integer serverId,
-                               @RequestBody IotDBRole iotDBRole,
-                               HttpServletRequest request) throws BaseException {
-        check(request, serverId);
-        Connection connection = connectionService.getById(serverId);
-        iotDBService.setIotDBRole(connection, iotDBRole);
-        return BaseVO.success("创建成功", null);
     }
 
     private void check(HttpServletRequest request, Integer serverId) throws BaseException {

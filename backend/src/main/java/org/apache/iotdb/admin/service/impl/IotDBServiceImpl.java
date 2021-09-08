@@ -296,11 +296,37 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public List<String> getIotDBRoleList(Connection connection) throws BaseException {
-        SessionPool sessionPool = getSessionPool(connection);
-        String sql = "list role";
-        List<String> roles = executeQueryOneColumn(sessionPool, sql);
-        sessionPool.close();
-        return roles;
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            String sql = "list role";
+            List<String> roles = executeQueryOneColumn(sessionPool, sql);
+            sessionPool.close();
+            return roles;
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public RoleVO getIotDBRoleInfo(Connection connection, String roleName) throws BaseException {
+        SessionPool sessionPool = null;
+        RoleVO roleVO = new RoleVO();
+        try {
+            sessionPool = getSessionPool(connection);
+            String sql = "LIST ALL USER OF ROLE " + roleName;
+            List<String> users = executeQueryOneColumn(sessionPool, sql);
+            roleVO.setUserList(users);
+            return roleVO;
+        } catch (BaseException e) {
+            throw new BaseException(ErrorCode.ROLE_GET_USERS_FAIL, ErrorCode.ROLE_GET_USERS_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
     }
 
     @Override
@@ -443,19 +469,12 @@ public class IotDBServiceImpl implements IotDBService {
         String sql = "create role " + roleName;
         try {
             sessionPool.executeNonQueryStatement(sql);
-            List<String> privileges = iotDBRole.getPrivileges();
-            for (String privilege : privileges) {
-                sql = handlerPrivilegeStrToSql(privilege, null, roleName);
-                if (sql != null) {
-                    sessionPool.executeNonQueryStatement(sql);
-                }
-            }
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL, ErrorCode.SET_DB_ROLE_FAIL_MSG);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL, ErrorCode.SET_DB_ROLE_FAIL_MSG);
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         } finally {
             if (sessionPool != null) {
                 sessionPool.close();
