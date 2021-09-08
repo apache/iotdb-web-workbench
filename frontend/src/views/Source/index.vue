@@ -3,21 +3,51 @@
     <div class="info-box">
       <p class="title">{{ baseInfo.alias }}</p>
       <p class="more">
-        <span>{{ $t('sourcePage.host') + ':' }}{{ baseInfo.host }}</span>
-        <span>{{ $t('sourcePage.port') + ':' }}{{ baseInfo.port }}</span>
+        <span
+          ><span class="more-title">{{ $t('sourcePage.host') + ':' }}</span
+          >{{ baseInfo.host }}</span
+        >
+        <span
+          ><span class="more-title">{{ $t('sourcePage.port') + ':' }}</span
+          >{{ baseInfo.port }}</span
+        >
       </p>
-      <svg class="icon icon-edit" aria-hidden="true" @click="editSource()">
-        <use xlink:href="#icon-se-icon-f-edit"></use>
-      </svg>
-      <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')" @confirm="deleteSource()">
-        <template #reference>
-          <span class="icon-del">
-            <svg aria-hidden="true" class="icon">
-              <use xlink:href="#icon-se-icon-delete"></use>
-            </svg>
-          </span>
-        </template>
-      </el-popconfirm>
+      <p class="more last">
+        <span
+          ><span class="more-title">{{ $t('sourcePage.storageNum') + ':' }}</span
+          >{{ baseInfo.host }}</span
+        >
+        <span
+          ><span class="more-title">{{ $t('sourcePage.entityNum') + ':' }}</span
+          >{{ baseInfo.port }}</span
+        >
+        <span
+          ><span class="more-title">{{ $t('sourcePage.physicalNum') + ':' }}</span
+          >{{ baseInfo.port }}</span
+        >
+        <span
+          ><span class="more-title">{{ $t('sourcePage.dataNum') + ':' }}</span
+          >{{ baseInfo.port }}</span
+        >
+      </p>
+      <div class="buttons">
+        <el-button @click="editSource()">
+          <svg class="icon icon-edit" aria-hidden="true">
+            <use xlink:href="#icon-se-icon-f-edit"></use>
+          </svg>
+          {{ $t('common.edit') }}</el-button
+        >
+
+        <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')">
+          <template #reference>
+              <el-button @confirm="deleteSource()"
+                ><svg aria-hidden="true" class="icon icon-delete">
+                  <use xlink:href="#icon-se-icon-delete"></use></svg
+                >{{ $t('common.delete') }}</el-button
+              >
+          </template>
+        </el-popconfirm>
+      </div>
     </div>
     <div class="permission-box">
       <div class="info-head">
@@ -1145,7 +1175,7 @@ export default {
     position: absolute;
     top: 0px;
     right: 40px;
-    color: #FB5151FF;
+    color: #fb5151ff;
   }
   .del-user {
     right: 0;
@@ -1153,20 +1183,17 @@ export default {
   .info-box {
     padding: 10px 20px 14px;
     position: relative;
-    .icon {
-      position: absolute;
-      top: 19px;
-    }
-
-    .icon-edit {
-      right: 60px;
-      color: $theme-color;
-    }
+    // .icon {
+    //   position: absolute;
+    //   top: 19px;
+    // }
   }
   .info-box {
     font-size: 16px;
     font-weight: 500;
     color: #222222;
+    border: 1px solid #eaecf0;
+    margin: 16px;
     .title {
       margin: 10px 0 20px;
     }
@@ -1176,12 +1203,32 @@ export default {
         font-size: 14px;
         margin-right: 40px;
       }
+      .more-title {
+        color: #828ca1ff;
+        margin-right: 8px;
+      }
+    }
+    .last {
+      margin-top: 10px;
     }
   }
   .icon {
     cursor: pointer;
   }
-
+  .buttons {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+   
+    .icon-edit {
+      color: $theme-color;
+      margin-right: 4px;
+    }
+    .icon-delete {
+      color: #fb5151ff;
+      margin-right: 4px;
+    }
+  }
   .permission-box {
     .permit-content {
       display: flex;
@@ -1196,7 +1243,7 @@ export default {
           font-weight: 400;
           line-height: 20px;
           font-size: 12px;
-          color: #FB5151FF;
+          color: #fb5151ff;
           line-height: 16px;
           margin-left: 10px;
           padding: 3px 8px;
@@ -1292,7 +1339,7 @@ export default {
         }
         .auth-tips {
           font-size: 12px;
-          color: #FB5151FF;
+          color: #fb5151ff;
           line-height: 16px;
           margin-left: 10px;
           background: rgba(211, 45, 47, 0.04);
