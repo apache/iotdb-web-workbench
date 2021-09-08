@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -390,10 +393,10 @@ public class IotDBController {
                 ObjectMapper mapper = new ObjectMapper();
                 try {
                     if (!"null".equals(measurementDTO.getTags())) {
-                        measurementVO.setTags(mapper.readValue(measurementDTO.getTags(),Map.class));
+                        measurementVO.setTags(mapper.readValue(measurementDTO.getTags(), Map.class));
                     }
                     if (!"null".equals(measurementDTO.getAttributes())) {
-                        measurementVO.setAttributes(mapper.readValue(measurementDTO.getAttributes(),Map.class));
+                        measurementVO.setAttributes(mapper.readValue(measurementDTO.getAttributes(), Map.class));
                     }
                 } catch (JsonProcessingException e) {
                     log.error(e.getMessage());
@@ -564,6 +567,20 @@ public class IotDBController {
 //        deviceName = groupName + "." + deviceName;
         iotDBService.deleteDataByDevice(connection, deviceName, dataDeleteDTO);
         return BaseVO.success("删除物理量数据成功", null);
+    }
+
+    @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/randomImport")
+    @ApiOperation("随机批量导入指定设备下的物理量数据 (新增2.7）")
+    public BaseVO randomImport(@PathVariable("serverId") Integer serverId,
+                               @PathVariable("groupName") String groupName,
+                               @PathVariable("deviceName") String deviceName,
+                               @RequestBody RandomImportDTO randomImportDTO,
+                               HttpServletRequest request) throws BaseException {
+        checkPathParameter(groupName, deviceName);
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        iotDBService.randomImport(connection, deviceName, randomImportDTO);
+        return BaseVO.success("随机导入物理量数据成功", null);
     }
 
     @GetMapping("/users")
@@ -869,6 +886,23 @@ public class IotDBController {
         connectionService.check(serverId, userId);
     }
 
+    private void checkPathParameter(String groupName) throws BaseException {
+        if (groupName == null || !groupName.matches("^[^ ]+$")) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+    }
+
+    private void checkPathParameter(String groupName, String deviceName) throws BaseException {
+        checkPathParameter(deviceName);
+        if (groupName == null || !groupName.matches("^[^ ]+$") || !deviceName.contains(groupName)) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+    }
+
+    private void checkPathParameter(String groupName, String deviceName, String timeseriesName) throws BaseException {
+        checkPathParameter(deviceName, timeseriesName);
+        checkPathParameter(groupName, deviceName);
+    }
 
     private Long switchTime(String ttlUnit) throws BaseException {
         Long time = 0L;

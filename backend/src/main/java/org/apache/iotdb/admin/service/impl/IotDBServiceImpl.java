@@ -1,5 +1,6 @@
 package org.apache.iotdb.admin.service.impl;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
@@ -1081,6 +1082,107 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
+    public void randomImport(Connection connection, String deviceName, RandomImportDTO randomImportDTO) throws BaseException {
+        SessionPool sessionPool = null;
+        Integer totalLine = randomImportDTO.getTotalLine();
+        Integer stepSize = randomImportDTO.getStepSize();
+        Long startTime = randomImportDTO.getStartTime().getTime();
+
+        List<Long> times = new ArrayList<>();
+        List<List<String>> measurementsList = new ArrayList<>();
+        List<List<Object>> valuesList = new ArrayList<>();
+        List<List<TSDataType>> typesList = new ArrayList<>();
+        try {
+            sessionPool = getSessionPool(connection);
+            SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement("show timeseries " + deviceName);
+            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+            sessionDataSetWrapper.getColumnTypes();
+            int timeseriesIndex = -1;
+            int dataTypeIndex = -1;
+            if (columnNames != null) {
+                for (int i = 0; i < columnNames.size(); i++) {
+                    if ("timeseries".equalsIgnoreCase(columnNames.get(i))) {
+                        timeseriesIndex = i;
+                    }
+                    if ("dataType".equalsIgnoreCase(columnNames.get(i))) {
+                        dataTypeIndex = i;
+                    }
+                }
+            }
+            if (timeseriesIndex == -1 || dataTypeIndex == -1) {
+                throw new BaseException(ErrorCode.RANDOM_IMPORT_DATA_FAIL, ErrorCode.RANDOM_IMPORT_DATA_FAIL_MSG);
+            }
+
+            List<String> measurements = new ArrayList<>();
+            List<String> tpyesStr = new ArrayList<>();
+            while (sessionDataSetWrapper.hasNext()) {
+                RowRecord next = sessionDataSetWrapper.next();
+                String timeseries = next.getFields().get(timeseriesIndex).toString();
+                timeseries = StringUtils.removeStart(timeseries, deviceName + ".");
+                if (timeseries.contains(".")) {
+                    continue;
+                }
+                measurements.add(timeseries);
+                String dataType = next.getFields().get(dataTypeIndex).toString();
+                tpyesStr.add(dataType);
+            }
+            if (measurements.size() == 0) {
+                throw new BaseException(ErrorCode.NO_MEASUREMENT, ErrorCode.NO_MEASUREMENT_MSG);
+            }
+
+            List<TSDataType> types = handleTypeStr(tpyesStr);
+            for (int i = 0; i < totalLine; i++) {
+                typesList.add(types);
+                measurementsList.add(measurements);
+
+                List<Object> values = createRandomData(tpyesStr);
+                valuesList.add(values);
+
+                times.add(i + startTime);
+            }
+
+            sessionPool.insertOneDeviceRecords(deviceName, times, measurementsList, typesList, valuesList, false);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    private List<Object> createRandomData(List<String> types) throws BaseException {
+        Random random = new Random();
+        List<Object> values = new ArrayList<>();
+        for (String type : types) {
+            switch (type) {
+                case "BOOLEAN":
+                    values.add(random.nextBoolean());
+                    break;
+                case "INT32":
+                    values.add(random.nextInt());
+                    break;
+                case "INT64":
+                    values.add(random.nextLong());
+                    break;
+                case "FLOAT":
+                    values.add(random.nextFloat());
+                    break;
+                case "DOUBLE":
+                    values.add(random.nextDouble());
+                    break;
+                case "TEXT":
+                    values.add(RandomStringUtils.randomAlphabetic(5));
+                    break;
+                default:
+                    throw new BaseException(ErrorCode.DB_DATATYPE_WRONG, ErrorCode.DB_DATATYPE_WRONG_MSG);
+            }
+        }
+        return values;
+    }
+
+    @Override
     public void setUserPrivileges(Connection connection, String userName, PrivilegeInfoDTO privilegeInfoDTO) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         // 授权
@@ -1205,7 +1307,7 @@ public class IotDBServiceImpl implements IotDBService {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.GET_RECORD_FAIL, ErrorCode.GET_RECORD_FAIL_MSG);
         } finally {
-            if (sessionPool != null){
+            if (sessionPool != null) {
                 sessionPool.closeResultSet(sessionDataSetWrapper);
                 sessionPool.close();
             }
