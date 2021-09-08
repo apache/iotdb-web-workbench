@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.common.utils.AuthenticationUtils;
@@ -14,8 +15,13 @@ import org.apache.iotdb.admin.model.entity.Device;
 import org.apache.iotdb.admin.model.entity.StorageGroup;
 import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.*;
+import org.apache.iotdb.admin.tool.ExportCsv;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +51,12 @@ public class IotDBController {
 
     @Autowired
     private MeasurementService measurementService;
+
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private ExportCsv exportCsv;
 
     @GetMapping("/dataCount")
     @ApiOperation("获取iotdb数据统计信息  (新增2.1)")
@@ -583,6 +595,40 @@ public class IotDBController {
         Connection connection = connectionService.getById(serverId);
         iotDBService.randomImport(connection, deviceName, randomImportDTO);
         return BaseVO.success("随机导入物理量数据成功", null);
+    }
+
+    @ApiOperation("导出指定实体下的物理量数据  (新增2.9)")
+    @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/exportData")
+    public ResponseEntity<Resource> exportData(@PathVariable("serverId") Integer serverId,
+                                               @PathVariable("groupName") String groupName,
+                                               @PathVariable("deviceName") String deviceName,
+                                               @RequestBody DataQueryDTO dataQueryDTO,
+                                               HttpServletRequest request) throws BaseException {
+        checkPathParameter(groupName, deviceName);
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        String host = connection.getHost();
+        Integer port = connection.getPort();
+        String username = connection.getUsername();
+        String password = connection.getPassword();
+
+        long startTime = dataQueryDTO.getStartTime().getTime();
+        long endTime = dataQueryDTO.getEndTime().getTime();
+        List<String> measurementList = dataQueryDTO.getMeasurementList();
+        List<String> newMeasurementList = new ArrayList<>();
+        for (String measurement : measurementList) {
+            newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
+        }
+        String sql = "select " + String.join(",", newMeasurementList) + " from " + deviceName
+                + " where time >= " + startTime + " and time < " + endTime;
+        String fileName = exportCsv.exportCsv(host, port, username, password, sql, null);
+
+        org.springframework.core.io.Resource resource = fileService.loadFileAsResource(fileName);
+        String contentType = "application/octet-stream";
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
+                .body(resource);
     }
 
     @GetMapping("/users")
