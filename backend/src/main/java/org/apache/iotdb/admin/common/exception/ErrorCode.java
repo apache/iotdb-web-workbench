@@ -300,6 +300,15 @@ public class ErrorCode {
     public static final String NO_MEASUREMENT = "IOTDB-0064";
     public static final String NO_MEASUREMENT_MSG = "该实体下没有物理量，不能插入数据";
 
+    public static final String ROLE_GET_USERS_FAIL = "IOTDB-0065";
+    public static final String ROLE_GET_USERS_FAIL_MSG = "获取角色的用户列表失败";
+
+    public static final String REVOKE_ROLE = "IOTDB-0066";
+    public static final String REVOKE_ROLE_MSG = "撤销用户角色失败";
+
+    public static final String GRANT_ROLE = "IOTDB-0067";
+    public static final String GRANT_ROLE_MSG = "赋予用户角色失败";
+
     // 存储组表相关
     public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
     public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
@@ -338,10 +347,7 @@ public class ErrorCode {
     public static final String DELETE_ROLE_INFO_FAIL = "ROLE-0002";
     public static final String DELETE_ROLE_INFO_FAIL_MSG = "删除角色信息失败";
 
-    public static final String ROLE_GET_USERS_FAIL = "ROLE-0003";
-    public static final String ROLE_GET_USERS_FAIL_MSG = "获取角色的用户列表失败";
-
-    public static final String GET_ROLE_INFO_FAIL = "ROLE-0004";
+    public static final String GET_ROLE_INFO_FAIL = "ROLE-0003";
     public static final String GET_ROLE_INFO_FAIL_MSG = "获取角色信息失败";
 
     // 参数校验相关

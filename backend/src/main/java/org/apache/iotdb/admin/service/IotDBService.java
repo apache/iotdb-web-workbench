@@ -36,6 +36,12 @@ public interface IotDBService {
 
     void setIotDBRole(Connection connection, IotDBRole iotDBRole) throws BaseException;
 
+    UserRolesVO getRolesOfUser(Connection connection, String userName) throws BaseException;
+
+    void userGrant(Connection connection, String userName, UserGrantDTO userGrantDTO) throws BaseException;
+
+    void roleGrant(Connection connection, String roleName, RoleGrantDTO roleGrantDTO) throws BaseException;
+
     void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries) throws BaseException;
 
     void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException;

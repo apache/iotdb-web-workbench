@@ -482,6 +482,99 @@ public class IotDBServiceImpl implements IotDBService {
         }
     }
 
+    @Override
+    public UserRolesVO getRolesOfUser(Connection connection, String userName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        UserRolesVO userRolesVO = new UserRolesVO();
+        if (userName.equals(connection.getUsername())) {
+            userRolesVO.setPassword(connection.getPassword());
+        } else {
+            userRolesVO.setPassword(null);
+        }
+        String sql = "list all role of user " + userName;
+        try {
+            List<String> roleList = executeQueryOneColumn(sessionPool, sql);
+            userRolesVO.setRoleList(roleList);
+            return userRolesVO;
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public void userGrant(Connection connection, String userName, UserGrantDTO userGrantDTO) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<String> roleList = userGrantDTO.getRoleList();
+        List<String> cancelRoleList = userGrantDTO.getCancelRoleList();
+        try {
+            if (cancelRoleList != null && cancelRoleList.size() != 0) {
+                for (String cancelRole : cancelRoleList) {
+                    revokeRole(sessionPool, userName, cancelRole);
+                }
+            }
+            if (roleList != null && roleList.size() != 0) {
+                for (String garntRole : roleList) {
+                    grantRole(sessionPool, userName, garntRole);
+                }
+            }
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public void roleGrant(Connection connection, String roleName, RoleGrantDTO roleGrantDTO) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<String> userList = roleGrantDTO.getUserList();
+        List<String> cancelUserList = roleGrantDTO.getCancelUserList();
+        try {
+            if (cancelUserList != null && cancelUserList.size() != 0) {
+                for (String cancelUser : cancelUserList) {
+                    revokeRole(sessionPool, cancelUser, roleName);
+                }
+            }
+            if (userList != null && userList.size() != 0) {
+                for (String garntUser : userList) {
+                    grantRole(sessionPool, garntUser, roleName);
+                }
+            }
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    private void revokeRole(SessionPool sessionPool, String userName, String roleName) throws BaseException {
+        String sql = "revoke " + roleName + " from " + userName;
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.REVOKE_ROLE, ErrorCode.REVOKE_ROLE_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        }
+    }
+
+    private void grantRole(SessionPool sessionPool, String userName, String roleName) throws BaseException {
+        String sql = "grant " + roleName + " to " + userName;
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GRANT_ROLE, ErrorCode.GRANT_ROLE_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        }
+    }
+
 //    @Override
 //    public SqlResultVO query(Connection connection, String sql) throws BaseException {
 //        java.sql.Connection conn = getConnection(connection);
@@ -1826,6 +1919,7 @@ public class IotDBServiceImpl implements IotDBService {
             throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
+            // TODO 将没有权限单列出来
             throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
         } catch (InterruptedException e) {
             e.printStackTrace();
