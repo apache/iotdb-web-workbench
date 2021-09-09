@@ -823,7 +823,7 @@ public class IotDBServiceImpl implements IotDBService {
                 }
                 List<List<String>> newTags = deviceDTO.getTags();
                 for (List<String> newTag : newTags) {
-                    if(newTag.size()!=2){
+                    if (newTag.size() != 2) {
                         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
                     }
                     sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add tags " + newTag.get(0) + "=" + newTag.get(1));
@@ -861,7 +861,7 @@ public class IotDBServiceImpl implements IotDBService {
                 }
                 List<List<String>> newAttributes = deviceDTO.getAttributes();
                 for (List<String> newAttribute : newAttributes) {
-                    if (newAttribute.size()!=2){
+                    if (newAttribute.size() != 2) {
                         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
                     }
                     sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes " + newAttribute.get(0) + "=" + newAttribute.get(1));
@@ -1046,15 +1046,14 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public DataVO getDataByDevice(Connection connection, String deviceName, Integer pageSize, Integer pageNum, DataQueryDTO dataQueryDTO) throws BaseException {
         SessionPool sessionPool = null;
-        long startTime = dataQueryDTO.getStartTime().getTime();
-        long endTime = dataQueryDTO.getEndTime().getTime();
         List<String> measurementList = dataQueryDTO.getMeasurementList();
         List<String> newMeasurementList = new ArrayList<>();
         for (String measurement : measurementList) {
             newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
         }
+
         String basicSql = "select " + String.join(",", newMeasurementList) + " from " + deviceName;
-        String whereClause = " where time >= " + startTime + " and time < " + endTime;
+        String whereClause = getWhereClause(dataQueryDTO);
         String limitClause = " limit " + pageSize + " offset " + (pageNum - 1) * pageSize;
         String sql = basicSql + whereClause + limitClause;
         try {
@@ -1070,6 +1069,26 @@ public class IotDBServiceImpl implements IotDBService {
                 sessionPool.close();
             }
         }
+    }
+
+    private String getWhereClause(DataQueryDTO dataQueryDTO) {
+        Long startTime = null;
+        String whereClause = "";
+        if (dataQueryDTO.getStartTime() != null) {
+            startTime = dataQueryDTO.getStartTime().getTime();
+        }
+        Long endTime = null;
+        if (dataQueryDTO.getEndTime() != null) {
+            endTime = dataQueryDTO.getEndTime().getTime();
+        }
+        if (startTime != null && endTime != null) {
+            whereClause = " where time >= " + startTime + " and time <= " + endTime;
+        } else if (startTime == null && endTime != null) {
+            whereClause = " where time <= " + endTime;
+        } else if (startTime != null && endTime == null) {
+            whereClause = " where time >= " + startTime;
+        }
+        return whereClause;
     }
 
     private DataVO getDataBySql(String sql, SessionPool sessionPool) throws BaseException {
