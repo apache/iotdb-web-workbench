@@ -861,7 +861,7 @@ public class IotDBServiceImpl implements IotDBService {
                 }
                 List<List<String>> newAttributes = deviceDTO.getAttributes();
                 for (List<String> newAttribute : newAttributes) {
-                    if (newAttributes.size()!=2){
+                    if (newAttribute.size()!=2){
                         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
                     }
                     sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes " + newAttribute.get(0) + "=" + newAttribute.get(1));
