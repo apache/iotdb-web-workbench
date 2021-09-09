@@ -821,9 +821,12 @@ public class IotDBServiceImpl implements IotDBService {
                     }
                     sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " drop " + String.join(",", oldTags));
                 }
-                Map<String, String> newTags = deviceDTO.getTags();
-                for (String key : newTags.keySet()) {
-                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add tags " + key + "=" + newTags.get(key));
+                List<List<String>> newTags = deviceDTO.getTags();
+                for (List<String> newTag : newTags) {
+                    if(newTag.size()!=2){
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add tags " + newTag.get(0) + "=" + newTag.get(1));
                 }
             }
         } catch (BaseException | StatementExecutionException e) {
@@ -856,9 +859,12 @@ public class IotDBServiceImpl implements IotDBService {
                     }
                     sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " drop " + String.join(",", oldAttributes));
                 }
-                Map<String, String> newAttributes = deviceDTO.getAttributes();
-                for (String key : newAttributes.keySet()) {
-                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes " + key + "=" + newAttributes.get(key));
+                List<List<String>> newAttributes = deviceDTO.getAttributes();
+                for (List<String> newAttribute : newAttributes) {
+                    if (newAttributes.size()!=2){
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes " + newAttribute.get(0) + "=" + newAttribute.get(1));
                 }
             }
         } catch (BaseException | StatementExecutionException e) {
