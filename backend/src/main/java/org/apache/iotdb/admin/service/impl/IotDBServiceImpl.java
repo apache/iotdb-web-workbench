@@ -296,11 +296,37 @@ public class IotDBServiceImpl implements IotDBService {
 
     @Override
     public List<String> getIotDBRoleList(Connection connection) throws BaseException {
-        SessionPool sessionPool = getSessionPool(connection);
-        String sql = "list role";
-        List<String> roles = executeQueryOneColumn(sessionPool, sql);
-        sessionPool.close();
-        return roles;
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            String sql = "list role";
+            List<String> roles = executeQueryOneColumn(sessionPool, sql);
+            sessionPool.close();
+            return roles;
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public RoleVO getIotDBRoleInfo(Connection connection, String roleName) throws BaseException {
+        SessionPool sessionPool = null;
+        RoleVO roleVO = new RoleVO();
+        try {
+            sessionPool = getSessionPool(connection);
+            String sql = "LIST ALL USER OF ROLE " + roleName;
+            List<String> users = executeQueryOneColumn(sessionPool, sql);
+            roleVO.setUserList(users);
+            return roleVO;
+        } catch (BaseException e) {
+            throw new BaseException(ErrorCode.ROLE_GET_USERS_FAIL, ErrorCode.ROLE_GET_USERS_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
     }
 
     @Override
@@ -443,23 +469,109 @@ public class IotDBServiceImpl implements IotDBService {
         String sql = "create role " + roleName;
         try {
             sessionPool.executeNonQueryStatement(sql);
-            List<String> privileges = iotDBRole.getPrivileges();
-            for (String privilege : privileges) {
-                sql = handlerPrivilegeStrToSql(privilege, null, roleName);
-                if (sql != null) {
-                    sessionPool.executeNonQueryStatement(sql);
-                }
-            }
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL, ErrorCode.SET_DB_ROLE_FAIL_MSG);
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
-            throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL, ErrorCode.SET_DB_ROLE_FAIL_MSG);
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         } finally {
             if (sessionPool != null) {
                 sessionPool.close();
             }
+        }
+    }
+
+    @Override
+    public UserRolesVO getRolesOfUser(Connection connection, String userName) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        UserRolesVO userRolesVO = new UserRolesVO();
+        if (userName.equals(connection.getUsername())) {
+            userRolesVO.setPassword(connection.getPassword());
+        } else {
+            userRolesVO.setPassword(null);
+        }
+        String sql = "list all role of user " + userName;
+        try {
+            List<String> roleList = executeQueryOneColumn(sessionPool, sql);
+            userRolesVO.setRoleList(roleList);
+            return userRolesVO;
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public void userGrant(Connection connection, String userName, UserGrantDTO userGrantDTO) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<String> roleList = userGrantDTO.getRoleList();
+        List<String> cancelRoleList = userGrantDTO.getCancelRoleList();
+        try {
+            if (cancelRoleList != null && cancelRoleList.size() != 0) {
+                for (String cancelRole : cancelRoleList) {
+                    revokeRole(sessionPool, userName, cancelRole);
+                }
+            }
+            if (roleList != null && roleList.size() != 0) {
+                for (String garntRole : roleList) {
+                    grantRole(sessionPool, userName, garntRole);
+                }
+            }
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    @Override
+    public void roleGrant(Connection connection, String roleName, RoleGrantDTO roleGrantDTO) throws BaseException {
+        SessionPool sessionPool = getSessionPool(connection);
+        List<String> userList = roleGrantDTO.getUserList();
+        List<String> cancelUserList = roleGrantDTO.getCancelUserList();
+        try {
+            if (cancelUserList != null && cancelUserList.size() != 0) {
+                for (String cancelUser : cancelUserList) {
+                    revokeRole(sessionPool, cancelUser, roleName);
+                }
+            }
+            if (userList != null && userList.size() != 0) {
+                for (String garntUser : userList) {
+                    grantRole(sessionPool, garntUser, roleName);
+                }
+            }
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    private void revokeRole(SessionPool sessionPool, String userName, String roleName) throws BaseException {
+        String sql = "revoke " + roleName + " from " + userName;
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.REVOKE_ROLE, ErrorCode.REVOKE_ROLE_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        }
+    }
+
+    private void grantRole(SessionPool sessionPool, String userName, String roleName) throws BaseException {
+        String sql = "grant " + roleName + " to " + userName;
+        try {
+            sessionPool.executeNonQueryStatement(sql);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GRANT_ROLE, ErrorCode.GRANT_ROLE_MSG);
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         }
     }
 
@@ -603,11 +715,16 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public void deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException {
-        SessionPool sessionPool = getSessionPool(connection);
-        String sql = "delete timeseries " + deviceName + ".*";
+    public List<String> deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException {
+        SessionPool sessionPool = null;
         try {
-            sessionPool.executeNonQueryStatement(sql);
+            sessionPool = getSessionPool(connection);
+            List<String> timeseriesList = getTimeseries(connection, deviceName);
+            for (String timeseries : timeseriesList) {
+                String sql = "delete timeseries " + timeseries;
+                sessionPool.executeNonQueryStatement(sql);
+            }
+            return timeseriesList;
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
             if (e.getStatusCode() == 602) {
@@ -617,6 +734,10 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (IoTDBConnectionException e) {
             logger.error(e.getMessage());
             throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
         }
     }
 
@@ -700,9 +821,12 @@ public class IotDBServiceImpl implements IotDBService {
                     }
                     sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " drop " + String.join(",", oldTags));
                 }
-                Map<String, String> newTags = deviceDTO.getTags();
-                for (String key : newTags.keySet()) {
-                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add tags " + key + "=" + newTags.get(key));
+                List<List<String>> newTags = deviceDTO.getTags();
+                for (List<String> newTag : newTags) {
+                    if(newTag.size()!=2){
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add tags " + newTag.get(0) + "=" + newTag.get(1));
                 }
             }
         } catch (BaseException | StatementExecutionException e) {
@@ -735,9 +859,12 @@ public class IotDBServiceImpl implements IotDBService {
                     }
                     sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " drop " + String.join(",", oldAttributes));
                 }
-                Map<String, String> newAttributes = deviceDTO.getAttributes();
-                for (String key : newAttributes.keySet()) {
-                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes " + key + "=" + newAttributes.get(key));
+                List<List<String>> newAttributes = deviceDTO.getAttributes();
+                for (List<String> newAttribute : newAttributes) {
+                    if (newAttribute.size()!=2){
+                        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+                    }
+                    sessionPool.executeNonQueryStatement("alter timeseries " + deviceDTO.getTimeseries() + " add attributes " + newAttribute.get(0) + "=" + newAttribute.get(1));
                 }
             }
         } catch (BaseException | StatementExecutionException e) {
@@ -926,7 +1053,6 @@ public class IotDBServiceImpl implements IotDBService {
         for (String measurement : measurementList) {
             newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
         }
-        // TODO 这样会将子实体的数据也查出来，有待优化
         String basicSql = "select " + String.join(",", newMeasurementList) + " from " + deviceName;
         String whereClause = " where time >= " + startTime + " and time < " + endTime;
         String limitClause = " limit " + pageSize + " offset " + (pageNum - 1) * pageSize;
@@ -1084,8 +1210,8 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public void randomImport(Connection connection, String deviceName, RandomImportDTO randomImportDTO) throws BaseException {
         SessionPool sessionPool = null;
-        Integer totalLine = randomImportDTO.getTotalLine();
-        Integer stepSize = randomImportDTO.getStepSize();
+        int totalLine = randomImportDTO.getTotalLine();
+        int stepSize = randomImportDTO.getStepSize();
         Long startTime = randomImportDTO.getStartTime().getTime();
 
         List<Long> times = new ArrayList<>();
@@ -1110,6 +1236,7 @@ public class IotDBServiceImpl implements IotDBService {
                 }
             }
             if (timeseriesIndex == -1 || dataTypeIndex == -1) {
+                logger.error(ErrorCode.RANDOM_IMPORT_DATA_FAIL_MSG);
                 throw new BaseException(ErrorCode.RANDOM_IMPORT_DATA_FAIL, ErrorCode.RANDOM_IMPORT_DATA_FAIL_MSG);
             }
 
@@ -1127,6 +1254,7 @@ public class IotDBServiceImpl implements IotDBService {
                 tpyesStr.add(dataType);
             }
             if (measurements.size() == 0) {
+                logger.error(ErrorCode.NO_MEASUREMENT_MSG);
                 throw new BaseException(ErrorCode.NO_MEASUREMENT, ErrorCode.NO_MEASUREMENT_MSG);
             }
 
@@ -1138,13 +1266,17 @@ public class IotDBServiceImpl implements IotDBService {
                 List<Object> values = createRandomData(tpyesStr);
                 valuesList.add(values);
 
-                times.add(i + startTime);
+                times.add(stepSize * i + startTime);
             }
 
             sessionPool.insertOneDeviceRecords(deviceName, times, measurementsList, typesList, valuesList, false);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IoTDBConnectionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+        } catch (StatementExecutionException e) {
+            logger.error(e.getMessage());
+            throw new BaseException(ErrorCode.NO_MEASUREMENT, ErrorCode.NO_MEASUREMENT_MSG);
         } finally {
             if (sessionPool != null) {
                 sessionPool.close();
@@ -1308,6 +1440,7 @@ public class IotDBServiceImpl implements IotDBService {
             throw new BaseException(ErrorCode.GET_RECORD_FAIL, ErrorCode.GET_RECORD_FAIL_MSG);
         } finally {
             if (sessionPool != null) {
+                // TODO 待优化，结果集可能为空
                 sessionPool.closeResultSet(sessionDataSetWrapper);
                 sessionPool.close();
             }
@@ -1792,6 +1925,7 @@ public class IotDBServiceImpl implements IotDBService {
             throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         } catch (StatementExecutionException e) {
             logger.error(e.getMessage());
+            // TODO 将没有权限单列出来
             throw new BaseException(ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
         } catch (InterruptedException e) {
             e.printStackTrace();

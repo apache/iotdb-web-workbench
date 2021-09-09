@@ -3,7 +3,7 @@ package org.apache.iotdb.admin.model.dto;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
 
 @Data
 public class DeviceDTO implements Serializable {
@@ -20,7 +20,7 @@ public class DeviceDTO implements Serializable {
 
     private String compression;
 
-    private Map<String,String> tags;
+    private List<List<String>> tags;
 
-    private Map<String,String> attributes;
+    private List<List<String>> attributes;
 }

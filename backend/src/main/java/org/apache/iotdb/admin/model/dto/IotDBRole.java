@@ -3,8 +3,8 @@ package org.apache.iotdb.admin.model.dto;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 传输role信息类
@@ -12,9 +12,12 @@ import java.util.List;
 @Data
 public class IotDBRole implements Serializable {
 
-    @Length(min = 4,message = "长度必须大于等于4")
+    private Integer id;
+
+    @NotNull
+    @Length(min = 4, message = "角色名长度必须大于等于4")
     private String roleName;
 
-    private List<String> privileges;
+    private String description;
 
 }
