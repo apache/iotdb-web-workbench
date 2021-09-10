@@ -38,7 +38,7 @@ public class FileController {
     @Autowired
     private ExportCsv exportCsv;
 
-    @ApiOperation("数据导入")
+    @ApiOperation("通过csv文件导入物理量数据  (新增2.8)")
     @PostMapping("/servers/{serverId}/importData")
     public BaseVO<ImportDataVO> importData(@RequestParam("file") MultipartFile file,
                                            @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
@@ -59,7 +59,7 @@ public class FileController {
         return BaseVO.success("导入数据成功", importDataVO);
     }
 
-    @ApiOperation("数据导出")
+    @ApiOperation("将查询结果导出为csv文件  (新增2.10)")
     @PostMapping("/servers/{serverId}/exportData")
     public ResponseEntity<Resource> exportData(@PathVariable("serverId") Integer serverId,
                                                @RequestBody String sql, HttpServletRequest request) throws BaseException {

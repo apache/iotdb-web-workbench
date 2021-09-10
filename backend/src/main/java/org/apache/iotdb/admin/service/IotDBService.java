@@ -24,6 +24,8 @@ public interface IotDBService {
 
     List<String> getIotDBRoleList(Connection connection) throws BaseException;
 
+    RoleVO getIotDBRoleInfo(Connection connection, String roleName) throws BaseException;
+
     IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException;
 
     void deleteIotDBUser(Connection connection, String userName) throws BaseException;
@@ -33,6 +35,12 @@ public interface IotDBService {
     void setIotDBUser(Connection connection, IotDBUser iotDBUserVO) throws BaseException;
 
     void setIotDBRole(Connection connection, IotDBRole iotDBRole) throws BaseException;
+
+    UserRolesVO getRolesOfUser(Connection connection, String userName) throws BaseException;
+
+    void userGrant(Connection connection, String userName, UserGrantDTO userGrantDTO) throws BaseException;
+
+    void roleGrant(Connection connection, String roleName, RoleGrantDTO roleGrantDTO) throws BaseException;
 
     void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries) throws BaseException;
 
@@ -50,7 +58,7 @@ public interface IotDBService {
 
     List<Integer> getTimeseriesCount(Connection connection, List<String> deviceNames) throws BaseException;
 
-    void deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException;
+    List<String> deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException;
 
     void createDeviceWithMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 
