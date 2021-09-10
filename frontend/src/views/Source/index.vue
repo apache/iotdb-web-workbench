@@ -58,10 +58,10 @@
           <div class="tab-content">
             <div class="permit-content">
               <div class="left-part">
-                <p class="title clearfix">
-                  {{ $t('sourcePage.userAccount') }}
+                <!-- <p class="title clearfix">
                   <el-button type="text" @click="newUser()">{{ $t('sourcePage.newAccount') }}</el-button>
-                </p>
+                </p> -->
+                <el-button class="button-special title" @click="newUser()">{{ $t('sourcePage.userAccount') }}{{ $t('sourcePage.newAccount') }}</el-button>
                 <ul class="user-list">
                   <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
                     <!-- <el-tooltip class="item" width="200" effect="dark" :content="item.username" placement="top"> -->
@@ -222,6 +222,38 @@
                         </el-table-column>
                       </el-table>
                     </template>
+                  </el-tab-pane>
+                  <el-tab-pane v-if="!isNew" :label="$t('sourcePage.permitPermission')" name="3">
+                    <div class="permitpermission-content">
+                      <p class="tips">{{ $t('sourcePage.permitTips') }}</p>
+                      <div class="permit-list">
+                        <div class="permit-list-type">
+                          <div class="box box1"><el-checkbox v-model="userRelationAll" label="用户相关" @change="changeUserRelation()"></el-checkbox></div>
+
+                          <el-checkbox-group v-model="userRelationItems">
+                            <el-checkbox v-for="item in userRelationList[0]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
+                          </el-checkbox-group>
+                        </div>
+                        <div class="permit-list-type">
+                          <div class="box box2"><el-checkbox v-model="roleRelationAll" label="角色相关" @change="changeRoleRelation()"></el-checkbox></div>
+                          <el-checkbox-group v-model="roleRelationItems">
+                            <el-checkbox v-for="item in userRelationList[1]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
+                          </el-checkbox-group>
+                        </div>
+                        <div class="permit-list-type">
+                          <div class="box box3"><el-checkbox v-model="udfRelationAll" label="UDF" @change="changeUdfRelation()"></el-checkbox></div>
+                          <el-checkbox-group v-model="udfRelationItems">
+                            <el-checkbox v-for="item in userRelationList[2]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
+                          </el-checkbox-group>
+                        </div>
+                        <div class="permit-list-type">
+                          <div class="box box4"><el-checkbox v-model="triggerRelationAll" label="触发器" @change="changeTriggerRelation()"></el-checkbox></div>
+                          <el-checkbox-group v-model="triggerRelationItems">
+                            <el-checkbox v-for="item in userRelationList[3]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
+                          </el-checkbox-group>
+                        </div>
+                      </div>
+                    </div>
                   </el-tab-pane>
                 </el-tabs>
               </div>
@@ -658,13 +690,98 @@ export default {
         },
       ];
     };
+    let userRelationListFunc = () => {
+      return [
+        {
+          id: 'LIST_USER',
+          label: t('sourcePage.listUser'),
+        },
+        {
+          id: 'xxx',
+          label: '编辑用户',
+        },
+        { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
+        { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
+        {
+          id: 'GRANT_USER_PRIVILEGE',
+          label: t('sourcePage.grantPrivilege'),
+        },
+        {
+          id: 'REVOKE_USER_PRIVILEGE',
+          label: t('sourcePage.revertPrivilege'),
+        },
+        {
+          id: '赋予用户权限',
+          label: '赋予用户角色',
+        },
+        {
+          id: '撤销用户权限',
+          label: '撤销用户角色',
+        },
+      ];
+    };
+    let roleRelationListFunc = () => {
+      return [
+        {
+          id: 'LIST_USER',
+          label: t('sourcePage.listRole'),
+        },
+        {
+          id: 'xxx',
+          label: t('sourcePage.editRole'),
+        },
+        { id: 'DELETE_USER', label: t('sourcePage.deleteRole') },
+        { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
+        {
+          id: 'GRANT_USER_PRIVILEGE',
+          label: t('sourcePage.grantRolePrivilege'),
+        },
+        {
+          id: 'REVOKE_USER_PRIVILEGE',
+          label: t('sourcePage.revertRolePrivilege'),
+        },
+      ];
+    };
+    let udfRelationListFunc = () => {
+      return [
+        {
+          id: 'CREATE_FUNCTION',
+          label: t('sourcePage.createFunction'),
+        },
+        {
+          id: 'DROP_FUNCTION',
+          label: t('sourcePage.uninstallFunction'),
+        },
+      ];
+    };
+    let triggerRelationListFunc = () => {
+      return [
+        { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
+        { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
+        { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
+        { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
+      ];
+    };
+    let userRelationList = ref({
+      0: userRelationListFunc(),
+      1: roleRelationListFunc(),
+      2: udfRelationListFunc(),
+      3: triggerRelationListFunc(),
+    });
     const funcList = ref({
       0: funcTypeOne(),
       1: funcTypeTwo(),
       2: funcTypeTwo(),
       3: funcTypeTwo(),
     });
-
+    const userRelationAll = ref(false);
+    const userRelationItems = ref([]);
+    const roleRelationAll = ref(false);
+    const roleRelationItems = ref([]);
+    const udfRelationAll = ref(false);
+    const udfRelationItems = ref([]);
+    const triggerRelationAll = ref(false);
+    const triggerRelationItems = ref([]);
     watch(locale, () => {
       funcList.value = {
         0: funcTypeOne(),
@@ -732,6 +849,9 @@ export default {
      */
     const handleClickSource = (tab) => {
       sourceTabs.value = tab.paneName;
+      if (tab.paneName == 'a') {
+        activeName.value = '1';
+      }
     };
     /**
      * 选中用户列表某一个用户
@@ -868,6 +988,63 @@ export default {
         return false;
       }
     };
+    /**
+     * 监听全选用户相关操作
+     */
+    const changeUserRelation = () => {
+      if (userRelationAll.value) {
+        let temp = [];
+        for (let i = 0; i < userRelationList.value[0].length; i++) {
+          temp.push(userRelationList.value[0][i].id);
+        }
+        userRelationItems.value = temp;
+      } else {
+        userRelationItems.value = [];
+      }
+    };
+    /**
+     * 监听全选角色相关操作
+     */
+    const changeRoleRelation = () => {
+      if (roleRelationAll.value) {
+        let temp = [];
+        for (let i = 0; i < userRelationList.value[1].length; i++) {
+          temp.push(userRelationList.value[1][i].id);
+        }
+        roleRelationItems.value = temp;
+      } else {
+        roleRelationItems.value = [];
+      }
+    };
+    /**
+     * 监听全选udf相关操作
+     */
+    const changeUdfRelation = () => {
+      if (udfRelationAll.value) {
+        let temp = [];
+        for (let i = 0; i < userRelationList.value[2].length; i++) {
+          temp.push(userRelationList.value[2][i].id);
+        }
+        udfRelationItems.value = temp;
+      } else {
+        udfRelationItems.value = [];
+      }
+    };
+    /**
+     * 监听全选触发器相关操作
+     */
+    const changeTriggerRelation = () => {
+      if (triggerRelationAll.value) {
+        let temp = [];
+        for (let i = 0; i < userRelationList.value[3].length; i++) {
+          temp.push(userRelationList.value[3][i].id);
+        }
+        triggerRelationItems.value = temp;
+      } else {
+        triggerRelationItems.value = [];
+      }
+    };
+
     /**
      * 切换表格行编辑状态
      * scope:行数据
@@ -1348,6 +1525,20 @@ export default {
       goEditGroup,
       cancelNew1,
       groupTotal,
+      userRelationList,
+      userRelationListFunc,
+      userRelationAll,
+      userRelationItems,
+      roleRelationAll,
+      roleRelationItems,
+      udfRelationAll,
+      udfRelationItems,
+      triggerRelationAll,
+      triggerRelationItems,
+      changeUserRelation,
+      changeRoleRelation,
+      changeUdfRelation,
+      changeTriggerRelation,
     };
   },
   components: {
@@ -1464,23 +1655,19 @@ export default {
       .permit-content {
         display: flex;
         flex-direction: row;
+        height: 100%;
         .left-part {
           width: 240px;
           margin-top: 12px;
-          border-right: 1px solid #e0e0e0;
+          margin-right: 20px;
           .title {
-            height: 17px;
+            height: 40px !important;
+            width: 240px;
             font-size: 12px;
-            font-weight: 400;
-            line-height: 20px;
-            font-size: 12px;
-            color: #fb5151ff;
-            line-height: 16px;
-            margin-left: 10px;
-            padding: 3px 8px;
-            color: rgba(34, 34, 34, 0.65);
-            padding: 0 8px 10px 16px;
-
+            background: #f9fbfc;
+            line-height: 40px;
+            padding: 0 20px;
+            margin-bottom: 4px;
             button {
               float: right;
               font-size: 12px;
@@ -1490,11 +1677,16 @@ export default {
           }
           .user-list {
             margin-bottom: 10px;
-            max-height: 250px;
             overflow: auto;
+            background: #f9fbfc;
+
+            background: #f9fbfc;
+            padding-top: 10px;
+            height: calc(100% - 50px);
             .active {
-              background: rgba(69, 117, 246, 0.04);
-              color: $theme-color;
+              color: #7a859eff;
+              background: #ffffff;
+              border-radius: 30px 0px 0px 30px;
             }
             li {
               height: 36px;
@@ -1576,6 +1768,53 @@ export default {
             background: rgba(211, 45, 47, 0.04);
             padding: 3px 8px;
             margin: 16px 18px 16px 14px;
+          }
+          .permitpermission-content {
+            height: 100%;
+            .tips {
+              color: #fb5151ff;
+              font-size: 12px;
+              margin-bottom: 16px;
+            }
+            .permit-list {
+              display: flex;
+              height: calc(100% - 30px);
+              .permit-list-type {
+                flex: 1;
+                background: #ffffff;
+                border-radius: 4px;
+                border: 1px solid #eaecf0;
+                margin-right: 20px;
+                padding: 16px;
+                overflow: auto;
+                &:last-child {
+                  margin-right: 0;
+                }
+                .box {
+                  border-radius: 4px;
+                  height: 40px;
+                  line-height: 40px;
+                  padding-left: 10px;
+                }
+                .box1 {
+                  background: #fff9f3;
+                }
+                .box2 {
+                  background: #f3fbff;
+                }
+                .box3 {
+                  background: #fff3f3;
+                }
+                .box4 {
+                  background: #f2fff6;
+                }
+                .el-checkbox-group {
+                  padding-left: 10px;
+                  height: 32px;
+                  line-height: 32px;
+                }
+              }
+            }
           }
           .tab-content {
             padding: 10px 16px;

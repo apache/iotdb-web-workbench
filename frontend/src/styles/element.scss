@@ -153,3 +153,25 @@
   height: 28px !important;
   line-height: 28px !important;
 }
+.button-special {
+  border: transparent;
+  text-align: left;
+}
+.button-special:hover {
+  color: $theme-color;
+  background: #edf8f5 !important;
+  border: transparent;
+}
+
+.is-checked {
+  .el-checkbox__input.is-checked + .el-checkbox__label {
+    color: #333;
+  }
+  .el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: #13c393ff;
+    border-color: $theme-color;
+  }
+}
+.el-checkbox__inner:hover {
+  border-color: $theme-color !important;
+}
