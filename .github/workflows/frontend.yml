@@ -1,7 +1,4 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Frontend
+name: frontend
 
 on:
   push:
@@ -22,33 +19,35 @@ on:
   # allow manually run the action:
   workflow_dispatch:
 
-env:
-  MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.class=standard -Dmaven.wagon.http.retryHandler.count=3
-
-# TODO make npm specific workflow
-
 jobs:
-  unix:
-    strategy:
-      fail-fast: false
-      max-parallel: 20
-      matrix:
-        java: [ 8, 11, 13 ]
-        os: [ ubuntu-latest, macos-latest ]
-    runs-on: ${{ matrix.os}}
-
+  lint:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.java }}
-      - name: Cache Maven packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2-
-      - name: Unit Tests
-        shell: bash
-        run: cd frontend && npm install && npm run lint && npm run test:unit
+      - uses: actions/setup-node@master
+      - name: npm install
+        run: cd frontend && npm install
+      - name: lint
+        run: cd frontend && npm run lint
+      - name: lint-css
+        run: cd frontend && npm run lint-css
+    
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+      - name: npm install
+        run: cd frontend && npm install
+      - name: test
+        run: cd frontend && npm run test:unit
+  
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+      - name: npm install
+        run: cd frontend && npm install
+      - name: Build
+        run: cd frontend && npm run build
