@@ -19,21 +19,39 @@
 
 -->
 
-[English](./README.md) | [中文](./README_zh.md)
+# 后端服务设计及运行说明
 
-# IoTDB-Workbench
+[IoTDB-Workbench快速入门](doc/intro.md)
 
-IotDB-Workbench是IotDB的可视化管理工具，可对IotDB的数据进行增删改查、权限控制等，简化IotDB的使用及学习成本。
-在我们心中IotDB是最棒的时序数据库之一，我们将一直不遗余力地推动国产时序数据库IotDB的应用和发展，为本土开源能力的提高、开源生态的发展，贡献自己的力量，欢迎大家加入IotDB Admin的开发及维护，期待你的加入：
+## Building the Backend
 
-![微信](backend/doc/image/wechat.png)
+The backend can be built using maven by using
 
-## 后端服务运行
+```
+mvn clean install
+```
 
-[后端服务设计及运行说明](backend/README.md)
+## 开发环境搭建
 
-## 前端服务运行
+[Maven配置](doc/maven.md)
 
-[前端服务运行说明](frontend/README.md)
+[日志如何配置](doc/log.md)
 
+[接口文档配置](doc/swagger.md)
 
+[统一参数验证](doc/validate.md)
+
+[常用实践约定](doc/promise.md)
+
+[接口规范](doc/rest.md)
+
+[代码规范checkstyle](doc/rule.md)
+
+[代码规范和注释](doc/note.md)
+
+## 线上部署
+
+[项目部署](doc/deploy.md)
+
+## 发布日志
+[release-note](doc/release.md)

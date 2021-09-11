@@ -19,21 +19,30 @@
 
 -->
 
-[English](./README.md) | [中文](./README_zh.md)
+# 配置中心 Apollo
 
-# IoTDB-Workbench
+##接入步骤
+1. 添加依赖 ，在pom.xml 中添加依赖，如不需要apolo，可以去掉该依赖
 
-IotDB-Workbench是IotDB的可视化管理工具，可对IotDB的数据进行增删改查、权限控制等，简化IotDB的使用及学习成本。
-在我们心中IotDB是最棒的时序数据库之一，我们将一直不遗余力地推动国产时序数据库IotDB的应用和发展，为本土开源能力的提高、开源生态的发展，贡献自己的力量，欢迎大家加入IotDB Admin的开发及维护，期待你的加入：
+```xml
+<dependency>
+  <groupId>com.ctrip.framework.apollo</groupId>
+  <artifactId>apollo-client</artifactId>
+  <version>1.2.0</version>
+</dependency>
+```
 
-![微信](backend/doc/image/wechat.png)
+版本号请使用1.2.0，服务器版本xxx
 
-## 后端服务运行
+2. 在application.properties文件中增加必要配置
 
-[后端服务设计及运行说明](backend/README.md)
+```properties
+    #配置中心服务地址
+    apollo.meta=http://192.168.1.241:8081
+    #开启配置中心
+    apollo.bootstrap.enabled=true
+    # 采用配置的形式注入命名空间application
+    apollo.bootstrap.namespaces=application
+```
 
-## 前端服务运行
-
-[前端服务运行说明](frontend/README.md)
-
-
+3. 编写读取配置的类。参考bean包下面的TestBean类。

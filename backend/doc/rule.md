@@ -19,21 +19,19 @@
 
 -->
 
-[English](./README.md) | [中文](./README_zh.md)
+# 阿里巴巴java规范checkstyle
 
-# IoTDB-Workbench
+我们使用阿里巴巴java规范泰山版（1.6.0）
 
-IotDB-Workbench是IotDB的可视化管理工具，可对IotDB的数据进行增删改查、权限控制等，简化IotDB的使用及学习成本。
-在我们心中IotDB是最棒的时序数据库之一，我们将一直不遗余力地推动国产时序数据库IotDB的应用和发展，为本土开源能力的提高、开源生态的发展，贡献自己的力量，欢迎大家加入IotDB Admin的开发及维护，期待你的加入：
+需使用idea(版本2018.3+)安装插件，自动检查代码规范，具体操作步骤如下：
 
-![微信](backend/doc/image/wechat.png)
+1、Mac：IntelliJ IDEA -> Preferences -> Plugins -> Installed plugins from Disk -> 选择doc目录下的code-guidelines进行安装
+   Windows：File -> Settings -> Plugins -> Installed plugins from Disk -> 选择doc目录下的code-guidelines进行安装
 
-## 后端服务运行
+2、重启idea
 
-[后端服务设计及运行说明](backend/README.md)
+##在线安装java规范checkstyle
+1、Mac：IntelliJ IDEA -> Preferences -> Plugins -> Browse repositories -> 搜索Alibaba Java Coding Guidelines -> 直接install进行在线安装
+   Windows：File -> Settings -> Plugins -> Marketplace -> 搜索Alibaba Java Coding Guidelines -> 直接install进行在线安装
 
-## 前端服务运行
-
-[前端服务运行说明](frontend/README.md)
-
-
+2、重启idea
