@@ -26,8 +26,8 @@ import java.io.Serializable;
 @Data
 public class DeviceVO implements Serializable {
 
-    private String description;
-    private String creator;
-    private String time;
-    private Integer deviceId;
+  private String description;
+  private String creator;
+  private String time;
+  private Integer deviceId;
 }

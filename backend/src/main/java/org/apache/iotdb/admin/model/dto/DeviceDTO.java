@@ -26,11 +26,11 @@ import java.io.Serializable;
 @Data
 public class DeviceDTO implements Serializable {
 
-    private String timeseries;
+  private String timeseries;
 
-    private String dataType;
+  private String dataType;
 
-    private String encoding;
+  private String encoding;
 
-    private String description;
+  private String description;
 }

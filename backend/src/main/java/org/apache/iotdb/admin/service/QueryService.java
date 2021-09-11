@@ -27,13 +27,13 @@ import java.util.List;
 
 public interface QueryService {
 
-    void save(Integer serverId, Query query) throws BaseException;
+  void save(Integer serverId, Query query) throws BaseException;
 
-    void update(Integer serverId, Query query) throws BaseException;
+  void update(Integer serverId, Query query) throws BaseException;
 
-    List<QueryVO> getQueryList(Integer serverId);
+  List<QueryVO> getQueryList(Integer serverId);
 
-    void deleteQuery(Integer queryId) throws BaseException;
+  void deleteQuery(Integer queryId) throws BaseException;
 
-    Query getQuery(Integer queryId) throws BaseException;
+  Query getQuery(Integer queryId) throws BaseException;
 }

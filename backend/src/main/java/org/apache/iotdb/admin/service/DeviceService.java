@@ -29,15 +29,15 @@ import java.util.List;
 
 public interface DeviceService {
 
-    List<Device> getDevices(String host, List<String> deviceNames);
+  List<Device> getDevices(String host, List<String> deviceNames);
 
-    void deleteDeviceInfo(String host, String groupName) throws BaseException;
+  void deleteDeviceInfo(String host, String groupName) throws BaseException;
 
-    void deleteDeviceInfoByDeviceName(String host, String deviceName) throws BaseException;
+  void deleteDeviceInfoByDeviceName(String host, String deviceName) throws BaseException;
 
-    void setDeviceInfo(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
+  void setDeviceInfo(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 
-    DeviceVO getDevice(String host, String deviceName);
+  DeviceVO getDevice(String host, String deviceName);
 
-    void updateDeviceInfo(DeviceInfoDTO deviceInfoDTO) throws BaseException;
+  void updateDeviceInfo(DeviceInfoDTO deviceInfoDTO) throws BaseException;
 }

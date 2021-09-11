@@ -27,15 +27,15 @@ import java.util.List;
 
 public interface ConnectionService {
 
-    List<ConnVO> getAllConnections(Integer id);
+  List<ConnVO> getAllConnections(Integer id);
 
-    void insert(Connection connection) throws BaseException;
+  void insert(Connection connection) throws BaseException;
 
-    void deleteById(Integer serverId, Integer userId) throws BaseException;
+  void deleteById(Integer serverId, Integer userId) throws BaseException;
 
-    Connection getById(Integer serverId) throws BaseException;
+  Connection getById(Integer serverId) throws BaseException;
 
-    void check(Integer serverId, Integer userId) throws BaseException;
+  void check(Integer serverId, Integer userId) throws BaseException;
 
-    void update(Connection connection) throws BaseException;
+  void update(Connection connection) throws BaseException;
 }

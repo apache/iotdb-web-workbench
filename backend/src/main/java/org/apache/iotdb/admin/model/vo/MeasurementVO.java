@@ -26,9 +26,9 @@ import java.io.Serializable;
 @Data
 public class MeasurementVO implements Serializable {
 
-    private String timeseries;
-    private String dataType;
-    private String encoding;
-    private String description;
-    private String newValue;
+  private String timeseries;
+  private String dataType;
+  private String encoding;
+  private String description;
+  private String newValue;
 }

@@ -25,18 +25,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 传输时间序列信息的类
- */
+/** 传输时间序列信息的类 */
 @Data
 public class Timeseries implements Serializable {
 
-    private List<String> measurements = new ArrayList<>();
+  private List<String> measurements = new ArrayList<>();
 
-    private List<String> types = new ArrayList<>();
+  private List<String> types = new ArrayList<>();
 
-    private long time;
+  private long time;
 
-    private List<String> values;
-
+  private List<String> values;
 }

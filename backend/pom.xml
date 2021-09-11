@@ -38,6 +38,7 @@
     <!-- 对应java 1.8，如果编译错误，可能需要调整 -->
     <java.version>1.8</java.version>
     <skipTests>true</skipTests>
+    <spotless.version>2.4.2</spotless.version>
   </properties>
 
 
@@ -208,6 +209,7 @@
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
+        <version>0.13</version>
         <executions>
           <execution>
             <id>license-check</id>
@@ -218,7 +220,33 @@
           </execution>
         </executions>
       </plugin>
-
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <version>1.7</version>
+              <style>GOOGLE</style>
+            </googleJavaFormat>
+            <importOrder>
+              <order>org.apache.iotdb,,javax,java,\#</order>
+            </importOrder>
+            <removeUnusedImports/>
+          </java>
+          <lineEndings>UNIX</lineEndings>
+        </configuration>
+        <executions>
+          <execution>
+            <id>spotless-check</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
 
   </build>

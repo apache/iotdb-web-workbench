@@ -28,6 +28,6 @@ import java.util.List;
 @Data
 public class RecordVO implements Serializable {
 
-    private List<Date> timeList;
-    private List<Long> valueList;
+  private List<Date> timeList;
+  private List<Long> valueList;
 }

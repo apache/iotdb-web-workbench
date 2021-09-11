@@ -26,6 +26,6 @@ import java.io.Serializable;
 @Data
 public class QueryVO implements Serializable {
 
-    private Integer id;
-    private String queryName;
+  private Integer id;
+  private String queryName;
 }

@@ -28,17 +28,17 @@ import java.util.List;
 
 public interface GroupService {
 
-    List<String> getGroupDescription(String host, List<String> groupNames) throws BaseException;
+  List<String> getGroupDescription(String host, List<String> groupNames) throws BaseException;
 
-    void setStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException;
+  void setStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException;
 
-    boolean isExist(String host, String groupName);
+  boolean isExist(String host, String groupName);
 
-    void deleteGroupInfo(String host, String groupName) throws BaseException;
+  void deleteGroupInfo(String host, String groupName) throws BaseException;
 
-    StorageGroup getGroupInfo(String host, String groupName);
+  StorageGroup getGroupInfo(String host, String groupName);
 
-    void updateStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException;
+  void updateStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException;
 
-    Integer getGroupId(String host, String groupName);
+  Integer getGroupId(String host, String groupName);
 }

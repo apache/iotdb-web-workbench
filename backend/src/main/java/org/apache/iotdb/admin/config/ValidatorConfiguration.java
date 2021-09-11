@@ -27,15 +27,17 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-/**
- * 校验框架配置类
- */
+/** 校验框架配置类 */
 @Configuration
 public class ValidatorConfiguration {
 
-    @Bean("validator")
-    public Validator getValidatorFactory() {
-        ValidatorFactory validatorFactory = Validation.byProvider(HibernateValidator.class).configure().failFast(true).buildValidatorFactory();
-        return validatorFactory.getValidator();
-    }
+  @Bean("validator")
+  public Validator getValidatorFactory() {
+    ValidatorFactory validatorFactory =
+        Validation.byProvider(HibernateValidator.class)
+            .configure()
+            .failFast(true)
+            .buildValidatorFactory();
+    return validatorFactory.getValidator();
+  }
 }

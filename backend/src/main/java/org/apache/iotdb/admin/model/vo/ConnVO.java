@@ -25,14 +25,12 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- * 展示别名及serverId
- */
+/** 展示别名及serverId */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ConnVO implements Serializable {
 
-    private Integer id;
-    private String alias;
+  private Integer id;
+  private String alias;
 }

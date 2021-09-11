@@ -26,7 +26,7 @@ import java.io.Serializable;
 @Data
 public class PathVO implements Serializable {
 
-    private String groupName;
-    private String deviceName;
-    private String timeseriesName;
+  private String groupName;
+  private String deviceName;
+  private String timeseriesName;
 }
