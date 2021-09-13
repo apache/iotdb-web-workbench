@@ -71,6 +71,15 @@ public class IotDBController {
         return BaseVO.success("获取统计信息成功", dataCountVO);
     }
 
+    @GetMapping("/dataModel")
+    @ApiOperation("获取iotdb数据模型  (新增2.2)")
+    public BaseVO<DataModelVO> getDataModel(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+        check(request, serverId);
+        Connection connection = connectionService.getById(serverId);
+        DataModelVO dataModelVO = iotDBService.getDataModel(connection);
+        return BaseVO.success("获取数据模型成功", dataModelVO);
+    }
+
     @GetMapping("/storageGroups/info")
     @ApiOperation("获得存储组信息列表")
     public BaseVO<List<GroupInfoVO>> getAllStorageGroupsInfo(@PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {

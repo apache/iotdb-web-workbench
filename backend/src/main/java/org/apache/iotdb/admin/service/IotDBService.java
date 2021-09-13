@@ -10,6 +10,8 @@ import java.util.List;
 public interface IotDBService {
     DataCountVO getDataCount(Connection connection) throws BaseException;
 
+    DataModelVO getDataModel(Connection connection) throws BaseException;
+
     List<String> getAllStorageGroups(Connection connection) throws BaseException;
 
     void saveStorageGroup(Connection connection, String groupName) throws BaseException;
@@ -54,8 +56,6 @@ public interface IotDBService {
 
     void cancelGroupTtl(Connection connection, String groupName) throws BaseException;
 
-    Integer getDeviceCount(Connection connection, String groupName) throws BaseException;
-
     List<Integer> getTimeseriesCount(Connection connection, List<String> deviceNames) throws BaseException;
 
     List<String> deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException;
@@ -67,8 +67,6 @@ public interface IotDBService {
     void upsertMeasurementTags(Connection connection, List<DeviceDTO> deviceDTOList) throws BaseException;
 
     void upsertMeasurementAttributes(Connection connection, List<DeviceDTO> deviceDTOList) throws BaseException;
-
-    Integer getMeasurementsCount(Connection connection, String deviceName) throws BaseException;
 
     Integer getOneDataCount(Connection connection, String deviceName, String measurementName) throws BaseException;
 

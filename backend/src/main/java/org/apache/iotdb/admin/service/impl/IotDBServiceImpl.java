@@ -102,6 +102,149 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
+    public DataModelVO getDataModel(Connection connection) throws BaseException {
+        SessionPool sessionPool = null;
+        try {
+            sessionPool = getSessionPool(connection);
+            DataModelVO root = new DataModelVO("root");
+            assembleDataModel(root, "root", sessionPool);
+            root.setGroupCount(getGroupCount(sessionPool));
+            return root;
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
+            }
+        }
+    }
+
+    private void assembleDataModel(DataModelVO node, String prefixPath, SessionPool sessionPool) throws BaseException {
+        Set<String> childrenNode = getChildrenNode(prefixPath, sessionPool);
+        if (childrenNode == null) {
+            return;
+        }
+        for (String child : childrenNode) {
+            DataModelVO childNode = new DataModelVO(child);
+            assembleDataModel(childNode, prefixPath + "." + child, sessionPool);
+            setNodeInfo(childNode, sessionPool, prefixPath + "." + child);
+            node.initNodeChildren().add(childNode);
+        }
+    }
+
+    private Set<String> getChildrenNode(String prefixPath, SessionPool sessionPool) throws BaseException {
+        String sql = "show timeseries " + prefixPath;
+        List<String> children = executeQueryOneColumn(sessionPool, sql);
+        if (children.size() == 1 && children.get(0).equals(prefixPath)) {
+            return null;
+        }
+        Set<String> childrenNode = new HashSet<>();
+        for (String child : children) {
+            child = StringUtils.removeStart(child, prefixPath + ".").split("\\.")[0];
+            childrenNode.add(child);
+        }
+        return childrenNode;
+    }
+
+    private Integer getGroupCount(SessionPool sessionPool) throws BaseException {
+        String sql = "count storage group";
+        String value = executeQueryOneValue(sessionPool, sql);
+        Integer count = Integer.valueOf(value);
+        return count;
+    }
+
+    private Integer getDeviceCount(SessionPool sessionPool, String groupName) throws BaseException {
+        String sql = "count devices " + groupName;
+        String value = executeQueryOneValue(sessionPool, sql);
+        Integer count = Integer.valueOf(value);
+        return count;
+    }
+
+    private Integer getMeasurementsCount(SessionPool sessionPool, String deviceName) throws BaseException {
+        String sql = "count timeseries " + deviceName;
+        String value = executeQueryOneValue(sessionPool, sql);
+        Integer count = Integer.valueOf(value);
+        return count;
+    }
+
+    private boolean isGroup(SessionPool sessionPool, String path) throws BaseException {
+        String sql = "show storage group " + path;
+        List<String> groups = executeQueryOneColumn(sessionPool, sql);
+        boolean isGroup = false;
+        for (String group : groups) {
+            if (group.equals(path)) {
+                isGroup = true;
+                break;
+            }
+        }
+        return isGroup;
+    }
+
+    private boolean isDevice(SessionPool sessionPool, String path) throws BaseException {
+        String sql = "show devices " + path;
+        List<String> devices = executeQueryOneColumn(sessionPool, sql);
+        boolean isDevice = false;
+        for (String device : devices) {
+            if (device.equals(path)) {
+                isDevice = true;
+                break;
+            }
+        }
+        return isDevice;
+    }
+
+    private boolean isMeasurement(SessionPool sessionPool, String path) throws BaseException {
+        String sql = "show timeseries " + path;
+        List<String> measurements = executeQueryOneColumn(sessionPool, sql);
+        boolean isMeasurement = false;
+        for (String measurement : measurements) {
+            if (measurement.equals(path)) {
+                isMeasurement = true;
+                break;
+            }
+        }
+        return isMeasurement;
+    }
+
+    private void setNodeInfo(DataModelVO dataModelVO, SessionPool sessionPool, String path) throws BaseException {
+        if (isGroup(sessionPool, path)) {
+            dataModelVO.setDeviceCount(getDeviceCount(sessionPool, path));
+            dataModelVO.setIsGroup(true);
+        }
+        if (isDevice(sessionPool, path)) {
+            dataModelVO.setMeasurementCount(getMeasurementsCount(sessionPool, path));
+            dataModelVO.setIsDevice(true);
+            return;
+        }
+        if (isMeasurement(sessionPool, path)) {
+            DataInfo dataInfo = new DataInfo();
+            dataInfo.setNewValue(getLastValue(sessionPool, path));
+            dataInfo.setDataCount(getOneDataCount(sessionPool, path));
+            dataInfo.setDataType(getDataTpye(sessionPool, path));
+            dataModelVO.setDataInfo(dataInfo);
+            dataModelVO.setIsMeasurement(true);
+        }
+    }
+
+    private String getLastValue(SessionPool sessionPool, String timeseries) throws BaseException {
+        int index = timeseries.lastIndexOf(".");
+        String sql = "select last_value(" + timeseries.substring(index + 1) + ") from " + timeseries.substring(0, index);
+        String value = executeQueryOneValue(sessionPool, sql);
+        return value;
+    }
+
+    private Integer getOneDataCount(SessionPool sessionPool, String timeseries) throws BaseException {
+        int index = timeseries.lastIndexOf(".");
+        String sql = "select count(*) from " + timeseries.substring(0, index);
+        String countStr = executeQueryOneLine(sessionPool, sql, "count(" + timeseries + ")");
+        return Integer.parseInt(countStr);
+    }
+
+    private String getDataTpye(SessionPool sessionPool, String timeseries) throws BaseException {
+        String sql = "show timeseries " + timeseries;
+        String dataType = executeQueryOneLine(sessionPool, sql, "dataType");
+        return dataType;
+    }
+
+    @Override
     public List<String> getAllStorageGroups(Connection connection) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         String sql = "show storage group";
@@ -685,18 +828,6 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public Integer getDeviceCount(Connection connection, String groupName) throws BaseException {
-        SessionPool sessionPool = getSessionPool(connection);
-        String sql = "count devices " + groupName;
-        String value = executeQueryOneValue(sessionPool, sql);
-        if (value == null) {
-            return 0;
-        }
-        Integer count = Integer.valueOf(value);
-        return count;
-    }
-
-    @Override
     public List<Integer> getTimeseriesCount(Connection connection, List<String> deviceNames) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
         List<Integer> lines = new ArrayList<>();
@@ -881,14 +1012,6 @@ public class IotDBServiceImpl implements IotDBService {
     }
 
     @Override
-    public Integer getMeasurementsCount(Connection connection, String deviceName) throws BaseException {
-        SessionPool sessionPool = getSessionPool(connection);
-        String sql = "count timeseries " + deviceName;
-        String valueStr = executeQueryOneValue(sessionPool, sql);
-        return Integer.valueOf(valueStr);
-    }
-
-    @Override
     public Integer getOneDataCount(Connection connection, String deviceName, String measurementName) throws BaseException {
         SessionPool sessionPool = null;
         try {
@@ -1000,16 +1123,22 @@ public class IotDBServiceImpl implements IotDBService {
     @Override
     public Boolean deviceExist(Connection connection, String groupName, String deviceName) throws BaseException {
         SessionPool sessionPool = getSessionPool(connection);
-        String sql = "show devices " + groupName;
-        List<String> devices = executeQueryOneColumn(sessionPool, sql);
-        Boolean isExist = false;
-        for (String device : devices) {
-            if (deviceName.equals(device)) {
-                isExist = true;
-                break;
+        try {
+            String sql = "show devices " + groupName;
+            List<String> devices = executeQueryOneColumn(sessionPool, sql);
+            Boolean isExist = false;
+            for (String device : devices) {
+                if (deviceName.equals(device)) {
+                    isExist = true;
+                    break;
+                }
+            }
+            return isExist;
+        } finally {
+            if (sessionPool != null) {
+                sessionPool.close();
             }
         }
-        return isExist;
     }
 
     @Override
