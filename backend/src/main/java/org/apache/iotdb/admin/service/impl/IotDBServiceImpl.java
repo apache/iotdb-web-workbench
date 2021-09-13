@@ -1073,7 +1073,6 @@ public class IotDBServiceImpl implements IotDBService {
 
     private String getWhereClause(DataQueryDTO dataQueryDTO) {
         Long startTime = null;
-        String whereClause = "";
         if (dataQueryDTO.getStartTime() != null) {
             startTime = dataQueryDTO.getStartTime().getTime();
         }
@@ -1081,6 +1080,8 @@ public class IotDBServiceImpl implements IotDBService {
         if (dataQueryDTO.getEndTime() != null) {
             endTime = dataQueryDTO.getEndTime().getTime();
         }
+
+        String whereClause = "";
         if (startTime != null && endTime != null) {
             whereClause = " where time >= " + startTime + " and time <= " + endTime;
         } else if (startTime == null && endTime != null) {
@@ -1331,6 +1332,19 @@ public class IotDBServiceImpl implements IotDBService {
             }
         }
         return values;
+    }
+
+    @Override
+    public String getSqlForExport(String deviceName, DataQueryDTO dataQueryDTO) throws BaseException {
+        List<String> measurementList = dataQueryDTO.getMeasurementList();
+        List<String> newMeasurementList = new ArrayList<>();
+        for (String measurement : measurementList) {
+            newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
+        }
+        String whereClause = getWhereClause(dataQueryDTO);
+        String sql = "select " + String.join(",", newMeasurementList) + " from " + deviceName
+                + whereClause;
+        return sql;
     }
 
     @Override

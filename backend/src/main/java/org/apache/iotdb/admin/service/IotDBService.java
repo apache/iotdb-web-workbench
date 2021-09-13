@@ -92,6 +92,8 @@ public interface IotDBService {
 
     void randomImport(Connection connection, String deviceName, RandomImportDTO randomImportDTO) throws BaseException;
 
+    String getSqlForExport(String deviceName, DataQueryDTO dataQueryDTO) throws BaseException;
+
     void setUserPrivileges(Connection connection, String userName, PrivilegeInfoDTO privilegeInfoDTO) throws BaseException;
 
     RecordVO getRecords(Connection connection, String deviceName, String timeseriesName, String dataType) throws BaseException;

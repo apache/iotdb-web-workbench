@@ -563,7 +563,13 @@ public class IotDBController {
                                                @PathVariable("deviceName") String deviceName,
                                                @RequestBody DataQueryDTO dataQueryDTO,
                                                HttpServletRequest request) throws BaseException {
-        checkParameter(groupName, deviceName);
+        List<String> measurementList = dataQueryDTO.getMeasurementList();
+        if (measurementList == null || measurementList.size() == 0) {
+            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        }
+        for (String measurement : measurementList) {
+            checkParameter(groupName, deviceName, measurement);
+        }
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
         String host = connection.getHost();
@@ -571,15 +577,7 @@ public class IotDBController {
         String username = connection.getUsername();
         String password = connection.getPassword();
 
-        long startTime = dataQueryDTO.getStartTime().getTime();
-        long endTime = dataQueryDTO.getEndTime().getTime();
-        List<String> measurementList = dataQueryDTO.getMeasurementList();
-        List<String> newMeasurementList = new ArrayList<>();
-        for (String measurement : measurementList) {
-            newMeasurementList.add(StringUtils.removeStart(measurement, deviceName + "."));
-        }
-        String sql = "select " + String.join(",", newMeasurementList) + " from " + deviceName
-                + " where time >= " + startTime + " and time < " + endTime;
+        String sql = iotDBService.getSqlForExport(deviceName, dataQueryDTO);
         String fileName = exportCsv.exportCsv(host, port, username, password, sql, null);
 
         org.springframework.core.io.Resource resource = fileService.loadFileAsResource(fileName);
