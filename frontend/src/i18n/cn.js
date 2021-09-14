@@ -280,6 +280,7 @@ const cn = {
       data: '数据',
       savequery: '保存查询',
       queryname: '查询名称',
+      deleteArry: '批量删除',
     },
   },
 };

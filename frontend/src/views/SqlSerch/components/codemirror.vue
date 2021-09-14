@@ -81,6 +81,9 @@ export default {
     setCode(value) {
       this.coder.setValue(value);
     },
+    getSelecValue() {
+      return this.coder.getSelection();
+    },
     setEvent() {
       this.coder.on('change', () => {
         this.$emit('getCode', this.code);
@@ -136,16 +139,20 @@ pre.CodeMirror-line {
   text-align: left !important;
 }
 .CodeMirror {
-  background: #f7f7f7 !important;
+  background: #f9fbfc !important;
 }
 .CodeMirror-gutters {
-  background-color: #efefef !important;
+  background-color: #f9fbfc !important;
   width: 30px !important;
+  border-right: none !important;
 }
 .font_fmiy {
   .CodeMirror-line {
     font-size: 11px !important;
     font-family: 'PingFang SC, Arial, sans-serif' !important;
+  }
+  .CodeMirror-scroll {
+    background: #f9fbfc !important;
   }
 }
 </style>

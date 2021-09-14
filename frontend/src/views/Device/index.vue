@@ -17,6 +17,7 @@
         :selectData="selectData"
         :pagination="pagination"
         :lineHeight="5"
+        :celineHeight="5"
         :encoding="encoding"
         :maxHeight="430"
         @iconEvent="openWin"
@@ -84,16 +85,20 @@ export default {
           label: 'device.physicalname',
           prop: 'timeseries',
           type: 'INPUT', //控件类型
-          // width: 350,
           required: true, //必填标志
           size: 'small',
           event: checkVal,
         },
         {
+          label: '别名',
+          prop: 'alias',
+          type: 'INPUT', //控件类型
+          size: 'small',
+        },
+        {
           label: 'device.datatype',
           prop: 'dataType',
           type: 'SELECT',
-          // width: 200,
           options: [
             { label: 'BOOLEAN', value: 'BOOLEAN' },
             { label: 'INT32', value: 'INT32' },
@@ -103,6 +108,7 @@ export default {
             { label: 'TEXT', value: 'TEXT' },
           ],
           event: changeBorder,
+          eventf: true,
           required: true,
           size: 'small',
         },
@@ -110,17 +116,39 @@ export default {
           label: 'device.codingmode',
           prop: 'encoding',
           type: 'SELECTCH',
-          // width: 200,
           required: true,
           size: 'small',
           icon: 'el-icon-question',
         },
         {
+          label: '压缩方式',
+          prop: 'compression',
+          type: 'SELECT',
+          size: 'small',
+          icon: 'el-icon-question',
+          options: [
+            { label: 'UNCOMPRESSED', value: 'UNCOMPRESSED' },
+            { label: 'SNAPPY', value: 'SNAPPY' },
+            { label: 'LZ4', value: 'LZ4' },
+            { label: 'GZIP', value: 'GZIP' },
+          ],
+        },
+        {
           label: 'device.physicaldescr',
           prop: 'description',
           type: 'TEXT',
-          width: 300,
-          // maxlength: 255,
+          size: 'small',
+        },
+        {
+          label: '标签',
+          prop: 'tags',
+          type: 'TAG',
+          size: 'small',
+        },
+        {
+          label: '属性',
+          prop: 'attributes',
+          type: 'TAG',
           size: 'small',
         },
         {
@@ -138,6 +166,7 @@ export default {
           dataType: null,
           encoding: null,
           description: null,
+          tag: [],
           display: true,
           border: false,
           namecopy: false,
@@ -159,6 +188,8 @@ export default {
           placeholder: 'device.inputdevice', //灰色提示文字
           required: true, //是否必填
           disabled: false,
+          inputHeader: true,
+          inputHeaderText: 'groupName',
           message: 'device.inputdevice', //报错提示信息
         },
         {
@@ -170,16 +201,6 @@ export default {
           placeholder: 'device.inputdecr', //灰色提示文字
           required: false, //是否必填
           message: 'device.inputdecr', //报错提示信息
-        },
-        {
-          label: 'device.group', //名称
-          type: 'TEXT', //控件类型
-          size: 'small', //尺寸
-          labelWidth: '40%', //块宽度 px 或 %
-          itemID: 'groupName', //数据字段名
-          placeholder: '', //灰色提示文字
-          required: false, //是否必填
-          message: '', //报错提示信息
         },
       ],
     });
@@ -232,8 +253,6 @@ export default {
       }, 500);
     }
     function deleteRow(row, index) {
-      console.log(row.timeseries);
-      console.log(index);
       if (!row.display) {
         ElMessageBox.confirm(`${t('device.deletecontent1')}"${row.timeseries}"？${t('device.deletecontent2')}`, `${t('device.tips')}`, {
           confirmButtonText: t('device.ok'),
@@ -270,6 +289,10 @@ export default {
           dataType: null,
           encoding: null,
           description: null,
+          alias: null,
+          compression: null,
+          tags: [],
+          attributes: [],
           display: true,
           border: false,
           namecopy: false,
@@ -286,7 +309,6 @@ export default {
     }
     function sumbitData() {
       let checkfalg = true;
-      console.log(tableData.list);
       tableData.list.forEach((item) => {
         if (item.timeseries === null || item.dataType === null || item.border || item.seBorder) {
           if (checkfalg) {
@@ -368,6 +390,10 @@ export default {
               dataType: null,
               encoding: null,
               description: null,
+              alias: null,
+              compression: null,
+              tags: [],
+              attributes: [],
               display: true,
               border: false,
               namecopy: false,

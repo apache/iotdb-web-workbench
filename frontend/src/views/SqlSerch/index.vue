@@ -44,27 +44,37 @@
                 <template #label>
                   <span>{{ $t('standTable.running') }}{{ index + 1 }}<i class="el-icon-more iconmore green"></i> </span>
                 </template>
+                <div class="table_top_border"></div>
+                <div class="tab_table" v-if="item && display">
+                  <stand-table
+                    ref="standTable"
+                    :column="item"
+                    :tableData="tableData.list[index]"
+                    :lineHeight="5"
+                    :celineHeight="5"
+                    :maxHeight="divwerHeight - 70"
+                    :pagination="pagination"
+                    backColor="#E7EAF2"
+                  >
+                  </stand-table>
+                </div>
+                <div class="tab_table" v-else>
+                  <span v-if="display">{{ $t('sqlserch.sqlserchText') }}</span>
+                </div>
                 <div class="header_messge flex">
                   <div>
-                    <!-- <span>
+                    <span>
                       <svg class="icon icon-1 icon-color" aria-hidden="true" @click="btnClick1">
                         <use xlink:href="#icon-se-icon-download"></use>
                       </svg>
                       <span class="downloadchart">{{ $t('standTable.download') }}</span>
                     </span>
-                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span> -->
+                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span>
                   </div>
                   <div>
                     <span class="frist_span">{{ $t('standTable.serchtime') }}：{{ time.list[index] }}</span>
                     <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line.list[index] }}</span>
                   </div>
-                </div>
-                <div class="table_top_border"></div>
-                <div class="tab_table" v-if="item">
-                  <stand-table ref="standTable" :column="item" :tableData="tableData.list[index]" :lineHeight="5" :lineWidth="13" :maxHeight="divwerHeight" :pagination="pagination"> </stand-table>
-                </div>
-                <div class="tab_table" v-else>
-                  <span>{{ $t('sqlserch.sqlserchText') }}</span>
                 </div>
               </el-tab-pane>
               <!-- <el-tab-pane name="second2">
@@ -133,6 +143,7 @@ export default {
     let timeNumber = ref(0);
     let dividerRef = ref(null);
     let sqlName = ref(null);
+    let display = ref(false);
     let codemirror = ref(null);
     let tabelNum = ref(0);
     const standTable = ref(null);
@@ -177,6 +188,11 @@ export default {
     }
     function querySqlRun() {
       if (runFlag.value) {
+        let cd = codemirror.value.getSelecValue();
+        if (cd) {
+          getCode(cd);
+        }
+        display.value = false;
         runFlag.value = false;
         divwerHeight.value = 400;
         timeNumber.value = Number(new Date());
@@ -185,8 +201,11 @@ export default {
           activeName.value = 't0';
           column.list = [];
           tableData.list = [];
+          let lengthArry = [];
           tabelNum.value = res.data.length;
+          console.log(res);
           res.data.forEach((item) => {
+            let length = [];
             time.list.push(item.queryTime);
             line.list.push(item.line);
             if (item.metaDataList) {
@@ -195,6 +214,8 @@ export default {
                   return {
                     label: eleitem,
                     prop: `t${index}`,
+                    width: 'auto',
+                    fixed: index === 0 ? 'left' : index === item.metaDataList.length - 1 ? 'right' : false,
                   };
                 }),
               });
@@ -206,6 +227,9 @@ export default {
                 list: item.valueList.map((eleitem) => {
                   const obj = {};
                   for (let i = 0; i < eleitem.length; i++) {
+                    if (eleitem[i].length > length[i] || !length[i]) {
+                      length[i] = eleitem[i].length;
+                    }
                     obj[`t${i}`] = eleitem[i];
                   }
                   return obj;
@@ -214,7 +238,17 @@ export default {
             } else {
               tableData.list.push(null);
             }
+            lengthArry.push(length);
           });
+          // lengthArry.forEach((element, i) => {
+          //   element.forEach((item, index) => {
+          //     if (index === element.length - 1) {
+          //       return false;
+          //     }
+          //     column.list[i].list[index].width = column.list[i].list[index].label.length < item ? item * 12 : column.list[i].list[index].label.length * 12;
+          //   });
+          // });
+          display.value = true;
           runFlag.value = true;
         });
         setTimeout(() => {
@@ -326,6 +360,7 @@ export default {
     return {
       column,
       line,
+      display,
       tabelNum,
       activeNameRight,
       treeList,
@@ -385,9 +420,6 @@ export default {
   // overflow: hidden;
   position: absolute;
   border-left: 1px solid #ebeef5;
-  .tabgad {
-    background: #efefef;
-  }
 }
 .downloadchart {
   font-size: 11px;
@@ -408,8 +440,8 @@ export default {
   }
   .divider {
     // width: 1px;
-    height: 1px;
-    background-color: #efefef;
+    height: 3px;
+    background-color: #f9fafc;
     cursor: n-resize;
     &:hover {
       background-color: $theme-color !important;
@@ -418,7 +450,7 @@ export default {
   }
   .tabs {
     height: 30px;
-    background: #efefef;
+    background: #fff;
     box-shadow: 0px 0px 2px #d2d2d2;
     .frist_span {
       color: #cccccc;
@@ -453,6 +485,12 @@ export default {
 }
 </style>
 <style lang="scss">
+.tabgad {
+  .el-tabs__nav-wrap::after {
+    height: 1px;
+    bottom: 1px;
+  }
+}
 .backcolor.el-main {
   padding: 0;
   height: 100%;
