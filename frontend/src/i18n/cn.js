@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import zhLocale from 'element-plus/lib/locale/lang/zh-cn';
 
 const cn = {
@@ -88,6 +107,10 @@ const cn = {
       newAccount: '新增账号',
       baseConfig: '基本配置',
       accountPermit: '账号权限',
+      permitPermission: '权限管理权限',
+      permitTips: '注：勾选用户/角色的【查看】权限后，相关创建、删除、修改能权限才能生效',
+      dataModel: '数据模型',
+      accountRole: '用户角色',
       userNameTitle: '账号名称：',
       passwordTitle: '账号密码：',
       groupInfo: '存储组信息',
@@ -106,6 +129,11 @@ const cn = {
       deleteUser: '删除用户',
       editPassword: '修改密码',
       listUser: '查看用户',
+      listRole: '查看角色',
+      editRole: '编辑角色',
+      deleteRole: '删除角色',
+      grantRolePrivilege: '赋予角色权限',
+      revertRolePrivilege: '撤销角色权限',
       grantPrivilege: '用户赋权',
       revertPrivilege: '撤销权限',
       createTimeSeries: '创建时间序列',

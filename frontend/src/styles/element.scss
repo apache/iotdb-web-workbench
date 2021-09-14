@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 .el-button--primary {
   background-color: $theme-color !important;
   border-color: $theme-color !important;
@@ -12,8 +31,23 @@
   padding: 0 12px !important;
   font-size: 12px;
 }
+.el-button:hover {
+  background: #fff;
+  border: 1px solid $theme-color;
+  color: $theme-color;
+}
+.button-delete:hover {
+  background: #fff;
+  border: 1px solid #fb5151ff;
+  color: #fb5151ff;
+}
 .el-button--text {
   color: $theme-color !important;
+}
+.el-button--text:hover {
+  color: #089c79 !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
 }
 .el-button-delete {
   color: #fb5151ff !important;
@@ -106,10 +140,38 @@
     line-height: 34px !important;
   }
 }
+.el-tabs__item {
+  color: #8e97aaff !important;
+}
+.el-tabs__item:hover {
+  color: $theme-color !important;
+}
 .el-tabs__active-bar {
-  background-color: #4575f6ff !important;
+  background-color: $theme-color !important;
 }
 .el-input .el-input__inner {
   height: 28px !important;
   line-height: 28px !important;
+}
+.button-special {
+  border: transparent;
+  text-align: left;
+}
+.button-special:hover {
+  color: $theme-color;
+  background: #edf8f5 !important;
+  border: transparent;
+}
+
+.is-checked {
+  .el-checkbox__input.is-checked + .el-checkbox__label {
+    color: #333;
+  }
+  .el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: #13c393ff;
+    border-color: $theme-color;
+  }
+}
+.el-checkbox__inner:hover {
+  border-color: $theme-color !important;
 }
