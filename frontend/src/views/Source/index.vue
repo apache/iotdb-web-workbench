@@ -1,21 +1,21 @@
 <!--
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
--->
+  - Licensed to the Apache Software Foundation (ASF) under one
+  - or more contributor license agreements.  See the NOTICE file
+  - distributed with this work for additional information
+  - regarding copyright ownership.  The ASF licenses this file
+  - to you under the Apache License, Version 2.0 (the
+  - "License"); you may not use this file except in compliance
+  - with the License.  You may obtain a copy of the License at
+  -
+  -   http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing,
+  - software distributed under the License is distributed on an
+  - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  - KIND, either express or implied.  See the License for the
+  - specific language governing permissions and limitations
+  - under the License.
+  -->
 
 <template>
   <div class="source-detail-container">
@@ -1162,30 +1162,30 @@ export default {
   }
   .icon-del {
     position: absolute;
-    top: 0px;
+    top: 0;
     right: 40px;
     color: #d32d2fff;
   }
   .del-user {
     right: 0;
   }
+  .icon {
+    cursor: pointer;
+  }
   .info-box {
     padding: 10px 20px 14px;
     position: relative;
+    font-size: 16px;
+    font-weight: 500;
+    color: #222;
     .icon {
       position: absolute;
       top: 19px;
     }
-
     .icon-edit {
       right: 60px;
       color: $theme-color;
     }
-  }
-  .info-box {
-    font-size: 16px;
-    font-weight: 500;
-    color: #222222;
     .title {
       margin: 10px 0 20px;
     }
@@ -1197,10 +1197,19 @@ export default {
       }
     }
   }
-  .icon {
-    cursor: pointer;
+  .info-head {
+    height: 40px;
+    line-height: 40px;
+    background: #f6f6f8;
+    font-size: 14px;
+    color: #222;
+    padding-left: 20px;
+    .icon {
+      font-size: 16px;
+      cursor: pointer;
+      margin-right: 4px;
+    }
   }
-
   .permission-box {
     .permit-content {
       display: flex;
@@ -1213,15 +1222,10 @@ export default {
           height: 17px;
           font-size: 12px;
           font-weight: 400;
-          line-height: 20px;
-          font-size: 12px;
-          color: #d32d2fff;
           line-height: 16px;
           margin-left: 10px;
-          padding: 3px 8px;
           color: rgba(34, 34, 34, 0.65);
           padding: 0 8px 10px 16px;
-
           button {
             float: right;
             font-size: 12px;
@@ -1262,16 +1266,12 @@ export default {
       .right-part {
         flex: 1;
         position: relative;
-        &:deep(.el-input__suffix .el-input__icon) {
-          line-height: 42px !important;
-        }
         .auth-add-btn {
           position: absolute;
           right: 10px;
           top: 6px;
           z-index: 1000;
         }
-
         .tabs {
           position: relative;
         }
@@ -1289,16 +1289,19 @@ export default {
             display: none;
           }
         }
-        &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
-          color: #222222;
-          cursor: default;
-        }
         &:deep(.el-checkbox__label) {
           font-size: 12px !important;
           font-weight: 400;
         }
         &:deep(.el-input .el-input__inner) {
           font-size: 12px !important;
+        }
+        &:deep(.el-input__suffix .el-input__icon) {
+          line-height: 42px !important;
+        }
+        &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
+          color: #222;
+          cursor: default;
         }
         .el-select {
           width: 100%;
@@ -1313,7 +1316,6 @@ export default {
           font-size: 12px;
           color: #d32d2fff;
           line-height: 16px;
-          margin-left: 10px;
           background: rgba(211, 45, 47, 0.04);
           padding: 3px 8px;
           margin: 16px 18px 16px 14px;
@@ -1330,7 +1332,6 @@ export default {
           }
           .user-name {
             max-width: calc(100% - 50px);
-
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -1357,19 +1358,6 @@ export default {
           }
         }
       }
-    }
-  }
-  .info-head {
-    height: 40px;
-    line-height: 40px;
-    background: #f6f6f8;
-    font-size: 14px;
-    color: #222222;
-    padding-left: 20px;
-    .icon {
-      font-size: 16px;
-      cursor: pointer;
-      margin-right: 4px;
     }
   }
   .storage-box {
