@@ -189,6 +189,7 @@
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
+        <version>0.13</version>
         <executions>
           <execution>
             <id>license-check</id>
