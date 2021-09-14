@@ -1851,7 +1851,7 @@ public class IotDBServiceImpl implements IotDBService {
                 sessionDataSetWrapper.close();
             }
         }
-        throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP);
+        throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
     }
 
     private SqlResultVO executeQuery(SessionPool sessionPool, String sql, Boolean closePool) throws BaseException {

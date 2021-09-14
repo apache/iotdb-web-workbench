@@ -27,10 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -389,10 +386,26 @@ public class IotDBController {
                 ObjectMapper mapper = new ObjectMapper();
                 try {
                     if (!"null".equals(measurementDTO.getTags())) {
-                        measurementVO.setTags(mapper.readValue(measurementDTO.getTags(), Map.class));
+                        List<List<String>> tags = new ArrayList<>();
+                        Map<String, String> tagsMap = mapper.readValue(measurementDTO.getTags(), Map.class);
+                        for (String key : tagsMap.keySet()) {
+                            List<String> tag = new ArrayList<>();
+                            tag.add(key);
+                            tag.add(tagsMap.get(key));
+                            tags.add(tag);
+                        }
+                        measurementVO.setTags(tags);
                     }
                     if (!"null".equals(measurementDTO.getAttributes())) {
-                        measurementVO.setAttributes(mapper.readValue(measurementDTO.getAttributes(), Map.class));
+                        List<List<String>> attributes = new ArrayList<>();
+                        Map<String, String> attributesMap = mapper.readValue(measurementDTO.getAttributes(), Map.class);
+                        for (String key : attributesMap.keySet()) {
+                            List<String> attribute = new ArrayList<>();
+                            attribute.add(key);
+                            attribute.add(attributesMap.get(key));
+                            attributes.add(attribute);
+                        }
+                        measurementVO.setAttributes(attributes);
                     }
                 } catch (JsonProcessingException e) {
                     log.error(e.getMessage());
