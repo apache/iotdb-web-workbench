@@ -4,11 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- *  角色及其对应权限
- */
+/** 角色及其对应权限 */
 @Data
 public class RoleWithPrivilegesVO implements Serializable {
-    private String role;
-    private String privilege;
+  private String role;
+  private String privilege;
 }

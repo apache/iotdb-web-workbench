@@ -7,5 +7,5 @@ import java.util.List;
 
 @Data
 public class IotDBUserDTO implements Serializable {
-    private List<PrivilegeInfoDTO> privilegesInfos;
+  private List<PrivilegeInfoDTO> privilegesInfos;
 }

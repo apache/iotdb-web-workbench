@@ -9,9 +9,9 @@ import java.util.Map;
 
 @Data
 public class RecordVO implements Serializable {
-    private List<Date> timeList;
+  private List<Date> timeList;
 
-    private List<String> valueList;
+  private List<String> valueList;
 
-    private Map<String,Integer> textCount;
+  private Map<String, Integer> textCount;
 }

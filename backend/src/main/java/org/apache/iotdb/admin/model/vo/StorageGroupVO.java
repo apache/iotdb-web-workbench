@@ -6,6 +6,6 @@ import java.io.Serializable;
 
 @Data
 public class StorageGroupVO implements Serializable {
-    private String groupName;
-    private Integer groupId;
+  private String groupName;
+  private Integer groupId;
 }

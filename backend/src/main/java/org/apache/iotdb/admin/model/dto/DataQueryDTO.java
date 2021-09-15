@@ -9,9 +9,9 @@ import java.util.List;
 @Data
 public class DataQueryDTO implements Serializable {
 
-    private Date startTime;
+  private Date startTime;
 
-    private Date endTime;
+  private Date endTime;
 
-    private List<String> measurementList;
+  private List<String> measurementList;
 }

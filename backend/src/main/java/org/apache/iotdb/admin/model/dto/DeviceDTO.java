@@ -8,19 +8,19 @@ import java.util.List;
 @Data
 public class DeviceDTO implements Serializable {
 
-    private String timeseries;
+  private String timeseries;
 
-    private String dataType;
+  private String dataType;
 
-    private String encoding;
+  private String encoding;
 
-    private String description;
+  private String description;
 
-    private String alias;
+  private String alias;
 
-    private String compression;
+  private String compression;
 
-    private List<List<String>> tags;
+  private List<List<String>> tags;
 
-    private List<List<String>> attributes;
+  private List<List<String>> attributes;
 }

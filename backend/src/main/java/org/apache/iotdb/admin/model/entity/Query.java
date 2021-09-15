@@ -5,19 +5,20 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+
 import java.io.Serializable;
 
 @Data
 public class Query implements Serializable {
 
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+  @TableId(type = IdType.AUTO)
+  private Integer id;
 
-    @NotNull(message = "未指定所属连接id")
-    private Integer connectionId;
+  @NotNull(message = "未指定所属连接id")
+  private Integer connectionId;
 
-    @NotNull(message = "未指定脚本名")
-    private String queryName;
+  @NotNull(message = "未指定脚本名")
+  private String queryName;
 
-    private String sqls;
+  private String sqls;
 }

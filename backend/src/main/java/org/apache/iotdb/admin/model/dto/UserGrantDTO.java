@@ -8,8 +8,7 @@ import java.util.List;
 @Data
 public class UserGrantDTO implements Serializable {
 
-    private List<String> roleList;
+  private List<String> roleList;
 
-    private List<String> cancelRoleList;
-
+  private List<String> cancelRoleList;
 }

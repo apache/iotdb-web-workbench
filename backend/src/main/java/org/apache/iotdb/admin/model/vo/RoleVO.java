@@ -7,9 +7,9 @@ import java.util.List;
 
 @Data
 public class RoleVO implements Serializable {
-    private String description;
+  private String description;
 
-    private List<String> userList;
+  private List<String> userList;
 
-    private Integer id;
+  private Integer id;
 }

@@ -6,9 +6,9 @@ import java.io.Serializable;
 
 @Data
 public class DataInfo implements Serializable {
-    private String dataType;
+  private String dataType;
 
-    private String newValue;
+  private String newValue;
 
-    private Integer dataCount;
+  private Integer dataCount;
 }

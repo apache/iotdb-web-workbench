@@ -6,8 +6,8 @@ import java.io.Serializable;
 
 @Data
 public class DataCountVO implements Serializable {
-    private Integer groupCount;
-    private Integer deviceCount;
-    private Integer measurementCount;
-    private Integer dataCount;
+  private Integer groupCount;
+  private Integer deviceCount;
+  private Integer measurementCount;
+  private Integer dataCount;
 }

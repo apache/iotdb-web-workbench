@@ -8,35 +8,35 @@ import java.util.List;
 
 @Data
 public class DataModelVO implements Serializable {
-    private String nodeName;
+  private String nodeName;
 
-    private Boolean isGroup;
+  private Boolean isGroup;
 
-    private Boolean isDevice;
+  private Boolean isDevice;
 
-    private Boolean isMeasurement;
+  private Boolean isMeasurement;
 
-    private Integer groupCount;
+  private Integer groupCount;
 
-    private Integer deviceCount;
+  private Integer deviceCount;
 
-    private Integer measurementCount;
+  private Integer measurementCount;
 
-    private DataInfo dataInfo;
+  private DataInfo dataInfo;
 
-    private List<DataModelVO> nodeChildren;
+  private List<DataModelVO> nodeChildren;
 
-    public DataModelVO(String nodeName){
-        this.nodeName = nodeName;
-        this.isGroup = false;
-        this.isDevice = false;
-        this.isMeasurement = false;
+  public DataModelVO(String nodeName) {
+    this.nodeName = nodeName;
+    this.isGroup = false;
+    this.isDevice = false;
+    this.isMeasurement = false;
+  }
+
+  public List<DataModelVO> initNodeChildren() {
+    if (nodeChildren == null) {
+      nodeChildren = new ArrayList<>();
     }
-
-    public List<DataModelVO> initNodeChildren(){
-        if(nodeChildren == null){
-            nodeChildren = new ArrayList<>();
-        }
-        return nodeChildren;
-    }
+    return nodeChildren;
+  }
 }

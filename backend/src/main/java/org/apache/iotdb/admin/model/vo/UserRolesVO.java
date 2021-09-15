@@ -8,8 +8,7 @@ import java.util.List;
 @Data
 public class UserRolesVO implements Serializable {
 
-    private String password;
+  private String password;
 
-    private List<String> roleList;
-
+  private List<String> roleList;
 }

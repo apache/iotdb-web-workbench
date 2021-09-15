@@ -14,9 +14,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class DemoJDBC {
 
-
-    @Test
-    public void testSelect() {
-
-    }
+  @Test
+  public void testSelect() {}
 }

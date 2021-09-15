@@ -8,17 +8,17 @@ import java.util.List;
 
 @Data
 public class DeviceNodeVO implements Serializable {
-    private String deviceName;
-    private List<DeviceNodeVO> deviceChildren;
+  private String deviceName;
+  private List<DeviceNodeVO> deviceChildren;
 
-    public DeviceNodeVO(String deviceName) {
-        this.deviceName = deviceName;
-    }
+  public DeviceNodeVO(String deviceName) {
+    this.deviceName = deviceName;
+  }
 
-    public List<DeviceNodeVO> initDeviceChildren() {
-        if (deviceChildren == null) {
-            deviceChildren = new ArrayList<>();
-        }
-        return deviceChildren;
+  public List<DeviceNodeVO> initDeviceChildren() {
+    if (deviceChildren == null) {
+      deviceChildren = new ArrayList<>();
     }
+    return deviceChildren;
+  }
 }
