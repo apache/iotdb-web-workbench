@@ -126,14 +126,10 @@ public class IotDBController {
     public BaseVO saveStorageGroup(@PathVariable("serverId") Integer serverId,
                                    @RequestBody GroupDTO groupDTO,
                                    HttpServletRequest request) throws BaseException {
+        String groupName = groupDTO.getGroupName();
+        checkParameter(groupName);
         check(request, serverId);
         Connection connection = connectionService.getById(serverId);
-        String groupName = groupDTO.getGroupName();
-        String checkName = groupName.toLowerCase();
-        if (checkName.contains("root")) {
-            throw new BaseException(ErrorCode.NO_SUP_CONTAIN_ROOT, ErrorCode.NO_SUP_CONTAIN_ROOT_MSG);
-        }
-        groupName = "root." + groupName;
         Long ttl = groupDTO.getTtl();
         String ttlUnit = groupDTO.getTtlUnit();
         Integer groupId = groupDTO.getGroupId();
@@ -196,6 +192,7 @@ public class IotDBController {
         GroupVO groupVO = new GroupVO();
         if (ttl != null && !"null".equalsIgnoreCase(ttl)) {
             Long totalTime = Long.valueOf(ttl);
+            // TODO 当ttl为毫秒级时会有问题
             ttlUnit = getTTL(totalTime);
             Long times = switchTime(ttlUnit);
             ttl = String.valueOf(totalTime / times);
