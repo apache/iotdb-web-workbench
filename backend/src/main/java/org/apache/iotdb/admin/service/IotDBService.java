@@ -25,6 +25,7 @@ import org.apache.iotdb.admin.model.entity.Connection;
 import org.apache.iotdb.admin.model.vo.*;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IotDBService {
   DataCountVO getDataCount(Connection connection) throws BaseException;
@@ -67,6 +68,12 @@ public interface IotDBService {
       throws BaseException;
 
   void roleGrant(Connection connection, String roleName, RoleGrantDTO roleGrantDTO)
+      throws BaseException;
+
+  Set<String> getUserAuthorityPrivilege(Connection connection, String userName)
+      throws BaseException;
+
+  Set<String> getRoleAuthorityPrivilege(Connection connection, String roleName)
       throws BaseException;
 
   void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries)

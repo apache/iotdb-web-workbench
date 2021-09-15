@@ -60,6 +60,10 @@ public class IotDBServiceImpl implements IotDBService {
 
   private static final List<String> PRIVILEGES = new ArrayList<>();
 
+  private static final Set<String> AUTHORITY_PRIVILEGES = new HashSet<>();
+
+  private static final Set<String> DATA_PRIVILEGES = new HashSet<>();
+
   private static final HashMap<String, Boolean> QUERY_STOP = new HashMap<>();
 
   static {
@@ -87,6 +91,36 @@ public class IotDBServiceImpl implements IotDBService {
     PRIVILEGES.add("DROP_TRIGGER");
     PRIVILEGES.add("START_TRIGGER");
     PRIVILEGES.add("STOP_TRIGGER");
+  }
+
+  static {
+    AUTHORITY_PRIVILEGES.add("CREATE_USER");
+    AUTHORITY_PRIVILEGES.add("DELETE_USER");
+    AUTHORITY_PRIVILEGES.add("MODIFY_PASSWORD");
+    AUTHORITY_PRIVILEGES.add("LIST_USER");
+    AUTHORITY_PRIVILEGES.add("GRANT_USER_PRIVILEGE");
+    AUTHORITY_PRIVILEGES.add("REVOKE_USER_PRIVILEGE");
+    AUTHORITY_PRIVILEGES.add("GRANT_USER_ROLE");
+    AUTHORITY_PRIVILEGES.add("REVOKE_USER_ROLE");
+    AUTHORITY_PRIVILEGES.add("CREATE_ROLE");
+    AUTHORITY_PRIVILEGES.add("DELETE_ROLE");
+    AUTHORITY_PRIVILEGES.add("LIST_ROLE");
+    AUTHORITY_PRIVILEGES.add("GRANT_ROLE_PRIVILEGE");
+    AUTHORITY_PRIVILEGES.add("REVOKE_ROLE_PRIVILEGE");
+    AUTHORITY_PRIVILEGES.add("CREATE_FUNCTION");
+    AUTHORITY_PRIVILEGES.add("DROP_FUNCTION");
+    AUTHORITY_PRIVILEGES.add("CREATE_TRIGGER");
+    AUTHORITY_PRIVILEGES.add("DROP_TRIGGER");
+    AUTHORITY_PRIVILEGES.add("START_TRIGGER");
+    AUTHORITY_PRIVILEGES.add("STOP_TRIGGER");
+  }
+
+  static {
+    DATA_PRIVILEGES.add("SET_STORAGE_GROUP");
+    DATA_PRIVILEGES.add("CREATE_TIMESERIES");
+    DATA_PRIVILEGES.add("INSERT_TIMESERIES");
+    DATA_PRIVILEGES.add("READ_TIMESERIES");
+    DATA_PRIVILEGES.add("DELETE_TIMESERIES");
   }
 
   @Override
@@ -575,7 +609,11 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool.executeNonQueryStatement(sql);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.DELETE_DB_USER_FAIL, ErrorCode.DELETE_DB_USER_FAIL_MSG);
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(ErrorCode.NO_PRI_DELETE_USER, ErrorCode.NO_PRI_DELETE_USER_MSG);
+      } else {
+        throw new BaseException(ErrorCode.DELETE_DB_USER_FAIL, ErrorCode.DELETE_DB_USER_FAIL_MSG);
+      }
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.DELETE_DB_USER_FAIL, ErrorCode.DELETE_DB_USER_FAIL_MSG);
@@ -595,7 +633,11 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool.executeNonQueryStatement(sql);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.DELETE_DB_ROLE_FAIL, ErrorCode.DELETE_DB_ROLE_FAIL_MSG);
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(ErrorCode.NO_PRI_DELETE_ROLE, ErrorCode.NO_PRI_DELETE_ROLE_MSG);
+      } else {
+        throw new BaseException(ErrorCode.DELETE_DB_ROLE_FAIL, ErrorCode.DELETE_DB_ROLE_FAIL_MSG);
+      }
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.DELETE_DB_ROLE_FAIL, ErrorCode.DELETE_DB_ROLE_FAIL_MSG);
@@ -616,7 +658,11 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool.executeNonQueryStatement(sql);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.SET_DB_USER_FAIL, ErrorCode.SET_DB_USER_FAIL_MSG);
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(ErrorCode.NO_PRI_CREATE_USER, ErrorCode.NO_PRI_CREATE_USER_MSG);
+      } else {
+        throw new BaseException(ErrorCode.SET_DB_USER_FAIL, ErrorCode.SET_DB_USER_FAIL_MSG);
+      }
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.SET_DB_USER_FAIL, ErrorCode.SET_DB_USER_FAIL_MSG);
@@ -650,7 +696,11 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool.executeNonQueryStatement(sql);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL, ErrorCode.SET_DB_ROLE_FAIL_MSG);
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(ErrorCode.NO_PRI_CREATE_ROLE, ErrorCode.NO_PRI_CREATE_ROLE_MSG);
+      } else {
+        throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL, ErrorCode.SET_DB_ROLE_FAIL_MSG);
+      }
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
@@ -675,6 +725,12 @@ public class IotDBServiceImpl implements IotDBService {
       List<String> roleList = executeQueryOneColumn(sessionPool, sql);
       userRolesVO.setRoleList(roleList);
       return userRolesVO;
+    } catch (BaseException e) {
+      if (e.getErrorCode().equals(ErrorCode.NO_PRI_DO_THIS)) {
+        throw new BaseException(ErrorCode.NO_PRI_LIST_ROLE, ErrorCode.NO_PRI_LIST_ROLE_MSG);
+      } else {
+        throw e;
+      }
     } finally {
       if (sessionPool != null) {
         sessionPool.close();
@@ -737,7 +793,12 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool.executeNonQueryStatement(sql);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.REVOKE_ROLE, ErrorCode.REVOKE_ROLE_MSG);
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(
+            ErrorCode.NO_PRI_REVOKE_USER_ROLE, ErrorCode.NO_PRI_REVOKE_USER_ROLE_MSG);
+      } else {
+        throw new BaseException(ErrorCode.REVOKE_ROLE, ErrorCode.REVOKE_ROLE_MSG);
+      }
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
@@ -751,20 +812,104 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool.executeNonQueryStatement(sql);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.GRANT_ROLE, ErrorCode.GRANT_ROLE_MSG);
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(
+            ErrorCode.NO_PRI_GRANT_USER_ROLE, ErrorCode.NO_PRI_GRANT_USER_ROLE_MSG);
+      } else {
+        throw new BaseException(ErrorCode.GRANT_ROLE, ErrorCode.GRANT_ROLE_MSG);
+      }
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     }
   }
 
-  //    @Override
-  //    public SqlResultVO query(Connection connection, String sql) throws BaseException {
-  //        java.sql.Connection conn = getConnection(connection);
-  //        SqlResultVO sqlResultVO = sqlQuery(conn, sql);
-  //        closeConnection(conn);
-  //        return sqlResultVO;
-  //    }
+  @Override
+  public Set<String> getUserAuthorityPrivilege(Connection connection, String userName)
+      throws BaseException {
+    SessionPool sessionPool = null;
+    SessionDataSetWrapper sessionDataSetWrapper = null;
+    try {
+      Set<String> privileges = new HashSet<>();
+      List<String> rowInfos = new ArrayList<>();
+      sessionPool = getSessionPool(connection);
+      String sql = "list user privileges " + userName;
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      while (sessionDataSetWrapper.hasNext()) {
+        RowRecord next = sessionDataSetWrapper.next();
+        List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
+        for (int i = 0; i < fields.size(); i++) {
+          org.apache.iotdb.tsfile.read.common.Field field = fields.get(i);
+          if (i == 0) {
+            if (!"".equals(field.toString())) {
+              break;
+            }
+          } else {
+            rowInfos.add(field.toString());
+          }
+        }
+      }
+      privileges = switchRowInfosToAuthorityPrivileges(rowInfos);
+      return privileges;
+    } catch (IoTDBConnectionException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+    } catch (StatementExecutionException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(
+          ErrorCode.GET_USER_PRIVILEGE_FAIL, ErrorCode.GET_USER_PRIVILEGE_FAIL_MSG);
+    } finally {
+      if (sessionDataSetWrapper != null) {
+        sessionDataSetWrapper.close();
+      }
+      if (sessionPool != null) {
+        sessionPool.close();
+      }
+    }
+  }
+
+  @Override
+  public Set<String> getRoleAuthorityPrivilege(Connection connection, String roleName)
+      throws BaseException {
+    SessionPool sessionPool = null;
+    SessionDataSetWrapper sessionDataSetWrapper = null;
+    try {
+      Set<String> privileges = new HashSet<>();
+      sessionPool = getSessionPool(connection);
+      String sql = "list role privileges " + roleName;
+      List<String> rowInfos = executeQueryOneColumn(sessionPool, sql);
+      privileges = switchRowInfosToAuthorityPrivileges(rowInfos);
+      return privileges;
+    } catch (BaseException e) {
+      if (e.getErrorCode().equals(ErrorCode.NO_PRI_DO_THIS)) {
+        throw new BaseException(ErrorCode.NO_PRI_LIST_ROLE, ErrorCode.NO_PRI_LIST_ROLE_MSG);
+      } else {
+        throw new BaseException(
+            ErrorCode.GET_ROLE_PRIVILEGE_FAIL, ErrorCode.GET_ROLE_PRIVILEGE_FAIL_MSG);
+      }
+    } finally {
+      if (sessionDataSetWrapper != null) {
+        sessionDataSetWrapper.close();
+      }
+      if (sessionPool != null) {
+        sessionPool.close();
+      }
+    }
+  }
+
+  private Set<String> switchRowInfosToAuthorityPrivileges(List<String> rowInfos) {
+    Set<String> authorityPrivileges = new HashSet<>();
+    for (String rowInfo : rowInfos) {
+      String[] split = rowInfo.split("\\s:\\s");
+      String[] privileges = split[1].split("\\s");
+      for (String privilege : privileges) {
+        if (AUTHORITY_PRIVILEGES.contains(privilege)) {
+          authorityPrivileges.add(privilege);
+        }
+      }
+    }
+    return authorityPrivileges;
+  }
 
   @Override
   public void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries)
@@ -2280,9 +2425,12 @@ public class IotDBServiceImpl implements IotDBService {
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      // TODO 将没有权限单列出来
-      throw new BaseException(
-          ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(ErrorCode.NO_PRI_DO_THIS, ErrorCode.NO_PRI_DO_THIS_MSG);
+      } else {
+        throw new BaseException(
+            ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
+      }
     } catch (InterruptedException e) {
       e.printStackTrace();
       throw new BaseException(ErrorCode.TIME_OUT, ErrorCode.TIME_OUT_MSG);

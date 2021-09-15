@@ -326,6 +326,48 @@ public class ErrorCode {
   public static final String GRANT_ROLE = "IOTDB-0067";
   public static final String GRANT_ROLE_MSG = "赋予用户角色失败";
 
+  public static final String NO_PRI_DO_THIS = "IOTDB-0068";
+  public static final String NO_PRI_DO_THIS_MSG = "没有权限进行该操作";
+
+  public static final String NO_PRI_CREATE_USER = "IOTDB-0069";
+  public static final String NO_PRI_CREATE_USER_MSG = "没有权限创建用户";
+
+  public static final String NO_PRI_DELETE_USER = "IOTDB-0070";
+  public static final String NO_PRI_DELETE_USER_MSG = "没有权限删除用户";
+
+  public static final String NO_PRI_CREATE_ROLE = "IOTDB-0071";
+  public static final String NO_PRI_CREATE_ROLE_MSG = "没有权限创建角色";
+
+  public static final String NO_PRI_DELETE_ROLE = "IOTDB-0072";
+  public static final String NO_PRI_DELETE_ROLE_MSG = "没有权限删除角色";
+
+  public static final String NO_PRI_LIST_ROLE = "IOTDB-0073";
+  public static final String NO_PRI_LIST_ROLE_MSG = "没有权限获取角色信息";
+
+  public static final String NO_PRI_GRANT_USER_ROLE = "IOTDB-0074";
+  public static final String NO_PRI_GRANT_USER_ROLE_MSG = "没有权限赋予用户角色";
+
+  public static final String NO_PRI_REVOKE_USER_ROLE = "IOTDB-0075";
+  public static final String NO_PRI_REVOKE_USER_ROLE_MSG = "没有权限撤销用户角色";
+
+  public static final String NO_PRI_GRANT_USER_PRIVILEGE = "IOTDB-0076";
+  public static final String NO_PRI_GRANT_USER_PRIVILEGE_MSG = "没有权限赋予用户权限";
+
+  public static final String NO_PRI_REVOKE_USER_PRIVILEGE = "IOTDB-0077";
+  public static final String NO_PRI_REVOKE_USER_PRIVILEGE_MSG = "没有权限撤销用户权限";
+
+  public static final String NO_PRI_GRANT_ROLE_PRIVILEGE = "IOTDB-0078";
+  public static final String NO_PRI_GRANT_ROLE_PRIVILEGE_MSG = "没有权限赋予角色权限";
+
+  public static final String NO_PRI_REVOKE_ROLE_PRIVILEGE = "IOTDB-0079";
+  public static final String NO_PRI_REVOKE_ROLE_PRIVILEGE_MSG = "没有权限撤销角色权限";
+
+  public static final String GET_USER_PRIVILEGE_FAIL = "IOTDB-0080";
+  public static final String GET_USER_PRIVILEGE_FAIL_MSG = "获取用户权限信息失败";
+
+  public static final String GET_ROLE_PRIVILEGE_FAIL = "IOTDB-0081";
+  public static final String GET_ROLE_PRIVILEGE_FAIL_MSG = "获取角色权限信息失败";
+
   // 存储组表相关
   public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
   public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
