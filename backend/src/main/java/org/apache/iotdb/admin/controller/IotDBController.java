@@ -873,6 +873,36 @@ public class IotDBController {
     return BaseVO.success("获取成功", roleAuthorityPrivilege);
   }
 
+  @PostMapping("/users/{userName}/authorityPrivilege")
+  @ApiOperation("修改用户权限管理权限 (新增2.24)")
+  public BaseVO<Set<String>> upsertUserAuthorityPrivilege(
+      @PathVariable("serverId") Integer serverId,
+      @PathVariable("userName") String userName,
+      @RequestBody AuthorityPrivilegeVO authorityPrivilegeVO,
+      HttpServletRequest request)
+      throws BaseException {
+    checkName(userName);
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    iotDBService.upsertAuthorityPrivilege(connection, userName, authorityPrivilegeVO, "user");
+    return BaseVO.success("修改成功", null);
+  }
+
+  @PostMapping("/roles/{roleName}/authorityPrivilege")
+  @ApiOperation("修改角色权限管理权限 (新增2.25)")
+  public BaseVO<Set<String>> upsertRoleAuthorityPrivilege(
+      @PathVariable("serverId") Integer serverId,
+      @PathVariable("roleName") String roleName,
+      @RequestBody AuthorityPrivilegeVO authorityPrivilegeVO,
+      HttpServletRequest request)
+      throws BaseException {
+    checkName(roleName);
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    iotDBService.upsertAuthorityPrivilege(connection, roleName, authorityPrivilegeVO, "role");
+    return BaseVO.success("修改成功", null);
+  }
+
   @GetMapping("/users/{userName}/dataPrivilege")
   @ApiOperation("获取数据源用户的具体信息或其他用户的权限信息")
   public BaseVO<IotDBUserVO> getIotDBUser(

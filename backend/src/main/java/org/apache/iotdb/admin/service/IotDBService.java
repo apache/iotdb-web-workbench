@@ -76,6 +76,13 @@ public interface IotDBService {
   Set<String> getRoleAuthorityPrivilege(Connection connection, String roleName)
       throws BaseException;
 
+  void upsertAuthorityPrivilege(
+      Connection connection,
+      String userName,
+      AuthorityPrivilegeVO authorityPrivilegeVO,
+      String userOrRole)
+      throws BaseException;
+
   void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries)
       throws BaseException;
 

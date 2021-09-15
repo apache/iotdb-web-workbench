@@ -275,7 +275,7 @@ public class IotDBServiceImpl implements IotDBService {
       DataInfo dataInfo = new DataInfo();
       dataInfo.setNewValue(getLastValue(sessionPool, path));
       dataInfo.setDataCount(getOneDataCount(sessionPool, path));
-      dataInfo.setDataType(getDataTpye(sessionPool, path));
+      dataInfo.setDataType(getDataType(sessionPool, path));
       dataModelVO.setDataInfo(dataInfo);
       dataModelVO.setIsMeasurement(true);
     }
@@ -299,7 +299,7 @@ public class IotDBServiceImpl implements IotDBService {
     return Integer.parseInt(countStr);
   }
 
-  private String getDataTpye(SessionPool sessionPool, String timeseries) throws BaseException {
+  private String getDataType(SessionPool sessionPool, String timeseries) throws BaseException {
     String sql = "show timeseries " + timeseries;
     String dataType = executeQueryOneLine(sessionPool, sql, "dataType");
     return dataType;
@@ -909,6 +909,71 @@ public class IotDBServiceImpl implements IotDBService {
       }
     }
     return authorityPrivileges;
+  }
+
+  @Override
+  public void upsertAuthorityPrivilege(
+      Connection connection,
+      String userName,
+      AuthorityPrivilegeVO authorityPrivilegeVO,
+      String userOrRole)
+      throws BaseException {
+    SessionPool sessionPool = null;
+    try {
+      sessionPool = getSessionPool(connection);
+      List<String> cancelPrivileges = authorityPrivilegeVO.getCancelPrivileges();
+      if (cancelPrivileges != null) {
+        checkAuthorityPrivilege(cancelPrivileges);
+        for (String cancelPrivilege : cancelPrivileges) {
+          upsertAuthorityPrivilege(sessionPool, "revoke", userOrRole, userName, cancelPrivilege);
+        }
+      }
+      List<String> privileges = authorityPrivilegeVO.getPrivileges();
+      if (privileges != null) {
+        checkAuthorityPrivilege(privileges);
+        for (String privilege : privileges) {
+          upsertAuthorityPrivilege(sessionPool, "grant", userOrRole, userName, privilege);
+        }
+      }
+    } finally {
+      if (sessionPool != null) {
+        sessionPool.close();
+      }
+    }
+  }
+
+  private void upsertAuthorityPrivilege(
+      SessionPool sessionPool,
+      String operationType,
+      String userOrRole,
+      String name,
+      String privilegesStr)
+      throws BaseException {
+    String sql =
+        operationType
+            + " "
+            + userOrRole
+            + " "
+            + name
+            + " privileges '"
+            + privilegesStr
+            + "' on root";
+    try {
+      sessionPool.executeNonQueryStatement(sql);
+    } catch (StatementExecutionException e) {
+      logger.error(e.getMessage());
+    } catch (IoTDBConnectionException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+    }
+  }
+
+  private void checkAuthorityPrivilege(List<String> privileges) throws BaseException {
+    for (String privilege : privileges) {
+      if (!AUTHORITY_PRIVILEGES.contains(privilege)) {
+        throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+      }
+    }
   }
 
   @Override
@@ -1638,7 +1703,7 @@ public class IotDBServiceImpl implements IotDBService {
       }
 
       List<String> measurements = new ArrayList<>();
-      List<String> tpyesStr = new ArrayList<>();
+      List<String> typesStr = new ArrayList<>();
       while (sessionDataSetWrapper.hasNext()) {
         RowRecord next = sessionDataSetWrapper.next();
         String timeseries = next.getFields().get(timeseriesIndex).toString();
@@ -1648,19 +1713,19 @@ public class IotDBServiceImpl implements IotDBService {
         }
         measurements.add(timeseries);
         String dataType = next.getFields().get(dataTypeIndex).toString();
-        tpyesStr.add(dataType);
+        typesStr.add(dataType);
       }
       if (measurements.size() == 0) {
         logger.error(ErrorCode.NO_MEASUREMENT_MSG);
         throw new BaseException(ErrorCode.NO_MEASUREMENT, ErrorCode.NO_MEASUREMENT_MSG);
       }
 
-      List<TSDataType> types = handleTypeStr(tpyesStr);
+      List<TSDataType> types = handleTypeStr(typesStr);
       for (int i = 0; i < totalLine; i++) {
         typesList.add(types);
         measurementsList.add(measurements);
 
-        List<Object> values = createRandomData(tpyesStr);
+        List<Object> values = createRandomData(typesStr);
         valuesList.add(values);
 
         times.add(stepSize * i + startTime);
