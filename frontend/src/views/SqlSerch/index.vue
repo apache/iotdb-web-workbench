@@ -82,8 +82,8 @@
                 </div>
                 <div class="header_messge flex">
                   <div>
-                    <span>
-                      <svg class="icon icon-1 icon-color" aria-hidden="true" @click="btnClick1">
+                    <span @click="exportSql(index)">
+                      <svg class="icon icon-1 icon-color" aria-hidden="true">
                         <use xlink:href="#icon-se-icon-download"></use>
                       </svg>
                       <span class="downloadchart">{{ $t('standTable.download') }}</span>
@@ -145,9 +145,10 @@ import useElementResize from './hooks/useElementResize.js';
 import codemirror from './components/codemirror';
 import eltooltip from './components/eltooltip';
 import { ref, computed, nextTick, reactive, onActivated } from 'vue';
-import { querySql, saveQuery, getSql, queryStop, getGroup, deleteQueryS } from './api/index';
+import { querySql, saveQuery, getSql, queryStop, getGroup, deleteQueryS, exportDataSql } from './api/index';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { handleExport } from '@/util/export';
 export default {
   name: 'Sqlserch',
   props: {
@@ -341,6 +342,17 @@ export default {
         console.log(res);
       });
     }
+    function exportSql(i) {
+      exportDataSql(routeData.obj.connectionid, { sql: codeArr[i] }).then((res) => {
+        if (res.size) {
+          ElMessage({
+            type: 'success',
+            message: `导出成功!`,
+          });
+          handleExport(res, '查询导出.CSV');
+        }
+      });
+    }
     function deleteQuery() {
       ElMessageBox.confirm(`${t('device.deletecontent1')}"${routeData.obj.name}"？${t('device.deletecontent2')}`, `${t('device.tips')}`, {
         confirmButtonText: t('device.ok'),
@@ -377,6 +389,7 @@ export default {
       }
     });
     return {
+      exportSql,
       column,
       line,
       display,

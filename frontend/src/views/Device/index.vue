@@ -324,7 +324,8 @@ export default {
         type: 'info',
         message: `${t('device.cencel')}!`,
       });
-      router.go(-1);
+      // router.go(-1);
+      router.push({ name: 'DeviceMessage', params: { ...deviceData.obj } });
     }
     function sumbitData() {
       let checkfalg = true;
@@ -347,6 +348,12 @@ export default {
       });
       if (checkfalg && form.formData.deviceName) {
         if (tableData.list.length > 0) {
+          tableData.list.forEach((item) => {
+            if (item.timeseries.indexOf(form.formData.groupName) === -1) {
+              item.timeseries = form.formData.groupName + '.' + form.formData.deviceName + '.' + item.timeseries;
+            }
+          });
+          form.formData.deviceName = form.formData.groupName + '.' + form.formData.deviceName;
           deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then((res) => {
             if (res.code === '0') {
               ElMessage({
@@ -375,10 +382,11 @@ export default {
     }
     function getdData() {
       getDeviceDate(deviceData.obj).then((res) => {
+        let name = deviceData.obj.name.split('.');
         form.formData = reactive({
           description: res.data.description,
-          deviceName: deviceData.obj.name,
-          groupName: `root.${deviceData.obj.storagegroupid}`,
+          deviceName: name[name.length - 1],
+          groupName: `${deviceData.obj.storagegroupid}`,
           deviceId: res.data.deviceId,
         });
         form.formItem[0].disabled = true;
@@ -389,8 +397,6 @@ export default {
     }
     onActivated(() => {
       deviceData.obj = route.params;
-      console.log(291751);
-      console.log(deviceData.obj);
       let keys = Object.keys(deviceData.obj);
       if (keys.length > 3) {
         if (route.params.type !== 'newdevice') {
@@ -400,7 +406,7 @@ export default {
           form.formData = reactive({
             description: null,
             deviceName: null,
-            groupName: `root.${deviceData.obj.storagegroupid}`,
+            groupName: `${deviceData.obj.storagegroupid}`,
             deviceId: null,
           });
           tableData.list = [

@@ -35,3 +35,31 @@ export function getData(serverId, groupName, deviceName, timeseriesName) {
 export function deleteDevice(data) {
   return axios.delete(`/servers/${data.connectionid}/storageGroups/${data.storagegroupid}/devices/${data.name}`);
 }
+//获取数据预览
+export function getDataDeviceList(info, params, data) {
+  return axios.post(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/data`, data, { params });
+}
+//随机导入数据
+export function randomImport(info, data) {
+  return axios.post(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/randomImport`, data);
+}
+//编辑物理量数据
+export function editData(info, data) {
+  return axios.put(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/data`, data);
+}
+//删除物理量
+export function deleteDeviceData(info, data) {
+  return axios.delete(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/data`, { data });
+}
+//导出物理量数据
+export function exportDataCSV(info, data) {
+  return axios.post(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/exportData`, data, { responseType: 'blob' });
+}
+//文件导入
+export function importData(info, data) {
+  return axios.post(`/servers/${info.connectionid}/importData`, data);
+}
+//模板下载
+export function downloadFile() {
+  return axios.get(`/downloadFile/template`);
+}

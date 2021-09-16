@@ -38,6 +38,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         :start-placeholder="item.startPlaceholder"
         :end-placeholder="item.endPlaceholder"
         @blur="item.Event"
+        @change="getFormData"
       >
       </el-date-picker>
       <el-date-picker v-model="formData[item.itemID]" v-if="item.type === 'DATETIME'" type="datetime" :style="{ width: item.width }" :placeholder="item.placeholder"> </el-date-picker>

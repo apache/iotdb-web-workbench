@@ -98,32 +98,29 @@
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
-              <el-button>导出数据</el-button>
+              <el-button @click="exportData">导出数据</el-button>
             </div>
             <div>
-              <form-table :form="form1" @serchFormData="serchFormData"></form-table>
+              <form-table :form="form1" @serchFormData="serchFormData1"></form-table>
             </div>
           </div>
           <stand-table
+            v-if="tableflag.flag"
             :column="column1"
-            :tableData="tableData"
-            :getList="getListData"
-            :total="totalCount"
+            :tableData="tableData1"
+            :getList="getPview"
+            :total="totalCount1"
             :lineHeight="10"
             :celineHeight="10"
             :maxHeight="450"
-            :pagination="pagination"
+            :pagination="pagination1"
             :selectData="selectData"
             :deleteArry="deleteArry"
             @getPagintions="getPagintions"
           >
             <template #default="{ scope }">
-              <span class="table2 edit">编辑</span>
-              <span class="table2 delete" @click="deleteRow(scope.row, scope.$index)">{{ $t('device.delete') }}</span>
-              <!-- <el-button @click="deleteRow(scope.row, scope.$index)" type="text" size="small" style="color: red"> 编辑 </el-button>
-              <el-button @click="deleteRow(scope.row, scope.$index)" type="text" size="small" style="color: red">
-                {{ $t('device.delete') }}
-              </el-button> -->
+              <span class="table2 edit" @click="editRow(scope.row)">编辑</span>
+              <span class="table2 delete" @click="deleteRow([scope.row], scope.$index)">{{ $t('device.delete') }}</span>
             </template>
           </stand-table>
         </div>
@@ -153,27 +150,48 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogFormVisible.flag = false">取 消</el-button>
-          <el-button type="primary" @click="getDataLook">确 定</el-button>
+          <el-button type="primary" @click="randomImData">确 定</el-button>
         </span>
       </template>
     </el-dialog>
     <el-dialog title="导入" v-model="dialogVisible1.flag" width="500px" @close="closeEd" class="export_form">
-      <input ref="filesd" type="file" multiple="multiple" style="display: none" @change="getfile" />
-      <el-form ref="ruleForm" label-width="100%">
-        <el-form-item label="模板下载：">
-          <el-button size="small" @click="downloadEx"
-            >下载模板
-            <i class="iconfont se-icon-download"></i>
-          </el-button>
-        </el-form-item>
-        <el-form-item label="选择文件：" prop="categoryName">
-          <el-button type="primary" size="small" @click="selectFile"
-            >选择文件
-            <i class="iconfont se-icon-upload2"></i>
-          </el-button>
-          <span class="export_notice">仅支持csv格式文件</span>
-        </el-form-item>
-      </el-form>
+      <div class="div_children">
+        <div>
+          <input ref="filesd" type="file" multiple="multiple" style="display: none" @change="getfile" />
+          <el-form ref="ruleForm" label-width="100%">
+            <el-form-item label="模板下载：">
+              <el-button size="small" @click="downloadEx"
+                >下载模板
+                <i class="iconfont se-icon-download"></i>
+              </el-button>
+            </el-form-item>
+            <el-form-item label="选择文件：" prop="categoryName">
+              <el-button type="primary" size="small" @click="selectFile"
+                >选择文件
+                <i class="iconfont se-icon-upload2"></i>
+              </el-button>
+              <span class="export_notice">仅支持csv格式文件</span>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div v-if="false" class="div_children">
+        <div>
+          <el-progress :text-inside="true" :stroke-width="12" :percentage="50" color="#16C493">
+            <span></span>
+          </el-progress>
+          <div class="info_div">上传中：45%</div>
+        </div>
+      </div>
+      <div v-if="false" class="div_children">
+        <div>
+          <stand-table :column="column2" :tableData="tableData2" :lineHeight="10" :celineHeight="10">
+            <template #default="{ scope }">
+              <span class="table2 edit" @click="editRow(scope.row)">下载</span>
+            </template>
+          </stand-table>
+        </div>
+      </div>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible1.flag = false">取 消</el-button>
@@ -181,19 +199,31 @@
         </span>
       </template>
     </el-dialog>
+    <el-dialog title="编辑数据" v-model="dialogFormVisible.editflag" width="500px">
+      <div>
+        <form-table v-if="dialogFormVisible.editflag" ref="formTable" :form="editFormData"></form-table>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogFormVisible.editflag = false">取 消</el-button>
+          <el-button type="primary" @click="saveData">确 定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { ElMessageBox, ElMessage, ElButton, ElTabs, ElTabPane, ElDropdown, ElDropdownMenu, ElDropdownItem, ElDialog, ElForm, ElFormItem } from 'element-plus';
+import { ElMessageBox, ElMessage, ElButton, ElTabs, ElTabPane, ElDropdown, ElDropdownMenu, ElDropdownItem, ElDialog, ElForm, ElFormItem, ElProgress } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
 import { reactive, ref, onActivated } from 'vue';
-import { getList, getDeviceDate, deleteDevice } from './api';
+import { getList, getDeviceDate, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile } from './api';
 import Echarts from '@/components/Echarts';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import action from './components/action.vue';
+import { handleExport } from '@/util/export';
 export default {
   name: 'DeviceMessage',
   props: {
@@ -208,6 +238,7 @@ export default {
     const route = useRoute();
     const dialogFormVisible = reactive({
       flag: false,
+      editflag: false,
     });
     const dialogVisible1 = reactive({
       flag: false,
@@ -219,8 +250,17 @@ export default {
     let activeName = ref('first');
     let connection = ref('');
     let totalCount = ref(0);
+    let totalCount1 = ref(0);
+    let timestamp = ref(null);
+    let measurementList = ref([]);
+    let valueList = ref([]);
+    let handleChange = ref(null);
     const filesd = ref(null);
     const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
+    });
+    const pagination1 = reactive({
       pageSize: 10,
       pageNum: 1,
     });
@@ -231,6 +271,13 @@ export default {
     const formTable = ref(null);
     let deviceObj = reactive({
       deviceData: 0,
+    });
+    const tableflag = reactive({
+      flag: false,
+    });
+    const editFormData = reactive({
+      formData: {},
+      formItem: [],
     });
     const form = reactive({
       inline: true, //横向
@@ -279,9 +326,9 @@ export default {
     });
     const newData = reactive({
       formData: {
-        keyword: new Date(),
-        mm: null,
-        ms: null,
+        startTime: new Date(),
+        stepSize: null,
+        totalLine: null,
       },
       formItem: [
         {
@@ -289,7 +336,7 @@ export default {
           type: 'DATETIME', //控件类型
           size: 'small', //element尺寸
           width: '100%',
-          itemID: 'keyword', //数据字段名
+          itemID: 'startTime', //数据字段名
           placeholder: '选择时间', //灰色提示文字
           required: true,
           rules: [{ required: true, message: '请选择开始时间', trigger: 'blur' }],
@@ -299,7 +346,7 @@ export default {
           type: 'INPUTNUM', //控件类型
           size: 'small', //element尺寸
           width: '100%',
-          itemID: 'mm', //数据字段名
+          itemID: 'stepSize', //数据字段名
           placeholder: '请输入步长', //灰色提示文字
           unit: 'ms',
           required: true,
@@ -321,7 +368,7 @@ export default {
           type: 'INPUTNUM', //控件类型
           size: 'small', //element尺寸
           width: '100%',
-          itemID: 'ms', //数据字段名
+          itemID: 'totalLine', //数据字段名
           placeholder: '请输入生成数量', //灰色提示文字
           required: true,
           rules: [
@@ -370,6 +417,11 @@ export default {
           value: '——', //默认值，该项如果没有数据显示
         },
         {
+          label: '别名',
+          prop: 'alias',
+          value: '——',
+        },
+        {
           label: 'device.datatype',
           prop: 'dataType',
           value: '——', //默认值，该项如果没有数据显示
@@ -380,9 +432,14 @@ export default {
           value: '——', //默认值，该项如果没有数据显示
         },
         {
-          label: 'device.physicaldescr',
-          prop: 'description',
-          value: '——', //默认值，该项如果没有数据显示
+          label: '压缩方式',
+          prop: 'compression',
+          value: '——',
+        },
+        {
+          label: '数据总量(条)',
+          prop: 'dataCount',
+          value: '——',
         },
         {
           label: 'device.newValue',
@@ -393,49 +450,47 @@ export default {
           label: 'device.datatrends',
           prop: 'action',
         },
+        {
+          label: 'device.physicaldescr',
+          prop: 'description',
+          value: '——', //默认值，该项如果没有数据显示
+        },
+        {
+          label: '标签',
+          prop: 'tags',
+          type: 'TAGS',
+          value: '——',
+        },
+        {
+          label: '属性',
+          prop: 'attributes',
+          type: 'TAGS',
+          value: '——',
+        },
       ],
     });
     const column1 = reactive({
       list: [
         {
-          label: '时间戳',
-          prop: 'timeseries',
-          value: '——', //默认值，该项如果没有数据显示
+          label: 'device.action',
+          prop: 'action',
+          width: 100,
+        },
+      ],
+    });
+    const column2 = reactive({
+      list: [
+        {
+          label: '上传总数',
+          prop: 'totalCount',
         },
         {
-          label: '物理量名',
-          prop: 'dataType',
-          value: '——', //默认值，该项如果没有数据显示
+          label: '成功数',
+          prop: 'SCount',
         },
         {
-          label: '物理量名',
-          prop: 'encoding',
-          value: '——', //默认值，该项如果没有数据显示
-        },
-        {
-          label: '物理量名',
-          prop: 'description',
-          value: '——', //默认值，该项如果没有数据显示
-        },
-        {
-          label: '物理量名',
-          prop: 'newValue',
-          value: '——', //默认值，该项如果没有数据显示
-        },
-        {
-          label: '物理量名',
-          prop: 'newValue',
-          value: '——', //默认值，该项如果没有数据显示
-        },
-        {
-          label: '物理量名',
-          prop: 'newValue',
-          value: '——', //默认值，该项如果没有数据显示
-        },
-        {
-          label: '物理量名',
-          prop: 'newValue',
-          value: '——', //默认值，该项如果没有数据显示
+          label: '失败数',
+          prop: 'failCount',
         },
         {
           label: 'device.action',
@@ -447,11 +502,24 @@ export default {
     const tableData = reactive({
       list: [],
     });
+    const tableData1 = reactive({
+      list: [],
+    });
+    const tableData2 = reactive({
+      list: [],
+    });
     function selectFile() {
       filesd.value.click();
     }
     function getDataLook() {
       formTable.value.checkData(dialogFormVisible);
+    }
+    function downloadEx() {
+      downloadFile().then((res) => {
+        if (res.size) {
+          handleExport(res, `模板.CSV`);
+        }
+      });
     }
     function searchRow(val) {
       routeData.obj.timeseries = val.timeseries;
@@ -475,10 +543,45 @@ export default {
       }, 400);
     }
     function selectData(val) {
-      console.log(val);
+      handleChange.value = val;
     }
     function deleteArry() {
-      alert(1234);
+      if (handleChange.value) {
+        deleteRow(handleChange.value);
+      }
+    }
+    function editRow(row) {
+      let obj = {};
+      editFormData.formItem = [];
+      timestamp.value = row.t0;
+      measurementList.value = [];
+      column1.list.forEach((item) => {
+        if (item.prop !== 't0' && item.prop !== 'action') {
+          obj[item.prop] = row[item.prop];
+          editFormData.formItem.push({
+            label: item.label,
+            type: 'INPUT',
+            size: 'small',
+            width: '100%',
+            placeholder: '',
+            itemID: item.prop,
+          });
+          measurementList.value.push(item.label);
+        }
+      });
+      editFormData.formData = obj;
+      dialogFormVisible.editflag = true;
+    }
+    function saveData() {
+      valueList.value = Object.values(editFormData.formData);
+      editData(routeData.obj, { timestamp: new Date(timestamp.value), measurementList: measurementList.value, valueList: valueList.value }).then(() => {
+        ElMessage({
+          type: 'success',
+          message: `保存成功!`,
+        });
+        getPview();
+        dialogFormVisible.editflag = false;
+      });
     }
     function getDate(timeS, timeE) {
       formdate.formData.time = [timeS, timeE];
@@ -512,10 +615,50 @@ export default {
           });
         });
     }
+    function deleteRow(dataArr) {
+      let arr = column1.list.filter((item) => item.prop !== 't0' && item.prop !== 'action').map((item) => item.label);
+      let timeArr = dataArr.map((item) => new Date(item.t0));
+      ElMessageBox.confirm(`确定是否删除物理量`, '提示', {
+        confirmButtonText: t('device.ok'),
+        cancelButtonText: t('device.cencel'),
+        type: 'warning',
+      }).then(() => {
+        deleteDeviceData(routeData.obj, { timestampList: timeArr, measurementList: arr }).then(() => {
+          ElMessage({
+            type: 'success',
+            message: `${t('device.deleteSuccess')}!`,
+          });
+          handleChange.value = null;
+          getPview();
+        });
+      });
+    }
+    function exportData() {
+      let sTime = null;
+      let eTime = null;
+      if (form1.formData.time.length > 0) {
+        sTime = form1.formData.time[0];
+        eTime = form1.formData.time[1];
+      }
+      let arr = column1.list.filter((item) => item.prop !== 't0' && item.prop !== 'action').map((item) => item.label);
+      exportDataCSV(routeData.obj, { measurementList: arr, startTime: sTime, endTime: eTime }).then((res) => {
+        ElMessage({
+          type: 'success',
+          message: `导出成功!`,
+        });
+        let name = routeData.obj.name.split('.')[routeData.obj.name.split('.').length - 1];
+        handleExport(res, `${name}.CSV`);
+      });
+    }
     function serchFormData() {
       pagination.pageSize = 10;
       pagination.pageNum = 1;
       getListData();
+    }
+    function serchFormData1() {
+      pagination1.pageSize = 10;
+      pagination1.pageNum = 1;
+      getPview();
     }
     function getPagintions(val) {
       console.log(val);
@@ -525,7 +668,46 @@ export default {
       getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
         totalCount.value = res.data.totalCount;
+        getPview();
       });
+    }
+    function getPview() {
+      tableflag.flag = false;
+      let sTime = null;
+      let eTime = null;
+      if (form1.formData.time.length > 0) {
+        sTime = form1.formData.time[0];
+        eTime = form1.formData.time[1];
+      }
+      let data = tableData.list.map((item) => item.timeseries);
+      column1.list = [
+        {
+          label: 'device.action',
+          prop: 'action',
+          width: 100,
+        },
+      ];
+      tableData1.list = [];
+      getDataDeviceList(routeData.obj, pagination1, { startTime: sTime, endTime: eTime, measurementList: data }).then((res) => {
+        res.data.metaDataList.forEach((item, index) => {
+          column1.list.push({ label: item, prop: `t${index}`, value: '——' });
+        });
+        res.data.valueList.forEach((item) => {
+          let obj = {};
+          item.forEach((etem, index) => {
+            obj[`t${index}`] = etem;
+          });
+          tableData1.list.push(obj);
+        });
+        totalCount1.value = res.data.totalCount;
+        tableflag.flag = true;
+      });
+    }
+    function randomImData() {
+      randomImport(routeData.obj, newData.formData).then((res) => {
+        console.log(res);
+      });
+      dialogFormVisible.flag = false;
     }
     function getdData() {
       getDeviceDate(routeData.obj).then((res) => {
@@ -548,6 +730,21 @@ export default {
       }, 500);
     });
     return {
+      serchFormData1,
+      downloadEx,
+      tableData2,
+      column2,
+      exportData,
+      deleteRow,
+      totalCount1,
+      saveData,
+      editRow,
+      editFormData,
+      getPview,
+      randomImData,
+      tableflag,
+      tableData1,
+      pagination1,
       selectFile,
       filesd,
       dialogVisible1,
@@ -599,6 +796,7 @@ export default {
     ElDialog,
     ElForm,
     ElFormItem,
+    ElProgress,
   },
 };
 </script>
@@ -608,6 +806,19 @@ $cursor: pointer;
 .export_notice {
   margin-left: 20px;
   color: #abb1c7;
+}
+.div_children {
+  height: 150px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  div {
+    width: 100%;
+    .info_div {
+      padding-top: 10px;
+      text-align: center;
+    }
+  }
 }
 .button_div {
   display: flex;

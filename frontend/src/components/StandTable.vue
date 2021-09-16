@@ -72,11 +72,14 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
                 <span style="float: left">{{ item.label }}</span>
               </el-option>
             </el-select>
+            <div v-if="item.type === 'TAGS'">
+              <span v-for="(item, index) in scope.row[item.prop]" :key="index"> {{ item[0] }}={{ item[1] }}, </span>
+            </div>
             <div v-if="item.type === 'TAG'">
               <i class="el-icon-edit editF" @click="editTag(scope.row[item.prop], scope.row.timeseries, item.prop)"></i>
               <span v-for="(item, index) in scope.row[item.prop]" :key="index"> {{ item[0] }}, </span>
             </div>
-            <span v-if="item.type && scope.row[item.prop] && !scope.row.display && item.type !== 'TEXT'">{{ scope.row[item.prop] }}</span>
+            <span v-if="item.type && scope.row[item.prop] && !scope.row.display && item.type !== 'TEXT' && item.type !== 'TAG' && item.type !== 'TAGS'">{{ scope.row[item.prop] }}</span>
             <span v-if="!item.type">{{ scope.row[item.prop] || item.value }}</span>
           </template>
         </el-table-column>
@@ -95,7 +98,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         @size-change="handleSizeChange"
         @current-change="getList"
         v-model:currentPage="paginations.pageNum"
-        :page-size="10"
+        :page-size="paginations.pageSize"
         :page-count="5"
         layout="total, prev, pager, next"
         :total="total"
@@ -114,7 +117,9 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         </div>
         <div class="content">
           <div v-for="(item, index) in edData.data" :key="index">
-            <el-input v-model="item[0]" size="small" /> = <el-input v-model="item[1]" size="small" /><el-button type="text"><i class="el-icon-delete" /></el-button>
+            <el-input v-model="item[0]" size="small" /> = <el-input v-model="item[1]" size="small" /><el-button type="text"
+              ><i class="el-icon-delete" @click="deleTag(edData.data, index)"
+            /></el-button>
           </div>
         </div>
       </div>
@@ -217,10 +222,14 @@ export default {
     function addData(arr) {
       arr.unshift([null, null]);
     }
+    function deleTag(arr, index) {
+      arr.splice(index, 1);
+    }
     onMounted(() => {
       console.log(columns);
     });
     return {
+      deleTag,
       addData,
       deleteArrys,
       edData,
