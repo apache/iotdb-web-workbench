@@ -6,6 +6,7 @@ build/
 .mvn/
 *.iml
 *.csv
+!template.csv
 *.txt
 target/
 *.versionsBackup

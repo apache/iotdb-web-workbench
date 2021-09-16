@@ -1137,6 +1137,7 @@ public class IotDBServiceImpl implements IotDBService {
       List<String> encodingsStr = new ArrayList<>();
       List<String> measurements = new ArrayList<>();
       List<String> compressionStr = new ArrayList<>();
+      // TODO 编码和压缩方式要改为必选
       for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
         typesStr.add(deviceDTO.getDataType());
         encodingsStr.add(deviceDTO.getEncoding());
@@ -1221,17 +1222,19 @@ public class IotDBServiceImpl implements IotDBService {
                   + String.join(",", oldTags));
         }
         List<List<String>> newTags = deviceDTO.getTags();
-        for (List<String> newTag : newTags) {
-          if (newTag.size() != 2) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        if (newTags != null) {
+          for (List<String> newTag : newTags) {
+            if (newTag.size() != 2) {
+              throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+            }
+            sessionPool.executeNonQueryStatement(
+                "alter timeseries "
+                    + deviceDTO.getTimeseries()
+                    + " add tags "
+                    + newTag.get(0)
+                    + "="
+                    + newTag.get(1));
           }
-          sessionPool.executeNonQueryStatement(
-              "alter timeseries "
-                  + deviceDTO.getTimeseries()
-                  + " add tags "
-                  + newTag.get(0)
-                  + "="
-                  + newTag.get(1));
         }
       }
     } catch (BaseException | StatementExecutionException e) {
@@ -1272,17 +1275,19 @@ public class IotDBServiceImpl implements IotDBService {
                   + String.join(",", oldAttributes));
         }
         List<List<String>> newAttributes = deviceDTO.getAttributes();
-        for (List<String> newAttribute : newAttributes) {
-          if (newAttribute.size() != 2) {
-            throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+        if (newAttributes != null) {
+          for (List<String> newAttribute : newAttributes) {
+            if (newAttribute.size() != 2) {
+              throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
+            }
+            sessionPool.executeNonQueryStatement(
+                "alter timeseries "
+                    + deviceDTO.getTimeseries()
+                    + " add attributes "
+                    + newAttribute.get(0)
+                    + "="
+                    + newAttribute.get(1));
           }
-          sessionPool.executeNonQueryStatement(
-              "alter timeseries "
-                  + deviceDTO.getTimeseries()
-                  + " add attributes "
-                  + newAttribute.get(0)
-                  + "="
-                  + newAttribute.get(1));
         }
       }
     } catch (BaseException | StatementExecutionException e) {

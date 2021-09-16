@@ -27,7 +27,7 @@ import java.util.List;
 
 @Data
 public class DataModelVO implements Serializable {
-  private String nodeName;
+  private String name;
 
   private Boolean isGroup;
 
@@ -43,19 +43,19 @@ public class DataModelVO implements Serializable {
 
   private DataInfo dataInfo;
 
-  private List<DataModelVO> nodeChildren;
+  private List<DataModelVO> children;
 
-  public DataModelVO(String nodeName) {
-    this.nodeName = nodeName;
+  public DataModelVO(String name) {
+    this.name = name;
     this.isGroup = false;
     this.isDevice = false;
     this.isMeasurement = false;
   }
 
   public List<DataModelVO> initNodeChildren() {
-    if (nodeChildren == null) {
-      nodeChildren = new ArrayList<>();
+    if (children == null) {
+      children = new ArrayList<>();
     }
-    return nodeChildren;
+    return children;
   }
 }

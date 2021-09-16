@@ -33,6 +33,7 @@ import org.apache.iotdb.admin.tool.ImportCsv;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -102,9 +103,16 @@ public class FileController {
         .body(resource);
   }
 
+  @ApiOperation("下载文件")
   @GetMapping("/downloadFile/{fileName}")
   public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws BaseException {
-    Resource resource = fileService.loadFileAsResource(fileName);
+    Resource resource;
+    if ("template".equals(fileName)) {
+      resource = new ClassPathResource("file/template.csv");
+    } else {
+      resource = fileService.loadFileAsResource(fileName);
+    }
+
     String contentType = "application/octet-stream";
 
     return ResponseEntity.ok()
