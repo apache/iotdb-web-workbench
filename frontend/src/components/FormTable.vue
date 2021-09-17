@@ -25,7 +25,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
       >
         <template #prepend v-if="item.inputHeader">{{ formData[item.inputHeaderText] }}</template>
       </el-input>
-      <el-select v-if="item.type === 'SELECT'" v-model="formData[item.itemID]" :style="{ width: item.width }" :size="item.size" placeholder="请选择">
+      <el-select v-if="item.type === 'SELECT'" v-model="formData[item.itemID]" :style="{ width: item.width }" :size="item.size" placeholder="请选择" @change="getFormData">
         <el-option v-for="item in item.options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
       </el-select>
       <el-input :size="item.size" v-if="item.type === 'TEXT'" v-model="formData[item.itemID]" class="input-inner" :suffix-icon="item.suffixIcon" :prefix-icon="item.prefixIcon" readonly> </el-input>
