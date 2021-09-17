@@ -62,7 +62,7 @@
           <span>{{ deviceObj.deviceData.creator }}</span>
           <span class="spanmargin">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-user"></use>
+              <use xlink:href="#icon-shizhong"></use>
             </svg>
           </span>
           <span style="margin-left: 5px">{{ $t('device.createTime') }}：</span>
