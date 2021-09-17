@@ -31,7 +31,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               <use :xlink:href="`#icon-${iconArr.icon[item.icon]}`"></use>
             </svg>
             <span :style="{ 'margin-left': iconArr.icon[item.icon] ? '5px' : '' }">{{ $t(item.label) }}</span>
-            <i :class="item.icon" style="margin-left: 4px" @click="iconEvent"></i>
+            <i :class="item.icon" style="margin-left: 4px" @click="iconEvent(item.iconNum)"></i>
           </template>
           <template #default="scope">
             <el-input
@@ -223,8 +223,8 @@ export default {
       }
       row.encoding = row.options[0].value;
     }
-    function iconEvent() {
-      emit('iconEvent');
+    function iconEvent(iconNum) {
+      emit('iconEvent', iconNum);
     }
     function editTag(arr, name, str) {
       let obj = {
