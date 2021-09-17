@@ -6,8 +6,10 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
 <template>
   <el-form ref="formtable" :model="formData" :rules="rules" :inline="inline" :label-position="labelPosition" :class="{ 'demo-form-inline': inline, form_style: true, form_label: label }">
     <el-form-item v-for="item of formItem" :key="item.itemID" :label="$t(item.label)" :prop="item.itemID" :style="{ width: item.labelWidth }">
-      <span v-if="label" class="icon_span">
-        <i class="el-icon-question" />
+      <span v-if="iconArr.icon[item.icon]" class="icon_span">
+        <svg class="icon" aria-hidden="true">
+          <use :xlink:href="`#icon-${iconArr.icon[item.icon]}`"></use>
+        </svg>
       </span>
       <el-input
         v-if="item.type === 'INPUT'"
@@ -41,6 +43,10 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         @change="getFormData"
       >
       </el-date-picker>
+      <el-radio-group v-model="formData[item.itemID]" v-if="item.type === 'RADIO'" :size="item.size" :style="{ width: item.width }">
+        <el-radio label="true">true</el-radio>
+        <el-radio label="false">false</el-radio>
+      </el-radio-group>
       <el-date-picker v-model="formData[item.itemID]" v-if="item.type === 'DATETIME'" type="datetime" :style="{ width: item.width }" :placeholder="item.placeholder"> </el-date-picker>
       <el-input v-model="formData[item.itemID]" v-if="item.type === 'INPUTNUM'" :style="{ width: item.width }" controls-position="right">
         <template #append>
@@ -80,7 +86,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
 </template>
 
 <script>
-import { ElForm, ElFormItem, ElInput, ElDatePicker, ElSelect, ElOption } from 'element-plus';
+import { ElForm, ElFormItem, ElInput, ElDatePicker, ElSelect, ElOption, ElRadioGroup, ElRadio } from 'element-plus';
 import { reactive, toRefs, ref } from 'vue';
 // import { useI18n } from 'vue-i18n';
 export default {
@@ -93,6 +99,16 @@ export default {
     // const { t } = useI18n();
     const formObj = reactive(props.form);
     const label = reactive(props.labelIcon);
+    const iconArr = reactive({
+      icon: {
+        INT64: 'int64',
+        BOOLEAN: 'buer',
+        INT32: 'int32',
+        TEXT: 'TEXT',
+        DOUBLE: 'DOUBLE',
+        FLOAT: 'FLOAT',
+      },
+    });
     const formtable = ref(null);
     let prop = {};
     const requiredArry = formObj.formItem.filter((item) => item.required);
@@ -117,6 +133,7 @@ export default {
     }
     return {
       ...toRefs(formObj),
+      iconArr,
       label,
       formtable,
       rules,
@@ -131,6 +148,8 @@ export default {
     ElDatePicker,
     ElSelect,
     ElOption,
+    ElRadioGroup,
+    ElRadio,
   },
 };
 </script>
@@ -143,11 +162,11 @@ export default {
 <style lang="scss">
 .form_label {
   .el-form-item__label {
-    padding: 0px 12px;
+    padding: 0px 20px;
   }
   .icon_span {
     position: absolute;
-    top: 0px;
+    top: -1px;
     left: 0px;
   }
 }

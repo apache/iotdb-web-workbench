@@ -324,8 +324,8 @@ export default {
         type: 'info',
         message: `${t('device.cencel')}!`,
       });
-      // router.go(-1);
-      router.push({ name: 'DeviceMessage', params: { ...deviceData.obj } });
+      router.go(-1);
+      // router.push({ name: 'DeviceMessage', params: { ...deviceData.obj } });
     }
     function sumbitData() {
       let checkfalg = true;

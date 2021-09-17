@@ -37,20 +37,35 @@
           </div>
         </div>
         <div class="messageBox">
-          <span>{{ $t('device.dataconnection') }}：</span>
+          <span>
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-shujulianjie1"></use>
+            </svg>
+          </span>
+          <span style="margin-left: 5px">{{ $t('device.dataconnection') }}：</span>
           <span>{{ routeData.obj.parentids }}</span>
           <!-- <span class="spanmargin">{{ $t('device.group') }}：</span>
         <span>{{ routeData.obj.storagegroupid }}</span> -->
-          <span class="spanmargin">{{ $t('device.description') }}：</span>
+          <span class="spanmargin">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-describe"></use>
+            </svg>
+          </span>
+          <span style="margin-left: 5px">{{ $t('device.description') }}：</span>
           <span>{{ deviceObj.deviceData.description }}</span>
           <span class="spanmargin">
-            <svg class="icon adminIcon" aria-hidden="true">
-              <use xlink:href="#icon-yh"></use>
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-user"></use>
             </svg>
-            {{ $t('device.creator') }}：
           </span>
+          <span style="margin-left: 5px"> {{ $t('device.creator') }}： </span>
           <span>{{ deviceObj.deviceData.creator }}</span>
-          <span class="spanmargin">{{ $t('device.createTime') }}：</span>
+          <span class="spanmargin">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-user"></use>
+            </svg>
+          </span>
+          <span style="margin-left: 5px">{{ $t('device.createTime') }}：</span>
           <span>{{ deviceObj.deviceData.time }}</span>
         </div>
       </div>
@@ -75,7 +90,7 @@
             @getPagintions="getPagintions"
           >
             <template #default="{ scope }">
-              <div @click="searchRow(scope.row)" v-if="scope.row.newValue * 1">
+              <div style="padding: 7px 0px" @click="searchRow(scope.row)" v-if="scope.row.newValue * 1">
                 <action :echartsData="routeData.obj" :row="scope.row" :scope="scope"></action>
               </div>
               <div v-else class="actionSpan">
@@ -139,6 +154,9 @@
       <div>
         <echarts ref="drawerRef" :echartsData="routeData.obj" :getDate="getDate"></echarts>
       </div>
+      <div style="border: 1px solid #e7eaf2">
+        <action :echartsData="routeData.obj" :row="echart.row" :idCopyStr="1"></action>
+      </div>
     </div>
     <el-dialog title="随机数据" v-model="dialogFormVisible.flag" width="500px">
       <div>
@@ -154,8 +172,8 @@
         </span>
       </template>
     </el-dialog>
-    <el-dialog title="导入" v-model="dialogVisible1.flag" width="500px" @close="closeEd" class="export_form">
-      <div class="div_children">
+    <el-dialog title="导入" v-model="dialogVisible1.flag" width="500px" @close="cencelexport" class="export_form">
+      <div v-if="display.flag" class="div_children">
         <div>
           <input ref="filesd" type="file" multiple="multiple" style="display: none" @change="getfile" />
           <el-form ref="ruleForm" label-width="100%">
@@ -175,33 +193,33 @@
           </el-form>
         </div>
       </div>
-      <div v-if="false" class="div_children">
+      <div v-else-if="display.flag1" class="div_children">
         <div>
-          <el-progress :text-inside="true" :stroke-width="12" :percentage="50" color="#16C493">
+          <el-progress :text-inside="true" :stroke-width="12" :percentage="percentage.count" color="#16C493">
             <span></span>
           </el-progress>
-          <div class="info_div">上传中：45%</div>
+          <div class="info_div">上传中：{{ percentage.count }}%</div>
         </div>
       </div>
-      <div v-if="false" class="div_children">
+      <div v-else class="div_children">
         <div>
           <stand-table :column="column2" :tableData="tableData2" :lineHeight="10" :celineHeight="10">
             <template #default="{ scope }">
-              <span class="table2 edit" @click="editRow(scope.row)">下载</span>
+              <span class="table2 edit" @click="downfile(scope.row.downloadUrl, '')">下载</span>
             </template>
           </stand-table>
         </div>
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible1.flag = false">取 消</el-button>
-          <el-button type="primary" @click="dialogVisible1.flag = false">确 定</el-button>
+          <el-button @click="cencelexport">取 消</el-button>
+          <el-button type="primary" @click="cencelexport">确 定</el-button>
         </span>
       </template>
     </el-dialog>
     <el-dialog title="编辑数据" v-model="dialogFormVisible.editflag" width="500px">
       <div>
-        <form-table v-if="dialogFormVisible.editflag" ref="formTable" :form="editFormData"></form-table>
+        <form-table v-if="dialogFormVisible.editflag" ref="formTable" :form="editFormData" :labelIcon="true"></form-table>
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -218,7 +236,7 @@ import { ElMessageBox, ElMessage, ElButton, ElTabs, ElTabPane, ElDropdown, ElDro
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
 import { reactive, ref, onActivated } from 'vue';
-import { getList, getDeviceDate, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile } from './api';
+import { getList, getDeviceDate, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile, importData } from './api';
 import Echarts from '@/components/Echarts';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
@@ -256,6 +274,9 @@ export default {
     let valueList = ref([]);
     let handleChange = ref(null);
     const filesd = ref(null);
+    const percentage = reactive({
+      count: 0,
+    });
     const pagination = reactive({
       pageSize: 10,
       pageNum: 1,
@@ -266,6 +287,9 @@ export default {
     });
     const routeData = reactive({
       obj: route.params,
+    });
+    const echart = reactive({
+      row: {},
     });
     const drawerRef = ref(null);
     const formTable = ref(null);
@@ -278,6 +302,10 @@ export default {
     const editFormData = reactive({
       formData: {},
       formItem: [],
+    });
+    const display = reactive({
+      flag: true,
+      flag1: false,
     });
     const form = reactive({
       inline: true, //横向
@@ -483,14 +511,17 @@ export default {
         {
           label: '上传总数',
           prop: 'totalCount',
+          value: 0,
         },
         {
           label: '成功数',
           prop: 'SCount',
+          value: 0,
         },
         {
           label: '失败数',
           prop: 'failCount',
+          value: 0,
         },
         {
           label: 'device.action',
@@ -508,21 +539,80 @@ export default {
     const tableData2 = reactive({
       list: [],
     });
+    //选择上传文件
     function selectFile() {
       filesd.value.click();
+    }
+    //上传文件
+    function getfile(obj) {
+      if (!obj.target.files) {
+        return;
+      }
+      display.flag = false;
+      display.flag1 = true;
+      let timeId = setInterval(() => {
+        percentage.count += 1;
+        if (percentage.count === 99) {
+          clearInterval(timeId);
+        }
+      }, 100);
+      let file = obj.target.files[0];
+      let data = new FormData();
+      data.append('file', file);
+      importData(routeData.obj, data).then((res) => {
+        percentage.count = 100;
+        let arr = [
+          {
+            totalCount: res.data.totalCount,
+            SCount: res.data.totalCount - res.data.failCount,
+            failCount: res.data.failCount,
+            downloadUrl: res.data.fileDownloadUri,
+            // res.data.fileDownloadUri.slice(-36),
+          },
+        ];
+        tableData2.list = arr;
+        clearInterval(timeId);
+        setTimeout(() => {
+          display.flag1 = false;
+        }, 500);
+      });
+    }
+    // 下载失败数据
+    function downfile(downUrl, fileName) {
+      let a = document.createElement('a'); // 创建a标签
+      if ('download' in a) {
+        a.download = fileName; // 设置下载文件的文件名
+      }
+      (document.body || document.documentElement).appendChild(a);
+      a.href = downUrl; // downUrl为后台返回的下载地址
+      a.target = '_parent';
+      a.click(); // 设置点击事件
+      a.remove(); // 移除a标签
+    }
+    //文件导入弹窗关闭,重置数据
+    function cencelexport() {
+      dialogVisible1.flag = false;
+      display.flag = true;
+      display.flag1 = false;
+      filesd.value.value = null;
+      percentage.count = 0;
+      getPview();
     }
     function getDataLook() {
       formTable.value.checkData(dialogFormVisible);
     }
+    //下载模板
     function downloadEx() {
       downloadFile().then((res) => {
-        if (res.size) {
-          handleExport(res, `模板.CSV`);
+        if (res.data) {
+          handleExport(res.data, `模板.CSV`);
         }
       });
     }
     function searchRow(val) {
       routeData.obj.timeseries = val.timeseries;
+      routeData.obj.dataType = val.dataType;
+      echart.row = val;
       if (!drawerFlag.value) {
         drawerFlag.value = true;
       } else {
@@ -533,7 +623,7 @@ export default {
         }, 10);
       }
       setTimeout(() => {
-        drawer.value = 400;
+        drawer.value = 450;
       }, 10);
     }
     function closeDrawer() {
@@ -542,14 +632,17 @@ export default {
         drawerFlag.value = false;
       }, 400);
     }
+    //数据预览复选框选择数据
     function selectData(val) {
       handleChange.value = val;
     }
+    //批量删除
     function deleteArry() {
       if (handleChange.value) {
         deleteRow(handleChange.value);
       }
     }
+    //编辑物理量数据
     function editRow(row) {
       let obj = {};
       editFormData.formItem = [];
@@ -560,10 +653,11 @@ export default {
           obj[item.prop] = row[item.prop];
           editFormData.formItem.push({
             label: item.label,
-            type: 'INPUT',
+            type: item.icon === 'BOOLEAN' ? 'RADIO' : 'INPUT',
             size: 'small',
             width: '100%',
             placeholder: '',
+            icon: item.icon,
             itemID: item.prop,
           });
           measurementList.value.push(item.label);
@@ -572,6 +666,7 @@ export default {
       editFormData.formData = obj;
       dialogFormVisible.editflag = true;
     }
+    //编辑保存物理量
     function saveData() {
       valueList.value = Object.values(editFormData.formData);
       editData(routeData.obj, { timestamp: new Date(timestamp.value), measurementList: measurementList.value, valueList: valueList.value }).then(() => {
@@ -592,6 +687,7 @@ export default {
     function editDevce() {
       router.push({ name: 'Device', params: { ...routeData.obj } });
     }
+    //删除实体
     function deleteData() {
       ElMessageBox.confirm(`${t('device.deletecontent1')}"${routeData.obj.name}"？${t('device.deletecontent2')}`, '提示', {
         confirmButtonText: t('device.ok'),
@@ -615,6 +711,7 @@ export default {
           });
         });
     }
+    //删除物理量
     function deleteRow(dataArr) {
       let arr = column1.list.filter((item) => item.prop !== 't0' && item.prop !== 'action').map((item) => item.label);
       let timeArr = dataArr.map((item) => new Date(item.t0));
@@ -633,6 +730,7 @@ export default {
         });
       });
     }
+    //导出物理量
     function exportData() {
       let sTime = null;
       let eTime = null;
@@ -650,11 +748,13 @@ export default {
         handleExport(res, `${name}.CSV`);
       });
     }
+    //物理量翻页
     function serchFormData() {
       pagination.pageSize = 10;
       pagination.pageNum = 1;
       getListData();
     }
+    //物理量数据预览翻页
     function serchFormData1() {
       pagination1.pageSize = 10;
       pagination1.pageNum = 1;
@@ -664,6 +764,7 @@ export default {
       console.log(val);
       console.log(pagination);
     }
+    //获取物理量列表
     function getListData() {
       getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
@@ -671,6 +772,7 @@ export default {
         getPview();
       });
     }
+    //获取物理量数据预览列表
     function getPview() {
       tableflag.flag = false;
       let sTime = null;
@@ -690,7 +792,7 @@ export default {
       tableData1.list = [];
       getDataDeviceList(routeData.obj, pagination1, { startTime: sTime, endTime: eTime, measurementList: data }).then((res) => {
         res.data.metaDataList.forEach((item, index) => {
-          column1.list.push({ label: item, prop: `t${index}`, value: '——' });
+          column1.list.push({ label: item, prop: `t${index}`, value: '——', icon: res.data.typeList[index] });
         });
         res.data.valueList.forEach((item) => {
           let obj = {};
@@ -703,9 +805,14 @@ export default {
         tableflag.flag = true;
       });
     }
+    //随机导入物理量数据
     function randomImData() {
-      randomImport(routeData.obj, newData.formData).then((res) => {
-        console.log(res);
+      randomImport(routeData.obj, newData.formData).then(() => {
+        ElMessage({
+          type: 'success',
+          message: `导入成功!`,
+        });
+        getPview();
       });
       dialogFormVisible.flag = false;
     }
@@ -730,6 +837,12 @@ export default {
       }, 500);
     });
     return {
+      echart,
+      downfile,
+      percentage,
+      cencelexport,
+      getfile,
+      display,
       serchFormData1,
       downloadEx,
       tableData2,
@@ -854,7 +967,7 @@ $cursor: pointer;
   border-color: $theme-color;
 }
 .actionSpan {
-  height: 70px;
+  height: 44px;
   display: flex;
   align-items: center;
 }
@@ -864,12 +977,12 @@ $cursor: pointer;
 }
 .drawertitle {
   height: 35px;
-  background: rgb(227, 227, 227);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 30px;
   font-size: 11px;
+  border: 1px solid #eef0f5;
 }
 .drawer {
   // width: 84%;
@@ -879,6 +992,7 @@ $cursor: pointer;
   z-index: 9;
   overflow: hidden;
   transition: all 0.3s ease-out 0.1s;
+  box-shadow: 14px -2px 12px 0px rgba(0, 0, 0, 0.16);
   //   box-shadow: 3px 3px 3px #a2a2a2;
 }
 .headerbox {

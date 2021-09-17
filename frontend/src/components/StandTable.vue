@@ -27,7 +27,10 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         <el-table-column :key="item.prop" v-for="item of columns.list" :width="item.width + 'px'" :align="item.align" :fixed="item.fixed" show-overflow-tooltip>
           <template #header>
             <span :class="{ spanbox: item.required }"></span>
-            <span>{{ $t(item.label) }}</span>
+            <svg v-if="iconArr.icon[item.icon]" class="icon" @click="sqlClick" aria-hidden="true">
+              <use :xlink:href="`#icon-${iconArr.icon[item.icon]}`"></use>
+            </svg>
+            <span :style="{ 'margin-left': iconArr.icon[item.icon] ? '5px' : '' }">{{ $t(item.label) }}</span>
             <i :class="item.icon" style="margin-left: 4px" @click="iconEvent"></i>
           </template>
           <template #default="scope">
@@ -159,6 +162,16 @@ export default {
     let dialogFormVisible = reactive({
       flag: false,
     });
+    const iconArr = reactive({
+      icon: {
+        INT64: 'int64',
+        BOOLEAN: 'buer',
+        INT32: 'int32',
+        TEXT: 'TEXT',
+        DOUBLE: 'DOUBLE',
+        FLOAT: 'FLOAT',
+      },
+    });
     let edData = reactive({
       data: [],
       name: '',
@@ -229,6 +242,7 @@ export default {
       console.log(columns);
     });
     return {
+      iconArr,
       deleTag,
       addData,
       deleteArrys,

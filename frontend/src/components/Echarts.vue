@@ -35,6 +35,7 @@ export default {
       list: [],
     });
     let max = ref(0);
+    let min = ref(0);
     onMounted(() => {
       getehartsData(data);
     });
@@ -67,7 +68,7 @@ export default {
           },
         },
         grid: {
-          left: '40px',
+          left: '100px',
           top: '10px',
           width: '100%',
         },
@@ -95,7 +96,7 @@ export default {
         yAxis: {
           type: 'value',
           max: max,
-          min: 0,
+          min: min,
           splitNumber: 1,
           axisTick: {
             show: false,
@@ -124,7 +125,7 @@ export default {
             itemStyle: {
               normal: {
                 lineStyle: {
-                  color: '#0cc100',
+                  color: '#16C493',
                 },
               },
             },
@@ -137,13 +138,14 @@ export default {
       };
     }
     function getehartsData(data) {
-      getData(data.connectionid, data.storagegroupid, data.name, data.timeseries).then((res) => {
+      getData(data.connectionid, data.storagegroupid, data.name, data.timeseries, { dataType: data.dataType }).then((res) => {
         time.list = res.data.timeList;
         timeCopy.list = JSON.parse(JSON.stringify(res.data.timeList.reverse()));
         value.list = res.data.valueList;
         valueCopy.list = JSON.parse(JSON.stringify(res.data.valueList.reverse()));
         props.getDate(res.data.timeList[0], res.data.timeList[res.data.timeList.length - 1]);
         max = Math.max(...res.data.valueList);
+        min = Math.min(...res.data.valueList);
         setEcharts();
       });
     }

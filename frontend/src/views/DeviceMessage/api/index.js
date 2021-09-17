@@ -28,8 +28,8 @@ export function getList(data, params) {
   return axios.get(`/servers/${data.connectionid}/storageGroups/${data.storagegroupid}/devices/${data.name}/info`, { params: params });
 }
 //获取测点数据趋势
-export function getData(serverId, groupName, deviceName, timeseriesName) {
-  return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries/${timeseriesName}`);
+export function getData(serverId, groupName, deviceName, timeseriesName, params) {
+  return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries/${timeseriesName}`, { params });
 }
 //删除实体
 export function deleteDevice(data) {
