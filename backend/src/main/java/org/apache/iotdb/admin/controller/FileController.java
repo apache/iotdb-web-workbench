@@ -95,24 +95,27 @@ public class FileController {
     String password = connection.getPassword();
     String fileName = exportCsv.exportCsv(host, port, username, password, sql, null);
 
-    org.springframework.core.io.Resource resource = fileService.loadFileAsResource(fileName);
-    String contentType = "application/octet-stream";
-    return ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType(contentType))
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename())
-        .body(resource);
+    Resource resource = fileService.loadFileAsResource(fileName);
+    return getResponseEntity(resource);
   }
 
-  @ApiOperation("下载文件")
   @GetMapping("/downloadFile/{fileName}")
   public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws BaseException {
-    Resource resource;
-    if ("template".equals(fileName)) {
-      resource = new ClassPathResource("file/template.csv");
-    } else {
-      resource = fileService.loadFileAsResource(fileName);
-    }
+    Resource resource = fileService.loadFileAsResource(fileName);
+    return getResponseEntity(resource);
+  }
 
+  @ApiOperation("下载csv模板文件")
+  @GetMapping("/downloadFile/template")
+  public ResponseEntity<Resource> downloadTemplateFile() throws BaseException {
+    Resource resource = new ClassPathResource("file/template.csv");
+    if (!resource.exists()) {
+      throw new BaseException(ErrorCode.FILE_NOT_FOUND, ErrorCode.FILE_NOT_FOUND_MSG);
+    }
+    return getResponseEntity(resource);
+  }
+
+  private ResponseEntity<Resource> getResponseEntity(Resource resource) {
     String contentType = "application/octet-stream";
 
     return ResponseEntity.ok()
