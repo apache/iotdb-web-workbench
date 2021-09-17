@@ -96,11 +96,6 @@
                   </div>
                 </div>
               </el-tab-pane>
-              <!-- <el-tab-pane name="second2">
-                <template #label>
-                  <span>{{ $t('standTable.running') }}2<i class="el-icon-more iconmore red"></i> </span>
-                </template>
-              </el-tab-pane> -->
             </el-tabs>
           </div>
         </div>

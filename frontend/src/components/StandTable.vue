@@ -116,7 +116,11 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         </div>
         <div>
           <span>物理量{{ edData.label }}：</span>
-          <span class="icon_color" @click="addData(edData.data)"><i class="el-icon-circle-plus" /></span>
+          <span class="icon_color" @click="addData(edData.data)">
+            <svg class="icon" @click="editTag(scope.row[item.prop])" aria-hidden="true" v-icon="`#icon-add`">
+              <use xlink:href="#icon-add1"></use>
+            </svg>
+          </span>
         </div>
         <div class="content">
           <div v-for="(item, index) in edData.data" :key="index">
