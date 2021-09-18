@@ -426,9 +426,11 @@ public class IotDBController {
         measurementVO.setNewValue(newValue);
         measurementVO.setDescription(description);
         ObjectMapper mapper = new ObjectMapper();
+        List<List<String>> tags = new ArrayList<>();
+        List<List<String>> attributes = new ArrayList<>();
         try {
           if (!"null".equals(measurementDTO.getTags())) {
-            List<List<String>> tags = new ArrayList<>();
+
             Map<String, String> tagsMap = mapper.readValue(measurementDTO.getTags(), Map.class);
             for (String key : tagsMap.keySet()) {
               List<String> tag = new ArrayList<>();
@@ -436,10 +438,10 @@ public class IotDBController {
               tag.add(tagsMap.get(key));
               tags.add(tag);
             }
-            measurementVO.setTags(tags);
           }
+          measurementVO.setTags(tags);
           if (!"null".equals(measurementDTO.getAttributes())) {
-            List<List<String>> attributes = new ArrayList<>();
+
             Map<String, String> attributesMap =
                 mapper.readValue(measurementDTO.getAttributes(), Map.class);
             for (String key : attributesMap.keySet()) {
@@ -448,8 +450,8 @@ public class IotDBController {
               attribute.add(attributesMap.get(key));
               attributes.add(attribute);
             }
-            measurementVO.setAttributes(attributes);
           }
+          measurementVO.setAttributes(attributes);
         } catch (JsonProcessingException e) {
           log.error(e.getMessage());
           throw new BaseException(ErrorCode.GET_MSM_FAIL, ErrorCode.GET_MSM_FAIL_MSG);
@@ -501,25 +503,6 @@ public class IotDBController {
     deviceName = groupName + "." + deviceName;
     iotDBService.insertTimeseries(connection, deviceName, timeseries);
     return BaseVO.success("创建成功", null);
-  }
-
-  @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/info")
-  @ApiOperation("指定设备下的所有物理量  (未使用)")
-  public BaseVO<SqlResultVO> showTimeseries(
-      @PathVariable("serverId") Integer serverId,
-      @PathVariable("groupName") String groupName,
-      @PathVariable("deviceName") String deviceName,
-      HttpServletRequest request)
-      throws BaseException {
-    if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-      throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-    }
-    check(request, serverId);
-    Connection connection = connectionService.getById(serverId);
-    groupName = "root." + groupName;
-    deviceName = groupName + "." + deviceName;
-    SqlResultVO resultVO = iotDBService.showTimeseries(connection, deviceName);
-    return BaseVO.success("获取成功", resultVO);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries")

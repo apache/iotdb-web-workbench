@@ -1017,16 +1017,6 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public SqlResultVO showTimeseries(Connection connection, String deviceName) throws BaseException {
-    paramValid(deviceName);
-    java.sql.Connection conn = getConnection(connection);
-    String sql = "show timeseries " + deviceName;
-    SqlResultVO resultVO = sqlQuery(conn, sql);
-    closeConnection(conn);
-    return resultVO;
-  }
-
-  @Override
   public List<Integer> getDevicesCount(Connection connection, List<String> groupNames)
       throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
@@ -1177,7 +1167,7 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool = getSessionPool(connection);
       for (DeviceDTO deviceDTO : deviceDTOList) {
         String alias = deviceDTO.getAlias();
-        if (alias == null || StringUtils.isBlank(alias)) {
+        if (alias == null || "null".equals(alias) || StringUtils.isBlank(alias)) {
           continue;
         } else {
           sessionPool.executeNonQueryStatement(
@@ -1989,22 +1979,6 @@ public class IotDBServiceImpl implements IotDBService {
         }
         try {
           if (QUERY_STOP.get(id_plus_timestamp)) {
-            String sqlCheck = sql.toLowerCase();
-            // TODO: 允许存储组和设备同名后删除下面2个判断
-            if (sqlCheck != null && sqlCheck.contains("insert")) {
-              String s = sqlCheck;
-              String[] split = s.split("\\.");
-              if (split.length <= 2) {
-                throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
-              }
-            }
-            if (sqlCheck != null && sqlCheck.contains("create timeseries")) {
-              String s = sqlCheck;
-              String[] split = s.split("\\.");
-              if (split.length <= 3) {
-                throw new BaseException(ErrorCode.NO_SUPPORT_SQL, ErrorCode.NO_SUPPORT_SQL_MSG);
-              }
-            }
             long start = System.currentTimeMillis();
             sessionPool.executeNonQueryStatement(sql);
             long end = System.currentTimeMillis();
@@ -3018,37 +2992,6 @@ public class IotDBServiceImpl implements IotDBService {
     }
     return sessionPool;
   }
-  //    public static SessionPool getSession(Connection connection) throws BaseException {
-  //        if(sessionPool == null){
-  //            host = connection.getHost();
-  //            port = connection.getPort();
-  //            username = connection.getUsername();
-  //            password = connection.getPassword();
-  //            sessionPool = new SessionPool(host,port,username,password,3);
-  //            return sessionPool;
-  //        }
-  //        if(host == connection.getHost() && port.equals(connection.getPort()) && username ==
-  // connection.getUsername() && password == connection.getPassword()){
-  //            return sessionPool;
-  //        }
-  //        sessionPool.close();
-  //        host = connection.getHost();
-  //        port = connection.getPort();
-  //        username = connection.getUsername();
-  //        password = connection.getPassword();
-  //        sessionPool = new SessionPool(host,port,username,password,3);
-  //        return sessionPool;
-  //    }
-
-  private void closeConnection(java.sql.Connection conn) throws BaseException {
-    try {
-      if (conn != null) {
-        conn.close();
-      }
-    } catch (SQLException e) {
-      throw new BaseException(ErrorCode.CLOSE_DBCONN_FAIL, ErrorCode.CLOSE_DBCONN_FAIL_MSG);
-    }
-  }
 
   private String handlerPrivilegeStrToSql(String privilege, String userName, String roleName) {
     int i = privilege.indexOf(":");
@@ -3069,51 +3012,6 @@ public class IotDBServiceImpl implements IotDBService {
     }
     str.append("'" + privileges[len - 1] + "' on " + path);
     return str.toString();
-  }
-
-  private SqlResultVO sqlQuery(java.sql.Connection conn, String sql) throws BaseException {
-    PreparedStatement statement = null;
-    ResultSet resultSet = null;
-    try {
-      statement = conn.prepareStatement(sql);
-      resultSet = statement.executeQuery();
-      ResultSetMetaData metaData = resultSet.getMetaData();
-      int columnCount = metaData.getColumnCount();
-      SqlResultVO sqlResultVO = new SqlResultVO();
-      List<String> metaDataList = new ArrayList<>();
-      for (int i = 0; i < columnCount; i++) {
-        metaDataList.add(metaData.getColumnLabel(i + 1));
-      }
-      sqlResultVO.setMetaDataList(metaDataList);
-      List<List<String>> valuelist = new ArrayList<>();
-      while (resultSet.next()) {
-        List<String> strList = new ArrayList<>();
-        for (int i = 0; i < columnCount; i++) {
-          strList.add(resultSet.getString(i + 1));
-        }
-        valuelist.add(strList);
-      }
-      sqlResultVO.setValueList(valuelist);
-      return sqlResultVO;
-    } catch (SQLException e) {
-      throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
-    } finally {
-      if (resultSet != null) {
-        try {
-          resultSet.close();
-        } catch (SQLException e) {
-          throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
-        }
-      }
-      if (statement != null) {
-        try {
-          statement.close();
-        } catch (SQLException e) {
-          throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
-        }
-      }
-      closeConnection(conn);
-    }
   }
 
   /**

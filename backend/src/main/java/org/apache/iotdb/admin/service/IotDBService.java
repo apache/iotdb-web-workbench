@@ -88,8 +88,6 @@ public interface IotDBService {
 
   void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException;
 
-  SqlResultVO showTimeseries(Connection connection, String deviceName) throws BaseException;
-
   List<Integer> getDevicesCount(Connection connection, List<String> groupNames)
       throws BaseException;
 
