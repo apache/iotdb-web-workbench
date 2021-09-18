@@ -87,13 +87,13 @@ export default {
     });
     const encoding = {
       BOOLEAN: [
-        { label: 'PLAIN', value: 'PLAIN' },
         { label: 'RLE', value: 'RLE' },
+        { label: 'PLAIN', value: 'PLAIN' },
       ],
       TEXT: [{ label: 'PLAIN', value: 'PLAIN' }],
       DEFAULT: [
-        { label: 'PLAIN', value: 'PLAIN' },
         { label: 'RLE', value: 'RLE' },
+        { label: 'PLAIN', value: 'PLAIN' },
         { label: 'TS_2DIFF', value: 'TS_2DIFF' },
         { label: 'GORILLA', value: 'GORILLA' },
       ],
@@ -309,7 +309,7 @@ export default {
           encoding: null,
           description: null,
           alias: null,
-          compression: null,
+          compression: 'SNAPPY',
           tags: [],
           attributes: [],
           display: true,
@@ -416,7 +416,7 @@ export default {
               encoding: null,
               description: null,
               alias: null,
-              compression: null,
+              compression: 'SNAPPY',
               tags: [],
               attributes: [],
               display: true,

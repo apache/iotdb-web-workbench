@@ -221,7 +221,11 @@ export default {
       if (!row.options) {
         row.options = encodings.DEFAULT;
       }
-      row.encoding = row.options[0].value;
+      if (val === 'FLOAT' || val === 'DOUBLE') {
+        row.encoding = row.options[row.options.length - 1].value;
+      } else {
+        row.encoding = row.options[0].value;
+      }
     }
     function iconEvent(iconNum) {
       emit('iconEvent', iconNum);
