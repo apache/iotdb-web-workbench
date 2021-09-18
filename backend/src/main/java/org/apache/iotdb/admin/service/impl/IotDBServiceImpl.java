@@ -148,9 +148,7 @@ public class IotDBServiceImpl implements IotDBService {
     } catch (NumberFormatException e) {
       throw new BaseException(ErrorCode.GET_DATA_COUNT_FAIL, ErrorCode.GET_DATA_COUNT_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -164,9 +162,7 @@ public class IotDBServiceImpl implements IotDBService {
       root.setGroupCount(getGroupCount(sessionPool));
       return root;
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -308,10 +304,14 @@ public class IotDBServiceImpl implements IotDBService {
   @Override
   public List<String> getAllStorageGroups(Connection connection) throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
-    String sql = "show storage group";
-    List<String> users = executeQueryOneColumn(sessionPool, sql);
-    sessionPool.close();
-    return users;
+    List<String> users;
+    try {
+      String sql = "show storage group";
+      users = executeQueryOneColumn(sessionPool, sql);
+      return users;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
   }
 
   @Override
@@ -333,9 +333,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.SET_GROUP_FAIL, ErrorCode.SET_GROUP_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -355,9 +353,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.DELETE_GROUP_FAIL, ErrorCode.DELETE_GROUP_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -411,12 +407,8 @@ public class IotDBServiceImpl implements IotDBService {
       throw new BaseException(
           ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -492,19 +484,22 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_MSM_FAIL, ErrorCode.GET_MSM_FAIL_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
+      closeSessionPool(sessionPool);
     }
   }
 
   @Override
   public List<String> getIotDBUserList(Connection connection) throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
-    String sql = "list user";
-    List<String> users = executeQueryOneColumn(sessionPool, sql);
-    sessionPool.close();
-    return users;
+    List<String> users;
+    try {
+      String sql = "list user";
+      users = executeQueryOneColumn(sessionPool, sql);
+      return users;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
   }
 
   @Override
@@ -517,9 +512,7 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool.close();
       return roles;
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -536,9 +529,7 @@ public class IotDBServiceImpl implements IotDBService {
     } catch (BaseException e) {
       throw new BaseException(ErrorCode.ROLE_GET_USERS_FAIL, ErrorCode.ROLE_GET_USERS_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -618,9 +609,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.DELETE_DB_USER_FAIL, ErrorCode.DELETE_DB_USER_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -642,9 +631,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.DELETE_DB_ROLE_FAIL, ErrorCode.DELETE_DB_ROLE_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -667,9 +654,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.SET_DB_USER_FAIL, ErrorCode.SET_DB_USER_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
     //        // 用户角色
     //        for (String role : iotDBUser.getRoles()) {
@@ -705,9 +690,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -732,9 +715,7 @@ public class IotDBServiceImpl implements IotDBService {
         throw e;
       }
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -756,9 +737,7 @@ public class IotDBServiceImpl implements IotDBService {
         }
       }
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -780,9 +759,7 @@ public class IotDBServiceImpl implements IotDBService {
         }
       }
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -859,12 +836,8 @@ public class IotDBServiceImpl implements IotDBService {
       throw new BaseException(
           ErrorCode.GET_USER_PRIVILEGE_FAIL, ErrorCode.GET_USER_PRIVILEGE_FAIL_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -872,7 +845,6 @@ public class IotDBServiceImpl implements IotDBService {
   public Set<String> getRoleAuthorityPrivilege(Connection connection, String roleName)
       throws BaseException {
     SessionPool sessionPool = null;
-    SessionDataSetWrapper sessionDataSetWrapper = null;
     try {
       Set<String> privileges = new HashSet<>();
       sessionPool = getSessionPool(connection);
@@ -888,12 +860,7 @@ public class IotDBServiceImpl implements IotDBService {
             ErrorCode.GET_ROLE_PRIVILEGE_FAIL, ErrorCode.GET_ROLE_PRIVILEGE_FAIL_MSG);
       }
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -936,9 +903,7 @@ public class IotDBServiceImpl implements IotDBService {
         }
       }
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -990,9 +955,7 @@ public class IotDBServiceImpl implements IotDBService {
     } catch (StatementExecutionException e) {
       throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1010,9 +973,7 @@ public class IotDBServiceImpl implements IotDBService {
       }
       throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1021,18 +982,21 @@ public class IotDBServiceImpl implements IotDBService {
       throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
     List<Integer> devicesCount = new ArrayList<>();
-    for (String groupName : groupNames) {
-      String sql = "count devices " + groupName;
-      String value = executeQueryOneValue(sessionPool, sql);
-      if (value == null) {
-        devicesCount.add(0);
-        continue;
+    try {
+      for (String groupName : groupNames) {
+        String sql = "count devices " + groupName;
+        String value = executeQueryOneValue(sessionPool, sql);
+        if (value == null) {
+          devicesCount.add(0);
+          continue;
+        }
+        Integer count = Integer.valueOf(value);
+        devicesCount.add(count);
       }
-      Integer count = Integer.valueOf(value);
-      devicesCount.add(count);
+      return devicesCount;
+    } finally {
+      closeSessionPool(sessionPool);
     }
-    sessionPool.close();
-    return devicesCount;
   }
 
   @Override
@@ -1051,7 +1015,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.SET_TTL_FAIL, ErrorCode.SET_TTL_FAIL_MSG);
     } finally {
-      sessionPool.close();
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1066,7 +1030,7 @@ public class IotDBServiceImpl implements IotDBService {
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
     } finally {
-      sessionPool.close();
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1075,18 +1039,21 @@ public class IotDBServiceImpl implements IotDBService {
       throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
     List<Integer> lines = new ArrayList<>();
-    for (String deviceName : deviceNames) {
-      String sql = "count timeseries " + deviceName;
-      String value = executeQueryOneValue(sessionPool, sql);
-      if (value == null) {
-        lines.add(0);
-        continue;
+    try {
+      for (String deviceName : deviceNames) {
+        String sql = "count timeseries " + deviceName;
+        String value = executeQueryOneValue(sessionPool, sql);
+        if (value == null) {
+          lines.add(0);
+          continue;
+        }
+        Integer count = Integer.valueOf(value);
+        lines.add(count);
       }
-      Integer count = Integer.valueOf(value);
-      lines.add(count);
+      return lines;
+    } finally {
+      closeSessionPool(sessionPool);
     }
-    sessionPool.close();
-    return lines;
   }
 
   @Override
@@ -1112,9 +1079,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.DELETE_TS_FAIL, ErrorCode.DELETE_TS_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1153,9 +1118,7 @@ public class IotDBServiceImpl implements IotDBService {
         throw new BaseException(ErrorCode.INSERT_DEV_FAIL, ErrorCode.INSERT_DEV_FAIL_MSG);
       }
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1181,9 +1144,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1234,9 +1195,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1288,9 +1247,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1307,9 +1264,7 @@ public class IotDBServiceImpl implements IotDBService {
       throw new BaseException(
           ErrorCode.GET_MEASUREMENT_DATA_COUNT_FAIL, ErrorCode.GET_MEASUREMENT_DATA_COUNT_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1326,28 +1281,36 @@ public class IotDBServiceImpl implements IotDBService {
     String value;
     try {
       value = executeQueryOneValue(sessionPool, sql);
+      return value;
     } finally {
-      sessionPool.close();
+      closeSessionPool(sessionPool);
     }
-    return value;
   }
 
   @Override
   public String getGroupTTL(Connection connection, String groupName) throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
-    String sql = "show ttl on " + groupName;
-    String queryField = "ttl";
-    String ttl = executeQueryOneLine(sessionPool, sql, queryField);
-    return ttl;
+    try {
+      String sql = "show ttl on " + groupName;
+      String queryField = "ttl";
+      String ttl = executeQueryOneLine(sessionPool, sql, queryField);
+      return ttl;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
   }
 
   @Override
   public List<String> getDevices(Connection connection, String groupName) throws BaseException {
     paramValid(groupName);
     SessionPool sessionPool = getSessionPool(connection);
-    String sql = "show devices " + groupName;
-    List<String> devicesName = executeQueryOneColumn(sessionPool, sql);
-    return devicesName;
+    try {
+      String sql = "show devices " + groupName;
+      List<String> devicesName = executeQueryOneColumn(sessionPool, sql);
+      return devicesName;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
   }
 
   @Override
@@ -1367,9 +1330,7 @@ public class IotDBServiceImpl implements IotDBService {
       assembleDeviceList(ancestry, groupName, sessionPool);
       return ancestry;
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1428,9 +1389,7 @@ public class IotDBServiceImpl implements IotDBService {
       }
       return isExist;
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1493,9 +1452,7 @@ public class IotDBServiceImpl implements IotDBService {
       dataVO.setTotalPage(totalPage);
       return dataVO;
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1568,9 +1525,7 @@ public class IotDBServiceImpl implements IotDBService {
         throw new BaseException(ErrorCode.GET_DATA_FAIL, ErrorCode.GET_DATA_FAIL_MSG);
       }
     } finally {
-      if (sessionPool != null) {
-        sessionPool.closeResultSet(sessionDataSetWrapper);
-      }
+      closeResultSet(sessionDataSetWrapper);
     }
   }
 
@@ -1596,9 +1551,7 @@ public class IotDBServiceImpl implements IotDBService {
         throw new BaseException(ErrorCode.GET_DATA_FAIL, ErrorCode.GET_DATA_FAIL_MSG);
       }
     } finally {
-      if (sessionPool != null) {
-        sessionPool.closeResultSet(sessionDataSetWrapper);
-      }
+      closeResultSet(sessionDataSetWrapper);
     }
   }
 
@@ -1623,9 +1576,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.UPDATE_DATA_FAIL, ErrorCode.UPDATE_DATA_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1654,9 +1605,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.DELETE_DATA_FAIL, ErrorCode.DELETE_DATA_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1736,9 +1685,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.NO_MEASUREMENT, ErrorCode.NO_MEASUREMENT_MSG);
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -1942,11 +1889,8 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_RECORD_FAIL, ErrorCode.GET_RECORD_FAIL_MSG);
     } finally {
-      if (sessionPool != null) {
-        // TODO 待优化，结果集可能为空
-        sessionPool.closeResultSet(sessionDataSetWrapper);
-        sessionPool.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -2002,9 +1946,7 @@ public class IotDBServiceImpl implements IotDBService {
         }
       }
     } finally {
-      if (sessionPool != null) {
-        sessionPool.close();
-      }
+      closeSessionPool(sessionPool);
     }
     QUERY_STOP.remove(id_plus_timestamp);
     return results;
@@ -2023,6 +1965,8 @@ public class IotDBServiceImpl implements IotDBService {
       throw new BaseException(ErrorCode.UPDATE_PWD_FAIL, ErrorCode.UPDATE_PWD_FAIL_MSG);
     } catch (IoTDBConnectionException e) {
       e.printStackTrace();
+    } finally {
+      closeSessionPool(sessionPool);
     }
   }
 
@@ -2177,9 +2121,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
     }
   }
 
@@ -2212,9 +2154,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
     }
     throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
   }
@@ -2247,7 +2187,9 @@ public class IotDBServiceImpl implements IotDBService {
         String queryTime = time + "s";
         sqlResultVO.setQueryTime(queryTime);
         sqlResultVO.setLine(count);
+        sqlResultVO.setValueList(valuelist);
       }
+      return sqlResultVO;
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
@@ -2255,13 +2197,11 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
     } finally {
+      closeResultSet(sessionDataSetWrapper);
       if (sessionPool != null && closePool) {
-        sessionPool.closeResultSet(sessionDataSetWrapper);
         sessionPool.close();
       }
     }
-    sqlResultVO.setValueList(valuelist);
-    return sqlResultVO;
   }
 
   private SqlResultVO executeQuery(
@@ -2269,8 +2209,9 @@ public class IotDBServiceImpl implements IotDBService {
       throws BaseException {
     SqlResultVO sqlResultVO = new SqlResultVO();
     List<List<String>> valuelist = new ArrayList<>();
+    SessionDataSetWrapper sessionDataSetWrapper = null;
     try {
-      SessionDataSetWrapper sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
       long start = System.currentTimeMillis();
       List<String> columnNames = sessionDataSetWrapper.getColumnNames();
       sqlResultVO.setMetaDataList(columnNames);
@@ -2311,7 +2252,7 @@ public class IotDBServiceImpl implements IotDBService {
       }
       throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
     } finally {
-      // TODO：结果集没关
+      closeResultSet(sessionDataSetWrapper);
       if (sessionPool != null && closePool) {
         sessionPool.close();
       }
@@ -2367,9 +2308,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_MSM_FAIL, ErrorCode.GET_MSM_FAIL_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
     }
   }
 
@@ -2401,9 +2340,7 @@ public class IotDBServiceImpl implements IotDBService {
       throw new BaseException(
           ErrorCode.GET_SQL_ONE_VALUE_FAIL, ErrorCode.GET_SQL_ONE_VALUE_FAIL_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
     }
   }
 
@@ -2440,9 +2377,7 @@ public class IotDBServiceImpl implements IotDBService {
       throw new BaseException(
           ErrorCode.GET_SQL_ONE_COLUMN_FAIL, ErrorCode.GET_SQL_ONE_COLUMN_FAIL_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
     }
   }
 
@@ -2488,9 +2423,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.TIME_OUT, ErrorCode.TIME_OUT_MSG);
     } finally {
-      if (sessionDataSetWrapper != null) {
-        sessionDataSetWrapper.close();
-      }
+      closeResultSet(sessionDataSetWrapper);
     }
   }
 
@@ -3014,6 +2947,17 @@ public class IotDBServiceImpl implements IotDBService {
     return str.toString();
   }
 
+  private void closeSessionPool(SessionPool sessionPool) {
+    if (sessionPool != null) {
+      sessionPool.close();
+    }
+  }
+
+  private void closeResultSet(SessionDataSetWrapper sessionDataSetWrapper) {
+    if (sessionDataSetWrapper != null) {
+      sessionDataSetWrapper.close();
+    }
+  }
   /**
    * 防止sql注入对参数进行校验不能有空格
    *
