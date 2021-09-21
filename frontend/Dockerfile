@@ -17,14 +17,27 @@
 # under the License.
 #
 
-FROM hub.segma.tech/library/java:8-jre-centos7-apollo
+FROM node:lts-alpine
 
+# From official Vue Documentation https://vuejs.org/v2/cookbook/dockerize-vuejs-app.html
+
+# install simple http server for serving static content
+RUN npm install -g http-server
+
+# make the 'app' folder the current working directory
 WORKDIR /app
 
+# copy both 'package.json' and 'package-lock.json' (if available)
+COPY package*.json ./
+
+# install project dependencies
+RUN npm install
+
+# copy project files and folders to the current working directory (i.e. 'app' folder)
 COPY . .
 
-RUN mvn package
+# build app for production with minification
+RUN npm run build
 
 EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "/app/workbench-1.0.0.jar"]
+CMD [ "http-server", "dist" ]

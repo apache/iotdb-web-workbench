@@ -17,14 +17,19 @@
 # under the License.
 #
 
-FROM hub.segma.tech/library/java:8-jre-centos7-apollo
+version: "3.8"
 
-WORKDIR /app
+services:
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - 8081:8080
 
-COPY . .
-
-RUN mvn package
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "/app/workbench-1.0.0.jar"]
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - backend
