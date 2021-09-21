@@ -17,13 +17,19 @@
 # under the License.
 #
 
-FROM hub.segma.tech/library/java:8-jre-centos7-apollo
+FROM maven:3.8.2-amazoncorretto-8 as builder
 
 WORKDIR /app
 
 COPY . .
 
 RUN mvn package
+
+
+
+FROM hub.segma.tech/library/java:8-jre-centos7-apollo
+
+COPY --from=builder /app/target/workbench-1.0.0.jar /app/workbench-1.0.0.jar
 
 EXPOSE 8080
 
