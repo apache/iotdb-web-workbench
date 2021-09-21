@@ -25,3 +25,6 @@
 
 This code repo is a web based workbench for [Apache IoTDB](https://iotdb.apache.org)
 
+## Docker
+
+`docker-compose up -d`
