@@ -83,9 +83,6 @@ public interface IotDBService {
       String userOrRole)
       throws BaseException;
 
-  void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries)
-      throws BaseException;
-
   void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException;
 
   List<Integer> getDevicesCount(Connection connection, List<String> groupNames)

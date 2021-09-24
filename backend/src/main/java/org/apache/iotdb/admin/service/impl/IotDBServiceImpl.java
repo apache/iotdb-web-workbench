@@ -316,7 +316,6 @@ public class IotDBServiceImpl implements IotDBService {
 
   @Override
   public void saveStorageGroup(Connection connection, String groupName) throws BaseException {
-    paramValid(groupName);
     SessionPool sessionPool = getSessionPool(connection);
     try {
       sessionPool.setStorageGroup(groupName);
@@ -339,7 +338,6 @@ public class IotDBServiceImpl implements IotDBService {
 
   @Override
   public void deleteStorageGroup(Connection connection, String groupName) throws BaseException {
-    paramValid(groupName);
     SessionPool sessionPool = getSessionPool(connection);
     try {
       sessionPool.deleteStorageGroup(groupName);
@@ -361,7 +359,6 @@ public class IotDBServiceImpl implements IotDBService {
   public CountDTO getDevicesByGroup(
       Connection connection, String groupName, Integer pageSize, Integer pageNum, String keyword)
       throws BaseException {
-    paramValid(groupName);
     SessionPool sessionPool = getSessionPool(connection);
     String sql = "show devices " + groupName;
     SessionDataSetWrapper sessionDataSetWrapper = null;
@@ -416,7 +413,6 @@ public class IotDBServiceImpl implements IotDBService {
   public CountDTO getMeasurementsByDevice(
       Connection connection, String deviceName, Integer pageSize, Integer pageNum, String keyword)
       throws BaseException {
-    paramValid(deviceName);
     SessionPool sessionPool = getSessionPool(connection);
     String sql = "show timeseries " + deviceName;
     SessionDataSetWrapper sessionDataSetWrapper = null;
@@ -434,8 +430,6 @@ public class IotDBServiceImpl implements IotDBService {
             continue;
           }
           if (keyword != null || "".equals(keyword)) {
-            //                        measurementName = StringUtils.removeStart(measurementName,
-            // deviceName + ".");
             if (measurementName.contains(keyword)) {
               count++;
             } else {
@@ -535,7 +529,6 @@ public class IotDBServiceImpl implements IotDBService {
 
   @Override
   public IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException {
-    paramValid(userName);
     IotDBUserVO iotDBUserVO = new IotDBUserVO();
     iotDBUserVO.setUserName(userName);
     if (userName.equals(connection.getUsername())) {
@@ -593,7 +586,6 @@ public class IotDBServiceImpl implements IotDBService {
 
   @Override
   public void deleteIotDBUser(Connection connection, String userName) throws BaseException {
-    paramValid(userName);
     SessionPool sessionPool = getSessionPool(connection);
     String sql = "drop user " + userName;
     try {
@@ -615,7 +607,6 @@ public class IotDBServiceImpl implements IotDBService {
 
   @Override
   public void deleteIotDBRole(Connection connection, String roleName) throws BaseException {
-    paramValid(roleName);
     SessionPool sessionPool = getSessionPool(connection);
     String sql = "drop role " + roleName;
     try {
@@ -656,20 +647,6 @@ public class IotDBServiceImpl implements IotDBService {
     } finally {
       closeSessionPool(sessionPool);
     }
-    //        // 用户角色
-    //        for (String role : iotDBUser.getRoles()) {
-    //            paramValid(role);
-    //            sql = "grant " + role + " to " + userName;
-    //            customExecute(conn, sql);
-    //        }
-    //        // 用户授权
-    //        List<String> privileges = iotDBUser.getPrivileges();
-    //        for (String privilege : privileges) {
-    //            sql = handlerPrivilegeStrToSql(privilege, userName, null);
-    //            if (sql != null) {
-    //                customExecute(conn, sql);
-    //            }
-    //        }
   }
 
   @Override
@@ -938,24 +915,6 @@ public class IotDBServiceImpl implements IotDBService {
       if (!AUTHORITY_PRIVILEGES.contains(privilege)) {
         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
       }
-    }
-  }
-
-  @Override
-  public void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries)
-      throws BaseException {
-    SessionPool sessionPool = getSessionPool(connection);
-    try {
-      List<TSDataType> types = handleTypeStr(timeseries.getTypes());
-      List<Object> values = handleValueStr(timeseries.getValues(), types);
-      sessionPool.insertRecord(
-          deviceName, timeseries.getTime(), timeseries.getMeasurements(), types, values);
-    } catch (IoTDBConnectionException e) {
-      throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
-    } catch (StatementExecutionException e) {
-      throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
-    } finally {
-      closeSessionPool(sessionPool);
     }
   }
 
@@ -1302,7 +1261,6 @@ public class IotDBServiceImpl implements IotDBService {
 
   @Override
   public List<String> getDevices(Connection connection, String groupName) throws BaseException {
-    paramValid(groupName);
     SessionPool sessionPool = getSessionPool(connection);
     try {
       String sql = "show devices " + groupName;
@@ -1395,7 +1353,6 @@ public class IotDBServiceImpl implements IotDBService {
 
   @Override
   public List<String> getTimeseries(Connection connection, String deviceName) throws BaseException {
-    paramValid(deviceName);
     SessionPool sessionPool = getSessionPool(connection);
     String sql = "show timeseries " + deviceName;
     SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, true);
@@ -2895,23 +2852,6 @@ public class IotDBServiceImpl implements IotDBService {
     return list;
   }
 
-  public static java.sql.Connection getConnection(Connection connection) throws BaseException {
-    String driver = "org.apache.iotdb.jdbc.IoTDBDriver";
-    String url = "jdbc:iotdb://" + connection.getHost() + ":" + connection.getPort() + "/";
-    String username = connection.getUsername();
-    String password = connection.getPassword();
-    java.sql.Connection conn;
-    try {
-      Class.forName(driver);
-      conn = DriverManager.getConnection(url, username, password);
-    } catch (ClassNotFoundException e) {
-      throw new BaseException(ErrorCode.GET_DBCONN_FAIL, ErrorCode.GET_DBCONN_FAIL_MSG);
-    } catch (SQLException e) {
-      throw new BaseException(ErrorCode.GET_DBCONN_FAIL, ErrorCode.GET_DBCONN_FAIL_MSG);
-    }
-    return conn;
-  }
-
   public static SessionPool getSessionPool(Connection connection) throws BaseException {
     String host = connection.getHost();
     Integer port = connection.getPort();
@@ -2956,18 +2896,6 @@ public class IotDBServiceImpl implements IotDBService {
   private void closeResultSet(SessionDataSetWrapper sessionDataSetWrapper) {
     if (sessionDataSetWrapper != null) {
       sessionDataSetWrapper.close();
-    }
-  }
-  /**
-   * 防止sql注入对参数进行校验不能有空格
-   *
-   * @param field 拼接sql的字段
-   */
-  private void paramValid(String field) throws BaseException {
-    if (field != null) {
-      if (!field.matches("^[^ ]+$")) {
-        throw new BaseException(ErrorCode.SQL_PARAM_WRONG, ErrorCode.SQL_PARAM_WRONG_MSG);
-      }
     }
   }
 }

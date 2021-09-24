@@ -264,9 +264,6 @@ public class IotDBController {
     if (deviceNames != null) {
       for (int i = 0; i < deviceNames.size(); i++) {
         String deviceName = deviceNames.get(i);
-        /*if (groupName.equals(deviceName)) {
-            continue;
-        }*/
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setDeviceName(deviceName);
         deviceInfo.setLine(lines.get(i));
@@ -324,12 +321,6 @@ public class IotDBController {
     }
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceInfoDTO.setDeviceName(groupName + "." + deviceInfoDTO.getDeviceName());
-    //        for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
-    //            deviceDTO.setTimeseries(deviceInfoDTO.getDeviceName() + "." +
-    // deviceDTO.getTimeseries());
-    //        }
     iotDBService.createDeviceWithMeasurements(connection, deviceInfoDTO);
     iotDBService.upsertMeasurementAlias(connection, deviceInfoDTO.getDeviceDTOList());
     iotDBService.upsertMeasurementTags(connection, deviceInfoDTO.getDeviceDTOList());
@@ -356,8 +347,6 @@ public class IotDBController {
     checkParameter(groupName, deviceName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
     String host = connection.getHost();
     List<String> deletedTimeseriesList =
         iotDBService.deleteTimeseriesByDevice(connection, deviceName);
@@ -379,8 +368,6 @@ public class IotDBController {
     checkParameter(groupName, deviceName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
     String host = connection.getHost();
     DeviceVO deviceVO = deviceService.getDevice(host, deviceName);
     return BaseVO.success("获取成功", deviceVO);
@@ -400,8 +387,6 @@ public class IotDBController {
     checkParameter(groupName, deviceName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
     CountDTO countDTO =
         iotDBService.getMeasurementsByDevice(connection, deviceName, pageSize, pageNum, keyword);
     List<MeasurementDTO> measurementDTOList = countDTO.getObjects();
@@ -411,11 +396,6 @@ public class IotDBController {
       for (MeasurementDTO measurementDTO : measurementDTOList) {
         MeasurementVO measurementVO = new MeasurementVO();
         BeanUtils.copyProperties(measurementDTO, measurementVO);
-        //                if (measurementVO.getTimeseries() != null) {
-        //
-        // measurementVO.setTimeseries(measurementVO.getTimeseries().replaceFirst(deviceName + ".",
-        // ""));
-        //                }
         String description =
             measurementService.getDescription(host, measurementDTO.getTimeseries());
         String newValue =
@@ -479,30 +459,8 @@ public class IotDBController {
     checkParameter(groupName, deviceName, timeseriesName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
     RecordVO recordVO = iotDBService.getRecords(connection, deviceName, timeseriesName, dataType);
     return BaseVO.success("获取成功", recordVO);
-  }
-
-  @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries")
-  @ApiOperation("创建时间序列  (未使用)")
-  public BaseVO insertTimeseries(
-      @PathVariable("serverId") Integer serverId,
-      @PathVariable("groupName") String groupName,
-      @PathVariable("deviceName") String deviceName,
-      @RequestBody Timeseries timeseries,
-      HttpServletRequest request)
-      throws BaseException {
-    if (deviceName == null || !deviceName.matches("^[^ ]+$")) {
-      throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-    }
-    check(request, serverId);
-    Connection connection = connectionService.getById(serverId);
-    groupName = "root." + groupName;
-    deviceName = groupName + "." + deviceName;
-    iotDBService.insertTimeseries(connection, deviceName, timeseries);
-    return BaseVO.success("创建成功", null);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries")
@@ -516,8 +474,6 @@ public class IotDBController {
     checkParameter(groupName, deviceName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
     List<String> timeseries = iotDBService.getTimeseries(connection, deviceName);
     return BaseVO.success("获取成功", timeseries);
   }
@@ -534,9 +490,6 @@ public class IotDBController {
     checkParameter(groupName, deviceName, timeseriesName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
-    //        timeseriesName = deviceName + "." + timeseriesName;
     iotDBService.deleteTimeseries(connection, timeseriesName);
     String host = connection.getHost();
     measurementService.deleteMeasurementInfo(host, timeseriesName);
@@ -557,8 +510,6 @@ public class IotDBController {
     checkParameter(groupName, deviceName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
     DataVO dataVO =
         iotDBService.getDataByDevice(connection, deviceName, pageSize, pageNum, dataQueryDTO);
     return BaseVO.success("获取物理量数据成功", dataVO);
@@ -581,8 +532,6 @@ public class IotDBController {
     }
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
     iotDBService.updateDataByDevice(connection, deviceName, dataUpdateDTO);
     return BaseVO.success("编辑物理量数据成功", null);
   }
@@ -601,8 +550,6 @@ public class IotDBController {
     }
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    //        groupName = "root." + groupName;
-    //        deviceName = groupName + "." + deviceName;
     iotDBService.deleteDataByDevice(connection, deviceName, dataDeleteDTO);
     return BaseVO.success("删除物理量数据成功", null);
   }
@@ -1073,28 +1020,6 @@ public class IotDBController {
       default:
         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
     }
-    //        if (delTimeseriesPaths != null && delTimeseriesPaths.size() > 0) {
-    //            if (delGroupPaths == null || delGroupPaths.size() != 1) {
-    //                throw new BaseException(ErrorCode.WRONG_DB_PARAM,
-    // ErrorCode.WRONG_DB_PARAM_MSG);
-    //            }
-    //            if (delDevicePaths == null || delDevicePaths.size() != 1) {
-    //                throw new BaseException(ErrorCode.WRONG_DB_PARAM,
-    // ErrorCode.WRONG_DB_PARAM_MSG);
-    //            }
-    //            return 3;
-    //        }
-    //        if (delDevicePaths != null && delDevicePaths.size() > 0) {
-    //            if (delGroupPaths == null || delGroupPaths.size() != 1) {
-    //                throw new BaseException(ErrorCode.WRONG_DB_PARAM,
-    // ErrorCode.WRONG_DB_PARAM_MSG);
-    //            }
-    //            return 2;
-    //        }
-    //        if (delGroupPaths != null && delGroupPaths.size() > 0) {
-    //            return 1;
-    //        }
-    //        return 0;
   }
 
   private void check(HttpServletRequest request, Integer serverId) throws BaseException {
