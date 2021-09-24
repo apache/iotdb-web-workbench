@@ -1051,7 +1051,6 @@ public class IotDBServiceImpl implements IotDBService {
       List<String> encodingsStr = new ArrayList<>();
       List<String> measurements = new ArrayList<>();
       List<String> compressionStr = new ArrayList<>();
-      // TODO 编码和压缩方式要改为必选
       for (DeviceDTO deviceDTO : deviceInfoDTO.getDeviceDTOList()) {
         typesStr.add(deviceDTO.getDataType());
         encodingsStr.add(deviceDTO.getEncoding());
@@ -1865,16 +1864,11 @@ public class IotDBServiceImpl implements IotDBService {
       for (String sql : sqls) {
         int firstSpaceIndex = sql.indexOf(" ");
         String judge = sql.substring(0, firstSpaceIndex);
-        // TODO: 执行如select count(*) from root这样的语句时会有bug，有待修改
         if ("show".equalsIgnoreCase(judge)
             || "count".equalsIgnoreCase(judge)
-            || "list".equalsIgnoreCase(judge)) {
-          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp, false);
-          results.add(sqlResultVO);
-          continue;
-        }
-        if ("select".equalsIgnoreCase(judge)) {
-          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp, true);
+            || "list".equalsIgnoreCase(judge)
+            || "select".equalsIgnoreCase(judge)) {
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp);
           results.add(sqlResultVO);
           continue;
         }
@@ -2162,16 +2156,20 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   private SqlResultVO executeQuery(
-      SessionPool sessionPool, String sql, Boolean closePool, String notStopKey, boolean timeFlag)
+      SessionPool sessionPool, String sql, Boolean closePool, String notStopKey)
       throws BaseException {
     SqlResultVO sqlResultVO = new SqlResultVO();
     List<List<String>> valuelist = new ArrayList<>();
     SessionDataSetWrapper sessionDataSetWrapper = null;
+    boolean timeFlag = false;
     try {
       sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
       long start = System.currentTimeMillis();
       List<String> columnNames = sessionDataSetWrapper.getColumnNames();
       sqlResultVO.setMetaDataList(columnNames);
+      if ("Time".equals(columnNames.get(0))) {
+        timeFlag = true;
+      }
       int batchSize = sessionDataSetWrapper.getBatchSize();
       // 记录行数
       long count = 0;
