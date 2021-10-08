@@ -39,6 +39,7 @@ const de = {
       edit: 'Bearbeiten',
       operation: 'Oeration',
       save: 'Speichern',
+      clear: 'Leer'
     },
     databasem: {
       newStoreGroup: 'Neue Speichergruppe ("storage group")',
@@ -158,6 +159,18 @@ const de = {
       deviceNameLabel: 'Device:',
       timeNameLabel: 'Zeitreihe:',
       ttlErrorTips: 'ttl muss eine positive Ganzzahl sein',
+      roleList: 'Liste der Aufgaben',
+      addRole:'Rolle hinzufügen',
+      dataManagePrivilege: 'Behörde für das Datenmanagement',
+      roleName: 'Name der Rolle',
+      roleDescription: 'Beschreibung der Rolle',
+      grantUserPrivilege: 'Geben Sie Benutzerberechtigung',
+      addUser: 'Benutzer hinzufügen',
+      inputRoleNameTip: 'Bitte geben Sie einen Kontonamen mit mehr als vier Ziffern ein',
+      inputRoleDescTip: 'Bitte geben Sie die Rollenbeschreibung ein',
+      grantUser: 'Zugelassener Benutzer',
+      userList:'Liste der Benutzer',
+      selectedUser: 'Ausgewählte Benutzer'
     },
     storagePage: {
       alias: 'Verbindung',

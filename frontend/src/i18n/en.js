@@ -39,6 +39,7 @@ const en = {
       edit: 'edit',
       operation: 'operation',
       save: 'save',
+      clear: 'clear'
     },
     databasem: {
       newStoreGroup: 'New storage group',
@@ -171,6 +172,18 @@ const en = {
       deviceNameLabel: 'entity:',
       timeNameLabel: 'timeseries:',
       ttlErrorTips: 'ttl must be an positive integer',
+      roleList: 'role list',
+      addRole:'add role',
+      dataManagePrivilege: 'data manage privilege',
+      roleName: 'role name',
+      roleDescription: 'role description',
+      grantUserPrivilege: 'grant user privilege',
+      addUser: 'add user',
+      inputRoleNameTip: 'Please enter a role name of more than 4 characters',
+      inputRoleDescTip: 'Please enter role description',
+      grantUser: 'Authorized user',
+      userList:'user list',
+      selectedUser: 'Selected users'
     },
     storagePage: {
       alias: 'connection',

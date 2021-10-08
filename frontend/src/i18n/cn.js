@@ -40,6 +40,7 @@ const cn = {
       delete: '删除',
       operation: '操作',
       save: '保存',
+      clear: '清空'
     },
     databasem: {
       newStoreGroup: '新建存储组',
@@ -173,6 +174,18 @@ const cn = {
       deviceNameLabel: '实体:',
       timeNameLabel: '物理量:',
       ttlErrorTips: '存活时间只能为正整数',
+      roleList: '角色列表',
+      addRole:'添加角色',
+      dataManagePrivilege: '数据管理权限',
+      roleName: '角色名称',
+      roleDescription: '角色描述',
+      grantUserPrivilege: '赋予用户',
+      addUser: '添加用户',
+      inputRoleNameTip: '请输入4字以上的角色名称',
+      inputRoleDescTip: '请输入角色描述',
+      grantUser: '授权用户',
+      userList:'用户列表',
+      selectedUser: '已选用户'
     },
     storagePage: {
       alias: '数据连接',
