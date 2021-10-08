@@ -34,6 +34,8 @@ public interface IotDBService {
 
   List<String> getAllStorageGroups(Connection connection) throws BaseException;
 
+  List<NodeTreeVO> getGroupsNodeTree(Connection connection) throws BaseException;
+
   void saveStorageGroup(Connection connection, String groupName) throws BaseException;
 
   void deleteStorageGroup(Connection connection, String groupName) throws BaseException;
@@ -79,7 +81,7 @@ public interface IotDBService {
   void upsertAuthorityPrivilege(
       Connection connection,
       String userName,
-      AuthorityPrivilegeVO authorityPrivilegeVO,
+      AuthorityPrivilegeDTO authorityPrivilegeDTO,
       String userOrRole)
       throws BaseException;
 
@@ -119,7 +121,9 @@ public interface IotDBService {
 
   List<String> getDevices(Connection connection, String groupName) throws BaseException;
 
-  DeviceNodeVO getDeviceList(Connection connection, String groupName) throws BaseException;
+  List<NodeTreeVO> getDeviceNodeTree(Connection connection, String groupName) throws BaseException;
+
+  DeviceTreeVO getDeviceList(Connection connection, String groupName) throws BaseException;
 
   Boolean deviceExist(Connection connection, String groupName, String deviceName)
       throws BaseException;

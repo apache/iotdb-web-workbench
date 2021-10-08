@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.iotdb.admin.model.vo;
+package org.apache.iotdb.admin.model.dto;
 
 import lombok.Data;
 
@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class AuthorityPrivilegeVO implements Serializable {
+public class AuthorityPrivilegeDTO implements Serializable {
   private List<String> privileges;
 
   private List<String> cancelPrivileges;

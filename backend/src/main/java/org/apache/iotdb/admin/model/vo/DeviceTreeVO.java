@@ -26,15 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class DeviceNodeVO implements Serializable {
+public class DeviceTreeVO implements Serializable {
   private String deviceName;
-  private List<DeviceNodeVO> deviceChildren;
+  private List<DeviceTreeVO> deviceChildren;
 
-  public DeviceNodeVO(String deviceName) {
+  public DeviceTreeVO(String deviceName) {
     this.deviceName = deviceName;
   }
 
-  public List<DeviceNodeVO> initDeviceChildren() {
+  public List<DeviceTreeVO> initDeviceChildren() {
     if (deviceChildren == null) {
       deviceChildren = new ArrayList<>();
     }

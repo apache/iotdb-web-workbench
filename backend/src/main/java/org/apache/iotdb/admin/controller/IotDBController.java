@@ -138,6 +138,16 @@ public class IotDBController {
     return BaseVO.success("获取成功", storageGroupVOList);
   }
 
+  @GetMapping("/storageGroups/nodeTree")
+  @ApiOperation("获得存储组列表(节点树形结构) (新增2.27)")
+  public BaseVO<List<NodeTreeVO>> getGroupsNodeTree(
+      @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    List<NodeTreeVO> groupsNodeTree = iotDBService.getGroupsNodeTree(connection);
+    return BaseVO.success("获取成功", groupsNodeTree);
+  }
+
   @PostMapping("/storageGroups")
   @ApiOperation("新增或修改存储组")
   public BaseVO saveStorageGroup(
@@ -280,8 +290,8 @@ public class IotDBController {
   }
 
   @GetMapping("/storageGroups/{groupName}/devices")
-  @ApiOperation("获取指定存储组下的实体(设备)列表  (变更1.1)")
-  public BaseVO<DeviceNodeVO> getDevicesByGroupName(
+  @ApiOperation("获取指定存储组下的实体列表")
+  public BaseVO<List<String>> getDevicesByGroup(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
       HttpServletRequest request)
@@ -289,7 +299,35 @@ public class IotDBController {
     checkParameter(groupName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    DeviceNodeVO deviceList = iotDBService.getDeviceList(connection, groupName);
+    final List<String> devices = iotDBService.getDevices(connection, groupName);
+    return BaseVO.success("获取成功", devices);
+  }
+
+  @GetMapping("/storageGroups/{groupName}/devices/nodeTree")
+  @ApiOperation("获取指定存储组下的实体列表(节点树形结构)  (新增2.28)")
+  public BaseVO<List<NodeTreeVO>> getDevicesNodeTreeByGroup(
+      @PathVariable("serverId") Integer serverId,
+      @PathVariable("groupName") String groupName,
+      HttpServletRequest request)
+      throws BaseException {
+    checkParameter(groupName);
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    List<NodeTreeVO> deviceList = iotDBService.getDeviceNodeTree(connection, groupName);
+    return BaseVO.success("获取设备列表成功", deviceList);
+  }
+
+  @GetMapping("/storageGroups/{groupName}/devices/tree")
+  @ApiOperation("获取指定存储组下的实体列表(树形结构)  (新增2.29)")
+  public BaseVO<DeviceTreeVO> getDevicesTreeByGroup(
+      @PathVariable("serverId") Integer serverId,
+      @PathVariable("groupName") String groupName,
+      HttpServletRequest request)
+      throws BaseException {
+    checkParameter(groupName);
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    DeviceTreeVO deviceList = iotDBService.getDeviceList(connection, groupName);
     return BaseVO.success("获取设备列表成功", deviceList);
   }
 
@@ -805,31 +843,31 @@ public class IotDBController {
 
   @PostMapping("/users/{userName}/authorityPrivilege")
   @ApiOperation("修改用户权限管理权限 (新增2.24)")
-  public BaseVO<Set<String>> upsertUserAuthorityPrivilege(
+  public BaseVO upsertUserAuthorityPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
-      @RequestBody AuthorityPrivilegeVO authorityPrivilegeVO,
+      @RequestBody AuthorityPrivilegeDTO authorityPrivilegeDTO,
       HttpServletRequest request)
       throws BaseException {
     checkName(userName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    iotDBService.upsertAuthorityPrivilege(connection, userName, authorityPrivilegeVO, "user");
+    iotDBService.upsertAuthorityPrivilege(connection, userName, authorityPrivilegeDTO, "user");
     return BaseVO.success("修改成功", null);
   }
 
   @PostMapping("/roles/{roleName}/authorityPrivilege")
   @ApiOperation("修改角色权限管理权限 (新增2.25)")
-  public BaseVO<Set<String>> upsertRoleAuthorityPrivilege(
+  public BaseVO upsertRoleAuthorityPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
-      @RequestBody AuthorityPrivilegeVO authorityPrivilegeVO,
+      @RequestBody AuthorityPrivilegeDTO authorityPrivilegeDTO,
       HttpServletRequest request)
       throws BaseException {
     checkName(roleName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    iotDBService.upsertAuthorityPrivilege(connection, roleName, authorityPrivilegeVO, "role");
+    iotDBService.upsertAuthorityPrivilege(connection, roleName, authorityPrivilegeDTO, "role");
     return BaseVO.success("修改成功", null);
   }
 

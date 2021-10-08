@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
-import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
@@ -182,10 +181,14 @@ public class IotDBServiceImpl implements IotDBService {
 
   private Set<String> getChildrenNode(String prefixPath, SessionPool sessionPool)
       throws BaseException {
-    String sql = "show timeseries " + prefixPath;
+    String sql = "show storage group " + prefixPath;
     List<String> children = executeQueryOneColumn(sessionPool, sql);
-    if (children.size() == 1 && children.get(0).equals(prefixPath)) {
-      return null;
+    if (children.size() == 0 || (children.size() == 1 && children.get(0).equals(prefixPath))) {
+      sql = "show timeseries " + prefixPath;
+      children = executeQueryOneColumn(sessionPool, sql);
+      if (children.size() == 0 || (children.size() == 1 && children.get(0).equals(prefixPath))) {
+        return null;
+      }
     }
     Set<String> childrenNode = new HashSet<>();
     for (String child : children) {
@@ -312,6 +315,59 @@ public class IotDBServiceImpl implements IotDBService {
     } finally {
       closeSessionPool(sessionPool);
     }
+  }
+
+  @Override
+  public List<NodeTreeVO> getGroupsNodeTree(Connection connection) throws BaseException {
+    SessionPool sessionPool = null;
+    try {
+      sessionPool = getSessionPool(connection);
+      Set<String> firstLevelNodes = getChildrenNode("root", "storage group", sessionPool);
+      if (firstLevelNodes == null || firstLevelNodes.size() == 0) {
+        return null;
+      }
+      List<NodeTreeVO> groupNodeVOList = new ArrayList<>();
+      for (String firstLevelNodeName : firstLevelNodes) {
+        NodeTreeVO firstLevelNode = new NodeTreeVO(firstLevelNodeName);
+        groupNodeVOList.add(firstLevelNode);
+        assembleNodeTree(firstLevelNode, firstLevelNodeName, "storage group", sessionPool);
+      }
+      return groupNodeVOList;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
+  }
+
+  private void assembleNodeTree(
+      NodeTreeVO node, String prefixPath, String type, SessionPool sessionPool)
+      throws BaseException {
+    Set<String> childrenNode = getChildrenNode(prefixPath, type, sessionPool);
+    if (childrenNode == null) {
+      return;
+    }
+    for (String child : childrenNode) {
+      NodeTreeVO childNode = new NodeTreeVO(child);
+      assembleNodeTree(childNode, child, type, sessionPool);
+      node.initChildren().add(childNode);
+    }
+  }
+
+  private Set<String> getChildrenNode(String prefixPath, String type, SessionPool sessionPool)
+      throws BaseException {
+    String sql = "show " + type + " " + prefixPath;
+    List<String> children = executeQueryOneColumn(sessionPool, sql);
+    if (children.size() == 0 || (children.size() == 1 && children.get(0).equals(prefixPath))) {
+      return null;
+    }
+    Set<String> childrenNode = new HashSet<>();
+    for (String child : children) {
+      if (child.equals(prefixPath)) {
+        continue;
+      }
+      child = prefixPath + "." + StringUtils.removeStart(child, prefixPath + ".").split("\\.")[0];
+      childrenNode.add(child);
+    }
+    return childrenNode;
   }
 
   @Override
@@ -859,20 +915,20 @@ public class IotDBServiceImpl implements IotDBService {
   public void upsertAuthorityPrivilege(
       Connection connection,
       String userName,
-      AuthorityPrivilegeVO authorityPrivilegeVO,
+      AuthorityPrivilegeDTO authorityPrivilegeDTO,
       String userOrRole)
       throws BaseException {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
-      List<String> cancelPrivileges = authorityPrivilegeVO.getCancelPrivileges();
+      List<String> cancelPrivileges = authorityPrivilegeDTO.getCancelPrivileges();
       if (cancelPrivileges != null) {
         checkAuthorityPrivilege(cancelPrivileges);
         for (String cancelPrivilege : cancelPrivileges) {
           upsertAuthorityPrivilege(sessionPool, "revoke", userOrRole, userName, cancelPrivilege);
         }
       }
-      List<String> privileges = authorityPrivilegeVO.getPrivileges();
+      List<String> privileges = authorityPrivilegeDTO.getPrivileges();
       if (privileges != null) {
         checkAuthorityPrivilege(privileges);
         for (String privilege : privileges) {
@@ -1271,7 +1327,29 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public DeviceNodeVO getDeviceList(Connection connection, String groupName) throws BaseException {
+  public List<NodeTreeVO> getDeviceNodeTree(Connection connection, String groupName)
+      throws BaseException {
+    SessionPool sessionPool = null;
+    try {
+      sessionPool = getSessionPool(connection);
+      Set<String> firstLevelNodes = getChildrenNode(groupName, "devices", sessionPool);
+      if (firstLevelNodes == null || firstLevelNodes.size() == 0) {
+        return null;
+      }
+      List<NodeTreeVO> groupNodeVOList = new ArrayList<>();
+      for (String firstLevelNodeName : firstLevelNodes) {
+        NodeTreeVO firstLevelNode = new NodeTreeVO(firstLevelNodeName);
+        groupNodeVOList.add(firstLevelNode);
+        assembleNodeTree(firstLevelNode, firstLevelNodeName, "devices", sessionPool);
+      }
+      return groupNodeVOList;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
+  }
+
+  @Override
+  public DeviceTreeVO getDeviceList(Connection connection, String groupName) throws BaseException {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
@@ -1283,7 +1361,7 @@ public class IotDBServiceImpl implements IotDBService {
       } else if (groupName.equals(devices.get(0))) {
         ancestryName = groupName;
       }
-      DeviceNodeVO ancestry = new DeviceNodeVO(ancestryName);
+      DeviceTreeVO ancestry = new DeviceTreeVO(ancestryName);
       assembleDeviceList(ancestry, groupName, sessionPool);
       return ancestry;
     } finally {
@@ -1291,7 +1369,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
   }
 
-  private void assembleDeviceList(DeviceNodeVO node, String deviceName, SessionPool sessionPool)
+  private void assembleDeviceList(DeviceTreeVO node, String deviceName, SessionPool sessionPool)
       throws BaseException {
     List<String> descendants = findDescendants(deviceName, sessionPool);
     if (descendants.size() == 0) {
@@ -1299,7 +1377,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
     List<String> children = findChildren(descendants);
     for (String child : children) {
-      DeviceNodeVO childNode = new DeviceNodeVO(child);
+      DeviceTreeVO childNode = new DeviceTreeVO(child);
       assembleDeviceList(childNode, child, sessionPool);
       node.initDeviceChildren().add(childNode);
     }

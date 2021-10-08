@@ -105,7 +105,7 @@ public class FileController {
     return getResponseEntity(resource);
   }
 
-  @ApiOperation("下载csv模板文件")
+  @ApiOperation("下载csv模板文件 (新增2.26)")
   @GetMapping("/downloadFile/template")
   public ResponseEntity<Resource> downloadTemplateFile() throws BaseException {
     Resource resource = new ClassPathResource("file/template.csv");
