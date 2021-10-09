@@ -27,4 +27,4 @@ github:
     - admin
   features:
     wiki: true
-    issue: true
+    issues: true
