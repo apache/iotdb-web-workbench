@@ -47,6 +47,8 @@ import java.util.Date;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class IotDBServiceImpl implements IotDBService {
@@ -307,11 +309,11 @@ public class IotDBServiceImpl implements IotDBService {
   @Override
   public List<String> getAllStorageGroups(Connection connection) throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
-    List<String> users;
+    List<String> groups;
     try {
       String sql = "show storage group";
-      users = executeQueryOneColumn(sessionPool, sql);
-      return users;
+      groups = executeQueryOneColumn(sessionPool, sql);
+      return groups;
     } finally {
       closeSessionPool(sessionPool);
     }
@@ -581,63 +583,6 @@ public class IotDBServiceImpl implements IotDBService {
     } finally {
       closeSessionPool(sessionPool);
     }
-  }
-
-  @Override
-  public IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException {
-    IotDBUserVO iotDBUserVO = new IotDBUserVO();
-    iotDBUserVO.setUserName(userName);
-    if (userName.equals(connection.getUsername())) {
-      iotDBUserVO.setPassword(connection.getPassword());
-    } else {
-      iotDBUserVO.setPassword(null);
-    }
-    if ("root".equalsIgnoreCase(userName)) {
-      List<PrivilegeInfo> privilegeInfos = new ArrayList<>();
-      PrivilegeInfo privilegeInfo = new PrivilegeInfo();
-      privilegeInfo.setType(0);
-      privilegeInfo.setPrivileges(PRIVILEGES);
-      privilegeInfos.add(privilegeInfo);
-      iotDBUserVO.setPrivilegesInfo(privilegeInfos);
-      return iotDBUserVO;
-    }
-    SessionPool sessionpool = getSessionPool(connection);
-    String sql = "list user privileges " + userName;
-    try {
-      SessionDataSetWrapper sessionDataSetWrapper = sessionpool.executeQueryStatement(sql);
-      int batchSize = sessionDataSetWrapper.getBatchSize();
-      if (batchSize > 0) {
-        List<String> privileges = new ArrayList<>();
-        while (sessionDataSetWrapper.hasNext()) {
-          RowRecord next = sessionDataSetWrapper.next();
-          List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
-          for (int i = 0; i < fields.size(); i++) {
-            org.apache.iotdb.tsfile.read.common.Field field = fields.get(i);
-            if (i == 0) {
-              if (field != null && field.toString().length() > 0) {
-                break;
-              }
-              continue;
-            }
-            privileges.add(field.toString());
-          }
-        }
-        // privileges String内容形式 "path : 权限1 权限2 权限3"
-        // 组装成权限信息集合
-        List<PrivilegeInfo> privilegeInfos = new ArrayList<>();
-        if (privileges != null && privileges.size() > 0) {
-          privilegeInfos = privilegesStrSwitchToObject(sessionpool, privileges);
-        }
-        iotDBUserVO.setPrivilegesInfo(privilegeInfos);
-      }
-    } catch (Exception e) {
-      throw new BaseException(ErrorCode.GET_USER_FAIL, ErrorCode.GET_USER_FAIL_MSG);
-    } finally {
-      if (sessionpool != null) {
-        sessionpool.close();
-      }
-    }
-    return iotDBUserVO;
   }
 
   @Override
@@ -971,6 +916,238 @@ public class IotDBServiceImpl implements IotDBService {
       if (!AUTHORITY_PRIVILEGES.contains(privilege)) {
         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
       }
+    }
+  }
+
+  @Override
+  public List<DataPrivilegeVO> getUserDataPrivilege(Connection connection, String userName)
+      throws BaseException {
+    if ("root".equalsIgnoreCase(userName)) {
+      return null;
+    }
+    SessionPool sessionPool = null;
+    SessionDataSetWrapper sessionDataSetWrapper = null;
+    try {
+      List<String> rowInfos = new ArrayList<>();
+      sessionPool = getSessionPool(connection);
+      String sql = "list user privileges " + userName;
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      while (sessionDataSetWrapper.hasNext()) {
+        RowRecord next = sessionDataSetWrapper.next();
+        List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
+        for (int i = 0; i < fields.size(); i++) {
+          org.apache.iotdb.tsfile.read.common.Field field = fields.get(i);
+          if (i == 0) {
+            if (!"".equals(field.toString())) {
+              break;
+            }
+          } else {
+            rowInfos.add(field.toString());
+          }
+        }
+      }
+      // rowInfos内容形式 "path : 权限1 权限2 权限3"
+      List<DataPrivilegeVO> dataPrivilegeList =
+          switchRowInfosToDataPrivileges(rowInfos, sessionPool);
+      return dataPrivilegeList;
+    } catch (IoTDBConnectionException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+    } catch (StatementExecutionException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(
+          ErrorCode.GET_USER_PRIVILEGE_FAIL, ErrorCode.GET_USER_PRIVILEGE_FAIL_MSG);
+    } finally {
+      closeResultSet(sessionDataSetWrapper);
+      closeSessionPool(sessionPool);
+    }
+  }
+
+  @Override
+  public List<DataPrivilegeVO> getRoleDataPrivilege(Connection connection, String roleName)
+      throws BaseException {
+    SessionPool sessionPool = null;
+    SessionDataSetWrapper sessionDataSetWrapper = null;
+    try {
+      sessionPool = getSessionPool(connection);
+      String sql = "list role privileges " + roleName;
+      List<String> rowInfos = executeQueryOneColumn(sessionPool, sql);
+
+      // rowInfos内容形式 "path : 权限1 权限2 权限3"
+      List<DataPrivilegeVO> dataPrivilegeList =
+          switchRowInfosToDataPrivileges(rowInfos, sessionPool);
+      return dataPrivilegeList;
+    } catch (BaseException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(
+          ErrorCode.GET_ROLE_PRIVILEGE_FAIL, ErrorCode.GET_ROLE_PRIVILEGE_FAIL_MSG);
+    } finally {
+      closeResultSet(sessionDataSetWrapper);
+      closeSessionPool(sessionPool);
+    }
+  }
+
+  private List<DataPrivilegeVO> switchRowInfosToDataPrivileges(
+      List<String> rowInfos, SessionPool sessionPool) throws BaseException {
+    if (rowInfos == null || rowInfos.size() == 0) {
+      return null;
+    }
+    List<String> paths = new ArrayList<>();
+    List<List<String>> privilegesList = new ArrayList<>();
+    List<DataPrivilegeVO> dataPrivilegeList = new ArrayList<>();
+    for (String rowInfo : rowInfos) {
+      String[] split = rowInfo.split("\\s:\\s");
+      String[] allPrivileges = split[1].split("\\s");
+      String path = split[0];
+      if ("root".equals(path)) {
+        handleRootPrivileges(allPrivileges, dataPrivilegeList);
+        continue;
+      }
+
+      List<String> privileges = new ArrayList<>();
+      for (String privilege : allPrivileges) {
+        if (DATA_PRIVILEGES.contains(privilege)) {
+          privileges.add(privilege);
+        }
+      }
+      privilegesList.add(privileges);
+      paths.add(path);
+    }
+
+    // Map中的String形式为"权限1 权限2 权限3.." List存储相同权限并集下的path路径
+    Map<String, List<String>> privilegeOne = new HashMap<>();
+    Map<String, List<String>> privilegeTwo = new HashMap<>();
+    Map<String, List<String>> privilegeThree = new HashMap<>();
+    for (int i = 0; i < paths.size(); i++) {
+      String path = paths.get(i);
+      String privilegesStr = String.join(" ", privilegesList.get(i));
+      // 通过路径获取所属粒度
+      int type = findType(sessionPool, path);
+      if (type == 1) {
+        // 判断相同的权限集合 放入同一list
+        if (privilegeOne.containsKey(privilegesStr)) {
+          List<String> pathList = privilegeOne.get(privilegesStr);
+          pathList.add(path);
+          continue;
+        }
+        ArrayList<String> newPaths = new ArrayList();
+        newPaths.add(path);
+        privilegeOne.put(privilegesStr, newPaths);
+        continue;
+      }
+      if (type == 2) {
+        if (privilegeTwo.containsKey(privilegesStr)) {
+          List<String> pathList = privilegeTwo.get(privilegesStr);
+          pathList.add(path);
+          continue;
+        }
+        ArrayList<String> newStr = new ArrayList();
+        newStr.add(path);
+        privilegeTwo.put(privilegesStr, newStr);
+        continue;
+      }
+      if (type == 3) {
+        if (privilegeThree.containsKey(privilegesStr)) {
+          List<String> pathList = privilegeThree.get(privilegesStr);
+          pathList.add(path);
+          continue;
+        }
+        ArrayList<String> newStr = new ArrayList();
+        newStr.add(path);
+        privilegeThree.put(privilegesStr, newStr);
+      }
+    }
+
+    Set<String> oneKeys = privilegeOne.keySet();
+    Set<String> twoKeys = privilegeTwo.keySet();
+    Set<String> threeKeys = privilegeThree.keySet();
+    List<String> allGroupPaths = executeQueryOneColumn(sessionPool, "show storage group");
+    List<String> allDevicePaths = executeQueryOneColumn(sessionPool, "show devices");
+    // 封装成PrivilegeInfo返回 字符串处理
+    for (String oneKey : oneKeys) {
+      DataPrivilegeVO dataPrivilegeVO = new DataPrivilegeVO();
+      List<String> groupPaths = privilegeOne.get(oneKey);
+      List<String> privilegesOne = Arrays.asList(oneKey.split(" "));
+
+      // 展示数据
+      dataPrivilegeVO.setType(1);
+      dataPrivilegeVO.setPrivileges(privilegesOne);
+      dataPrivilegeVO.setGroupPaths(groupPaths);
+      dataPrivilegeList.add(dataPrivilegeVO);
+    }
+    for (String twoKey : twoKeys) {
+      List<String> privilegesTwo = Arrays.asList(twoKey.split(" "));
+      List<String> pathsTwo = privilegeTwo.get(twoKey);
+
+      Map<String, List<String>> groupPathsToDevicePaths = new HashMap<>();
+      for (String path : pathsTwo) {
+        String groupPath = getSupPath(path, allGroupPaths);
+        if (!groupPathsToDevicePaths.containsKey(groupPath)) {
+          groupPathsToDevicePaths.put(groupPath, Stream.of(path).collect(Collectors.toList()));
+        } else {
+          groupPathsToDevicePaths.get(groupPath).add(path);
+        }
+      }
+      for (Map.Entry<String, List<String>> entry : groupPathsToDevicePaths.entrySet()) {
+        DataPrivilegeVO dataPrivilegeVO = new DataPrivilegeVO();
+        dataPrivilegeVO.setType(2);
+        dataPrivilegeVO.setPrivileges(privilegesTwo);
+        dataPrivilegeVO.setGroupPaths(Arrays.asList(entry.getKey()));
+        dataPrivilegeVO.setDevicePaths(entry.getValue());
+        dataPrivilegeList.add(dataPrivilegeVO);
+      }
+    }
+    for (String threeKey : threeKeys) {
+      List<String> privilegesThree = Arrays.asList(threeKey.split(" "));
+      List<String> pathsThree = privilegeThree.get(threeKey);
+
+      Map<String, List<String>> devicePathsTotimeseriesPaths = new HashMap<>();
+      for (String path : pathsThree) {
+        String devicePath = getSupPath(path, allDevicePaths);
+        if (!devicePathsTotimeseriesPaths.containsKey(devicePath)) {
+          devicePathsTotimeseriesPaths.put(
+              devicePath, Stream.of(path).collect(Collectors.toList()));
+        } else {
+          devicePathsTotimeseriesPaths.get(devicePath).add(path);
+        }
+      }
+      for (Map.Entry<String, List<String>> entry : devicePathsTotimeseriesPaths.entrySet()) {
+        DataPrivilegeVO dataPrivilegeVO = new DataPrivilegeVO();
+        dataPrivilegeVO.setType(3);
+        dataPrivilegeVO.setPrivileges(privilegesThree);
+        String device = entry.getKey();
+        String group = getSupPath(device, allGroupPaths);
+        dataPrivilegeVO.setGroupPaths(Arrays.asList(group));
+        dataPrivilegeVO.setDevicePaths(Arrays.asList(device));
+        dataPrivilegeVO.setTimeseriesPaths(entry.getValue());
+        dataPrivilegeList.add(dataPrivilegeVO);
+      }
+    }
+    return dataPrivilegeList;
+  }
+
+  private String getSupPath(String path, List<String> allSupPath) throws BaseException {
+    for (String supPath : allSupPath) {
+      if (path.contains(supPath) && StringUtils.removeStart(path, supPath).startsWith(".")) {
+        return supPath;
+      }
+    }
+    throw new BaseException("-1", "代码逻辑错误");
+  }
+
+  private void handleRootPrivileges(
+      String[] allPrivileges, List<DataPrivilegeVO> dataPrivilegeList) {
+    Set<String> rootPrivilegesSet = new HashSet<>();
+    for (String privilege : allPrivileges) {
+      if (DATA_PRIVILEGES.contains(privilege)) {
+        rootPrivilegesSet.add(privilege);
+      }
+    }
+    if (rootPrivilegesSet.size() > 0) {
+      DataPrivilegeVO dataPrivilegeVO = new DataPrivilegeVO();
+      dataPrivilegeVO.setPrivileges(new ArrayList<String>(rootPrivilegesSet));
+      dataPrivilegeVO.setType(0);
+      dataPrivilegeList.add(dataPrivilegeVO);
     }
   }
 
@@ -1349,7 +1526,7 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public DeviceTreeVO getDeviceList(Connection connection, String groupName) throws BaseException {
+  public NodeTreeVO getDeviceList(Connection connection, String groupName) throws BaseException {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
@@ -1361,7 +1538,7 @@ public class IotDBServiceImpl implements IotDBService {
       } else if (groupName.equals(devices.get(0))) {
         ancestryName = groupName;
       }
-      DeviceTreeVO ancestry = new DeviceTreeVO(ancestryName);
+      NodeTreeVO ancestry = new NodeTreeVO(ancestryName);
       assembleDeviceList(ancestry, groupName, sessionPool);
       return ancestry;
     } finally {
@@ -1369,7 +1546,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
   }
 
-  private void assembleDeviceList(DeviceTreeVO node, String deviceName, SessionPool sessionPool)
+  private void assembleDeviceList(NodeTreeVO node, String deviceName, SessionPool sessionPool)
       throws BaseException {
     List<String> descendants = findDescendants(deviceName, sessionPool);
     if (descendants.size() == 0) {
@@ -1377,9 +1554,9 @@ public class IotDBServiceImpl implements IotDBService {
     }
     List<String> children = findChildren(descendants);
     for (String child : children) {
-      DeviceTreeVO childNode = new DeviceTreeVO(child);
+      NodeTreeVO childNode = new NodeTreeVO(child);
+      node.initChildren().add(childNode);
       assembleDeviceList(childNode, child, sessionPool);
-      node.initDeviceChildren().add(childNode);
     }
   }
 
@@ -1388,11 +1565,13 @@ public class IotDBServiceImpl implements IotDBService {
     for (int i = 0; i < descendants.size(); i++) {
       int tag = 0;
       for (int j = 0; j < descendants.size(); j++) {
-        if (descendants.get(i).contains(descendants.get(j))) {
+        if (!descendants.get(i).equals(descendants.get(j))
+            && descendants.get(i).contains(descendants.get(j))
+            && StringUtils.removeStart(descendants.get(i), descendants.get(j)).startsWith(".")) {
           tag++;
         }
       }
-      if (tag == 1) {
+      if (tag == 0) {
         children.add(descendants.get(i));
       }
     }
@@ -2460,297 +2639,9 @@ public class IotDBServiceImpl implements IotDBService {
     }
   }
 
-  private List<PrivilegeInfo> privilegesStrSwitchToObject(
-      SessionPool sessionPool, List<String> privileges) throws BaseException {
-    List<PrivilegeInfo> results = new ArrayList<>();
-    List<String> pathStr = new ArrayList<>();
-    List<List<String>> privilegeStr = new ArrayList<>();
-    HashMap<String, Boolean> rootPrivileges = new HashMap();
-    // 遍历集合 将路径和权限集合分别装 过程中 将root相关内容处理
-    for (int i = 0; i < privileges.size(); i++) {
-      String[] split = privileges.get(i).split(":");
-      String[] s = split[1].trim().split(" ");
-      String path = split[0].trim();
-      // 为root特殊处理
-      if ("root".equals(path)) {
-        for (String s1 : s) {
-          if (rootPrivileges.containsKey(s1)) {
-            continue;
-          }
-          rootPrivileges.put(s1, true);
-        }
-        continue;
-      }
-      List<String> list = new ArrayList<>();
-      pathStr.add(path);
-      // 其他粒度下 只需要存储SPECIAL_PRIVILEGES四种权限
-      for (String s1 : s) {
-        if (SPECIAL_PRIVILEGES.containsKey(s1)) {
-          list.add(s1);
-          continue;
-        }
-        // 除了root这一层级 其他此权限不生效 不添加进root权限集合
-        if (NO_NEED_PRIVILEGES.equals(s1)) {
-          continue;
-        }
-        if (rootPrivileges.containsKey(s1)) {
-          continue;
-        }
-        rootPrivileges.put(s1, true);
-      }
-      privilegeStr.add(list);
-    }
-    // 先处理root 生成对象
-    Set<String> strings = rootPrivileges.keySet();
-    List<String> rootPrivilege = Arrays.asList(strings.toArray(new String[0]));
-    if (rootPrivilege != null && rootPrivilege.size() > 0) {
-      PrivilegeInfo privilegeInfo = new PrivilegeInfo();
-      privilegeInfo.setType(0);
-      privilegeInfo.setPrivileges(rootPrivilege);
-      results.add(privilegeInfo);
-    }
-    // 处理非root  String存储形式 "权限1 权限2 权限3.." List存储相同并集下的path路径
-    Map<String, List<String>> privilegeOne = new HashMap<>();
-    Map<String, List<String>> privilegeTwo = new HashMap<>();
-    Map<String, List<String>> privilegeThree = new HashMap<>();
-    for (int i = 0; i < pathStr.size(); i++) {
-      String s = pathStr.get(i);
-      List<String> list = privilegeStr.get(i);
-      String str = String.join(" ", list);
-      // 通过路径获取所属粒度
-      int type = findType(sessionPool, s);
-      if (type == 1) {
-        // 判断相同的权限集合 放入同一list
-        if (privilegeOne.containsKey(str)) {
-          List<String> typeList = privilegeOne.get(str);
-          typeList.add(s);
-          continue;
-        }
-        ArrayList<String> newStr = new ArrayList();
-        newStr.add(s);
-        privilegeOne.put(str, newStr);
-        continue;
-      }
-      if (type == 2) {
-        // 判断相同的权限集合 放入同一list
-        if (privilegeTwo.containsKey(str)) {
-          List<String> typeList = privilegeTwo.get(str);
-          // 相同粒度 同一范围下做前缀判断 相同则为一个并集
-          int existEnd = typeList.get(0).lastIndexOf(".");
-          int end = s.lastIndexOf(".");
-          if (typeList.get(0).substring(0, existEnd).equals(s.substring(0, end))) {
-            typeList.add(s);
-            continue;
-          }
-        }
-        ArrayList<String> newStr = new ArrayList();
-        newStr.add(s);
-        privilegeTwo.put(str, newStr);
-        continue;
-      }
-      if (type == 3) {
-        if (privilegeThree.containsKey(str)) {
-          List<String> typeList = privilegeThree.get(str);
-          int existEnd = typeList.get(0).lastIndexOf(".");
-          int end = s.lastIndexOf(".");
-          if (typeList.get(0).substring(0, existEnd).equals(s.substring(0, end))) {
-            typeList.add(s);
-            continue;
-          }
-        }
-        ArrayList<String> newStr = new ArrayList();
-        newStr.add(s);
-        privilegeThree.put(str, newStr);
-      }
-    }
-    Set<String> oneKeys = privilegeOne.keySet();
-    Set<String> twoKeys = privilegeTwo.keySet();
-    Set<String> threeKeys = privilegeThree.keySet();
-    // 封装成PrivilegeInfo返回 字符串处理
-    for (String oneKey : oneKeys) {
-      PrivilegeInfo oneInfo = new PrivilegeInfo();
-      List<String> groupPath = new ArrayList<>();
-      List<String> list = privilegeOne.get(oneKey);
-      for (String s : list) {
-        String groupName = s.replaceFirst("root.", "");
-        groupPath.add(groupName);
-      }
-      List<String> privilegesOne = Arrays.asList(oneKey.split(" "));
-      String sql = "show storage group";
-      List<String> allGroupPathsStr = executeQueryOneColumn(sessionPool, sql);
-      List<String> allGroupPaths = new ArrayList<>();
-      for (String s : allGroupPathsStr) {
-        String field = s.replaceFirst("root.", "");
-        allGroupPaths.add(field);
-      }
-      // 展示数据
-      oneInfo.setType(1);
-      oneInfo.setPrivileges(privilegesOne);
-      // allxxx内容为前端编辑修改时需要的数据
-      oneInfo.setGroupPaths(groupPath);
-      oneInfo.setAllGroupPaths(allGroupPaths);
-      results.add(oneInfo);
-    }
-    for (String twoKey : twoKeys) {
-      PrivilegeInfo twoInfo = new PrivilegeInfo();
-      List<String> groupPath = new ArrayList<>();
-      List<String> devicePath = new ArrayList<>();
-      List<String> list = privilegeTwo.get(twoKey);
-      // 得到 组名、设备名、测点名  便于后续字符串操作
-      PathVO pathVO = splitPathToPathVO(sessionPool, list.get(0));
-      groupPath.add(pathVO.getGroupName());
-      for (String s : list) {
-        String deviceName = s.replaceFirst("root." + pathVO.getGroupName() + ".", "");
-        devicePath.add(deviceName);
-      }
-      List<String> privilegesTwo = Arrays.asList(twoKey.split(" "));
-      String sql = "show storage group";
-      List<String> allGroupPathsStr = executeQueryOneColumn(sessionPool, sql);
-      List<String> allGroupPaths = new ArrayList<>();
-      for (String s : allGroupPathsStr) {
-        String field = s.replaceFirst("root.", "");
-        allGroupPaths.add(field);
-      }
-      int end = list.get(0).lastIndexOf(".");
-      sql = "show devices " + list.get(0).substring(0, end) + ".*";
-      List<String> allDevicePathsStr = executeQueryOneColumn(sessionPool, sql);
-      List<String> allDevicePaths = new ArrayList<>();
-      for (String s : allDevicePathsStr) {
-        String field = s.replaceFirst(list.get(0).substring(0, end) + ".", "");
-        allDevicePaths.add(field);
-      }
-      // 展示数据
-      twoInfo.setType(2);
-      twoInfo.setPrivileges(privilegesTwo);
-      twoInfo.setGroupPaths(groupPath);
-      twoInfo.setDevicePaths(devicePath);
-      // allxxx内容为前端编辑修改时需要的数据
-      twoInfo.setAllGroupPaths(allGroupPaths);
-      twoInfo.setAllDevicePaths(allDevicePaths);
-      results.add(twoInfo);
-    }
-    for (String threeKey : threeKeys) {
-      PrivilegeInfo threeInfo = new PrivilegeInfo();
-      List<String> groupPath = new ArrayList<>();
-      List<String> devicePath = new ArrayList<>();
-      List<String> timeseriesPath = new ArrayList<>();
-      List<String> list = privilegeThree.get(threeKey);
-      // 得到 组名、设备名、测点名  便于后续字符串操作
-      PathVO pathVO = splitPathToPathVO(sessionPool, list.get(0));
-      groupPath.add(pathVO.getGroupName());
-      devicePath.add(pathVO.getDeviceName());
-      for (String s : list) {
-        String timeseriesName =
-            s.replaceFirst(
-                "root." + pathVO.getGroupName() + "." + pathVO.getDeviceName() + ".", "");
-        timeseriesPath.add(timeseriesName);
-      }
-      List<String> privilegesOne = Arrays.asList(threeKey.split(" "));
-      String sql = "show storage group";
-      List<String> allGroupPathsStr = executeQueryOneColumn(sessionPool, sql);
-      List<String> allGroupPaths = new ArrayList<>();
-      for (String s : allGroupPathsStr) {
-        String field = s.replaceFirst("root.", "");
-        allGroupPaths.add(field);
-      }
-      sql = "show devices root." + pathVO.getGroupName() + ".*";
-      List<String> allDevicePathsStr = executeQueryOneColumn(sessionPool, sql);
-      List<String> allDevicePaths = new ArrayList<>();
-      for (String s : allDevicePathsStr) {
-        String deviceName = s.replaceFirst("root." + pathVO.getGroupName() + ".", "");
-        allDevicePaths.add(deviceName);
-      }
-      int end = list.get(0).lastIndexOf(".");
-      sql = "show timeseries " + list.get(0).substring(0, end) + ".*";
-      List<String> allTimeseriesPathsStr = executeQueryOneColumn(sessionPool, sql);
-      List<String> allTimeseriesPaths = new ArrayList<>();
-      for (String s : allTimeseriesPathsStr) {
-        String field = s.replaceFirst(list.get(0).substring(0, end) + ".", "");
-        allTimeseriesPaths.add(field);
-      }
-      // 展示数据
-      threeInfo.setType(3);
-      threeInfo.setPrivileges(privilegesOne);
-      threeInfo.setGroupPaths(groupPath);
-      threeInfo.setDevicePaths(devicePath);
-      threeInfo.setTimeseriesPaths(timeseriesPath);
-      // allxxx内容为前端编辑修改时需要的数据
-      threeInfo.setAllGroupPaths(allGroupPaths);
-      threeInfo.setAllDevicePaths(allDevicePaths);
-      threeInfo.setAllTimeseriesPaths(allTimeseriesPaths);
-      results.add(threeInfo);
-    }
-    return results;
-  }
-
-  private PathVO splitPathToPathVO(SessionPool sessionPool, String s) throws BaseException {
-    PathVO pathVO = new PathVO();
-    while (!"root".equals(s)) {
-      String sql = "count devices " + s;
-      Integer isDevice = Integer.valueOf(executeQueryOneValue(sessionPool, sql));
-      sql = "count storage group " + s;
-      Integer isGroup = Integer.valueOf(executeQueryOneValue(sessionPool, sql));
-      // 为测点
-      if (isDevice == 0 && isGroup == 0) {
-        int mid = s.lastIndexOf(".");
-        String timeseriesName = s.substring(mid + 1);
-        pathVO.setTimeseriesName(timeseriesName);
-        s = s.substring(0, mid);
-        continue;
-      }
-      // 既是存储组也是实体
-      if (isDevice == 1 && isGroup == 1) {
-        String deviceName = s.replaceFirst("root.", "");
-        String groupName = s.replaceFirst("root.", "");
-        pathVO.setGroupName(groupName);
-        pathVO.setDeviceName(deviceName);
-        break;
-      }
-      // 是存储组 判断是否还为实体
-      if (isDevice > 1 && isGroup == 1) {
-        sql = "show devices " + s;
-        List<String> list = executeQueryOneColumn(sessionPool, sql);
-        if (list.contains(s)) {
-          String deviceName = s.replaceFirst("root.", "");
-          String groupName = s.replaceFirst("root.", "");
-          pathVO.setGroupName(groupName);
-          pathVO.setDeviceName(deviceName);
-          break;
-        }
-        String groupName = s.replaceFirst("root.", "");
-        pathVO.setGroupName(groupName);
-      }
-      // 为存储组
-      if (isDevice == 0 && isGroup == 1) {
-        String groupName = s.replaceFirst("root.", "");
-        pathVO.setGroupName(groupName);
-        break;
-      }
-      // 实体 实体之下还可以有实体 需要遍历有多少层级
-      if (isDevice >= 1 && isGroup == 0) {
-        String oldS = s;
-        while (true) {
-          int mid = s.lastIndexOf(".");
-          s = s.substring(0, mid);
-          sql = "count storage group " + s;
-          isGroup = Integer.valueOf(executeQueryOneValue(sessionPool, sql));
-          if (isGroup > 0) {
-            String deviceName = oldS.replaceFirst(s + ".", "");
-            String groupName = s.replaceFirst("root.", "");
-            pathVO.setGroupName(groupName);
-            pathVO.setDeviceName(deviceName);
-            break;
-          }
-        }
-        break;
-      }
-    }
-    return pathVO;
-  }
-
-  private int findType(SessionPool sessionPool, String s) throws BaseException {
+  private int findType(SessionPool sessionPool, String path) throws BaseException {
     // 主要用于判断s路径是否已经不存在 iotdb存在已删除路径的权限还会展示出来的问题
-    String sql = "count timeseries " + s;
+    String sql = "count timeseries " + path;
     SessionDataSetWrapper sessionDataSetWrapper = null;
     try {
       sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
@@ -2765,18 +2656,14 @@ public class IotDBServiceImpl implements IotDBService {
         sessionDataSetWrapper.close();
       }
     }
-    sql = "count storage group " + s;
+    sql = "count storage group " + path;
     Integer isGroup = Integer.valueOf(executeQueryOneValue(sessionPool, sql));
-    if (isGroup == 1) {
+    if (isGroup >= 1) {
       return 1;
     }
-    // 无效路径 既不是root 也不是存储组 不展示到页面
-    if (isGroup > 1) {
-      return -1;
-    }
-    sql = "count devices " + s;
+    sql = "count devices " + path;
     Integer isDevices = Integer.valueOf(executeQueryOneValue(sessionPool, sql));
-    if (isDevices == 1) {
+    if (isDevices >= 1) {
       return 2;
     }
     return 3;

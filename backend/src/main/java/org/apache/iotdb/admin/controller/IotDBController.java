@@ -319,7 +319,7 @@ public class IotDBController {
 
   @GetMapping("/storageGroups/{groupName}/devices/tree")
   @ApiOperation("获取指定存储组下的实体列表(树形结构)  (新增2.29)")
-  public BaseVO<DeviceTreeVO> getDevicesTreeByGroup(
+  public BaseVO<NodeTreeVO> getDevicesTreeByGroup(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
       HttpServletRequest request)
@@ -327,7 +327,7 @@ public class IotDBController {
     checkParameter(groupName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    DeviceTreeVO deviceList = iotDBService.getDeviceList(connection, groupName);
+    NodeTreeVO deviceList = iotDBService.getDeviceList(connection, groupName);
     return BaseVO.success("获取设备列表成功", deviceList);
   }
 
@@ -872,19 +872,33 @@ public class IotDBController {
   }
 
   @GetMapping("/users/{userName}/dataPrivilege")
-  @ApiOperation("获取数据源用户的具体信息或其他用户的权限信息")
-  public BaseVO<IotDBUserVO> getIotDBUser(
+  @ApiOperation("获取用户数据管理权限 (新增2.18)")
+  public BaseVO<List<DataPrivilegeVO>> getUserDataPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
       HttpServletRequest request)
       throws BaseException {
-    if (userName == null || !userName.matches("^[^ ]+$")) {
-      throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-    }
+    checkName(userName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    IotDBUserVO iotDBUserVO = iotDBService.getIotDBUser(connection, userName);
-    return BaseVO.success("获取成功", iotDBUserVO);
+    List<DataPrivilegeVO> dataPrivilegeList =
+        iotDBService.getUserDataPrivilege(connection, userName);
+    return BaseVO.success("获取成功", dataPrivilegeList);
+  }
+
+  @GetMapping("/roles/{roleName}/dataPrivilege")
+  @ApiOperation("获取角色数据管理权限 (新增2.19)")
+  public BaseVO<List<DataPrivilegeVO>> getRoleDataPrivilege(
+      @PathVariable("serverId") Integer serverId,
+      @PathVariable("roleName") String roleName,
+      HttpServletRequest request)
+      throws BaseException {
+    checkName(roleName);
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    List<DataPrivilegeVO> dataPrivilegeList =
+        iotDBService.getRoleDataPrivilege(connection, roleName);
+    return BaseVO.success("获取成功", dataPrivilegeList);
   }
 
   @PostMapping("/users/{userName}")

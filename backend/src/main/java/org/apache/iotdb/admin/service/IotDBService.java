@@ -54,8 +54,6 @@ public interface IotDBService {
 
   RoleVO getIotDBRoleInfo(Connection connection, String roleName) throws BaseException;
 
-  IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException;
-
   void deleteIotDBUser(Connection connection, String userName) throws BaseException;
 
   void deleteIotDBRole(Connection connection, String roleName) throws BaseException;
@@ -83,6 +81,12 @@ public interface IotDBService {
       String userName,
       AuthorityPrivilegeDTO authorityPrivilegeDTO,
       String userOrRole)
+      throws BaseException;
+
+  List<DataPrivilegeVO> getUserDataPrivilege(Connection connection, String userName)
+      throws BaseException;
+
+  List<DataPrivilegeVO> getRoleDataPrivilege(Connection connection, String roleName)
       throws BaseException;
 
   void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException;
@@ -123,7 +127,7 @@ public interface IotDBService {
 
   List<NodeTreeVO> getDeviceNodeTree(Connection connection, String groupName) throws BaseException;
 
-  DeviceTreeVO getDeviceList(Connection connection, String groupName) throws BaseException;
+  NodeTreeVO getDeviceList(Connection connection, String groupName) throws BaseException;
 
   Boolean deviceExist(Connection connection, String groupName, String deviceName)
       throws BaseException;
