@@ -1151,7 +1151,7 @@ export default {
      * data:权限数组
      */
     const checkAuth = (data) => {
-      for (let i = 0; i < data.length; i++) {
+      for (let i = 0; i < data?.length; i++) {
         if (data[i].type == 0) {
           canCreateUser.value = data[i].privileges.indexOf('CREATE_USER') >= 0 ? true : false;
           canDeleteUser.value = data[i].privileges.indexOf('DELETE_USER') >= 0 ? true : false;

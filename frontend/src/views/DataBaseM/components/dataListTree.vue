@@ -170,7 +170,44 @@ export default {
       treeExpandKey.value = arr;
     };
 
+    const recurseDeviceTree = (data, node) => {
+      let newDevice = {
+        id: node.data.id + ':newdevice',
+        name: computed(() => t(`databasem.newDevice`)),
+        type: 'newdevice',
+        leaf: true,
+        parent: node.data,
+        connectionid: node.data.connectionid,
+        storagegroupid: node.data.storagegroupid,
+      };
+      let childs = data.map((e) => {
+        let child = {
+          parent: node.data,
+          name: e.name,
+          id: node.data.id + e.name + 'device',
+          type: 'device',
+          leaf: e.children === null ? true : false,
+          rawid: e.name,
+          storagegroupid: node.data.storagegroupid,
+          connectionid: node.data.connectionid,
+          deviceid: e.name,
+        };
+        if (e.children) {
+          let innerChilds = recurseDeviceTree(e.children, { data: child });
+          child.zones = innerChilds;
+        }
+        return child;
+      });
+      childs.unshift(newDevice);
+      return childs;
+    };
+
     const loadNode = (node, resolve) => {
+      if (node?.data?.zones) {
+        console.log(node.data.zones, 'node.data.zones');
+        resolve(node.data.zones);
+        return;
+      }
       if (node.level === 0) {
         axios
           .get('/servers', { params: { userId: store.state?.userInfo?.userId } })
@@ -248,33 +285,41 @@ export default {
         let groupName = node.data.rawid;
         let serverId = node.data.parent.rawid;
         axios
-          .get(`/servers/${serverId}/storageGroups/${groupName}/devices`, {})
+          .get(`/servers/${serverId}/storageGroups/${groupName}/devices/tree`, {})
           .then((res) => {
-            let newDevice = {
-              id: node.data.id + ':newdevice',
-              name: computed(() => t(`databasem.newDevice`)),
-              type: 'newdevice',
-              leaf: true,
-              parent: node.data,
-              connectionid: node.data.connectionid,
-              storagegroupid: node.data.storagegroupid,
-            };
             if (res?.code === '0') {
-              let data = (res.data || []).map((e) => {
-                return {
-                  parent: node.data,
-                  name: e,
-                  id: node.data.id + e + 'device',
-                  type: 'device',
+              if (!res.data) {
+                let newDevice = {
+                  id: node.data.id + ':newdevice',
+                  name: computed(() => t(`databasem.newDevice`)),
+                  type: 'newdevice',
                   leaf: true,
-                  rawid: e,
+                  parent: node.data,
+                  connectionid: node.data.connectionid,
+                  storagegroupid: node.data.storagegroupid,
+                };
+                resolve([newDevice]);
+                return;
+              }
+              if (res.data.name === null) {
+                let childs = recurseDeviceTree(res.data.children || [], node);
+                resolve(childs);
+              } else {
+                let rootDevice = {
+                  parent: node.data,
+                  name: res.data.name,
+                  id: node.data.id + res.data.name + 'device',
+                  type: 'device',
+                  leaf: false,
+                  rawid: res.data.name,
                   storagegroupid: node.data.storagegroupid,
                   connectionid: node.data.connectionid,
-                  deviceid: e,
+                  deviceid: res.data.name,
                 };
-              });
-              data.unshift(newDevice);
-              return resolve(data);
+                let childs = recurseDeviceTree(res.data.children || [], rootDevice);
+                rootDevice.zones = childs;
+                resolve([rootDevice]);
+              }
             } else {
               resolve([]);
             }
