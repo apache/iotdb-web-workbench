@@ -183,6 +183,8 @@ const cn = {
       addUser: '添加用户',
       inputRoleNameTip: '请输入4字以上的角色名称',
       inputRoleDescTip: '请输入角色描述',
+      roleNameLengthError: '角色长度不够',
+      roleNameExistError: '角色已存在',
       grantUser: '授权用户',
       userList:'用户列表',
       selectedUser: '已选用户'

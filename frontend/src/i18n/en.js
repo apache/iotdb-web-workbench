@@ -181,6 +181,8 @@ const en = {
       addUser: 'add user',
       inputRoleNameTip: 'Please enter a role name of more than 4 characters',
       inputRoleDescTip: 'Please enter role description',
+      roleNameLengthError: 'Insufficient role length',
+      roleNameExistError: 'Role already exists',
       grantUser: 'Authorized user',
       userList:'user list',
       selectedUser: 'Selected users'

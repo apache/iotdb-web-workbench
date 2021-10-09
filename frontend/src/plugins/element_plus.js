@@ -2,7 +2,7 @@ import 'element-plus/packages/theme-chalk/src/base.scss';
 import {
   ElLoading,
   ElPagination,
-  // ElDialog,
+  ElDialog,
   // ElAutocomplete,
   // ElDropdown,
   // ElDropdownMenu,
@@ -87,7 +87,7 @@ export default {
     Vue.use(ElPopconfirm);
     Vue.use(ElPagination);
     // Vue.use(ElDrawer);
-    // Vue.use(ElDialog);
+    Vue.use(ElDialog);
     // Vue.use(ElAutocomplete);
     // Vue.use(ElDropdown);
     // Vue.use(ElDropdownMenu);

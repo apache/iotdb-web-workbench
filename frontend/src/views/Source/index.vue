@@ -280,7 +280,9 @@
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.accountRole')" name="r">
-          <div class="tab-content">dsff</div>
+          <div class="tab-content">
+            <user-role></user-role>
+          </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.groupInfo') + '(' + groupTotal + ')'" name="g">
           <div class="tab-content">
@@ -537,6 +539,7 @@ import {
   ElTooltip,
 } from 'element-plus';
 import NewSource from './components/newSource.vue';
+import UserRole from './components/role/Index.vue';
 import { useI18n } from 'vue-i18n';
 
 import axios from '@/util/axios.js';
@@ -1579,6 +1582,7 @@ export default {
     /* eslint-disable */
     ElPopover,
     ElPopper,
+    UserRole
     /* eslint-disable */
   },
 };

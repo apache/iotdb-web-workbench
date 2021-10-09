@@ -168,6 +168,8 @@ const de = {
       addUser: 'Benutzer hinzufügen',
       inputRoleNameTip: 'Bitte geben Sie einen Kontonamen mit mehr als vier Ziffern ein',
       inputRoleDescTip: 'Bitte geben Sie die Rollenbeschreibung ein',
+      roleNameLengthError: 'Ungenügende Rollenlänge',
+      roleNameExistError: 'Die Rolle existiert bereits',
       grantUser: 'Zugelassener Benutzer',
       userList:'Liste der Benutzer',
       selectedUser: 'Ausgewählte Benutzer'
