@@ -153,7 +153,8 @@ public interface IotDBService {
 
   String getSqlForExport(String deviceName, DataQueryDTO dataQueryDTO) throws BaseException;
 
-  void setUserPrivileges(Connection connection, String userName, PrivilegeInfoDTO privilegeInfoDTO)
+  void upsertDataPrivileges(
+      Connection connection, String userOrRole, String name, PrivilegeInfoDTO privilegeInfoDTO)
       throws BaseException;
 
   RecordVO getRecords(

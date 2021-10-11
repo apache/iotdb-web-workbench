@@ -738,7 +738,7 @@ public class IotDBController {
   }
 
   @DeleteMapping("/roles/{roleName}")
-  @ApiOperation("删除数据库角色  (新增2.12)")
+  @ApiOperation("删除指定角色  (新增2.12)")
   public BaseVO deleteIotDBRole(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
@@ -753,7 +753,7 @@ public class IotDBController {
   }
 
   @GetMapping("/roles")
-  @ApiOperation("获取数据库角色列表   (新增2.13)")
+  @ApiOperation("获取所有角色   (新增2.13)")
   public BaseVO<List<String>> getIotDBRoleList(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
@@ -901,33 +901,39 @@ public class IotDBController {
     return BaseVO.success("获取成功", dataPrivilegeList);
   }
 
-  @PostMapping("/users/{userName}")
-  @ApiOperation("数据库用户赋权")
+  @PostMapping("/users/{userName}/dataPrivilege")
+  @ApiOperation("修改用户数据管理权限 (新增2.22)")
   public BaseVO setUserPrivileges(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
       @RequestBody PrivilegeInfoDTO privilegeInfoDTO,
       HttpServletRequest request)
       throws BaseException {
-    if (userName == null || !userName.matches("^[^ ]+$")) {
-      throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-    }
-    if (privilegeInfoDTO == null) {
-      throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-    }
-    Integer type = privilegeInfoDTO.getType();
-    if (type != null && (type > 3 || type < 0)) {
-      throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
-    }
-    //        Integer delType = pathCheckAndGetDelType(privilegeInfoDTO);
-    pathCheck(privilegeInfoDTO);
     check(request, serverId);
+    checkName(userName);
+    checkPrivilegeInfoDTO(privilegeInfoDTO);
     Connection connection = connectionService.getById(serverId);
-    iotDBService.setUserPrivileges(connection, userName, privilegeInfoDTO);
+    iotDBService.upsertDataPrivileges(connection, "user", userName, privilegeInfoDTO);
     return BaseVO.success("操作成功", null);
   }
 
-  private void pathCheck(PrivilegeInfoDTO privilegeInfoDTO) throws BaseException {
+  @PostMapping("/roles/{roleName}/dataPrivilege")
+  @ApiOperation("修改角色数据管理权限 (新增2.23)")
+  public BaseVO setRolePrivileges(
+      @PathVariable("serverId") Integer serverId,
+      @PathVariable("roleName") String roleName,
+      @RequestBody PrivilegeInfoDTO privilegeInfoDTO,
+      HttpServletRequest request)
+      throws BaseException {
+    check(request, serverId);
+    checkName(roleName);
+    checkPrivilegeInfoDTO(privilegeInfoDTO);
+    Connection connection = connectionService.getById(serverId);
+    iotDBService.upsertDataPrivileges(connection, "role", roleName, privilegeInfoDTO);
+    return BaseVO.success("操作成功", null);
+  }
+
+  private void checkPrivilegeInfoDTO(PrivilegeInfoDTO privilegeInfoDTO) throws BaseException {
     Integer type = privilegeInfoDTO.getType();
     List<String> groupPaths = privilegeInfoDTO.getGroupPaths();
     List<String> devicePaths = privilegeInfoDTO.getDevicePaths();

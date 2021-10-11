@@ -43,6 +43,8 @@ public class DataModelVO implements Serializable {
 
   private DataInfo dataInfo;
 
+  private String path;
+
   private List<DataModelVO> children;
 
   public DataModelVO(String name) {

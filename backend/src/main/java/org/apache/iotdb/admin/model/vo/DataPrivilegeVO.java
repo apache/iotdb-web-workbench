@@ -32,4 +32,7 @@ public class DataPrivilegeVO implements Serializable {
   private List<String> devicePaths;
   private List<String> timeseriesPaths;
   private List<String> privileges;
+  private List<String> allTimeseriesPaths;
+  private List<NodeTreeVO> allDevicePaths;
+  private List<NodeTreeVO> allGroupPaths;
 }

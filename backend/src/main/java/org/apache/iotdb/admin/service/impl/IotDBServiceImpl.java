@@ -161,6 +161,7 @@ public class IotDBServiceImpl implements IotDBService {
       DataModelVO root = new DataModelVO("root");
       assembleDataModel(root, "root", sessionPool);
       root.setGroupCount(getGroupCount(sessionPool));
+      root.setPath("root");
       return root;
     } finally {
       closeSessionPool(sessionPool);
@@ -263,6 +264,7 @@ public class IotDBServiceImpl implements IotDBService {
 
   private void setNodeInfo(DataModelVO dataModelVO, SessionPool sessionPool, String path)
       throws BaseException {
+    dataModelVO.setPath(path);
     if (isGroup(sessionPool, path)) {
       dataModelVO.setDeviceCount(getDeviceCount(sessionPool, path));
       dataModelVO.setIsGroup(true);
@@ -324,20 +326,24 @@ public class IotDBServiceImpl implements IotDBService {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
-      Set<String> firstLevelNodes = getChildrenNode("root", "storage group", sessionPool);
-      if (firstLevelNodes == null || firstLevelNodes.size() == 0) {
-        return null;
-      }
-      List<NodeTreeVO> groupNodeVOList = new ArrayList<>();
-      for (String firstLevelNodeName : firstLevelNodes) {
-        NodeTreeVO firstLevelNode = new NodeTreeVO(firstLevelNodeName);
-        groupNodeVOList.add(firstLevelNode);
-        assembleNodeTree(firstLevelNode, firstLevelNodeName, "storage group", sessionPool);
-      }
-      return groupNodeVOList;
+      return getGroupsNodeTree(sessionPool);
     } finally {
       closeSessionPool(sessionPool);
     }
+  }
+
+  private List<NodeTreeVO> getGroupsNodeTree(SessionPool sessionPool) throws BaseException {
+    Set<String> firstLevelNodes = getChildrenNode("root", "storage group", sessionPool);
+    if (firstLevelNodes == null || firstLevelNodes.size() == 0) {
+      return null;
+    }
+    List<NodeTreeVO> groupNodeVOList = new ArrayList<>();
+    for (String firstLevelNodeName : firstLevelNodes) {
+      NodeTreeVO firstLevelNode = new NodeTreeVO(firstLevelNodeName);
+      groupNodeVOList.add(firstLevelNode);
+      assembleNodeTree(firstLevelNode, firstLevelNodeName, "storage group", sessionPool);
+    }
+    return groupNodeVOList;
   }
 
   private void assembleNodeTree(
@@ -785,6 +791,9 @@ public class IotDBServiceImpl implements IotDBService {
     SessionPool sessionPool = null;
     SessionDataSetWrapper sessionDataSetWrapper = null;
     try {
+      if ("root".equals(userName)) {
+        return AUTHORITY_PRIVILEGES;
+      }
       Set<String> privileges = new HashSet<>();
       List<String> rowInfos = new ArrayList<>();
       sessionPool = getSessionPool(connection);
@@ -923,7 +932,10 @@ public class IotDBServiceImpl implements IotDBService {
   public List<DataPrivilegeVO> getUserDataPrivilege(Connection connection, String userName)
       throws BaseException {
     if ("root".equalsIgnoreCase(userName)) {
-      return null;
+      DataPrivilegeVO dataPrivilegeVO = new DataPrivilegeVO();
+      dataPrivilegeVO.setType(0);
+      dataPrivilegeVO.setPrivileges(new ArrayList<>(DATA_PRIVILEGES));
+      return Arrays.asList(dataPrivilegeVO);
     }
     SessionPool sessionPool = null;
     SessionDataSetWrapper sessionDataSetWrapper = null;
@@ -1073,6 +1085,7 @@ public class IotDBServiceImpl implements IotDBService {
       dataPrivilegeVO.setType(1);
       dataPrivilegeVO.setPrivileges(privilegesOne);
       dataPrivilegeVO.setGroupPaths(groupPaths);
+      dataPrivilegeVO.setAllGroupPaths(getGroupsNodeTree(sessionPool));
       dataPrivilegeList.add(dataPrivilegeVO);
     }
     for (String twoKey : twoKeys) {
@@ -1090,10 +1103,13 @@ public class IotDBServiceImpl implements IotDBService {
       }
       for (Map.Entry<String, List<String>> entry : groupPathsToDevicePaths.entrySet()) {
         DataPrivilegeVO dataPrivilegeVO = new DataPrivilegeVO();
+        String groupName = entry.getKey();
         dataPrivilegeVO.setType(2);
         dataPrivilegeVO.setPrivileges(privilegesTwo);
-        dataPrivilegeVO.setGroupPaths(Arrays.asList(entry.getKey()));
+        dataPrivilegeVO.setGroupPaths(Arrays.asList(groupName));
         dataPrivilegeVO.setDevicePaths(entry.getValue());
+        dataPrivilegeVO.setAllDevicePaths(getDeviceNodeTree(sessionPool, groupName));
+        dataPrivilegeVO.setAllGroupPaths(switchListToNodeList(allGroupPaths));
         dataPrivilegeList.add(dataPrivilegeVO);
       }
     }
@@ -1120,6 +1136,12 @@ public class IotDBServiceImpl implements IotDBService {
         dataPrivilegeVO.setGroupPaths(Arrays.asList(group));
         dataPrivilegeVO.setDevicePaths(Arrays.asList(device));
         dataPrivilegeVO.setTimeseriesPaths(entry.getValue());
+        dataPrivilegeVO.setAllGroupPaths(switchListToNodeList(allGroupPaths));
+        String sql = "show devices " + group;
+        List<String> devicePathsOfGroup = executeQueryOneColumn(sessionPool, sql);
+        dataPrivilegeVO.setAllDevicePaths(switchListToNodeList(devicePathsOfGroup));
+        sql = "show timeseries " + device;
+        dataPrivilegeVO.setAllTimeseriesPaths(executeQueryOneColumn(sessionPool, sql));
         dataPrivilegeList.add(dataPrivilegeVO);
       }
     }
@@ -1133,6 +1155,14 @@ public class IotDBServiceImpl implements IotDBService {
       }
     }
     throw new BaseException("-1", "代码逻辑错误");
+  }
+
+  private List<NodeTreeVO> switchListToNodeList(List<String> list) {
+    List<NodeTreeVO> nodeList = new ArrayList<>();
+    for (String s : list) {
+      nodeList.add(new NodeTreeVO(s));
+    }
+    return nodeList;
   }
 
   private void handleRootPrivileges(
@@ -1509,20 +1539,25 @@ public class IotDBServiceImpl implements IotDBService {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
-      Set<String> firstLevelNodes = getChildrenNode(groupName, "devices", sessionPool);
-      if (firstLevelNodes == null || firstLevelNodes.size() == 0) {
-        return null;
-      }
-      List<NodeTreeVO> groupNodeVOList = new ArrayList<>();
-      for (String firstLevelNodeName : firstLevelNodes) {
-        NodeTreeVO firstLevelNode = new NodeTreeVO(firstLevelNodeName);
-        groupNodeVOList.add(firstLevelNode);
-        assembleNodeTree(firstLevelNode, firstLevelNodeName, "devices", sessionPool);
-      }
-      return groupNodeVOList;
+      return getDeviceNodeTree(sessionPool, groupName);
     } finally {
       closeSessionPool(sessionPool);
     }
+  }
+
+  private List<NodeTreeVO> getDeviceNodeTree(SessionPool sessionPool, String groupName)
+      throws BaseException {
+    Set<String> firstLevelNodes = getChildrenNode(groupName, "devices", sessionPool);
+    if (firstLevelNodes == null || firstLevelNodes.size() == 0) {
+      return null;
+    }
+    List<NodeTreeVO> groupNodeVOList = new ArrayList<>();
+    for (String firstLevelNodeName : firstLevelNodes) {
+      NodeTreeVO firstLevelNode = new NodeTreeVO(firstLevelNodeName);
+      groupNodeVOList.add(firstLevelNode);
+      assembleNodeTree(firstLevelNode, firstLevelNodeName, "devices", sessionPool);
+    }
+    return groupNodeVOList;
   }
 
   @Override
@@ -1946,26 +1981,26 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public void setUserPrivileges(
-      Connection connection, String userName, PrivilegeInfoDTO privilegeInfoDTO)
+  public void upsertDataPrivileges(
+      Connection connection, String userOrRole, String name, PrivilegeInfoDTO privilegeInfoDTO)
       throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
     // 授权
     List<String> privileges = privilegeInfoDTO.getPrivileges();
     if (notNullAndNotZero(privileges)) {
-      grantOrRevoke("grant", privileges, userName, privilegeInfoDTO, sessionPool);
+      grantOrRevoke("grant", userOrRole, privileges, name, privilegeInfoDTO, sessionPool);
     }
     // 取消授权
     List<String> cancelPrivileges = privilegeInfoDTO.getCancelPrivileges();
     if (notNullAndNotZero(cancelPrivileges)) {
-      grantOrRevoke("revoke", cancelPrivileges, userName, privilegeInfoDTO, sessionPool);
+      grantOrRevoke("revoke", userOrRole, cancelPrivileges, name, privilegeInfoDTO, sessionPool);
     }
-    cancelPathPrivileges(userName, privilegeInfoDTO, sessionPool);
+    cancelPathPrivileges(name, userOrRole, privilegeInfoDTO, sessionPool);
     sessionPool.close();
   }
 
   private void cancelPathPrivileges(
-      String userName, PrivilegeInfoDTO privilegeInfoDTO, SessionPool sessionPool) {
+      String name, String userOrRole, PrivilegeInfoDTO privilegeInfoDTO, SessionPool sessionPool) {
     Integer type = privilegeInfoDTO.getType();
     List<String> delDevicePaths = privilegeInfoDTO.getDelDevicePaths();
     List<String> delGroupPaths = privilegeInfoDTO.getDelGroupPaths();
@@ -1973,79 +2008,23 @@ public class IotDBServiceImpl implements IotDBService {
     switch (type) {
       case 1:
         if (notNullAndNotZero(delGroupPaths)) {
-          Set<String> privileges = SPECIAL_PRIVILEGES.keySet();
-          for (String delGroupPath : delGroupPaths) {
-            for (String privilegesStr : privileges) {
-              String sql =
-                  "revoke user "
-                      + userName
-                      + " privileges '"
-                      + privilegesStr
-                      + "' on root."
-                      + delGroupPath;
-              try {
-                sessionPool.executeNonQueryStatement(sql);
-              } catch (StatementExecutionException e) {
-                logger.error(e.getMessage());
-              } catch (IoTDBConnectionException e) {
-                logger.error(e.getMessage());
-              }
-            }
+          for (String privilege : DATA_PRIVILEGES) {
+            grantOrRevokePaths("revoke", userOrRole, name, privilege, delGroupPaths, sessionPool);
           }
         }
         break;
       case 2:
         if (notNullAndNotZero(delDevicePaths)) {
-          Set<String> privileges = SPECIAL_PRIVILEGES.keySet();
-          String onlyGroupPath = delGroupPaths.get(0);
-          for (String delDevicePath : delDevicePaths) {
-            for (String privilegesStr : privileges) {
-              String sql =
-                  "revoke user "
-                      + userName
-                      + " privileges '"
-                      + privilegesStr
-                      + "' on root."
-                      + onlyGroupPath
-                      + "."
-                      + delDevicePath;
-              try {
-                sessionPool.executeNonQueryStatement(sql);
-              } catch (StatementExecutionException e) {
-                logger.error(e.getMessage());
-              } catch (IoTDBConnectionException e) {
-                logger.error(e.getMessage());
-              }
-            }
+          for (String privilege : DATA_PRIVILEGES) {
+            grantOrRevokePaths("revoke", userOrRole, name, privilege, delDevicePaths, sessionPool);
           }
         }
         break;
       case 3:
         if (notNullAndNotZero(delTimeseriesPaths)) {
-          Set<String> privileges = SPECIAL_PRIVILEGES.keySet();
-          String onlyGroupPath = delGroupPaths.get(0);
-          String onlyDevicePath = delDevicePaths.get(0);
-          for (String delTimeseriesPath : delTimeseriesPaths) {
-            for (String privilegesStr : privileges) {
-              String sql =
-                  "revoke user "
-                      + userName
-                      + " privileges '"
-                      + privilegesStr
-                      + "' on root."
-                      + onlyGroupPath
-                      + "."
-                      + onlyDevicePath
-                      + "."
-                      + delTimeseriesPath;
-              try {
-                sessionPool.executeNonQueryStatement(sql);
-              } catch (StatementExecutionException e) {
-                logger.error(e.getMessage());
-              } catch (IoTDBConnectionException e) {
-                logger.error(e.getMessage());
-              }
-            }
+          for (String privilege : DATA_PRIVILEGES) {
+            grantOrRevokePaths(
+                "revoke", userOrRole, name, privilege, delTimeseriesPaths, sessionPool);
           }
         }
         break;
@@ -2189,17 +2168,53 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   private void grantOrRevoke(
-      String word,
+      String grantOrRevoke,
+      String userOrRole,
       List<String> privileges,
-      String userName,
+      String name,
       PrivilegeInfoDTO privilegesInfo,
       SessionPool sessionPool)
       throws BaseException {
     Integer type = privilegesInfo.getType();
-    //        String privilegesStr = String.join("','", privileges); 一起存会有bug
-    for (String privilegesStr : privileges) {
+    for (String privilege : privileges) {
       if (type == 0) {
-        String sql = word + " user " + userName + " privileges '" + privilegesStr + "' on root";
+        grantOrRevokePaths(
+            grantOrRevoke, userOrRole, name, privilege, Arrays.asList("root"), sessionPool);
+      } else if (type == 1) {
+        List<String> groupPaths = privilegesInfo.getGroupPaths();
+        grantOrRevokePaths(grantOrRevoke, userOrRole, name, privilege, groupPaths, sessionPool);
+      } else if (type == 2) {
+        List<String> devicePaths = privilegesInfo.getDevicePaths();
+        grantOrRevokePaths(grantOrRevoke, userOrRole, name, privilege, devicePaths, sessionPool);
+      } else if (type == 3) {
+        List<String> timeseriesPaths = privilegesInfo.getTimeseriesPaths();
+        grantOrRevokePaths(
+            grantOrRevoke, userOrRole, name, privilege, timeseriesPaths, sessionPool);
+      } else {
+        throw new BaseException(ErrorCode.NO_TYPE, ErrorCode.NO_TYPE_MSG);
+      }
+    }
+  }
+
+  private void grantOrRevokePaths(
+      String grantOrRevoke,
+      String userOrRole,
+      String name,
+      String privilege,
+      List<String> paths,
+      SessionPool sessionPool) {
+    if (notNullAndNotZero(paths)) {
+      for (String groupPath : paths) {
+        String sql =
+            grantOrRevoke
+                + " "
+                + userOrRole
+                + " "
+                + name
+                + " privileges '"
+                + privilege
+                + "' on "
+                + groupPath;
         try {
           sessionPool.executeNonQueryStatement(sql);
         } catch (StatementExecutionException e) {
@@ -2207,96 +2222,7 @@ public class IotDBServiceImpl implements IotDBService {
         } catch (IoTDBConnectionException e) {
           logger.error(e.getMessage());
         }
-        continue;
       }
-      if (type == 1) {
-        List<String> groupPaths = privilegesInfo.getGroupPaths();
-        if (notNullAndNotZero(groupPaths)) {
-          for (String groupPath : groupPaths) {
-            String sql =
-                word
-                    + " user "
-                    + userName
-                    + " privileges '"
-                    + privilegesStr
-                    + "' on root."
-                    + groupPath;
-            try {
-              sessionPool.executeNonQueryStatement(sql);
-            } catch (StatementExecutionException e) {
-              logger.error(e.getMessage());
-            } catch (IoTDBConnectionException e) {
-              logger.error(e.getMessage());
-            }
-          }
-        }
-        continue;
-      }
-      if (type == 2) {
-        List<String> groupPaths = privilegesInfo.getGroupPaths();
-        List<String> devicePaths = privilegesInfo.getDevicePaths();
-        if (notNullAndNotZero(groupPaths)
-            && groupPaths.size() == 1
-            && notNullAndNotZero(devicePaths)) {
-          String onlyGroupPath = groupPaths.get(0);
-          for (String devicePath : devicePaths) {
-            String sql =
-                word
-                    + " user "
-                    + userName
-                    + " privileges '"
-                    + privilegesStr
-                    + "' on root."
-                    + onlyGroupPath
-                    + "."
-                    + devicePath;
-            try {
-              sessionPool.executeNonQueryStatement(sql);
-            } catch (StatementExecutionException e) {
-              logger.error(e.getMessage());
-            } catch (IoTDBConnectionException e) {
-              logger.error(e.getMessage());
-            }
-          }
-        }
-        continue;
-      }
-      if (type == 3) {
-        List<String> groupPaths = privilegesInfo.getGroupPaths();
-        List<String> devicePaths = privilegesInfo.getDevicePaths();
-        List<String> timeseriesPaths = privilegesInfo.getTimeseriesPaths();
-        if (notNullAndNotZero(groupPaths)
-            && groupPaths.size() == 1
-            && notNullAndNotZero(devicePaths)
-            && devicePaths.size() == 1
-            && notNullAndNotZero(timeseriesPaths)) {
-          String onlyGroupPath = groupPaths.get(0);
-          String onlyDevicePath = devicePaths.get(0);
-          for (String timeseriesPath : timeseriesPaths) {
-            String sql =
-                word
-                    + " user "
-                    + userName
-                    + " privileges '"
-                    + privilegesStr
-                    + "' on root."
-                    + onlyGroupPath
-                    + "."
-                    + onlyDevicePath
-                    + "."
-                    + timeseriesPath;
-            try {
-              sessionPool.executeNonQueryStatement(sql);
-            } catch (StatementExecutionException e) {
-              logger.error(e.getMessage());
-            } catch (IoTDBConnectionException e) {
-              logger.error(e.getMessage());
-            }
-          }
-        }
-        continue;
-      }
-      throw new BaseException(ErrorCode.NO_TYPE, ErrorCode.NO_TYPE_MSG);
     }
   }
 
