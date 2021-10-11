@@ -17,9 +17,9 @@ import {
   // ElRadio,
   // ElRadioGroup,
   // ElRadioButton,
-  // ElCheckbox,
+  ElCheckbox,
   // ElCheckboxButton,
-  // ElCheckboxGroup,
+  ElCheckboxGroup,
   // ElSwitch,
   ElSelect,
   ElOption,
@@ -102,9 +102,9 @@ export default {
     // Vue.use(ElRadio);
     // Vue.use(ElRadioGroup);
     // Vue.use(ElRadioButton);
-    // Vue.use(ElCheckbox);
+    Vue.use(ElCheckbox);
     // Vue.use(ElCheckboxButton);
-    // Vue.use(ElCheckboxGroup);
+    Vue.use(ElCheckboxGroup);
     // Vue.use(ElSwitch);
     Vue.use(ElSelect);
     Vue.use(ElOption);

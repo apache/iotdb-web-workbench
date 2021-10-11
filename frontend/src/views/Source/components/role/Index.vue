@@ -1,7 +1,7 @@
 <!-- 用户角色 -->
 <template>
   <div class="user-role-wrapper">
-    <role-list @change="changeRole"></role-list>
+    <role-list :server-id="serverId"  @change="changeRole"></role-list>
     <power-manage :current="currentRole"></power-manage>
   </div>
 </template>
@@ -12,7 +12,6 @@ import RoleList from './RoleList.vue';
 import PowerManage from './PowerManage.vue';
 export default {
   name: '',
-  props: [],
   components: {
     RoleList,
     PowerManage,

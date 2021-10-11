@@ -1,15 +1,16 @@
 <!-- 角色管理右部分 -->
 <template>
   <div id="role-tabs">
-    <el-tabs v-model="activeTab" @tab-click="handleClick">
-      <el-tab-pane :label="$t('sourcePage.baseConfig')" name="baseConfig">
-        <role-info></role-info>
+    <el-tabs v-if="current.id!==null" v-model="activeTab" @tab-click="handleClick">
+      <el-tab-pane  :label="$t('sourcePage.baseConfig')" name="baseConfig">
+        <role-info :roleInfo="current"></role-info>
       </el-tab-pane>
       <template v-if="current.id">
         <el-tab-pane :label="$t('sourcePage.dataManagePrivilege')" name="dataManagePrivilege"> </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission"> </el-tab-pane>
       </template>
     </el-tabs>
+    <div v-else class="no-data">暂无数据</div>
   </div>
 </template>
 
@@ -23,7 +24,7 @@ export default {
   props: {
     current: {
       type: Object,
-      default: () => ({id:''}),
+      default: () => {},
     },
   },
   setup() {
@@ -54,6 +55,16 @@ export default {
       margin-bottom: 4px;
       background-color: #f9fbfc;
     }
+  }
+
+  .no-data {
+    color: #7a859e;
+    padding: 20px;
+    height: 100%;
+    width: 100%;
+    background-color: #f9fbfc;
+    box-sizing: border-box;
+    font-size: 12px;
   }
 }
 .el-tabs__content {

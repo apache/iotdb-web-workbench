@@ -87,6 +87,7 @@
   .el-dialog__header {
     padding: 10px 20px;
     text-align: left;
+    border-bottom: 1px solid #EEF0F5;
     .el-dialog__title {
       font-size: 16px;
     }
@@ -96,7 +97,11 @@
   }
   .el-dialog__body {
     text-align: left;
-    padding: 6px 20px;
+    padding: 10px 20px;
+  }
+  .el-dialog__footer{
+    border-top: 1px solid #EEF0F5;
+    padding: 12px 20px ;
   }
 }
 

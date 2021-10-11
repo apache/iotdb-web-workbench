@@ -9,12 +9,12 @@
         </svg>
       </div>
     </div>
-    <ul class="role-list">
-      <li v-for="item in roleList" :key="item.id" class="role-list-item" @click="clickRole(item)">
-        <div :class="[activeRole === item.id ? 'circle active-circle' : 'circle']">
+    <ul v-if="roleList.length" class="role-list">
+      <li v-for="item in roleList" :key="item" class="role-list-item" @click="clickRole(item)">
+        <div :class="[activeRole === item ? 'circle active-circle' : 'circle']">
           <div class="small-circle"></div>
         </div>
-        {{ item.name }}
+        {{ item }}
         <div class="operate">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-se-icon-f-edit"></use>
@@ -25,42 +25,59 @@
         </div>
       </li>
     </ul>
+    <div v-else class="no-data">暂无数据</div>
   </div>
 </template>
 
 <script>
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import api from '../../api/index';
 
 export default {
   name: 'RoleList',
   props: [],
   setup(props, context) {
     const { t, locale } = useI18n();
-    const roleList = ref([
-      { name: '111', id: 111 },
-      { name: '1112', id: 1112 },
-      { name: '333', id: 333 },
-    ]);
-    let activeRole = ref(111);
+    let roleList = ref([]);
+
+    let serverId = useRoute().params.serverid;
+    // 获取所有角色
+    let getRoleList = async () => {
+      let result = await api.getRoles(serverId);
+      roleList.value = result.data;
+      if (!roleList.value.length) {
+        context.emit('change', { id: null });
+      }
+      activeRole.value = result?.data[0];
+    };
+
+    let activeRole = ref(1);
 
     const addRole = () => {
-      roleList.value.unshift({ id: '', name: 'NEW' });
-      activeRole.value = '';
+      roleList.value.unshift('NEW');
+      activeRole.value = 'NEW';
       context.emit('change', { id: '', name: 'NEW' });
     };
-    const clickRole = (item) => {
-      activeRole.value = item.id;
-      context.emit('change', { ...item });
-    }
+    const clickRole = async (item) => {
+      activeRole.value = item;
+      let roleInfo = await api.getRoleInfo({ serverId, roleName: item });
+      context.emit('change', { ...roleInfo.data, roleName: item });
+    };
+
+    onMounted(() => {
+      getRoleList();
+    });
 
     return {
       t,
       locale,
       roleList,
+      getRoleList,
       activeRole,
       addRole,
-      clickRole
+      clickRole,
     };
   },
 };
@@ -72,6 +89,17 @@ export default {
   flex-shrink: 0;
   height: 100%;
   font-size: 12px;
+  text-align: center;
+
+  .no-data {
+    color: #7a859e;
+    padding-top: 30px;
+    height: calc(100% - 44px);
+    width: 100%;
+    background-color: #f9fbfc;
+    margin-top: 4px;
+    box-sizing: border-box;
+  }
 
   .user-title {
     padding: 10px 20px;

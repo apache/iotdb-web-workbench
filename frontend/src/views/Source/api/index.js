@@ -51,6 +51,5 @@ export default {
   //获取用户列表
   getUsers(serverId) {
     return axios.get(`/servers/${serverId}/users`);
-  },
-  
+  }
 };

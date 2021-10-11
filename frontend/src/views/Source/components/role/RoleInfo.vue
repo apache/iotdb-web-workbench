@@ -1,15 +1,15 @@
 <!-- 用户角色-基础信息 -->
 <template>
-  <el-form ref="form" label-position="top" :model="form" :rules="rules" label-width="120px">
+  <el-form ref="roleForm" label-position="top" :model="form" :rules="rules" label-width="120px">
     <el-form-item :label="$t('sourcePage.roleName')" prop="roleName">
-      <el-input v-model="form.pass" type="password" autocomplete="off" maxLength="255" :placeholder="$t('sourcePage.inputRoleNameTip')"></el-input>
+      <el-input v-model="form.roleName" type="text" autocomplete="off" maxLength="255" :placeholder="$t('sourcePage.inputRoleNameTip')"></el-input>
     </el-form-item>
     <el-form-item :label="$t('sourcePage.description')" prop="description">
-      <el-input v-model="form.checkPass" type="password" autocomplete="off" maxLength="100" :placeholder="$t('sourcePage.inputRoleDescTip')"></el-input>
+      <el-input v-model="form.description" type="text" autocomplete="off" maxLength="100" :placeholder="$t('sourcePage.inputRoleDescTip')"></el-input>
     </el-form-item>
-    <el-form-item :label="$t('sourcePage.grantUser')" prop="description">
-      <el-tag v-for="tag in userList" :key="tag.name" closable type="success" size="small">
-        {{ tag.name }}
+    <el-form-item :label="$t('sourcePage.grantUser')">
+      <el-tag v-for="tag in form.users" :key="tag" closable type="success" size="small">
+        {{ tag }}
       </el-tag>
       <svg class="icon" aria-hidden="true" @click="openGrantUserDialog">
         <use xlink:href="#icon-add1"></use>
@@ -17,35 +17,60 @@
     </el-form-item>
     <el-form-item>
       <el-button @click="resetForm('form')">{{ $t('common.cancel') }}</el-button>
-      <el-button type="primary" @click="submitForm('form')">{{ $t('common.submit') }}</el-button>
+      <el-button type="primary" @click="submitForm">{{ $t('common.submit') }}</el-button>
     </el-form-item>
-    <dialog-grant-user ref="dialogGrantUser"></dialog-grant-user>
+    <dialog-grant-user ref="dialogGrantUser" :user-list="userList" @change="changeUser"></dialog-grant-user>
   </el-form>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DialogGrantUser from './DialogGrantUser.vue';
+import api from '../../api/index';
+import { useRoute } from 'vue-router';
+
 export default {
   components: { DialogGrantUser },
   name: 'RoleInfo',
-  props: [],
+  props: {
+    roleInfo: {
+      type: Object,
+      default: () => {},
+    },
+  },
   computed: {},
-  setup() {
+  setup(props) {
     const { t, locale } = useI18n();
+
     let form = ref({
       roleName: '',
       description: '',
+      users: [],
     });
-    let userList = ref([
-      {
-        id: 11,
-        name: '123',
-      },
-      { id: 22, name: '123' },
-      { id: 33, name: '333' },
-    ]);
+
+    // console.log('props.roleInfo', props.roleInfo);
+    // if (props.roleInfo.id) {
+    //   // 编辑
+    //   form.value = { ...props.roleInfo };
+    //   console.log(props.roleInfo, form.value);
+    // }
+
+    watch(
+      () => props.roleInfo,
+      (val) => {
+        if (val) {
+          form.value = { ...val };
+        }
+      }
+    );
+    let userList = ref([]);
+
+    let serverId = useRoute().params.serverid;
+    let getUserList = async () => {
+      let result = await api.getUsers(serverId);
+      userList.value = result.data;
+    };
     const rules = ref({
       roleName: [
         { required: true, min: 4, message: t(`sourcePage.roleNameLengthError`), trigger: 'blur' },
@@ -61,22 +86,38 @@ export default {
         },
       ],
     });
+    let changeUser = ({ userList } = {}) => {
+      form.value.users = userList;
+    };
+    const roleForm = ref(null);
+    let submitForm = async () => {
+      await roleForm.value.validate();
+      let { roleName, description } = form.value;
+      let payload = {
+        roleName,
+        description,
+      };
+      await api.editRole(serverId, payload);
+    };
 
+    onMounted(() => {
+      getUserList();
+    });
     return {
       t,
       locale,
       form,
       rules,
       userList,
+      changeUser,
+      submitForm,
+      roleForm,
     };
   },
   methods: {
-    async submitForm() {
-      await this.$refs.form.validate();
-    },
     openGrantUserDialog() {
       this.$refs.dialogGrantUser.open();
-    }
+    },
   },
 };
 </script>
