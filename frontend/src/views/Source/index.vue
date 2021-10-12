@@ -291,7 +291,9 @@
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.accountRole')" name="r">
-          <div class="tab-content">dsff</div>
+          <div class="tab-content">
+            <user-role></user-role>
+          </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.groupInfo') + '(' + groupTotal + ')'" name="g">
           <div class="tab-content">
@@ -549,7 +551,8 @@ import {
 } from 'element-plus';
 import NewSource from './components/newSource.vue';
 import TreeSelect from '@/components/TreeSelect.vue';
-import { useI18n } from 'vue-i18n';
+import UserRole from './components/role/Index.vue';
+giimport { useI18n } from 'vue-i18n';
 import DataModal from './components/dataModal.vue';
 import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
@@ -1336,7 +1339,7 @@ export default {
      * data:权限数组
      */
     const checkAuth = (data) => {
-      for (let i = 0; i < data.length; i++) {
+      for (let i = 0; i < data?.length; i++) {
         if (data[i].type == 0) {
           // canCreateUser.value = data[i].privileges.indexOf('CREATE_USER') >= 0 ? true : false;
           // canDeleteUser.value = data[i].privileges.indexOf('DELETE_USER') >= 0 ? true : false;
@@ -1785,6 +1788,7 @@ export default {
     /* eslint-disable */
     ElPopover,
     ElPopper,
+    UserRole
     /* eslint-disable */
   },
 };
