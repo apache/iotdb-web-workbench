@@ -1,0 +1,158 @@
+<template>
+  <div id="main" class="main-contain"></div>
+</template>
+
+<script>
+// @ is an alias to /src
+import { onMounted, ref } from 'vue';
+import * as echarts from 'echarts';
+// import { ElButton } from 'element-plus';
+import { useI18n } from 'vue-i18n';
+import axios from '@/util/axios.js';
+// import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import img1 from '../../../assets/storage.png';
+
+export default {
+  name: 'DataModal',
+  //   props: ['func'],
+  //   setup(props) {
+  setup() {
+    const { t } = useI18n();
+    const x = ref(0);
+    const router = useRouter();
+    const datas = ref({});
+
+    const getModalTreeData = (func) => {
+      // /servers/{serverId}/dataModel
+      axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
+        if (res && res.code == 0) {
+          datas.value = res.data || {};
+          func && func();
+        }
+      });
+    };
+    const initCharts = () => {
+      // 基于准备好的dom，初始化echarts实例
+      let myChart = echarts.init(document.getElementById('main'));
+
+      // 指定图表的配置项和数据
+      let option = {
+        tooltip: {
+          trigger: 'item',
+          triggerOn: 'mousemove',
+        },
+        series: [
+          {
+            type: 'tree',
+            edgeShape: 'polyline',
+            data: [datas.value],
+            left: '2%',
+            right: '2%',
+            top: '8%',
+            bottom: '8%',
+            roam: true,
+            symbol: 'emptyCircle',
+            symbolSize: 0,
+            orient: 'vertical',
+            // rootLocation: { x: 'center', y: '6%' },
+            nodePadding: 80,
+            // layerPadding: 33,
+            expandAndCollapse: true,
+            itemStyle: {
+              normal: {
+                color: '#fff', //圆圈颜色
+                borderWidth: 0,
+                borderColor: '#000',
+                lineStyle: {
+                  color: '#DBDFEAFF',
+                  width: 1,
+                  type: 'broken', // 'curve'|'broken'|'solid'|'dotted'|'dashed'
+                },
+              },
+            },
+            label: {
+              position: 'bottom',
+              rotate: 0,
+              verticalAlign: 'middle',
+              align: 'center',
+              fontSize: 9,
+              borderWidth: 1,
+              borderColor: '#EAEDF2FF',
+              padding: [4, 10, 4, 10],
+
+              textStyle: {
+                color: '#000',
+                fontSize: 12,
+                backgroundColor: '#fff',
+                fontWeight: 500,
+                baseline: 'middle',
+              },
+              rich: {
+                img: {
+                  backgroundColor: {
+                    image: img1,
+                  },
+                },
+                style: {
+                  padding: [0, 0, 0, 6],
+                },
+              },
+              formatter: (params) => {
+                return '{img|}' + '{style|' + `${params.data.name}` + '}';
+              },
+            },
+
+            leaves: {
+              label: {
+                position: 'bottom',
+                rotate: 0,
+                verticalAlign: 'middle',
+                align: 'center',
+              },
+            },
+
+            animationDurationUpdate: 750,
+          },
+        ],
+      };
+
+      // 使用刚指定的配置项和数据显示图表。
+      myChart.setOption(option);
+    };
+    // const resize = () => {
+    //   let myChart = echarts.init(document.getElementById('main'));
+    // let eleArr = Array.from(new Set(myChart._chartViews[0]._data._graphicEls));
+    // let dep = myChart._chartViews[0]._data.tree.root.height;
+    // let layer_height = 100;
+    // let currentHeight = layer_height * (dep + 1) || layer_height;
+    // let newHeight = Math.max(currentHeight, layer_height);
+
+    // }
+    onMounted(() => {
+      getModalTreeData(() => {
+        initCharts();
+      });
+    });
+
+    return {
+      t,
+      x,
+      datas,
+      getModalTreeData,
+      initCharts,
+    };
+  },
+  components: {
+    // ElButton,
+  },
+};
+</script>
+
+<style scoped lang="scss">
+.main-contain {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+</style>

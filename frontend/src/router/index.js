@@ -51,7 +51,21 @@ const routes = [
             path: 'source/:serverid',
             name: 'Source',
             component: () => import(/* webpackChunkName: "source" */ '../views/Source'),
+            children: [
+              // {
+              //   path: 'modal',
+              //   name: 'DataModal',
+              //   component: () => import(/* webpackChunkName: "Empty" */ '../views/Source/components/empty.vue'),
+              // },
+            ],
           },
+
+          {
+            path: 'source/modal/:serverid',
+            name: 'DataModal',
+            component: () => import(/* webpackChunkName: "Empty" */ '../views/Source/components/dataModalAll.vue'),
+          },
+
           {
             path: 'storage/:serverid/:groupname',
             name: 'Storage',

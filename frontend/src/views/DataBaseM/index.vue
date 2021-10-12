@@ -165,8 +165,12 @@ export default {
       let extraParams = data.extraParams;
       let forceupdate = forceupdateparams ? forceupdateparams : '';
       if (data.type === 'connection') {
-        //数据连接
-        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
+        if (data.extraParams && data.extraParams.type == 'modal') {
+          router.push({ name: 'DataModal', params: { ...data, serverid: data.connectionid, forceupdate, ...extraParams } });
+        } else {
+          //数据连接
+          router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
+        }
       } else if (data.type === 'newstorageGroup') {
         router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'querylist') {

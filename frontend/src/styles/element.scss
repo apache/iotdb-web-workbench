@@ -30,6 +30,9 @@
   min-height: 28px !important;
   padding: 0 12px !important;
   font-size: 12px;
+  &:hover {
+    cursor: pointer;
+  }
 }
 .el-button:hover {
   background: #fff;
@@ -148,6 +151,7 @@
 }
 .el-tabs__active-bar {
   background-color: $theme-color !important;
+  min-width: 56px !important;
 }
 .el-input .el-input__inner {
   height: 28px !important;

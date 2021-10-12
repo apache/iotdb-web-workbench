@@ -20,6 +20,8 @@
 <template>
   <div class="source-detail-container">
     <div class="info-box">
+      <TreeSelect :data="treeData" :selectArray="selectArray" :checkedKeys="checkedKeys"/>
+
       <p class="title">{{ baseInfo.alias }}</p>
       <p class="more">
         <span
@@ -71,7 +73,10 @@
     <div class="tabs-wraper">
       <el-tabs v-model="sourceTabs" @tab-click="handleClickSource" class="tabs">
         <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
-          <div class="tab-content">ss</div>
+          <div class="tab-content">
+            <el-button class="button-special title" @click="goToAllModal()">查看更多</el-button>
+            <DataModal></DataModal>
+          </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.accountPermit')" name="a">
           <div class="tab-content">
@@ -247,30 +252,36 @@
                       <p class="tips">{{ $t('sourcePage.permitTips') }}</p>
                       <div class="permit-list">
                         <div class="permit-list-type">
-                          <div class="box box1"><el-checkbox v-model="userRelationAll" label="用户相关" @change="changeUserRelation()"></el-checkbox></div>
-
-                          <el-checkbox-group v-model="userRelationItems">
+                          <div class="box box1"><el-checkbox v-model="userRelationAll" :disabled="baseInfoForm.userName == 'root'" label="用户相关" @change="changeUserRelation()"></el-checkbox></div>
+                          <el-checkbox-group v-model="userRelationItems" class="wraper" :disabled="baseInfoForm.userName == 'root'">
                             <el-checkbox v-for="item in userRelationList[0]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
                           </el-checkbox-group>
                         </div>
                         <div class="permit-list-type">
-                          <div class="box box2"><el-checkbox v-model="roleRelationAll" label="角色相关" @change="changeRoleRelation()"></el-checkbox></div>
-                          <el-checkbox-group v-model="roleRelationItems">
+                          <div class="box box2"><el-checkbox v-model="roleRelationAll" :disabled="baseInfoForm.userName == 'root'" label="角色相关" @change="changeRoleRelation()"></el-checkbox></div>
+                          <el-checkbox-group v-model="roleRelationItems" :disabled="baseInfoForm.userName == 'root'">
                             <el-checkbox v-for="item in userRelationList[1]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
                           </el-checkbox-group>
                         </div>
                         <div class="permit-list-type">
-                          <div class="box box3"><el-checkbox v-model="udfRelationAll" label="UDF" @change="changeUdfRelation()"></el-checkbox></div>
+                          <div class="box box3"><el-checkbox v-model="udfRelationAll" :disabled="baseInfoForm.userName == 'root'" label="UDF" @change="changeUdfRelation()"></el-checkbox></div>
                           <el-checkbox-group v-model="udfRelationItems">
-                            <el-checkbox v-for="item in userRelationList[2]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
+                            <el-checkbox v-for="item in userRelationList[2]" :disabled="baseInfoForm.userName == 'root'" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
                           </el-checkbox-group>
                         </div>
                         <div class="permit-list-type">
-                          <div class="box box4"><el-checkbox v-model="triggerRelationAll" label="触发器" @change="changeTriggerRelation()"></el-checkbox></div>
-                          <el-checkbox-group v-model="triggerRelationItems">
+                          <div class="box box4">
+                            <el-checkbox v-model="triggerRelationAll" :disabled="baseInfoForm.userName == 'root'" label="触发器" @change="changeTriggerRelation()"></el-checkbox>
+                          </div>
+                          <el-checkbox-group v-model="triggerRelationItems" :disabled="baseInfoForm.userName == 'root'">
                             <el-checkbox v-for="item in userRelationList[3]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
                           </el-checkbox-group>
                         </div>
+                      </div>
+
+                      <div class="permit-btn" v-if="baseInfoForm.userName !== 'root'">
+                        <el-button type="primary" size="small" @click="savepermitAuth()">{{ $t('common.save') }}</el-button>
+                        <el-button type="primary" size="small" @click="getPermitPermissionList()">{{ $t('common.cancel') }}</el-button>
                       </div>
                     </div>
                   </el-tab-pane>
@@ -537,8 +548,9 @@ import {
   ElTooltip,
 } from 'element-plus';
 import NewSource from './components/newSource.vue';
+import TreeSelect from '@/components/TreeSelect.vue';
 import { useI18n } from 'vue-i18n';
-
+import DataModal from './components/dataModal.vue';
 import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
 
@@ -567,7 +579,48 @@ export default {
     // 是否可以用户赋权
     let canAuth = ref(false);
     const router = useRouter();
-
+    let selectArray = ['一级 1'];
+    let checkedKeys = [1];
+    let treeData = [
+          {
+            id: 1,
+            label: '一级 1',
+            children: [
+              {
+                id: 4,
+                label: '二级 1-1',
+              },
+            ],
+          },
+          {
+            id: 2,
+            label: '一级 2',
+            children: [
+              {
+                id: 5,
+                label: '二级 2-1',
+              },
+              {
+                id: 6,
+                label: '二级 2-2',
+              },
+            ],
+          },
+          {
+            id: 3,
+            label: '一级 3',
+            children: [
+              {
+                id: 7,
+                label: '二级 3-1',
+              },
+              {
+                id: 8,
+                label: '二级 3-2',
+              },
+            ],
+          },
+        ];
     let pathList = ref([
       { label: t('sourcePage.selectAlias'), value: 0 },
       { label: t('sourcePage.selectGroup'), value: 1 },
@@ -659,18 +712,18 @@ export default {
     let funcTypeOne = () => {
       return [
         { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
-        { id: 'CREATE_USER', label: t('sourcePage.createUser') },
-        { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
-        { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
-        { id: 'LIST_USER', label: t('sourcePage.listUser') },
-        {
-          id: 'GRANT_USER_PRIVILEGE',
-          label: t('sourcePage.grantPrivilege'),
-        },
-        {
-          id: 'REVOKE_USER_PRIVILEGE',
-          label: t('sourcePage.revertPrivilege'),
-        },
+        // { id: 'CREATE_USER', label: t('sourcePage.createUser') },
+        // { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
+        // { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
+        // { id: 'LIST_USER', label: t('sourcePage.listUser') },
+        // {
+        //   id: 'GRANT_USER_PRIVILEGE',
+        //   label: t('sourcePage.grantPrivilege'),
+        // },
+        // {
+        //   id: 'REVOKE_USER_PRIVILEGE',
+        //   label: t('sourcePage.revertPrivilege'),
+        // },
         {
           id: 'CREATE_TIMESERIES',
           label: t('sourcePage.createTimeSeries'),
@@ -684,12 +737,12 @@ export default {
           id: 'DELETE_TIMESERIES',
           label: t('sourcePage.deleteTimeSeries'),
         },
-        { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
-        { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
-        { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
-        { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
-        { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
-        { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
+        // { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
+        // { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
+        // { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
+        // { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
+        // { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
+        // { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
       ];
     };
     let funcTypeTwo = () => {
@@ -709,6 +762,19 @@ export default {
         },
       ];
     };
+    let funcTypeThree = () => {
+      return [
+        {
+          id: 'INSERT_TIMESERIES',
+          label: t('sourcePage.insertTimeSeries'),
+        },
+        { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+        {
+          id: 'DELETE_TIMESERIES',
+          label: t('sourcePage.deleteTimeSeries'),
+        },
+      ];
+    };
     let userRelationListFunc = () => {
       return [
         {
@@ -716,8 +782,8 @@ export default {
           label: t('sourcePage.listUser'),
         },
         {
-          id: 'xxx',
-          label: '编辑用户',
+          id: 'CREATE_USER',
+          label: t('sourcePage.createUser'),
         },
         { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
         { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
@@ -730,33 +796,30 @@ export default {
           label: t('sourcePage.revertPrivilege'),
         },
         {
-          id: '赋予用户权限',
-          label: '赋予用户角色',
+          id: 'GRANT_USER_ROLE',
+          label: t('sourcePage.grantUserRole'),
         },
         {
-          id: '撤销用户权限',
-          label: '撤销用户角色',
+          id: 'REVOKE_USER_ROLE',
+          label: t('sourcePage.revokeUserRole'),
         },
       ];
     };
     let roleRelationListFunc = () => {
       return [
         {
-          id: 'LIST_USER',
+          id: 'LIST_ROLE',
           label: t('sourcePage.listRole'),
         },
+
+        { id: 'CREATE_ROLE', label: t('sourcePage.createRole') },
+        { id: 'DELETE_ROLE', label: t('sourcePage.deleteRole') },
         {
-          id: 'xxx',
-          label: t('sourcePage.editRole'),
-        },
-        { id: 'DELETE_USER', label: t('sourcePage.deleteRole') },
-        { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
-        {
-          id: 'GRANT_USER_PRIVILEGE',
+          id: 'GRANT_ROLE_PRIVILEGE',
           label: t('sourcePage.grantRolePrivilege'),
         },
         {
-          id: 'REVOKE_USER_PRIVILEGE',
+          id: 'REVOKE_ROLE_PRIVILEGE',
           label: t('sourcePage.revertRolePrivilege'),
         },
       ];
@@ -789,9 +852,9 @@ export default {
     });
     const funcList = ref({
       0: funcTypeOne(),
-      1: funcTypeTwo(),
+      1: funcTypeOne(),
       2: funcTypeTwo(),
-      3: funcTypeTwo(),
+      3: funcTypeThree(),
     });
     const userRelationAll = ref(false);
     const userRelationItems = ref([]);
@@ -804,9 +867,9 @@ export default {
     watch(locale, () => {
       funcList.value = {
         0: funcTypeOne(),
-        1: funcTypeTwo(),
+        1: funcTypeOne(),
         2: funcTypeTwo(),
-        3: funcTypeTwo(),
+        3: funcTypeThree(),
       };
       pathList.value = [
         { label: t('sourcePage.selectAlias'), value: 0 },
@@ -821,6 +884,16 @@ export default {
      */
     let userAuthInfo = ref({});
     let userAuthInfoTemp = ref({});
+    /**
+     * 权限管理权限列表及备份
+     */
+    let permitPermissionListTemp = ref([]);
+    /**
+     * 查看完整数据模型树
+     */
+    const goToAllModal = () => {
+      props.func.addTab(`${serverId.value}connection`, { type: 'modal' });
+    };
     /**
      * 新增或编辑数据连接
      */
@@ -862,6 +935,73 @@ export default {
      */
     const handleClick = (tab) => {
       activeName.value = tab.paneName;
+      if (tab.paneName == '3') {
+        getPermitPermissionList();
+      }
+    };
+    /**
+     * 保存用户权限管理权限
+     */
+    const savepermitAuth = () => {
+      let permitList = userRelationItems.value.concat(roleRelationItems.value).concat(udfRelationItems.value).concat(triggerRelationItems.value);
+      let deletePermitList = permitPermissionListTemp.value.filter(function (val) {
+        return permitList.indexOf(val) === -1;
+      });
+      let reqObj = {
+        cancelPrivileges: deletePermitList,
+        privileges: permitList,
+      };
+      axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/authorityPrivilege`, { ...reqObj }).then((rs) => {
+        console.log(rs);
+      });
+    };
+    /**
+     * 获取用户权限管理权限
+     */
+    const getPermitPermissionList = (userinfo) => {
+      axios.get(`/servers/${serverId.value}/users/${userinfo.username || baseInfoForm.userName}/authorityPrivilege`, {}).then((rs) => {
+        console.log(rs);
+        if (rs && rs.code == 0) {
+          permitPermissionListTemp.value = rs.data;
+          let userRelationItemsTemp = [];
+          let roleRelationItemsTemp = [];
+          let udfRelationItemsTemp = [];
+          let triggerRelationItemsTemp = [];
+          for (let i = 0; i < userRelationList.value[0].length; i++) {
+            if (rs.data.indexOf(userRelationList.value[0][i].id) >= 0) {
+              userRelationItemsTemp.push(userRelationList.value[0][i].id);
+            }
+          }
+          for (let j = 0; j < userRelationList.value[1].length; j++) {
+            if (rs.data.indexOf(userRelationList.value[1][j].id) >= 0) {
+              roleRelationItemsTemp.push(userRelationList.value[1][j].id);
+            }
+          }
+          for (let k = 0; k < userRelationList.value[2].length; k++) {
+            if (rs.data.indexOf(userRelationList.value[2][k].id) >= 0) {
+              udfRelationItemsTemp.push(userRelationList.value[2][k].id);
+            }
+          }
+          for (let m = 0; m < userRelationList.value[3].length; m++) {
+            if (rs.data.indexOf(userRelationList.value[3][m].id) >= 0) {
+              triggerRelationItemsTemp.push(userRelationList.value[3][m].id);
+            }
+          }
+          console.log(triggerRelationItemsTemp);
+          userRelationItems.value = userRelationItemsTemp;
+          roleRelationItems.value = roleRelationItemsTemp;
+          udfRelationItems.value = udfRelationItemsTemp;
+          triggerRelationItems.value = triggerRelationItemsTemp;
+          userRelationAll.value = userRelationItemsTemp.length == 8 ? true : false;
+          roleRelationAll.value = roleRelationItemsTemp.length == 5 ? true : false;
+          udfRelationAll.value = udfRelationItemsTemp.length == 2 ? true : false;
+          triggerRelationAll.value = triggerRelationItemsTemp.length == 4 ? true : false;
+          debugger;
+          if (baseInfoForm.userName == 'root') {
+            checkPermitAuth();
+          }
+        }
+      });
     };
     /**
      * 切换数据源展示类型tab操作
@@ -887,6 +1027,9 @@ export default {
       edit.value = false;
       activeIndex.value = item.username;
       getUserAuth(item);
+      if (activeName.value == '3') {
+        getPermitPermissionList({});
+      }
     };
     /**
      * 编辑用户基本信息(密码)
@@ -1123,23 +1266,68 @@ export default {
      * type: 1用户本身信息
      */
     const getUserAuth = (userinfo, type) => {
-      axios.get(`/servers/${serverId.value}/users/${userinfo.username}`, {}).then((res) => {
+      getUserInfo(userinfo);
+      axios.get(`/servers/${serverId.value}/users/${userinfo.username}/dataPrivilege`, {}).then((res) => {
+        console.log(res);
         if (res && res.code == 0) {
-          userAuthInfo.value = res.data;
-          userAuthInfoTemp.value = JSON.parse(JSON.stringify(res.data));
-          baseInfoForm.userName = res.data.userName;
-          baseInfoForm.password = res.data.password;
-          authTableData.value = res.data.privilegesInfo;
-          baseInfo.value.privilegesInfo = res.data.privilegesInfo;
+          // userAuthInfo.value = res.data;
+          userAuthInfoTemp.value.privileges = JSON.parse(JSON.stringify(res.data || []));
+          // baseInfoForm.userName = res.data.userName || userinfo.username;
+          // baseInfoForm.password = res.data.password;
+          authTableData.value = res.data || [];
+          baseInfo.value.privilegesInfo = res.data || [];
           if (type == 1) {
-            checkAuth(res.data.privilegesInfo);
+            checkAuth(res.data);
           }
         } else {
-          userAuthInfo.value = {};
-          baseInfoForm.userName = null;
-          baseInfoForm.password = null;
+          // userAuthInfo.value = {};
+          userAuthInfoTemp.value = {};
+
           authTableData.value = [];
           baseInfo.value.privilegesInfo = [];
+        }
+      });
+      return;
+      // axios.get(`/servers/${serverId.value}/users/${userinfo.username}`, {}).then((res) => {
+      //   if (res && res.code == 0) {
+      //     userAuthInfo.value = res.data;
+      //     userAuthInfoTemp.value = JSON.parse(JSON.stringify(res.data));
+      //     baseInfoForm.userName = res.data.userName || userinfo.username;
+      //     baseInfoForm.password = res.data.password;
+      //     authTableData.value = res.data.privilegesInfo;
+      //     baseInfo.value.privilegesInfo = res.data.privilegesInfo;
+      //     if (type == 1) {
+      //       checkAuth(res.data.privilegesInfo);
+      //     }
+      //   } else {
+      //     userAuthInfo.value = {};
+      //     baseInfoForm.userName = null;
+      //     baseInfoForm.password = null;
+      //     authTableData.value = [];
+      //     baseInfo.value.privilegesInfo = [];
+      //   }
+      // });
+    };
+    /**
+     * 获取用户账号基本信息
+     */
+    const getUserInfo = (userinfo) => {
+      axios.get(`/servers/${serverId.value}/users/${userinfo.username}`).then((rs) => {
+        console.log(rs);
+        if (rs && rs.code == 0) {
+          userAuthInfo.value = rs.data;
+          userAuthInfoTemp.value.username = userinfo.username;
+          userAuthInfoTemp.value.password = rs.data.password;
+          userAuthInfoTemp.value.roleList = rs.data.roleList;
+          baseInfoForm.userName = userinfo.username;
+          baseInfoForm.password = rs.data.password;
+          baseInfoForm.roleList = rs.data.roleList || [];
+        } else {
+          userAuthInfo.value = {};
+          userAuthInfoTemp.value = {};
+          baseInfoForm.userName = '';
+          baseInfoForm.password = '';
+          baseInfoForm.roleList = [];
         }
       });
     };
@@ -1150,14 +1338,21 @@ export default {
     const checkAuth = (data) => {
       for (let i = 0; i < data.length; i++) {
         if (data[i].type == 0) {
-          canCreateUser.value = data[i].privileges.indexOf('CREATE_USER') >= 0 ? true : false;
-          canDeleteUser.value = data[i].privileges.indexOf('DELETE_USER') >= 0 ? true : false;
-          canModifyPassword.value = data[i].privileges.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
-          canShowUser.value = data[i].privileges.indexOf('LIST_USER') >= 0 ? true : false;
-          canAuth.value = data[i].privileges.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
+          // canCreateUser.value = data[i].privileges.indexOf('CREATE_USER') >= 0 ? true : false;
+          // canDeleteUser.value = data[i].privileges.indexOf('DELETE_USER') >= 0 ? true : false;
+          // canModifyPassword.value = data[i].privileges.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
+          // canShowUser.value = data[i].privileges.indexOf('LIST_USER') >= 0 ? true : false;
+          // canAuth.value = data[i].privileges.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
           canGroupSet.value = data[i].privileges.indexOf('SET_STORAGE_GROUP') >= 0 ? true : false;
         }
       }
+    };
+    const checkPermitAuth = () => {
+      canCreateUser.value = permitPermissionListTemp.value.indexOf('CREATE_USER') >= 0 ? true : false;
+      canDeleteUser.value = permitPermissionListTemp.value.indexOf('DELETE_USER') >= 0 ? true : false;
+      canModifyPassword.value = permitPermissionListTemp.value.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
+      canShowUser.value = permitPermissionListTemp.value.indexOf('LIST_USER') >= 0 ? true : false;
+      canAuth.value = permitPermissionListTemp.value.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
     };
     /**
      * 获取当前数据连接的所有存储组
@@ -1482,6 +1677,7 @@ export default {
       getBaseInfo((data) => {
         //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
         getUserAuth(data, 1);
+        getPermitPermissionList(data);
       });
       getGroupList();
       getUserList(1);
@@ -1517,8 +1713,12 @@ export default {
       authTableData,
       pathList,
       pathMap,
+      treeData,
+      selectArray,
+      checkedKeys,
       funcTypeOne,
       funcTypeTwo,
+      funcTypeThree,
       funcList,
       getBaseInfo,
       changeCheckItem,
@@ -1558,6 +1758,10 @@ export default {
       changeRoleRelation,
       changeUdfRelation,
       changeTriggerRelation,
+      goToAllModal,
+      getPermitPermissionList,
+      permitPermissionListTemp,
+      savepermitAuth,
     };
   },
   components: {
@@ -1565,6 +1769,8 @@ export default {
     ElTable,
     ElTableColumn,
     NewSource,
+    TreeSelect,
+    DataModal,
     ElTabs,
     ElTabPane,
     ElForm,
@@ -1795,9 +2001,12 @@ export default {
               font-size: 12px;
               margin-bottom: 16px;
             }
+            .wraper {
+            }
             .permit-list {
               display: flex;
-              height: calc(100% - 30px);
+              height: calc(100% - 60px);
+
               .permit-list-type {
                 flex: 1;
                 background: #ffffff;
@@ -1809,11 +2018,21 @@ export default {
                 &:last-child {
                   margin-right: 0;
                 }
+                .el-checkbox {
+                  padding-left: 10px;
+                  height: 32px;
+                  line-height: 32px;
+                }
                 .box {
                   border-radius: 4px;
                   height: 40px;
                   line-height: 40px;
                   padding-left: 10px;
+                  .el-checkbox {
+                    padding-left: 0;
+                    height: 40px;
+                    line-height: 40px;
+                  }
                 }
                 .box1 {
                   background: #fff9f3;
@@ -1827,12 +2046,11 @@ export default {
                 .box4 {
                   background: #f2fff6;
                 }
-                .el-checkbox-group {
-                  padding-left: 10px;
-                  height: 32px;
-                  line-height: 32px;
-                }
               }
+            }
+            .permit-btn {
+              text-align: center;
+              margin-top: 10px;
             }
           }
           .tab-content {
