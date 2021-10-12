@@ -20,7 +20,7 @@
 <template>
   <div class="source-detail-container">
     <div class="info-box">
-      <TreeSelect :data="treeData" :selectArray="selectArray" :checkedKeys="checkedKeys"/>
+      <TreeSelect :data="treeData" :selectArray="selectArray" :checkedKeys="checkedKeys" />
 
       <p class="title">{{ baseInfo.alias }}</p>
       <p class="more">
@@ -552,7 +552,7 @@ import {
 import NewSource from './components/newSource.vue';
 import TreeSelect from '@/components/TreeSelect.vue';
 import UserRole from './components/role/Index.vue';
-giimport { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n';
 import DataModal from './components/dataModal.vue';
 import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
@@ -585,45 +585,45 @@ export default {
     let selectArray = ['一级 1'];
     let checkedKeys = [1];
     let treeData = [
+      {
+        id: 1,
+        label: '一级 1',
+        children: [
           {
-            id: 1,
-            label: '一级 1',
-            children: [
-              {
-                id: 4,
-                label: '二级 1-1',
-              },
-            ],
+            id: 4,
+            label: '二级 1-1',
+          },
+        ],
+      },
+      {
+        id: 2,
+        label: '一级 2',
+        children: [
+          {
+            id: 5,
+            label: '二级 2-1',
           },
           {
-            id: 2,
-            label: '一级 2',
-            children: [
-              {
-                id: 5,
-                label: '二级 2-1',
-              },
-              {
-                id: 6,
-                label: '二级 2-2',
-              },
-            ],
+            id: 6,
+            label: '二级 2-2',
+          },
+        ],
+      },
+      {
+        id: 3,
+        label: '一级 3',
+        children: [
+          {
+            id: 7,
+            label: '二级 3-1',
           },
           {
-            id: 3,
-            label: '一级 3',
-            children: [
-              {
-                id: 7,
-                label: '二级 3-1',
-              },
-              {
-                id: 8,
-                label: '二级 3-2',
-              },
-            ],
+            id: 8,
+            label: '二级 3-2',
           },
-        ];
+        ],
+      },
+    ];
     let pathList = ref([
       { label: t('sourcePage.selectAlias'), value: 0 },
       { label: t('sourcePage.selectGroup'), value: 1 },
@@ -1788,7 +1788,7 @@ export default {
     /* eslint-disable */
     ElPopover,
     ElPopper,
-    UserRole
+    UserRole,
     /* eslint-disable */
   },
 };
