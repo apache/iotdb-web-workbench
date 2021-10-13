@@ -2138,7 +2138,7 @@ export default {
                 background: #ffffff;
                 border-radius: 4px;
                 border: 1px solid #eaecf0;
-                margin-right: 18px;
+                margin-right: 10px;
                 padding: 16px;
                 overflow: auto;
                 &:last-child {
