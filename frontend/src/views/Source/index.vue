@@ -19,6 +19,12 @@
 
 <template>
   <div class="source-detail-container">
+    <div v-if="showPermitDialog">
+      <permit-dialog :showPermitDialog="showPermitDialog" @cancelDialog="cancelDialog" />
+    </div>
+    <div v-if="showRoleDialog">
+      <role-dialog :showRoleDialog="showRoleDialog" :serverId="serverId" @cancelRoleDialog="cancelRoleDialog" @submitRoleDialog="submitRoleDialog" />
+    </div>
     <div class="info-box">
       <TreeSelect :data="treeData" :selectArray="selectArray" :checkedKeys="checkedKeys" />
 
@@ -134,21 +140,54 @@
                               <el-button type="primary" @click="doEdit()">{{ $t('common.submit') }}</el-button>
                             </div>
                           </el-form-item>
+
+                          <el-form-item :label="$t('sourcePage.roleTitle')" class="role-form-item">
+                            <svg v-if="!editRole && baseInfoForm.userName != 'root'" class="icons icon" aria-hidden="true" @click="editRoleInfo()">
+                              <use xlink:href="#icon-se-icon-f-edit"></use>
+                            </svg>
+                            <ul>
+                              <li v-for="item in roleCheckeList" :key="item">
+                                <span>{{ item }}</span>
+                                <svg class="icon" aria-hidden="true" v-if="editRole" @click="deleteRole(item)">
+                                  <use xlink:href="#icon-close"></use>
+                                </svg>
+                              </li>
+                            </ul>
+                            <svg class="icon" aria-hidden="true" v-if="editRole" @click="addRole()">
+                              <use xlink:href="#icon-add1"></use>
+                            </svg>
+                            <div v-if="editRole">
+                              <el-button @click="cancelEditRole()">{{ $t('common.cancel') }}</el-button>
+                              <el-button type="primary" @click="doEditRole()">{{ $t('common.submit') }}</el-button>
+                            </div>
+                          </el-form-item>
                         </el-form>
                       </div>
                       <div v-else class="tab-content left-base-content">
                         <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
                           <el-form-item prop="userName" :label="$t('sourcePage.userNameTitle')" class="userName-form-item">
-                            <el-input v-model="baseInfoForm.userName"></el-input>
+                            <el-input v-model="baseInfoForm.userName" prefix-icon="el-icon-user"></el-input>
                           </el-form-item>
                           <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
-                            <el-input show-password v-model="baseInfoForm.password"></el-input>
-
-                            <div>
-                              <el-button @click="cancelNew1()">{{ $t('common.cancel') }}</el-button>
-                              <el-button type="primary" @click="doCreate()">{{ $t('common.submit') }}</el-button>
-                            </div>
+                            <el-input show-password v-model="baseInfoForm.password" prefix-icon="el-icon-lock"></el-input>
                           </el-form-item>
+                          <el-form-item :label="$t('sourcePage.roleTitle')" class="role-form-item">
+                            <ul>
+                              <li v-for="item in roleCheckeList" :key="item">
+                                <span>{{ item }}</span>
+                                <svg class="icon" aria-hidden="true" @click="deleteRole(item)">
+                                  <use xlink:href="#icon-close"></use>
+                                </svg>
+                              </li>
+                            </ul>
+                            <svg class="icon" aria-hidden="true" @click="addRole()">
+                              <use xlink:href="#icon-add1"></use>
+                            </svg>
+                          </el-form-item>
+                          <div>
+                            <el-button @click="cancelNew1()">{{ $t('common.cancel') }}</el-button>
+                            <el-button type="primary" @click="doCreate()">{{ $t('common.submit') }}</el-button>
+                          </div>
                         </el-form>
                       </div>
                     </template>
@@ -281,7 +320,7 @@
 
                       <div class="permit-btn" v-if="baseInfoForm.userName !== 'root'">
                         <el-button type="primary" size="small" @click="savepermitAuth()">{{ $t('common.save') }}</el-button>
-                        <el-button type="primary" size="small" @click="getPermitPermissionList()">{{ $t('common.cancel') }}</el-button>
+                        <el-button type="primary" size="small" @click="getPermitPermissionList({})">{{ $t('common.cancel') }}</el-button>
                       </div>
                     </div>
                   </el-tab-pane>
@@ -549,15 +588,19 @@ import {
   ElPopper,
   ElTooltip,
 } from 'element-plus';
+// import { Close } from '@element-plus/icons';
 import NewSource from './components/newSource.vue';
 import TreeSelect from '@/components/TreeSelect.vue';
 import UserRole from './components/role/Index.vue';
 import { useI18n } from 'vue-i18n';
 import DataModal from './components/dataModal.vue';
 import axios from '@/util/axios.js';
+
 // import { useStore } from 'vuex';
 
 import { useRouter } from 'vue-router';
+import PermitDialog from './components/permitDialog.vue';
+import roleDialog from './components/roleDialog.vue';
 export default {
   name: 'Source',
   props: ['func', 'data'],
@@ -581,6 +624,8 @@ export default {
     let canShowUser = ref(false);
     // 是否可以用户赋权
     let canAuth = ref(false);
+    // 是否可以用户赋权角色
+    let canAuthRole = ref(false);
     const router = useRouter();
     let selectArray = ['一级 1'];
     let checkedKeys = [1];
@@ -867,6 +912,10 @@ export default {
     const udfRelationItems = ref([]);
     const triggerRelationAll = ref(false);
     const triggerRelationItems = ref([]);
+    /**
+     * 数据管理权限弹框是否展示
+     */
+    let showPermitDialog = ref(false);
     watch(locale, () => {
       funcList.value = {
         0: funcTypeOne(),
@@ -939,7 +988,7 @@ export default {
     const handleClick = (tab) => {
       activeName.value = tab.paneName;
       if (tab.paneName == '3') {
-        getPermitPermissionList();
+        getPermitPermissionList({});
       }
     };
     /**
@@ -962,6 +1011,7 @@ export default {
      * 获取用户权限管理权限
      */
     const getPermitPermissionList = (userinfo) => {
+      debugger;
       axios.get(`/servers/${serverId.value}/users/${userinfo.username || baseInfoForm.userName}/authorityPrivilege`, {}).then((rs) => {
         console.log(rs);
         if (rs && rs.code == 0) {
@@ -999,7 +1049,6 @@ export default {
           roleRelationAll.value = roleRelationItemsTemp.length == 5 ? true : false;
           udfRelationAll.value = udfRelationItemsTemp.length == 2 ? true : false;
           triggerRelationAll.value = triggerRelationItemsTemp.length == 4 ? true : false;
-          debugger;
           if (baseInfoForm.userName == 'root') {
             checkPermitAuth();
           }
@@ -1028,10 +1077,11 @@ export default {
         }
       }
       edit.value = false;
+      editRole.value = false;
       activeIndex.value = item.username;
       getUserAuth(item);
       if (activeName.value == '3') {
-        getPermitPermissionList({});
+        getPermitPermissionList({ username: item.username });
       }
     };
     /**
@@ -1081,8 +1131,14 @@ export default {
         if (valid) {
           axios.post(`/servers/${serverId.value}/users/`, { ...reqObj }).then((rs) => {
             if (rs && rs.code == 0) {
-              ElMessage.success(t('sourcePage.addSuccessLabel'));
-              cancelNew(reqObj.userName);
+              axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/grant`, { roleList: roleCheckeList.value }).then((rs) => {
+                if (rs && rs.code == 0) {
+                  ElMessage.success(t('sourcePage.addSuccessLabel'));
+                  cancelNew(reqObj.userName);
+                }
+              });
+              // ElMessage.success(t('sourcePage.addSuccessLabel'));
+              // cancelNew(reqObj.userName);
             }
           });
         }
@@ -1109,6 +1165,7 @@ export default {
      * 新建用户操作
      */
     const newUser = () => {
+      // todo
       if (!canCreateUser.value || !canShowUser.value) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
@@ -1124,6 +1181,9 @@ export default {
       activeName.value = '1';
       baseInfoForm.password = null;
       baseInfoForm.userName = null;
+      roleCheckeList.value = [];
+      editRole.value = false;
+      edit.value = false;
       userList.value.unshift({ username: 'new' });
       activeIndex.value = 'new';
     };
@@ -1236,6 +1296,37 @@ export default {
         }
       });
     };
+    let showRoleDialog = ref(false);
+    let editRole = ref(false);
+    const editRoleInfo = () => {
+      if (!canModifyPassword.value) {
+        ElMessage.error(t(`sourcePage.noAuthTip`));
+        return false;
+      }
+      editRole.value = true;
+    };
+    /**
+     * 添加角色
+     */
+    const addRole = () => {
+      if (!canAuthRole.value) {
+        ElMessage.error(t(`sourcePage.noAuthTip`));
+        return false;
+      }
+      showRoleDialog.value = true;
+    };
+    const deleteRole = (item) => {
+      let temp = roleCheckeList.value;
+      let index = roleCheckeList.value.indexOf(item);
+      temp.splice(index, 1);
+      roleCheckeList.value = temp;
+    };
+    const cancelEditRole = () => {
+      console.log(1);
+    };
+    const doEditRole = () => {
+      console.log(1);
+    };
     /**
      * 添加权限按钮
      */
@@ -1244,24 +1335,36 @@ export default {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
-      for (let i = 0; i < authTableData.value.length; i++) {
-        if (authTableData.value[i].new) {
-          ElMessage.error(t(`sourcePage.addAuthFirstLabel`));
-          return false;
-        }
-      }
-      authTableData.value.push({
-        edit: true,
-        new: true,
-        privileges: [],
-        groupPaths: [],
-        allGroupPaths: allGroupPaths.value,
-        allDevicePaths: [],
-        devicePaths: [],
-        allTimeseriesPaths: [],
-        timeseriesPaths: [],
-        type: null,
-      });
+      showPermitDialog.value = true;
+      // for (let i = 0; i < authTableData.value.length; i++) {
+      //   if (authTableData.value[i].new) {
+      //     ElMessage.error(t(`sourcePage.addAuthFirstLabel`));
+      //     return false;
+      //   }
+      // }
+      // authTableData.value.push({
+      //   edit: true,
+      //   new: true,
+      //   privileges: [],
+      //   groupPaths: [],
+      //   allGroupPaths: allGroupPaths.value,
+      //   allDevicePaths: [],
+      //   devicePaths: [],
+      //   allTimeseriesPaths: [],
+      //   timeseriesPaths: [],
+      //   type: null,
+      // });
+    };
+    const cancelDialog = () => {
+      showPermitDialog.value = false;
+    };
+    const cancelRoleDialog = () => {
+      showRoleDialog.value = false;
+    };
+    const roleCheckeList = ref([]);
+    const submitRoleDialog = (data) => {
+      roleCheckeList.value = data;
+      showRoleDialog.value = false;
     };
     /**
      * 获取某一个用户权限
@@ -1322,12 +1425,15 @@ export default {
           userAuthInfoTemp.value.username = userinfo.username;
           userAuthInfoTemp.value.password = rs.data.password;
           userAuthInfoTemp.value.roleList = rs.data.roleList;
+          roleCheckeList.value = rs.data.roleList || [];
           baseInfoForm.userName = userinfo.username;
           baseInfoForm.password = rs.data.password;
           baseInfoForm.roleList = rs.data.roleList || [];
         } else {
           userAuthInfo.value = {};
           userAuthInfoTemp.value = {};
+          roleCheckeList.value = [];
+
           baseInfoForm.userName = '';
           baseInfoForm.password = '';
           baseInfoForm.roleList = [];
@@ -1356,6 +1462,7 @@ export default {
       canModifyPassword.value = permitPermissionListTemp.value.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
       canShowUser.value = permitPermissionListTemp.value.indexOf('LIST_USER') >= 0 ? true : false;
       canAuth.value = permitPermissionListTemp.value.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
+      canAuthRole.value = permitPermissionListTemp.value.indexOf('GRANT_ROLE_PRIVILEGE') >= 0 ? true : false;
     };
     /**
      * 获取当前数据连接的所有存储组
@@ -1730,7 +1837,16 @@ export default {
       getUserList,
       saveRowAuth,
       cancelRowAuth,
+      addRole,
+      deleteRole,
+      editRoleInfo,
+      cancelEditRole,
+      doEditRole,
       authAdd,
+      cancelDialog,
+      cancelRoleDialog,
+      submitRoleDialog,
+      roleCheckeList,
       doEdit,
       deleteRowAuth,
       changeType,
@@ -1761,6 +1877,9 @@ export default {
       changeRoleRelation,
       changeUdfRelation,
       changeTriggerRelation,
+      showPermitDialog,
+      showRoleDialog,
+      editRole,
       goToAllModal,
       getPermitPermissionList,
       permitPermissionListTemp,
@@ -1772,6 +1891,8 @@ export default {
     ElTable,
     ElTableColumn,
     NewSource,
+    PermitDialog,
+    roleDialog,
     TreeSelect,
     DataModal,
     ElTabs,
@@ -1785,6 +1906,7 @@ export default {
     ElCheckboxGroup,
     ElPopconfirm,
     ElTooltip,
+    // Close,
     /* eslint-disable */
     ElPopover,
     ElPopper,
@@ -1886,12 +2008,12 @@ export default {
         flex-direction: row;
         height: 100%;
         .left-part {
-          width: 240px;
-          margin-top: 12px;
+          width: 220px;
+          // margin-top: 12px;
           margin-right: 20px;
           .title {
             height: 40px !important;
-            width: 240px;
+            width: 220px;
             font-size: 12px;
             background: #f9fbfc;
             line-height: 40px;
@@ -2016,7 +2138,7 @@ export default {
                 background: #ffffff;
                 border-radius: 4px;
                 border: 1px solid #eaecf0;
-                margin-right: 20px;
+                margin-right: 18px;
                 padding: 16px;
                 overflow: auto;
                 &:last-child {
@@ -2080,13 +2202,45 @@ export default {
               .icon {
                 color: $theme-color;
                 position: absolute;
-                top: -31px;
+                top: -21px;
                 left: 100px;
                 cursor: pointer;
               }
             }
+            .role-form-item {
+              .icons {
+                color: $theme-color;
+                position: absolute;
+                top: -21px;
+                left: 100px;
+                cursor: pointer;
+              }
+              ul {
+                display: inline-block;
+                li {
+                  display: inline-block;
+                  background: rgba(19, 195, 147, 0.1);
+                  border-radius: 2px;
+                  border: 1px solid rgba(19, 195, 147, 0.5);
+                  height: 24px;
+                  line-height: 24px;
+                  padding: 0px 6px;
+                  margin-right: 10px;
+                  span {
+                    // max-width: 20px;
+                    // overflow: hidden;
+                    // text-overflow: ellipsis;
+                    // white-space: nowrap;
+                    margin-right: 10px;
+                  }
+                }
+              }
+            }
           }
           .left-base-content {
+            &:deep(.el-form-item__label) {
+              font-size: 12px;
+            }
             .el-input {
               width: 200px;
               // display: block;
@@ -2094,6 +2248,13 @@ export default {
                 top: auto;
               }
             }
+            // .source-form {
+            &:deep(.el-form--label-top .el-form-item__label) {
+              //        .el-form--label-top .el-form-item__label {
+              padding: 0 !important;
+            }
+            //       }
+            // }
           }
         }
       }

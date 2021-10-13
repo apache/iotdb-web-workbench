@@ -86,7 +86,7 @@ export default {
   setup() {
     const dividerRef = ref(null);
     const store = useStore();
-    let dividerWidth = ref(300);
+    let dividerWidth = ref(240);
     let urlTabsValue = ref('');
     let urlTabs = ref([]);
     let tabData = ref({});

@@ -1,8 +1,18 @@
 <template>
-  <div>
+  <div class="tree-select-wraper">
     <el-select v-model="mineStatus" placeholder="请选择" multiple collapse-tags @change="selectChange" style="width: 30%">
       <el-option :value="mineStatusValue" style="height: auto">
-        <el-tree :data="data" show-checkbox node-key="id" ref="tree" highlight-current :default-checked-keys="checkedKeys" :props="defaultProps" @check-change="handleCheckChange"></el-tree>
+        <el-tree
+          class="tree-select-wrapers"
+          :data="data"
+          show-checkbox
+          node-key="id"
+          ref="tree"
+          highlight-current
+          :default-checked-keys="checkedKeys"
+          :props="defaultProps"
+          @check-change="handleCheckChange"
+        ></el-tree>
       </el-option>
     </el-select>
   </div>
@@ -82,4 +92,13 @@ export default {
   },
 };
 </script>
-<style lang="less" scoped></style>
+<style lang="scss" scoped>
+.tree-select-wraper {
+  &:deep(.el-select-dropdown__item) {
+    padding: 0 !important;
+  }
+}
+.el-select-dropdown__item {
+  padding: 0 !important;
+}
+</style>

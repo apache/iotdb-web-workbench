@@ -90,7 +90,7 @@
   .el-dialog__header {
     padding: 10px 20px;
     text-align: left;
-    border-bottom: 1px solid #EEF0F5;
+    border-bottom: 1px solid #eef0f5;
     .el-dialog__title {
       font-size: 16px;
     }
@@ -102,9 +102,9 @@
     text-align: left;
     padding: 10px 20px;
   }
-  .el-dialog__footer{
-    border-top: 1px solid #EEF0F5;
-    padding: 12px 20px ;
+  .el-dialog__footer {
+    border-top: 1px solid #eef0f5;
+    padding: 12px 20px;
   }
 }
 
@@ -150,6 +150,7 @@
 }
 .el-tabs__item {
   color: #8e97aaff !important;
+  font-size: 12px !important;
 }
 .el-tabs__item:hover {
   color: $theme-color !important;

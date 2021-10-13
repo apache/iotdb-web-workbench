@@ -101,7 +101,7 @@
         </div>
       </el-footer>
     </el-container>
-    <el-aside width="300px">
+    <el-aside width="240px">
       <div class="el_aside_div">
         <div class="tabgad">
           <el-tabs v-model="activeNameRight" @tab-click="handleClick" class="tabs_nav_aside">
