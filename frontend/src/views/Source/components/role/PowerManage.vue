@@ -1,13 +1,15 @@
 <!-- 角色管理右部分 -->
 <template>
   <div id="role-tabs">
-    <el-tabs v-if="current.id!==null" v-model="activeTab" @tab-click="handleClick">
-      <el-tab-pane  :label="$t('sourcePage.baseConfig')" name="baseConfig">
-        <role-info :roleInfo="current"></role-info>
+    <el-tabs v-if="roleList.length" v-model="activeTab" @tab-click="handleClick">
+      <el-tab-pane :label="$t('sourcePage.baseConfig')" name="baseConfig">
+        <role-info :roleInfo="current" :role-list="roleList"></role-info>
       </el-tab-pane>
       <template v-if="current.id">
         <el-tab-pane :label="$t('sourcePage.dataManagePrivilege')" name="dataManagePrivilege"> </el-tab-pane>
-        <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission"> </el-tab-pane>
+        <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission"> 
+          <!-- <auth-manage :roleInfo="current"></auth-manage> -->
+        </el-tab-pane>
       </template>
     </el-tabs>
     <div v-else class="no-data">暂无数据</div>
@@ -19,12 +21,17 @@ import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 import { ElTabs, ElTabPane } from 'element-plus';
 import RoleInfo from './RoleInfo.vue';
+// import AuthManage from './AuthManage.vue';
 export default {
   name: 'PowerManage',
   props: {
     current: {
       type: Object,
       default: () => {},
+    },
+    roleList: {
+      type: Array,
+      default: () => [],
     },
   },
   setup() {
@@ -43,6 +50,7 @@ export default {
     ElTabs,
     ElTabPane,
     RoleInfo,
+    // AuthManage,
   },
 };
 </script>

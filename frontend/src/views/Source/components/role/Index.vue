@@ -1,8 +1,8 @@
 <!-- 用户角色 -->
 <template>
   <div class="user-role-wrapper">
-    <role-list :server-id="serverId"  @change="changeRole"></role-list>
-    <power-manage :current="currentRole"></power-manage>
+    <role-list :server-id="serverId" @changeCurrRole="changeRole" @roleList="refreshList"></role-list>
+    <power-manage :current="currentRole" :role-list="roleList"></power-manage>
   </div>
 </template>
 
@@ -18,12 +18,19 @@ export default {
   },
   setup() {
     let currentRole = ref({});
+    let roleList = ref([]);
     const changeRole = (role) => {
       currentRole.value = role;
     };
+
+    const refreshList = (list) => {
+      roleList.value = list;
+    };
     return {
       changeRole,
-      currentRole
+      currentRole,
+      refreshList,
+      roleList,
     };
   },
 };
