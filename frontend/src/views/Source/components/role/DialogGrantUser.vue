@@ -74,21 +74,26 @@ export default {
       checkedUser.value = val ? props.userList : [];
       isIndeterminate.value = false;
     };
-    let handleCheckedUser = (value) => {
-      const checkedCount = value.length;
-      allCheck.value = checkedCount === props.userList.length;
-      isIndeterminate.value = checkedCount > 0 && checkedCount < props.userList.length;
+    let handleCheckedUser = () => {
+      resetAllChecked();
     };
 
     let deleteUser = (user) => {
       checkedUser.value = checkedUser.value.filter((d) => d !== user);
-      isIndeterminate.value = checkedUser.value.length > 0 && checkedUser.value.length < props.userList.length;
+      resetAllChecked();
     };
 
     let open = (users) => {
       visible.value = true;
-      checkedUser.value = [...users];
+      checkedUser.value = users ? [...users] : [];
+      resetAllChecked();
     };
+    // 更新全选状态
+    let resetAllChecked = () => {
+      const checkedCount = checkedUser.value.length;
+      isIndeterminate.value = checkedUser.value.length > 0 && checkedUser.value.length < props.userList.length;
+      allCheck.value = checkedCount === props.userList.length;
+    }
 
     let handleCurrentChange = (currPage) => {
       pagination.value.currPage = currPage;
@@ -108,9 +113,7 @@ export default {
 
     let handleClear = () => {
       checkedUser.value = [];
-      const checkedCount = checkedUser.value.length;
-      isIndeterminate.value = checkedCount > 0 && checkedCount < props.userList.length;
-      allCheck.value = false;
+      resetAllChecked();
     };
     let submit = () => {
       emit('change', { userList: checkedUser });
@@ -148,6 +151,10 @@ export default {
         display: block;
         margin: 15px 0;
         line-height: 20px;
+        font-size: 12px;
+        .el-checkbox__label {
+          font-size: 12px;
+        }
 
         &:first-child {
           margin-top: 0;
@@ -171,6 +178,7 @@ export default {
         width: 50%;
         box-sizing: border-box;
         padding-left: 20px;
+        font-size: 12px;
         &-item {
           display: flex;
           justify-content: space-between;

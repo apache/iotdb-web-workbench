@@ -7,7 +7,9 @@
       </el-tab-pane>
       <template v-if="current.id">
         <el-tab-pane :label="$t('sourcePage.dataManagePrivilege')" name="dataManagePrivilege"> </el-tab-pane>
-        <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission"> </el-tab-pane>
+        <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission"> 
+          <!-- <auth-manage :roleInfo="current"></auth-manage> -->
+        </el-tab-pane>
       </template>
     </el-tabs>
     <div v-else class="no-data">暂无数据</div>
@@ -19,6 +21,7 @@ import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 import { ElTabs, ElTabPane } from 'element-plus';
 import RoleInfo from './RoleInfo.vue';
+// import AuthManage from './AuthManage.vue';
 export default {
   name: 'PowerManage',
   props: {
@@ -47,6 +50,7 @@ export default {
     ElTabs,
     ElTabPane,
     RoleInfo,
+    // AuthManage,
   },
 };
 </script>

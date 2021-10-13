@@ -129,7 +129,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .list-wrapper {
-  flex-basis: 280px;
+  flex-basis: 240px;
   flex-grow: 0;
   flex-shrink: 0;
   height: 100%;
