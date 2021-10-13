@@ -16,10 +16,10 @@
         </div>
         {{ item }}
         <div class="operate">
-          <svg class="icon" aria-hidden="true">
+          <svg class="icon" aria-hidden="true" v-if="isAdding">
             <use xlink:href="#icon-se-icon-f-edit"></use>
           </svg>
-          <svg class="icon delete" aria-hidden="true">
+          <svg class="icon delete" aria-hidden="true" @click.stop="deleteRole(item)">
             <use xlink:href="#icon-se-icon-delete"></use>
           </svg>
         </div>
@@ -31,43 +31,85 @@
 
 <script>
 import { useI18n } from 'vue-i18n';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, getCurrentInstance, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../../api/index';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 export default {
   name: 'RoleList',
   props: [],
-  setup(props, context) {
+  setup(props, { emit }) {
     const { t, locale } = useI18n();
     let roleList = ref([]);
-
+    let activeRole = ref(1);
     let serverId = useRoute().params.serverid;
+    const emitter = getCurrentInstance().appContext.config.globalProperties.emitter;
+    let isAdding = ref(false);
+
     // 获取所有角色
     let getRoleList = async () => {
+      isAdding.value = false;
       let result = await api.getRoles(serverId);
       roleList.value = result.data;
       if (!roleList.value.length) {
-        context.emit('change', { id: null });
+        emit('changeCurrRole', { id: '', name: 'NEW' });
+      } else {
+        clickRole(result?.data[0]);
       }
-      activeRole.value = result?.data[0];
+      emit('roleList', roleList.value);
     };
-
-    let activeRole = ref(1);
 
     const addRole = () => {
+      if (isAdding.value) {
+        ElMessage.error('请先完成新增操作');
+        return;
+      }
       roleList.value.unshift('NEW');
       activeRole.value = 'NEW';
-      context.emit('change', { id: '', name: 'NEW' });
+      emit('changeCurrRole', { id: '', name: 'NEW' });
+      isAdding.value = true;
     };
     const clickRole = async (item) => {
+      if (isAdding.value) {
+        ElMessage.error('请先完成新增操作');
+        return;
+      }
       activeRole.value = item;
       let roleInfo = await api.getRoleInfo({ serverId, roleName: item });
-      context.emit('change', { ...roleInfo.data, roleName: item });
+      emit('changeCurrRole', { ...roleInfo.data, roleName: item });
+    };
+    const deleteRole = async (item) => {
+      if (isAdding.value) {
+        ElMessage.error('请先完成新增操作');
+        return;
+      }
+      ElMessageBox.confirm('确认删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(async () => {
+        await api.deleteRole({ serverId, roleName: item });
+        ElMessage.success('删除成功');
+        getRoleList();
+      });
+    };
+    const cancelAdd = () => {
+      if (isAdding.value) {
+        roleList.value.splice(0, 1);
+        isAdding.value = false;
+        clickRole(roleList?.value[0]);
+      }
     };
 
     onMounted(() => {
       getRoleList();
+      emitter.on('add-role', getRoleList);
+      emitter.on('cancel-add-role', cancelAdd);
+    });
+    onUnmounted(() => {
+      emitter.off('add-role', getRoleList);
+      emitter.off('cancel-add-role', cancelAdd);
     });
 
     return {
@@ -78,8 +120,11 @@ export default {
       activeRole,
       addRole,
       clickRole,
+      deleteRole,
+      cancelAdd,
     };
   },
+  methods: {},
 };
 </script>
 <style scoped lang="scss">
@@ -122,6 +167,7 @@ export default {
     box-sizing: border-box;
     color: #7a859e;
     height: calc(100% - 44px);
+    overflow: auto;
     &-item {
       width: 100%;
       transition: all 0.2s;

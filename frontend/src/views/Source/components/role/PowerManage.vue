@@ -1,9 +1,9 @@
 <!-- 角色管理右部分 -->
 <template>
   <div id="role-tabs">
-    <el-tabs v-if="current.id!==null" v-model="activeTab" @tab-click="handleClick">
-      <el-tab-pane  :label="$t('sourcePage.baseConfig')" name="baseConfig">
-        <role-info :roleInfo="current"></role-info>
+    <el-tabs v-if="roleList.length" v-model="activeTab" @tab-click="handleClick">
+      <el-tab-pane :label="$t('sourcePage.baseConfig')" name="baseConfig">
+        <role-info :roleInfo="current" :role-list="roleList"></role-info>
       </el-tab-pane>
       <template v-if="current.id">
         <el-tab-pane :label="$t('sourcePage.dataManagePrivilege')" name="dataManagePrivilege"> </el-tab-pane>
@@ -25,6 +25,10 @@ export default {
     current: {
       type: Object,
       default: () => {},
+    },
+    roleList: {
+      type: Array,
+      default: () => [],
     },
   },
   setup() {

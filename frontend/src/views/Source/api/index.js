@@ -51,5 +51,10 @@ export default {
   //获取用户列表
   getUsers(serverId) {
     return axios.get(`/servers/${serverId}/users`);
-  }
+  },
+  //删除指定角色
+  deleteRole(params) {
+    let { serverId, roleName } = params;
+    return axios.delete(`/servers/${serverId}/roles/${roleName}`);
+  },
 };
