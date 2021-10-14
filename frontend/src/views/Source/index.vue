@@ -331,7 +331,7 @@
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.accountRole')" name="r">
           <div class="tab-content">
-            <user-role></user-role>
+            <user-role :base-info="baseInfoForm"></user-role>
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.groupInfo') + '(' + groupTotal + ')'" name="g">
@@ -1011,7 +1011,7 @@ export default {
      * 获取用户权限管理权限
      */
     const getPermitPermissionList = (userinfo) => {
-      debugger;
+      // debugger;
       axios.get(`/servers/${serverId.value}/users/${userinfo.username || baseInfoForm.userName}/authorityPrivilege`, {}).then((rs) => {
         console.log(rs);
         if (rs && rs.code == 0) {

@@ -77,7 +77,8 @@ export default {
       }
       activeRole.value = item;
       let roleInfo = await api.getRoleInfo({ serverId, roleName: item });
-      emit('changeCurrRole', { ...roleInfo.data, roleName: item });
+      let privileges = await api.getAuthPrivilege({ serverId, roleName: item });
+      emit('changeCurrRole', { ...roleInfo.data, roleName: item, privileges: privileges.data });
     };
     const deleteRole = async (item) => {
       if (isAdding.value) {
@@ -129,7 +130,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .list-wrapper {
-  flex-basis: 240px;
+  flex-basis: 220px;
   flex-grow: 0;
   flex-shrink: 0;
   height: 100%;

@@ -45,7 +45,6 @@ export default {
       default: () => [],
     },
   },
-  computed: {},
   setup(props) {
     const { t, locale } = useI18n();
     const store = useStore();
@@ -63,12 +62,6 @@ export default {
     let userList = ref([]);
     let serverId = useRoute().params.serverid;
 
-    // console.log('props.roleInfo', props.roleInfo);
-    // if (props.roleInfo.id) {
-    //   // 编辑
-    //   form.value = { ...props.roleInfo };
-    //   console.log(props.roleInfo, form.value);
-    // }
     watch(
       () => props.roleInfo,
       (val) => {
