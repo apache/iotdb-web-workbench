@@ -338,7 +338,7 @@
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.accountRole')" name="r">
           <div class="tab-content">
-            <user-role></user-role>
+            <user-role :base-info="baseInfoForm"></user-role>
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.groupInfo') + '(' + groupTotal + ')'" name="g">
@@ -1363,7 +1363,7 @@ export default {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
-      permitType.value = type
+      permitType.value = type;
       showPermitDialog.value = true;
       // for (let i = 0; i < authTableData.value.length; i++) {
       //   if (authTableData.value[i].new) {

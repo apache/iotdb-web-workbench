@@ -57,4 +57,14 @@ export default {
     let { serverId, roleName } = params;
     return axios.delete(`/servers/${serverId}/roles/${roleName}`);
   },
+  //获取角色权限管理权限
+  getAuthPrivilege(params) {
+    let { serverId, roleName } = params;
+    return axios.get(`/servers/${serverId}/roles/${roleName}/authorityPrivilege`);
+  },
+  //修改角色权限管理权限
+  editAuthPrivilege(params, payload) {
+    let { serverId, roleName } = params;
+    return axios.post(`/servers/${serverId}/roles/${roleName}/authorityPrivilege`, payload);
+  },
 };

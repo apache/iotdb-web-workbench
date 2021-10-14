@@ -2,7 +2,7 @@
 <template>
   <div class="user-role-wrapper">
     <role-list :server-id="serverId" @changeCurrRole="changeRole" @roleList="refreshList"></role-list>
-    <power-manage :current="currentRole" :role-list="roleList"></power-manage>
+    <power-manage :current="currentRole" :role-list="roleList" :base-info="baseInfo"></power-manage>
   </div>
 </template>
 
@@ -11,7 +11,13 @@ import { ref } from 'vue';
 import RoleList from './RoleList.vue';
 import PowerManage from './PowerManage.vue';
 export default {
-  name: '',
+  name: 'RoleInfo',
+  props: {
+    baseInfo: {
+      type: Object,
+      default: () => {},
+    },
+  },
   components: {
     RoleList,
     PowerManage,
