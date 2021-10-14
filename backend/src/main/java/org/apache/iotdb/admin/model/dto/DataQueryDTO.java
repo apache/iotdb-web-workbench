@@ -21,6 +21,8 @@ package org.apache.iotdb.admin.model.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -32,5 +34,6 @@ public class DataQueryDTO implements Serializable {
 
   private Date endTime;
 
+  @NotEmpty(message = "物理量列表不能为空")
   private List<String> measurementList;
 }

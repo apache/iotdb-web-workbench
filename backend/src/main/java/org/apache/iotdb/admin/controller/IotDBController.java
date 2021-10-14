@@ -650,6 +650,9 @@ public class IotDBController {
       HttpServletRequest request)
       throws BaseException {
     check(request, serverId);
+    if (iotDBUser.getUserName().matches("^\\d+$")) {
+      throw new BaseException(ErrorCode.NOT_SUPPORT_ALL_DIGIT, ErrorCode.NOT_SUPPORT_ALL_DIGIT_MSG);
+    }
     Connection connection = connectionService.getById(serverId);
     iotDBService.setIotDBUser(connection, iotDBUser);
     return BaseVO.success("创建成功", null);
@@ -729,6 +732,9 @@ public class IotDBController {
       HttpServletRequest request)
       throws BaseException {
     check(request, serverId);
+    if (iotDBRole.getRoleName().matches("^\\d+$")) {
+      throw new BaseException(ErrorCode.NOT_SUPPORT_ALL_DIGIT, ErrorCode.NOT_SUPPORT_ALL_DIGIT_MSG);
+    }
     Connection connection = connectionService.getById(serverId);
     if (iotDBRole.getId() == null) {
       iotDBService.setIotDBRole(connection, iotDBRole);
@@ -1151,7 +1157,7 @@ public class IotDBController {
     long minuteTime = 60000L;
     long secondTime = 1000L;
     if (time == 0) {
-      return "milliSecond";
+      return "millisecond";
     }
     if ((time / yearTime != 0) && (time % yearTime == 0)) {
       return "year";

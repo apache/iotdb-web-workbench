@@ -645,6 +645,8 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       if (e.getStatusCode() == 602) {
         throw new BaseException(ErrorCode.NO_PRI_CREATE_USER, ErrorCode.NO_PRI_CREATE_USER_MSG);
+      } else if (e.getMessage().contains("already exists")) {
+        throw new BaseException(ErrorCode.USER_NAME_EXISTS, ErrorCode.USER_NAME_EXISTS_MSG);
       } else {
         throw new BaseException(ErrorCode.SET_DB_USER_FAIL, ErrorCode.SET_DB_USER_FAIL_MSG);
       }
@@ -667,6 +669,8 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       if (e.getStatusCode() == 602) {
         throw new BaseException(ErrorCode.NO_PRI_CREATE_ROLE, ErrorCode.NO_PRI_CREATE_ROLE_MSG);
+      } else if (e.getMessage().contains("already exists")) {
+        throw new BaseException(ErrorCode.ROLE_NAME_EXISTS, ErrorCode.ROLE_NAME_EXISTS_MSG);
       } else {
         throw new BaseException(ErrorCode.SET_DB_ROLE_FAIL, ErrorCode.SET_DB_ROLE_FAIL_MSG);
       }
@@ -914,6 +918,10 @@ public class IotDBServiceImpl implements IotDBService {
       sessionPool.executeNonQueryStatement(sql);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(
+            ErrorCode.NO_PRI_GRANT_PRIVILEGE, ErrorCode.NO_PRI_GRANT_PRIVILEGE_MSG);
+      }
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
@@ -2000,7 +2008,8 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   private void cancelPathPrivileges(
-      String name, String userOrRole, PrivilegeInfoDTO privilegeInfoDTO, SessionPool sessionPool) {
+      String name, String userOrRole, PrivilegeInfoDTO privilegeInfoDTO, SessionPool sessionPool)
+      throws BaseException {
     Integer type = privilegeInfoDTO.getType();
     List<String> delDevicePaths = privilegeInfoDTO.getDelDevicePaths();
     List<String> delGroupPaths = privilegeInfoDTO.getDelGroupPaths();
@@ -2202,7 +2211,8 @@ public class IotDBServiceImpl implements IotDBService {
       String name,
       String privilege,
       List<String> paths,
-      SessionPool sessionPool) {
+      SessionPool sessionPool)
+      throws BaseException {
     if (notNullAndNotZero(paths)) {
       for (String groupPath : paths) {
         String sql =
@@ -2219,8 +2229,13 @@ public class IotDBServiceImpl implements IotDBService {
           sessionPool.executeNonQueryStatement(sql);
         } catch (StatementExecutionException e) {
           logger.error(e.getMessage());
+          if (e.getStatusCode() == 602) {
+            throw new BaseException(
+                ErrorCode.NO_PRI_GRANT_PRIVILEGE, ErrorCode.NO_PRI_GRANT_PRIVILEGE_MSG);
+          }
         } catch (IoTDBConnectionException e) {
           logger.error(e.getMessage());
+          throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         }
       }
     }

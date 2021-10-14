@@ -31,6 +31,6 @@ public class SearchDTO implements Serializable {
 
   private List<String> sqls;
 
-  @NotNull(message = "不能为null")
+  @NotNull(message = "时间戳不能为null")
   private Long timestamp;
 }

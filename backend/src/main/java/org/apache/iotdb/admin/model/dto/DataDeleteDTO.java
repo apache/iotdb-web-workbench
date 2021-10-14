@@ -33,6 +33,6 @@ public class DataDeleteDTO implements Serializable {
   @NotEmpty(message = "时间戳不能为空")
   private List<Date> timestampList;
 
-  @NotEmpty(message = "物理量不能为空")
+  @NotEmpty(message = "物理量列表不能为空")
   private List<String> measurementList;
 }

@@ -350,23 +350,23 @@ public class ErrorCode {
   public static final String NO_PRI_REVOKE_USER_ROLE = "IOTDB-0075";
   public static final String NO_PRI_REVOKE_USER_ROLE_MSG = "没有权限撤销用户角色";
 
-  public static final String NO_PRI_GRANT_USER_PRIVILEGE = "IOTDB-0076";
-  public static final String NO_PRI_GRANT_USER_PRIVILEGE_MSG = "没有权限赋予用户权限";
-
-  public static final String NO_PRI_REVOKE_USER_PRIVILEGE = "IOTDB-0077";
-  public static final String NO_PRI_REVOKE_USER_PRIVILEGE_MSG = "没有权限撤销用户权限";
-
-  public static final String NO_PRI_GRANT_ROLE_PRIVILEGE = "IOTDB-0078";
-  public static final String NO_PRI_GRANT_ROLE_PRIVILEGE_MSG = "没有权限赋予角色权限";
-
-  public static final String NO_PRI_REVOKE_ROLE_PRIVILEGE = "IOTDB-0079";
-  public static final String NO_PRI_REVOKE_ROLE_PRIVILEGE_MSG = "没有权限撤销角色权限";
+  public static final String NO_PRI_GRANT_PRIVILEGE = "IOTDB-0076";
+  public static final String NO_PRI_GRANT_PRIVILEGE_MSG = "没有给用户或角色赋权的权限";
 
   public static final String GET_USER_PRIVILEGE_FAIL = "IOTDB-0080";
   public static final String GET_USER_PRIVILEGE_FAIL_MSG = "获取用户权限信息失败";
 
   public static final String GET_ROLE_PRIVILEGE_FAIL = "IOTDB-0081";
   public static final String GET_ROLE_PRIVILEGE_FAIL_MSG = "获取角色权限信息失败";
+
+  public static final String NOT_SUPPORT_ALL_DIGIT = "IOTDB-0082";
+  public static final String NOT_SUPPORT_ALL_DIGIT_MSG = "名称不能为纯数字";
+
+  public static final String USER_NAME_EXISTS = "IOTDB-0083";
+  public static final String USER_NAME_EXISTS_MSG = "用户名已存在";
+
+  public static final String ROLE_NAME_EXISTS = "IOTDB-0083";
+  public static final String ROLE_NAME_EXISTS_MSG = "角色名已存在";
 
   // 存储组表相关
   public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
