@@ -20,10 +20,10 @@
 <template>
   <div class="source-detail-container">
     <div v-if="showPermitDialog">
-      <permit-dialog :showPermitDialog="showPermitDialog" @cancelDialog="cancelDialog" />
+      <permit-dialog :showPermitDialog="showPermitDialog" :type="permitType" @cancelDialog="cancelDialog" />
     </div>
     <div v-if="showRoleDialog">
-      <role-dialog :showRoleDialog="showRoleDialog" :serverId="serverId" @cancelRoleDialog="cancelRoleDialog" @submitRoleDialog="submitRoleDialog" />
+      <role-dialog :showRoleDialog="showRoleDialog" :type="roleType" :editList="roleCheckeList" :serverId="serverId" @cancelRoleDialog="cancelRoleDialog" @submitRoleDialog="submitRoleDialog" />
     </div>
     <div class="info-box">
       <TreeSelect :data="treeData" :selectArray="selectArray" :checkedKeys="checkedKeys" />
@@ -91,10 +91,17 @@
                 <!-- <p class="title clearfix">
                   <el-button type="text" @click="newUser()">{{ $t('sourcePage.newAccount') }}</el-button>
                 </p> -->
-                <el-button class="button-special title" @click="newUser()">{{ $t('sourcePage.userAccount') }}{{ $t('sourcePage.newAccount') }}</el-button>
+                <el-button class="button-special title clearfix" @click="newUser()">
+                  <span>{{ $t('sourcePage.userAccount') }}</span>
+                  <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#icon-add1"></use></svg
+                ></el-button>
                 <ul class="user-list">
                   <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
                     <!-- <el-tooltip class="item" width="200" effect="dark" :content="item.username" placement="top"> -->
+                    <div class="active-circle">
+                      <div class="small-circle"></div>
+                    </div>
                     <span class="content">{{ item.username }}</span>
                     <!-- </el-tooltip> -->
                     <el-popconfirm placement="top" :title="$t('sourcePage.deleteUserConfirm')" @confirm="deleteUser(item)">
@@ -110,7 +117,7 @@
                 </ul>
               </div>
               <div class="right-part">
-                <el-button class="auth-add-btn" type="text" v-if="activeName == '2' && baseInfoForm.userName !== 'root'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
+                <el-button class="auth-add-btn" type="text" v-if="activeName == '2' && baseInfoForm.userName !== 'root'" @click="authAdd(0)">{{ $t('sourcePage.addAuthBtn') }}</el-button>
                 <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs">
                   <el-tab-pane :label="$t('sourcePage.baseConfig')" name="1">
                     <template v-if="activeIndex !== null">
@@ -153,7 +160,7 @@
                                 </svg>
                               </li>
                             </ul>
-                            <svg class="icon" aria-hidden="true" v-if="editRole" @click="addRole()">
+                            <svg class="icon" aria-hidden="true" v-if="editRole" @click="addRole(1)">
                               <use xlink:href="#icon-add1"></use>
                             </svg>
                             <div v-if="editRole">
@@ -180,7 +187,7 @@
                                 </svg>
                               </li>
                             </ul>
-                            <svg class="icon" aria-hidden="true" @click="addRole()">
+                            <svg class="icon" aria-hidden="true" @click="addRole(0)">
                               <use xlink:href="#icon-add1"></use>
                             </svg>
                           </el-form-item>
@@ -595,6 +602,7 @@ import UserRole from './components/role/Index.vue';
 import { useI18n } from 'vue-i18n';
 import DataModal from './components/dataModal.vue';
 import axios from '@/util/axios.js';
+import setOperation from '@/util/setOperation.js';
 
 // import { useStore } from 'vuex';
 
@@ -915,7 +923,8 @@ export default {
     /**
      * 数据管理权限弹框是否展示
      */
-    let showPermitDialog = ref(false);
+    let showPermitDialog = ref(true);
+    let permitType = ref(0);
     watch(locale, () => {
       funcList.value = {
         0: funcTypeOne(),
@@ -1010,8 +1019,7 @@ export default {
     /**
      * 获取用户权限管理权限
      */
-    const getPermitPermissionList = (userinfo) => {
-      debugger;
+    const getPermitPermissionList = (userinfo, type) => {
       axios.get(`/servers/${serverId.value}/users/${userinfo.username || baseInfoForm.userName}/authorityPrivilege`, {}).then((rs) => {
         console.log(rs);
         if (rs && rs.code == 0) {
@@ -1049,7 +1057,7 @@ export default {
           roleRelationAll.value = roleRelationItemsTemp.length == 5 ? true : false;
           udfRelationAll.value = udfRelationItemsTemp.length == 2 ? true : false;
           triggerRelationAll.value = triggerRelationItemsTemp.length == 4 ? true : false;
-          if (baseInfoForm.userName == 'root') {
+          if (type && type == 1) {
             checkPermitAuth();
           }
         }
@@ -1131,16 +1139,23 @@ export default {
         if (valid) {
           axios.post(`/servers/${serverId.value}/users/`, { ...reqObj }).then((rs) => {
             if (rs && rs.code == 0) {
-              axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/grant`, { roleList: roleCheckeList.value }).then((rs) => {
-                if (rs && rs.code == 0) {
-                  ElMessage.success(t('sourcePage.addSuccessLabel'));
-                  cancelNew(reqObj.userName);
-                }
+              let data = { roleList: roleCheckeList.value };
+              grantRole(data, () => {
+                ElMessage.success(t('sourcePage.addSuccessLabel'));
+                cancelNew(reqObj.userName);
               });
-              // ElMessage.success(t('sourcePage.addSuccessLabel'));
-              // cancelNew(reqObj.userName);
             }
           });
+        }
+      });
+    };
+    /**
+     * 给用户角色赋权
+     */
+    const grantRole = (data, func) => {
+      axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/grant`, data).then((rs) => {
+        if (rs && rs.code == 0) {
+          func && func();
         }
       });
     };
@@ -1298,6 +1313,8 @@ export default {
     };
     let showRoleDialog = ref(false);
     let editRole = ref(false);
+    let roleEditObj = ref([]);
+    let roleType = ref(0);
     const editRoleInfo = () => {
       if (!canModifyPassword.value) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
@@ -1308,11 +1325,12 @@ export default {
     /**
      * 添加角色
      */
-    const addRole = () => {
+    const addRole = (type) => {
       if (!canAuthRole.value) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
+      roleType.value = type;
       showRoleDialog.value = true;
     };
     const deleteRole = (item) => {
@@ -1322,19 +1340,30 @@ export default {
       roleCheckeList.value = temp;
     };
     const cancelEditRole = () => {
-      console.log(1);
+      editRole.value = false;
+      getUserInfo({ username: baseInfoForm.userName });
     };
     const doEditRole = () => {
-      console.log(1);
+      let temp = roleCheckeListTemp.value;
+      let deleteArr = setOperation(temp, roleCheckeList.value);
+      let newArr = setOperation(roleCheckeList.value, temp);
+      console.log(deleteArr);
+      console.log(newArr);
+      let data = { roleList: newArr, cancelRoleList: deleteArr };
+      grantRole(data, () => {
+        ElMessage.success(t('sourcePage.editSuccessLabel'));
+        editRole.value = false;
+      });
     };
     /**
      * 添加权限按钮
      */
-    const authAdd = () => {
+    const authAdd = (type) => {
       if (!canAuth.value) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
+      permitType.value = type
       showPermitDialog.value = true;
       // for (let i = 0; i < authTableData.value.length; i++) {
       //   if (authTableData.value[i].new) {
@@ -1362,6 +1391,8 @@ export default {
       showRoleDialog.value = false;
     };
     const roleCheckeList = ref([]);
+    const roleCheckeListTemp = ref([]);
+
     const submitRoleDialog = (data) => {
       roleCheckeList.value = data;
       showRoleDialog.value = false;
@@ -1426,6 +1457,7 @@ export default {
           userAuthInfoTemp.value.password = rs.data.password;
           userAuthInfoTemp.value.roleList = rs.data.roleList;
           roleCheckeList.value = rs.data.roleList || [];
+          roleCheckeListTemp.value = JSON.parse(JSON.stringify(rs.data.roleList || []));
           baseInfoForm.userName = userinfo.username;
           baseInfoForm.password = rs.data.password;
           baseInfoForm.roleList = rs.data.roleList || [];
@@ -1433,6 +1465,7 @@ export default {
           userAuthInfo.value = {};
           userAuthInfoTemp.value = {};
           roleCheckeList.value = [];
+          roleCheckeListTemp.value = [];
 
           baseInfoForm.userName = '';
           baseInfoForm.password = '';
@@ -1457,6 +1490,7 @@ export default {
       }
     };
     const checkPermitAuth = () => {
+      console.log(1111);
       canCreateUser.value = permitPermissionListTemp.value.indexOf('CREATE_USER') >= 0 ? true : false;
       canDeleteUser.value = permitPermissionListTemp.value.indexOf('DELETE_USER') >= 0 ? true : false;
       canModifyPassword.value = permitPermissionListTemp.value.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
@@ -1787,7 +1821,7 @@ export default {
       getBaseInfo((data) => {
         //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
         getUserAuth(data, 1);
-        getPermitPermissionList(data);
+        getPermitPermissionList(data, 1);
       });
       getGroupList();
       getUserList(1);
@@ -1818,6 +1852,7 @@ export default {
       deleteUser,
       newUser,
       doCreate,
+      grantRole,
       isNew,
       cancelNew,
       authTableData,
@@ -1847,6 +1882,7 @@ export default {
       cancelRoleDialog,
       submitRoleDialog,
       roleCheckeList,
+      roleCheckeListTemp,
       doEdit,
       deleteRowAuth,
       changeType,
@@ -1879,6 +1915,8 @@ export default {
       changeTriggerRelation,
       showPermitDialog,
       showRoleDialog,
+      roleEditObj,
+      roleType,
       editRole,
       goToAllModal,
       getPermitPermissionList,
@@ -2019,10 +2057,15 @@ export default {
             line-height: 40px;
             padding: 0 20px;
             margin-bottom: 4px;
+            border-color: #f9fbfc;
+            text-align: left;
+            .icon {
+              margin-top: 7px;
+              float: right;
+            }
             button {
               float: right;
               font-size: 12px;
-              margin-top: -7px;
               padding-right: 0;
             }
           }
@@ -2030,10 +2073,31 @@ export default {
             margin-bottom: 10px;
             overflow: auto;
             background: #f9fbfc;
-
-            background: #f9fbfc;
             padding-top: 10px;
             height: calc(100% - 50px);
+            padding-left: 10px;
+            .active-circle {
+              width: 20px;
+              height: 20px;
+              background: #edf8f5;
+              border-radius: 50%;
+              display: inline-block;
+              align-items: center;
+              justify-content: center;
+              margin-right: 10px;
+              visibility: hidden;
+              position: relative;
+              vertical-align: middle;
+              .small-circle {
+                width: 7px;
+                height: 7px;
+                background: #13c393;
+                border-radius: 50%;
+                position: absolute;
+                left: 7px;
+                top: 7px;
+              }
+            }
             .active {
               color: #7a859eff;
               background: #ffffff;
@@ -2044,7 +2108,7 @@ export default {
               line-height: 36px;
               position: relative;
               font-size: 12px;
-              padding: 0 16px;
+              padding: 0 10px;
               cursor: pointer;
               .content {
                 display: inline-block;
@@ -2052,11 +2116,20 @@ export default {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 height: 36px;
+                vertical-align: middle;
               }
               .icon {
                 position: absolute;
                 right: 16px;
                 top: 12px;
+              }
+              &:hover {
+                color: #7a859eff;
+                background: #ffffff;
+                border-radius: 30px 0px 0px 30px;
+                .active-circle {
+                  visibility: inherit;
+                }
               }
             }
           }
@@ -2065,7 +2138,10 @@ export default {
           flex: 1;
           position: relative;
           &:deep(.el-input__suffix .el-input__icon) {
-            line-height: 42px !important;
+            // line-height: 42px !important;
+          }
+          &:deep(.el-input__icon) {
+            line-height: 28px !important;
           }
           .auth-add-btn {
             position: absolute;

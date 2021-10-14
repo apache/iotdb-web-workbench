@@ -1,12 +1,13 @@
 <template>
   <div id="mains" class="mains-contain">
-    <el-dialog v-model="showPermitDialogs" title="Tips" width="30%" :before-close="handleClose">
-      <p>数据粒度</p>
-      <p>存储组</p>
+    <el-dialog v-model="showPermitDialogs" :title="type == 1 ? '编辑权限' : '新增权限'" width="30%" :before-close="handleClose">
+      <el-form ref="permitFormRef" :model="permitForm" :rules="permitRules" label-position="top" class="permit-form">
+        <el-form-item :label="$t('sourcePage.path')"> aaa </el-form-item>
+      </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="handleCancel()">Cancel</el-button>
-          <el-button type="primary" @click="handleSubmit()">Confirm</el-button>
+          <el-button @click="handleCancel()">{{ $t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleSubmit()">{{ $t('common.submit') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -17,7 +18,7 @@
 // @ is an alias to /src
 import { onMounted, ref, watch } from 'vue';
 import { ElDialog } from 'element-plus';
-// import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n';
 // import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
 // import { useRouter, useRoute } from 'vue-router';
@@ -28,9 +29,13 @@ export default {
       type: Boolean,
       default: () => {},
     },
+    type: {
+      type: Number,
+      default: () => {},
+    },
   },
   setup(props, { emit }) {
-    // const { t } = useI18n();
+    const { t } = useI18n();
     // const router = useRouter();
     // const route = useRoute();
     let showPermitDialogs = ref(false);
@@ -54,6 +59,7 @@ export default {
     });
     // onActivated(() => {});
     return {
+      t,
       showPermitDialogs,
       handleClose,
       handleSubmit,

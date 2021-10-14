@@ -158,6 +158,7 @@ const en = {
       addAuthBtn: 'add auth',
       modifySuccessLabel: 'you have modify password successful',
       addSuccessLabel: 'you have create user successful',
+      editSuccessLabel: 'you have edit user successful',
       deleteUserSuccessLabel: 'you have delete user successful',
       addFirstLabel: 'please do create user present first',
       deleteAuthLabel: 'you have delete authorition successful',

@@ -21,7 +21,7 @@
             <ul>
               <li v-for="item in checkList" :key="item" class="check-item clearfix">
                 <span>{{ item }}</span>
-                <el-button class="btn" type="text" size="small" @click="deleteOneChecked(item)">{{ $t('common.delete') }}</el-button>
+                <el-button class="btn el-button-delete" type="text" size="small" @click="deleteOneChecked(item)">{{ $t('common.delete') }}</el-button>
               </li>
             </ul>
           </div>
@@ -56,6 +56,14 @@ export default {
     },
     serverId: {
       type: String,
+      default: () => {},
+    },
+    type: {
+      type: Number,
+      default: () => {},
+    },
+    editList: {
+      type: Object,
       default: () => {},
     },
   },
@@ -118,6 +126,9 @@ export default {
     onMounted(() => {
       showRoleDialogs.value = props.showRoleDialog;
       getRoleList();
+      if (props.type == 1) {
+        checkList.value = props.editList;
+      }
     });
     // onActivated(() => {});
     return {
