@@ -135,7 +135,7 @@ export default {
     const getGroupDetail = () => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${router.currentRoute.value.params.groupname}`, {}).then((res) => {
         if (res && res.code == 0) {
-          form.groupName = res.data.groupName;
+          form.groupName = res.data.groupName.split('').splice(5).join('');
           form.ttl = res.data.ttl;
           form.ttiUnit = res.data.ttiUnit;
           form.description = res.data.description;
@@ -154,7 +154,7 @@ export default {
             return false;
           }
           const reqObj = {
-            groupName: form.groupName,
+            groupName: 'root.' + form.groupName,
             description: form.description,
             ttl: form.ttl == '' || form.ttl == null ? null : +form.ttl,
             ttlUnit: form.ttiUnit || null,
