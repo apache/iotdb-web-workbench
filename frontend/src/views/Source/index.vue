@@ -19,9 +19,7 @@
 
 <template>
   <div class="source-detail-container">
-    <div v-if="showPermitDialog">
-      <permit-dialog :showPermitDialog="showPermitDialog" :type="permitType" @cancelDialog="cancelDialog" />
-    </div>
+    <permit-dialog ref="permitDialogRef" :showPermitDialog="showPermitDialog" :type="permitType" @cancelDialog="cancelDialog" />
     <div v-if="showRoleDialog">
       <role-dialog :showRoleDialog="showRoleDialog" :type="roleType" :editList="roleCheckeList" :serverId="serverId" @cancelRoleDialog="cancelRoleDialog" @submitRoleDialog="submitRoleDialog" />
     </div>
@@ -617,6 +615,7 @@ export default {
     // const store = useStore();
 
     let showDialog = ref(false);
+    let permitDialogRef = ref(null);
     let types = ref(0);
     let activeName = ref('1');
     let sourceTabs = ref('d');
@@ -1365,6 +1364,7 @@ export default {
       }
       permitType.value = type;
       showPermitDialog.value = true;
+      permitDialogRef.value.open({ type: 'add', origin: 'user' });
       // for (let i = 0; i < authTableData.value.length; i++) {
       //   if (authTableData.value[i].new) {
       //     ElMessage.error(t(`sourcePage.addAuthFirstLabel`));

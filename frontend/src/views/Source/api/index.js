@@ -62,9 +62,44 @@ export default {
     let { serverId, roleName } = params;
     return axios.get(`/servers/${serverId}/roles/${roleName}/authorityPrivilege`);
   },
-  //修改角色权限管理权限
+  //修改角色管理权限
   editAuthPrivilege(params, payload) {
     let { serverId, roleName } = params;
     return axios.post(`/servers/${serverId}/roles/${roleName}/authorityPrivilege`, payload);
+  },
+  //获取角色数据管理权限
+  getDataPrivilege(params) {
+    let { serverId, roleName } = params;
+    return axios.get(`/servers/${serverId}/roles/${roleName}/dataPrivilege`);
+  },
+  //修改角色数据管理权限
+  editDataPrivilege(params, payload) {
+    let { serverId, roleName } = params;
+    return axios.post(`/servers/${serverId}/roles/${roleName}/dataPrivilege`, payload);
+  },
+  //获取存储组列表(节点树形结构)
+  getStorageGroupTree(params) {
+    let { serverId } = params;
+    return axios.get(`/servers/${serverId}/storageGroups/nodeTree`);
+  },
+  //获取存储组列表(平铺)
+  getStorageGroup(params) {
+    let { serverId } = params;
+    return axios.get(`/servers/${serverId}/storageGroups`);
+  },
+  //获取指定存储组下的实体列表(节点树形结构)
+  getDeviceTreeByGroup(params) {
+    let { serverId, groupName } = params;
+    return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/nodeTree`);
+  },
+  //获取指定存储组下的实体列表
+  getDeviceByGroup(params) {
+    let { serverId, groupName } = params;
+    return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices`);
+  },
+  //获取指定设备下的物理量列表
+  getTimeseries(params) {
+    let { serverId, groupName, deviceName } = params;
+    return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries`);
   },
 };

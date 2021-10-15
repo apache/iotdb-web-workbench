@@ -10,7 +10,7 @@
       </div>
     </div>
     <ul v-if="roleList.length" class="role-list">
-      <li v-for="item in roleList" :key="item" class="role-list-item" @click="clickRole(item)">
+      <li v-for="item in roleList" :key="item" :class="[activeRole === item ? 'active-item' : '']" class="role-list-item" @click="clickRole(item)">
         <div :class="[activeRole === item ? 'circle active-circle' : 'circle']">
           <div class="small-circle"></div>
         </div>
@@ -169,6 +169,9 @@ export default {
     color: #7a859e;
     height: calc(100% - 44px);
     overflow: auto;
+    .active-item {
+      background: #ffffff;
+    }
     &-item {
       width: 100%;
       transition: all 0.2s;
@@ -179,11 +182,11 @@ export default {
       display: flex;
       position: relative;
       cursor: pointer;
+      border-radius: 30px 0px 0px 30px;
 
       &:hover {
         background: #ffffff;
         color: #333333;
-        border-radius: 30px 0px 0px 30px;
         .circle {
           background: #ffffff;
           .small-circle {
