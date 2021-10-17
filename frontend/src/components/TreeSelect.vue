@@ -84,11 +84,13 @@ export default {
     const handleCheckChange = () => {
       let res = treeRef.value.getCheckedNodes(false, false); //这里两个true，1. 是否只是叶子节点 2. 是否包含半选节点（就是使得选择的时候不包含父节点）
       mineStatus.value = res.map((d) => d.name);
-      debugger
       mineStatusValue.value = res;
       emit('change', filterValue(mineStatus.value));
     };
     const filterValue = (origin) => {
+      if (origin.includes('所有存储组') || origin.includes('所有实体')) {
+        return treeList.value.filter((d) => d.level === 2).map((i) => i.name);
+      }
       origin.forEach((d) => {
         let obj = treeList.value.find((i) => i.name === d);
         if (obj) {
@@ -127,7 +129,7 @@ export default {
           level: 1,
           path: [
             {
-              id: '0',
+              id: '-1',
               name: nameType.value,
             },
           ],
@@ -146,7 +148,7 @@ export default {
       treeRef,
       treeData,
       filterValue,
-      placeholder
+      placeholder,
     };
   },
 };
