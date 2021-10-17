@@ -7,7 +7,7 @@
       </el-tab-pane>
       <template v-if="current.id">
         <el-tab-pane :label="$t('sourcePage.dataManagePrivilege')" name="dataManagePrivilege">
-          <data-manage></data-manage>
+          <data-manage :roleInfo="current"></data-manage>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission"> 
           <auth-manage :roleInfo="current" :base-info="baseInfo"></auth-manage>

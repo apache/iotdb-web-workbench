@@ -19,7 +19,9 @@
 
 <template>
   <div class="source-detail-container">
-    <permit-dialog ref="permitDialogRef" :showPermitDialog="showPermitDialog" :type="permitType" @cancelDialog="cancelDialog" />
+    <div v-if="showPermitDialog">
+      <permit-dialog ref="permitDialogRef" :showPermitDialog="showPermitDialog" :type="permitType" @cancelDialog="cancelDialog" />
+    </div>
     <div v-if="showRoleDialog">
       <role-dialog :showRoleDialog="showRoleDialog" :type="roleType" :editList="roleCheckeList" :serverId="serverId" @cancelRoleDialog="cancelRoleDialog" @submitRoleDialog="submitRoleDialog" />
     </div>

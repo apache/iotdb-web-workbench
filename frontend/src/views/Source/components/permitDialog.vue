@@ -1,6 +1,6 @@
 <template>
   <div id="mains" class="mains-contain">
-    <el-dialog v-model="visible" :title="dialogType == 'add' ? '编辑权限' : '新增权限'" width="520px" :before-close="handleClose">
+    <el-dialog v-model="visible" :title="dialogType === 'add' ? '新增权限' : '编辑权限'" width="520px" :before-close="handleClose">
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="permit-form">
         <el-form-item :props="type" :label="$t('sourcePage.path')">
           <el-radio-group v-model="form.type" @change="changeRadio">
@@ -35,13 +35,15 @@
           </template>
         </el-form-item>
         <el-form-item :props="path" :label="$t('sourcePage.selectPermissions')">
-          <tree-select></tree-select>
+          <el-checkbox-group v-model="form.privileges">
+            <el-checkbox v-for="item in dataPrivileges[form.type]" :key="item.id" :label="item.id" :value="item.id">{{ item.label }}</el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="handleCancel()">{{ $t('common.cancel') }}</el-button>
-          <el-button type="primary" @click="handleSubmit()">{{ $t('common.submit') }}</el-button>
+          <el-button @click="handleCancel">{{ $t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleSubmit">{{ $t('common.submit') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -62,6 +64,7 @@ export default {
   name: 'PermitDialog',
   setup(props, { emit }) {
     const { t, locale } = useI18n();
+    let checkList = ref([]);
     let visible = ref(false);
     let dialogType = ref({});
     let originType = ref({});
@@ -115,7 +118,7 @@ export default {
     let DataGranularityMap = reactive(dataMap);
 
     let dataPrivileges = ref({
-      [DataGranularityMap.dataLink]: [
+      0: [
         { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
         {
           id: 'CREATE_TIMESERIES',
@@ -131,7 +134,7 @@ export default {
           label: t('sourcePage.deleteTimeSeries'),
         },
       ],
-      [DataGranularityMap.group]: [
+      1: [
         { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
         {
           id: 'CREATE_TIMESERIES',
@@ -147,7 +150,7 @@ export default {
           label: t('sourcePage.deleteTimeSeries'),
         },
       ],
-      [DataGranularityMap.device]: [
+      2: [
         {
           id: 'CREATE_TIMESERIES',
           label: t('sourcePage.createTimeSeries'),
@@ -162,7 +165,7 @@ export default {
           label: t('sourcePage.deleteTimeSeries'),
         },
       ],
-      [DataGranularityMap.timeSeries]: [
+      3: [
         {
           id: 'INSERT_TIMESERIES',
           label: t('sourcePage.insertTimeSeries'),
@@ -192,7 +195,7 @@ export default {
     });
     watch(locale, () => {
       dataPrivileges.value = {
-        [DataGranularityMap.dataLink]: [
+        0: [
           { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
           {
             id: 'CREATE_TIMESERIES',
@@ -208,7 +211,7 @@ export default {
             label: t('sourcePage.deleteTimeSeries'),
           },
         ],
-        [DataGranularityMap.group]: [
+        1: [
           { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
           {
             id: 'CREATE_TIMESERIES',
@@ -224,7 +227,7 @@ export default {
             label: t('sourcePage.deleteTimeSeries'),
           },
         ],
-        [DataGranularityMap.device]: [
+        2: [
           {
             id: 'CREATE_TIMESERIES',
             label: t('sourcePage.createTimeSeries'),
@@ -239,7 +242,7 @@ export default {
             label: t('sourcePage.deleteTimeSeries'),
           },
         ],
-        [DataGranularityMap.timeSeries]: [
+        3: [
           {
             id: 'INSERT_TIMESERIES',
             label: t('sourcePage.insertTimeSeries'),
@@ -268,11 +271,13 @@ export default {
       originType.value = origin;
       oldForm.value = data;
       visible.value = true;
+      form.type = 0;
+      form.privileges = [];
     };
     // 改变存储组/实体的树形
     const changeTreeValue = (data, type) => {
-      if (type === DataGranularityMap.device) {
-        storage = data;
+      if (type === DataGranularityMap.group) {
+        storage.value = data;
       } else {
         device.device = data;
       }
@@ -291,7 +296,7 @@ export default {
 
     // 数据粒度为物理量的时候, 改变实体
     const changeDeviceInTime = (deviceName) => {
-      time.device = device;
+      time.device = deviceName;
       getTimeseries({ serverId, deviceName, groupName: time.storage });
     };
 
@@ -304,6 +309,7 @@ export default {
 
     const changeRadio = async (radio) => {
       let value = Number(radio);
+      form.privileges = [];
       // 存储组
       if (value === 1) {
         getStorageGroupTree();
@@ -339,16 +345,35 @@ export default {
       visible.value = false;
     };
     const handleCancel = () => {
-      showPermitDialogs.value = false;
-      emit('cancelDialog');
+      visible.value = false;
     };
-    const handleSubmit = () => {};
+    const handleSubmit = () => {
+      let { type, privileges } = form;
+      let range = [];
+      if (type === 0) {
+        range = [];
+      } else if (type === 1) {
+        range = storage.value;
+      } else if (type === 2) {
+        range = { ...device };
+        if (range.device.includes(null)) {
+          range.device = options.deviceOption.filter((d) => d.id !== null).map((i) => i.name);
+        }
+      } else if (type === 3) {
+        range = { ...time };
+        if (range.time.includes(null)) {
+          range.time = options.timeSeriesOption.filter((d) => d.id !== null).map((i) => i.name);
+        }
+      }
+      emit('submit', { type, range, privileges, dialogType: dialogType.value });
+    };
     onMounted(() => {
       console.log(dataPrivileges.value);
       showPermitDialogs.value = props.showPermitDialog;
     });
     return {
       t,
+      checkList,
       locale,
       visible,
       dialogType,
