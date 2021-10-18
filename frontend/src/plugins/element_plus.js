@@ -14,8 +14,8 @@ import {
   // ElMenuItemGroup,
   ElInput,
   ElInputNumber,
-  // ElRadio,
-  // ElRadioGroup,
+  ElRadio,
+  ElRadioGroup,
   // ElRadioButton,
   ElCheckbox,
   // ElCheckboxButton,
@@ -99,8 +99,8 @@ export default {
     // Vue.use(ElMenuItemGroup);
     Vue.use(ElInput);
     Vue.use(ElInputNumber);
-    // Vue.use(ElRadio);
-    // Vue.use(ElRadioGroup);
+    Vue.use(ElRadio);
+    Vue.use(ElRadioGroup);
     // Vue.use(ElRadioButton);
     Vue.use(ElCheckbox);
     // Vue.use(ElCheckboxButton);

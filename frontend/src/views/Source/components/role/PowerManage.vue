@@ -6,7 +6,9 @@
         <role-info :roleInfo="current" :role-list="roleList"></role-info>
       </el-tab-pane>
       <template v-if="current.id">
-        <el-tab-pane :label="$t('sourcePage.dataManagePrivilege')" name="dataManagePrivilege"> </el-tab-pane>
+        <el-tab-pane :label="$t('sourcePage.dataManagePrivilege')" name="dataManagePrivilege">
+          <data-manage :roleInfo="current"></data-manage>
+        </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission"> 
           <auth-manage :roleInfo="current" :base-info="baseInfo"></auth-manage>
         </el-tab-pane>
@@ -21,6 +23,7 @@ import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 import RoleInfo from './RoleInfo.vue';
 import AuthManage from './AuthManage';
+import DataManage from './DataManage';
 export default {
   name: 'PowerManage',
   props: {
@@ -52,6 +55,7 @@ export default {
   components: {
     RoleInfo,
     AuthManage,
+    DataManage
   },
 };
 </script>

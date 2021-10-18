@@ -112,6 +112,7 @@ const de = {
       path: 'Pfad',
       range: 'Bereich',
       func: 'Funktion',
+      selectPermissions: 'Wählen Sie Berechtigungen',
       selectAlias: 'Verbindung',
       selectGroup: 'Gruppe',
       selectDevice: 'Device',

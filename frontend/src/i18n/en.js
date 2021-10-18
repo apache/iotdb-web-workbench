@@ -123,6 +123,7 @@ const en = {
       path: 'path',
       range: 'range',
       func: 'function',
+      selectPermissions: 'Select permissions',
       selectAlias: 'connection',
       selectGroup: 'group',
       selectDevice: 'entity',
