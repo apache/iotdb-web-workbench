@@ -12,7 +12,11 @@ import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import img1 from '../../../assets/storage.png';
-
+import img2 from '../../../assets/data.png';
+import img3 from '../../../assets/device.png';
+var MyChart = '';
+var treeTopPadding = 120; //tree距顶端的距离
+var rightNode; //最右侧节点,用于计算偏移量
 export default {
   name: 'DataModal',
   //   props: ['func'],
@@ -34,7 +38,7 @@ export default {
     };
     const initCharts = () => {
       // 基于准备好的dom，初始化echarts实例
-      let myChart = echarts.init(document.getElementById('main'));
+      MyChart = echarts.init(document.getElementById('main'));
 
       // 指定图表的配置项和数据
       let option = {
@@ -83,8 +87,8 @@ export default {
 
               textStyle: {
                 color: '#000',
-                fontSize: 12,
                 backgroundColor: '#fff',
+                fontSize: 12,
                 fontWeight: 500,
                 baseline: 'middle',
               },
@@ -94,12 +98,29 @@ export default {
                     image: img1,
                   },
                 },
+                img1: {
+                  backgroundColor: {
+                    image: img2,
+                  },
+                },
+                img2: {
+                  backgroundColor: {
+                    image: img3,
+                  },
+                },
                 style: {
                   padding: [0, 0, 0, 6],
                 },
               },
               formatter: (params) => {
-                return '{img|}' + '{style|' + `${params.data.name}` + '}';
+                console.log(params);
+                if (params.data.isGroup) {
+                  return '{img|}' + '{style|' + `${params.data.name}` + '}';
+                } else if (params.data.isDevice) {
+                  return '{img2|}' + '{style|' + `${params.data.name}` + '}';
+                } else if (params.data.isMeasurement) {
+                  return '{img1|}' + '{style|' + `${params.data.name}` + '}';
+                }
               },
             },
 
@@ -118,8 +139,61 @@ export default {
       };
 
       // 使用刚指定的配置项和数据显示图表。
-      myChart.setOption(option);
+      MyChart.setOption(option);
+      // adjustTreeView();
     };
+    const adjustTreeView = () => {
+      var zr = MyChart.getZrender();
+
+      var domWidth = zr.painter.getWidth();
+
+      var treeWidth = getTreeWidth(zr);
+
+      if (treeWidth <= domWidth) return;
+
+      var adjustSize = (domWidth / treeWidth) * 0.95; //多缩小0.05不至于完全充盈dom
+
+      var lastNodeX = rightNode.style.x * adjustSize;
+
+      var rightOffset = domWidth - lastNodeX - (domWidth - treeWidth * adjustSize) / 2; //尽可能的让其居中
+
+      zr.painter._layers[1].scale = [adjustSize, adjustSize, 0, 0]; //前两个为缩放大小，后两个为缩放原点
+
+      zr.painter._layers[1].position = [rightOffset, treeTopPadding]; //偏移量
+
+      MyChart.refresh();
+    };
+
+    //计算最左边节点和最右边节点（symbol为image或icon）的间隔即为树图宽度
+
+    const getTreeWidth = (zr) => {
+      var nodes = zr.storage._roots;
+
+      var max = 0;
+
+      var min = 0;
+
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].type == 'image' || nodes[i].type == 'icon') {
+          var nodeX = nodes[i].style.x;
+
+          if (nodeX > max) {
+            max = nodeX;
+
+            rightNode = nodes[i];
+
+            continue;
+          }
+
+          if (nodeX < min) {
+            min = nodeX;
+          }
+        }
+      }
+
+      return max - min;
+    };
+
     // const resize = () => {
     //   let myChart = echarts.init(document.getElementById('main'));
     // let eleArr = Array.from(new Set(myChart._chartViews[0]._data._graphicEls));
@@ -141,6 +215,8 @@ export default {
       datas,
       getModalTreeData,
       initCharts,
+      adjustTreeView,
+      getTreeWidth,
     };
   },
   components: {

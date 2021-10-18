@@ -12,6 +12,8 @@ import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router';
 import img1 from '../../../assets/storage.png';
+import img2 from '../../../assets/data.png';
+import img3 from '../../../assets/device.png';
 var MyChart = '';
 export default {
   name: 'DataModals',
@@ -40,7 +42,7 @@ export default {
      * children子集数据
      */
     const dealData = (data, children) => {
-      if (children.length >= 10) {
+      if (children.length > 10) {
         data.pageNum = 1;
         data.totalPage = Math.ceil(children.length / 10);
         data.childrensTemp = JSON.parse(JSON.stringify(children));
@@ -186,12 +188,29 @@ export default {
                     image: img1,
                   },
                 },
+                img1: {
+                  backgroundColor: {
+                    image: img2,
+                  },
+                },
+                img2: {
+                  backgroundColor: {
+                    image: img3,
+                  },
+                },
                 style: {
                   padding: [0, 0, 0, 6],
                 },
               },
               formatter: (params) => {
-                return '{img|}' + '{style|' + `${params.data.name}` + '}';
+                console.log(params);
+                if (params.data.isGroup) {
+                  return '{img|}' + '{style|' + `${params.data.name}` + '}';
+                } else if (params.data.isDevice) {
+                  return '{img2|}' + '{style|' + `${params.data.name}` + '}';
+                } else if (params.data.isMeasurement) {
+                  return '{img1|}' + '{style|' + `${params.data.name}` + '}';
+                }
               },
             },
 

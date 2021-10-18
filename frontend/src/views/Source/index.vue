@@ -203,7 +203,7 @@
                     <template v-if="activeIndex !== null">
                       <p class="auth-tips">{{ $t('sourcePage.authTips') }}</p>
                       <el-table :data="authTableData" style="width: 100%">
-                        <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
+                        <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="80">
                           <template #default="scope">
                             <span v-if="!scope.row.edit">{{ pathMap[scope.row.type] }}</span>
                             <el-select v-if="scope.row.edit" v-model="scope.row.type" :disabled="!scope.row.new" @change="changeType(scope.row.type, scope)">
@@ -211,7 +211,7 @@
                             </el-select>
                           </template>
                         </el-table-column>
-                        <el-table-column :label="$t('sourcePage.range')">
+                        <el-table-column :label="$t('sourcePage.range')" width="280">
                           <template #default="scope">
                             <div v-if="scope.row.type == 0">-</div>
                             <div v-else-if="scope.row.type == 1">
@@ -221,8 +221,20 @@
                                 </el-select>
                               </div>
                               <div v-else>
-                                <p>{{ $t('sourcePage.groupNameLabel') }}</p>
-                                <span v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</span>
+                                <span>{{ $t('sourcePage.groupNameLabel') }} {{ scope.row.groupPaths.length || 0 }} 个</span>
+                                <el-popover placement="top" width="180" trigger="hover">
+                                  <div style="margin: 0">
+                                    {{ $t('sourcePage.groupNameLabel') }}
+                                    <div v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</div>
+                                  </div>
+                                  <template v-slot:reference>
+                                    <div class="popover-btns">
+                                      <svg class="icon" aria-hidden="true">
+                                        <use xlink:href="#icon-se-icon-caret-bottom"></use>
+                                      </svg>
+                                    </div>
+                                  </template>
+                                </el-popover>
                               </div>
                             </div>
                             <div v-else-if="scope.row.type == 2">
@@ -235,10 +247,23 @@
                                 </el-select>
                               </div>
                               <div v-else>
-                                <p>{{ $t('sourcePage.groupNameLabel') }}</p>
-                                <span class="device-path">{{ scope.row.groupPaths[0] }}</span>
-                                <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
-                                <span v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</span>
+                                <span>{{ $t('sourcePage.groupNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp;
+                                <span>{{ $t('sourcePage.deviceNameLabel') }} {{ scope.row.devicePaths.length || 0 }} 个</span>
+                                <el-popover placement="top" width="180" trigger="hover">
+                                  <div style="margin: 0">
+                                    <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                                    <div class="device-path">{{ scope.row.groupPaths[0] }}</div>
+                                    <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
+                                    <div v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</div>
+                                  </div>
+                                  <template v-slot:reference>
+                                    <div class="popover-btns">
+                                      <svg class="icon" aria-hidden="true">
+                                        <use xlink:href="#icon-se-icon-caret-bottom"></use>
+                                      </svg>
+                                    </div>
+                                  </template>
+                                </el-popover>
                               </div>
                             </div>
                             <div v-else-if="scope.row.type == 3">
@@ -254,12 +279,25 @@
                                 </el-select>
                               </div>
                               <div v-else>
-                                <p>{{ $t('sourcePage.groupNameLabel') }}</p>
-                                <span class="device-path">{{ scope.row.groupPaths[0] }}</span>
-                                <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
-                                <span class="device-path">{{ scope.row.devicePaths[0] }}</span>
-                                <p>{{ $t('sourcePage.timeNameLabel') }}</p>
-                                <span v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</span>
+                                <span>{{ $t('sourcePage.groupNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp; <span>{{ $t('sourcePage.deviceNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp;
+                                <span>{{ $t('sourcePage.timeNameLabel') }} {{ scope.row.timeseriesPaths.length || 0 }} 个</span>
+                                <el-popover placement="top" width="180" trigger="hover">
+                                  <div style="margin: 0">
+                                    <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                                    <div class="device-path">{{ scope.row.groupPaths[0] }}</div>
+                                    <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
+                                    <div class="device-path">{{ scope.row.devicePaths[0] }}</div>
+                                    <p>{{ $t('sourcePage.timeNameLabel') }}</p>
+                                    <div v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</div>
+                                  </div>
+                                  <template v-slot:reference>
+                                    <div class="popover-btns">
+                                      <svg class="icon" aria-hidden="true">
+                                        <use xlink:href="#icon-se-icon-caret-bottom"></use>
+                                      </svg>
+                                    </div>
+                                  </template>
+                                </el-popover>
                               </div>
                             </div>
                           </template>
@@ -366,209 +404,6 @@
         </el-tab-pane>
       </el-tabs>
     </div>
-
-    <!-- <div class="permission-box">
-      <div class="info-head">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-yonghuquanxian-color"></use>
-        </svg>
-        {{ $t('sourcePage.accountPermit') }}
-      </div>
-      <div class="permit-content">
-        <div class="left-part">
-          <p class="title clearfix">
-            {{ $t('sourcePage.userAccount') }}
-            <el-button type="text" @click="newUser()">{{ $t('sourcePage.newAccount') }}</el-button>
-          </p>
-          <ul class="user-list">
-            <li v-for="(item, index) in userList" :class="activeIndex == item.username ? 'active' : ''" :key="index" @click="handleUser(index, item)">
-              <span class="content">{{ item.username }}</span>
-              <el-popconfirm placement="top" :title="$t('sourcePage.deleteUserConfirm')" @confirm="deleteUser(item)">
-                <template #reference>
-                  <span class="icon-del del-user">
-                    <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true">
-                      <use xlink:href="#icon-se-icon-delete"></use>
-                    </svg>
-                  </span>
-                </template>
-              </el-popconfirm>
-            </li>
-          </ul>
-        </div>
-        <div class="right-part">
-          <el-button class="auth-add-btn" type="text" v-if="activeName == '2' && baseInfoForm.userName !== 'root'" @click="authAdd()">{{ $t('sourcePage.addAuthBtn') }}</el-button>
-          <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs">
-            <el-tab-pane :label="$t('sourcePage.baseConfig')" name="1">
-              <template v-if="activeIndex !== null">
-                <div v-if="!isNew" class="tab-content left-base-content">
-                  <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
-                    <el-form-item :label="$t('sourcePage.userNameTitle')">
-                      <div v-if="baseInfoForm.userName && baseInfoForm.userName.length > 80">
-                        <el-tooltip class="item" width="200" effect="dark" :content="baseInfoForm.userName" placement="top">
-                          <div class="user-name">{{ baseInfoForm.userName }}</div>
-                        </el-tooltip>
-                      </div>
-                      <div v-else class="user-name">{{ baseInfoForm.userName }}</div>
-                    </el-form-item>
-                    <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
-                      <el-input show-password v-if="edit" v-model="baseInfoForm.password"></el-input>
-
-                      <svg v-if="!edit && baseInfoForm.userName != 'root'" class="icon" aria-hidden="true" @click="editBaseInfo()">
-                        <use xlink:href="#icon-se-icon-f-edit"></use>
-                      </svg>
-                      <div v-if="!edit" class="password">
-                        <el-tooltip class="item" effect="dark" :content="baseInfoForm.password" placement="top">
-                          <div>{{ baseInfoForm.password }}</div>
-                        </el-tooltip>
-                      </div>
-                      <div v-if="edit">
-                        <el-button @click="cancelEdit()">{{ $t('common.cancel') }}</el-button>
-                        <el-button type="primary" @click="doEdit()">{{ $t('common.submit') }}</el-button>
-                      </div>
-                    </el-form-item>
-                  </el-form>
-                </div>
-                <div v-else class="tab-content left-base-content">
-                  <el-form ref="baseInfoFormRef" :model="baseInfoForm" :rules="baseRules" label-position="top" class="source-form">
-                    <el-form-item prop="userName" :label="$t('sourcePage.userNameTitle')" class="userName-form-item">
-                      <el-input v-model="baseInfoForm.userName"></el-input>
-                    </el-form-item>
-                    <el-form-item :label="$t('sourcePage.passwordTitle')" prop="password" class="password-form-item">
-                      <el-input show-password v-model="baseInfoForm.password"></el-input>
-
-                      <div>
-                        <el-button @click="cancelNew1()">{{ $t('common.cancel') }}</el-button>
-                        <el-button type="primary" @click="doCreate()">{{ $t('common.submit') }}</el-button>
-                      </div>
-                    </el-form-item>
-                  </el-form>
-                </div>
-              </template>
-            </el-tab-pane>
-            <el-tab-pane v-if="!isNew" :label="$t('sourcePage.accountPermit')" name="2">
-              <template v-if="activeIndex !== null">
-                <p class="auth-tips">{{ $t('sourcePage.authTips') }}</p>
-                <el-table :data="authTableData" style="width: 100%">
-                  <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
-                    <template #default="scope">
-                      <span v-if="!scope.row.edit">{{ pathMap[scope.row.type] }}</span>
-                      <el-select v-if="scope.row.edit" v-model="scope.row.type" :disabled="!scope.row.new" @change="changeType(scope.row.type, scope)">
-                        <el-option v-for="item in pathList" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                      </el-select>
-                    </template>
-                  </el-table-column>
-                  <el-table-column :label="$t('sourcePage.range')">
-                    <template #default="scope">
-                      <div v-if="scope.row.type == 0">-</div>
-                      <div v-else-if="scope.row.type == 1">
-                        <div v-if="scope.row.edit">
-                          <el-select v-model="scope.row.groupPaths" multiple>
-                            <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                          </el-select>
-                        </div>
-                        <div v-else>
-                          <p>{{ $t('sourcePage.groupNameLabel') }}</p>
-                          <span v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</span>
-                        </div>
-                      </div>
-                      <div v-else-if="scope.row.type == 2">
-                        <div v-if="scope.row.edit">
-                          <el-select class="row-select-range" v-model="scope.row.groupPaths[0]" @change="getDeviceByGroupName(scope.row.groupPaths[0], scope)">
-                            <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                          </el-select>
-                          <el-select class="row-select-range" v-model="scope.row.devicePaths" multiple>
-                            <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
-                          </el-select>
-                        </div>
-                        <div v-else>
-                          <p>{{ $t('sourcePage.groupNameLabel') }}</p>
-                          <span class="device-path">{{ scope.row.groupPaths[0] }}</span>
-                          <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
-                          <span v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</span>
-                        </div>
-                      </div>
-                      <div v-else-if="scope.row.type == 3">
-                        <div v-if="scope.row.edit">
-                          <el-select class="row-select-range" v-model="scope.row.groupPaths[0]" @change="getDeviceByGroupName(scope.row.groupPaths[0], scope)">
-                            <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                          </el-select>
-                          <el-select class="row-select-range" v-model="scope.row.devicePaths[0]" @change="getTimeSeriesByDeviceName(scope.row.devicePaths[0], scope)">
-                            <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
-                          </el-select>
-                          <el-select class="row-select-range" v-model="scope.row.timeseriesPaths" multiple>
-                            <el-option v-for="item in scope.row.allTimeseriesPaths" :key="item" :value="item" :label="item"></el-option>
-                          </el-select>
-                        </div>
-                        <div v-else>
-                          <p>{{ $t('sourcePage.groupNameLabel') }}</p>
-                          <span class="device-path">{{ scope.row.groupPaths[0] }}</span>
-                          <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
-                          <span class="device-path">{{ scope.row.devicePaths[0] }}</span>
-                          <p>{{ $t('sourcePage.timeNameLabel') }}</p>
-                          <span v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</span>
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column :label="$t('sourcePage.func')">
-                    <template #default="scope">
-                      <el-checkbox-group v-model="scope.row.privileges" :class="scope.row.edit ? '' : 'show-only'">
-                        <el-checkbox :disabled="!scope.row.edit" v-for="item in funcList[scope.row.type]" :label="item.id" :key="item.id" @change="changeCheckItem(scope)">{{
-                          item.label
-                        }}</el-checkbox>
-                      </el-checkbox-group>
-                    </template>
-                  </el-table-column>
-
-                  <el-table-column :label="$t('common.operation')">
-                    <template #default="scope">
-                      <div v-if="scope.row.edit">
-                        <el-button type="text" size="small" @click="saveRowAuth(scope)">{{ $t('common.save') }}</el-button>
-                        <el-button type="text" size="small" class="el-button-delete" @click="cancelRowAuth()">{{ $t('common.cancel') }}</el-button>
-                      </div>
-                      <div v-else>
-                        <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
-                        <el-popconfirm placement="top" :title="$t('sourcePage.deleteAuthConfirm')" @confirm="deleteRowAuth(scope)">
-                          <template #reference>
-                            <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" class="el-button-delete">{{ $t('common.delete') }}</el-button>
-                          </template>
-                        </el-popconfirm>
-                      </div>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </template>
-            </el-tab-pane>
-          </el-tabs>
-        </div>
-      </div>
-    </div> -->
-    <!-- <div class="storage-box">
-      <div class="info-head">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-cunchuzu-color"></use>
-        </svg>
-        {{ $t('sourcePage.groupInfo') }}({{ groupTotal }})
-      </div>
-      <el-table :data="tableData" class="group-table" max-height="280" height="280">
-        <el-table-column prop="groupName" :label="$t('sourcePage.groupName')"> </el-table-column>
-        <el-table-column prop="description" :label="$t('sourcePage.description')"> </el-table-column>
-        <el-table-column prop="deviceCount" :label="$t('sourcePage.line')"> </el-table-column>
-        <el-table-column :label="$t('common.operation')">
-          <template #default="scope">
-            <el-button type="text" size="small" @click="goGroupDetail(scope)">{{ $t('common.detail') }}</el-button>
-            <el-button type="text" size="small" @click="goEditGroup(scope)">
-              {{ $t('common.edit') }}
-            </el-button>
-            <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup(scope)">
-              <template #reference>
-                <el-button type="text" size="small" class="el-button-delete" :disable="canGroupSet"> {{ $t('common.delete') }} </el-button>
-              </template>
-            </el-popconfirm>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div> -->
     <NewSource v-if="showDialog" :func="func" :serverId="serverId" :showDialog="showDialog" :types="types" @close="close()" @successFunc="successFunc(data)" />
   </div>
 </template>
@@ -1424,26 +1259,6 @@ export default {
           baseInfo.value.privilegesInfo = [];
         }
       });
-      return;
-      // axios.get(`/servers/${serverId.value}/users/${userinfo.username}`, {}).then((res) => {
-      //   if (res && res.code == 0) {
-      //     userAuthInfo.value = res.data;
-      //     userAuthInfoTemp.value = JSON.parse(JSON.stringify(res.data));
-      //     baseInfoForm.userName = res.data.userName || userinfo.username;
-      //     baseInfoForm.password = res.data.password;
-      //     authTableData.value = res.data.privilegesInfo;
-      //     baseInfo.value.privilegesInfo = res.data.privilegesInfo;
-      //     if (type == 1) {
-      //       checkAuth(res.data.privilegesInfo);
-      //     }
-      //   } else {
-      //     userAuthInfo.value = {};
-      //     baseInfoForm.userName = null;
-      //     baseInfoForm.password = null;
-      //     authTableData.value = [];
-      //     baseInfo.value.privilegesInfo = [];
-      //   }
-      // });
     };
     /**
      * 获取用户账号基本信息
@@ -1480,17 +1295,11 @@ export default {
     const checkAuth = (data) => {
       for (let i = 0; i < data?.length; i++) {
         if (data[i].type == 0) {
-          // canCreateUser.value = data[i].privileges.indexOf('CREATE_USER') >= 0 ? true : false;
-          // canDeleteUser.value = data[i].privileges.indexOf('DELETE_USER') >= 0 ? true : false;
-          // canModifyPassword.value = data[i].privileges.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
-          // canShowUser.value = data[i].privileges.indexOf('LIST_USER') >= 0 ? true : false;
-          // canAuth.value = data[i].privileges.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
           canGroupSet.value = data[i].privileges.indexOf('SET_STORAGE_GROUP') >= 0 ? true : false;
         }
       }
     };
     const checkPermitAuth = () => {
-      console.log(1111);
       canCreateUser.value = permitPermissionListTemp.value.indexOf('CREATE_USER') >= 0 ? true : false;
       canDeleteUser.value = permitPermissionListTemp.value.indexOf('DELETE_USER') >= 0 ? true : false;
       canModifyPassword.value = permitPermissionListTemp.value.indexOf('MODIFY_PASSWORD') >= 0 ? true : false;
@@ -2183,9 +1992,13 @@ export default {
           }
           .device-path {
             margin-right: 10px;
+            display: block;
           }
           .row-select-range {
             display: block;
+          }
+          .popover-btns {
+            display: inline-block;
           }
           .auth-tips {
             font-size: 12px;
