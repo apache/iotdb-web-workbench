@@ -1233,8 +1233,7 @@ export default {
       payload.cancelPrivileges = dealPivilege.deleteList;
       // 处理存储组
       if (type === 1) {
-        let dealGroup = handlePath('groupPaths', range);
-        payload.groupPaths = dealGroup.addList;
+        payload.groupPaths = range;
       }
       // 处理实体
       if (type === 2) {
@@ -1267,6 +1266,7 @@ export default {
       showRoleDialog.value = false;
     };
     const handlePath = (props, List) => {
+      console.log(oldValue.value)
       let deleteList = oldValue?.value[props]?.filter((d) => !List.includes(d));
       let addList = List.filter((d) => !oldValue?.value[props]?.includes(d));
       return {

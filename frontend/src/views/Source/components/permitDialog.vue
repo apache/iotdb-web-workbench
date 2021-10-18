@@ -375,6 +375,7 @@ export default {
           range.time = options.timeSeriesOption.filter((d) => d.id !== null).map((i) => i.name);
         }
       }
+      console.log({ type, range, privileges, dialogType: dialogType.value }, 111111);
       emit('submit', { type, range, privileges, dialogType: dialogType.value });
     };
     return {
