@@ -832,6 +832,21 @@ public class IotDBController {
     return BaseVO.success("获取成功", userAuthorityPrivilege);
   }
 
+  @GetMapping("/users/{userName}/allAuthorityPrivilege")
+  @ApiOperation("获取用户权限管理权限(包含用户的角色拥有的） (新增2.30)")
+  public BaseVO<Set<String>> getAllAuthorityPrivilege(
+      @PathVariable("serverId") Integer serverId,
+      @PathVariable("userName") String userName,
+      HttpServletRequest request)
+      throws BaseException {
+    checkName(userName);
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    Set<String> userAuthorityPrivilege =
+        iotDBService.getAllAuthorityPrivilege(connection, userName);
+    return BaseVO.success("获取成功", userAuthorityPrivilege);
+  }
+
   @GetMapping("/roles/{roleName}/authorityPrivilege")
   @ApiOperation("获取角色权限管理权限 (新增2.21)")
   public BaseVO<Set<String>> getRoleAuthorityPrivilege(

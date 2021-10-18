@@ -833,6 +833,40 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
+  public Set<String> getAllAuthorityPrivilege(Connection connection, String userName)
+      throws BaseException {
+    SessionPool sessionPool = null;
+    SessionDataSetWrapper sessionDataSetWrapper = null;
+    try {
+      if ("root".equals(userName)) {
+        return AUTHORITY_PRIVILEGES;
+      }
+      Set<String> privileges = new HashSet<>();
+      List<String> rowInfos = new ArrayList<>();
+      sessionPool = getSessionPool(connection);
+      String sql = "list user privileges " + userName;
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      while (sessionDataSetWrapper.hasNext()) {
+        RowRecord next = sessionDataSetWrapper.next();
+        List<org.apache.iotdb.tsfile.read.common.Field> fields = next.getFields();
+        rowInfos.add(fields.get(1).toString());
+      }
+      privileges = switchRowInfosToAuthorityPrivileges(rowInfos);
+      return privileges;
+    } catch (IoTDBConnectionException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+    } catch (StatementExecutionException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(
+          ErrorCode.GET_USER_PRIVILEGE_FAIL, ErrorCode.GET_USER_PRIVILEGE_FAIL_MSG);
+    } finally {
+      closeResultSet(sessionDataSetWrapper);
+      closeSessionPool(sessionPool);
+    }
+  }
+
+  @Override
   public Set<String> getRoleAuthorityPrivilege(Connection connection, String roleName)
       throws BaseException {
     SessionPool sessionPool = null;

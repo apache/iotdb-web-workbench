@@ -73,6 +73,8 @@ public interface IotDBService {
   Set<String> getUserAuthorityPrivilege(Connection connection, String userName)
       throws BaseException;
 
+  Set<String> getAllAuthorityPrivilege(Connection connection, String userName) throws BaseException;
+
   Set<String> getRoleAuthorityPrivilege(Connection connection, String roleName)
       throws BaseException;
 
