@@ -2,20 +2,20 @@
 <template>
   <el-form ref="roleForm" label-position="top" :model="form" :rules="rules" label-width="120px">
     <el-form-item :label="$t('sourcePage.roleName')" prop="roleName">
-      <el-input v-model="form.roleName" type="text" autocomplete="off" maxLength="255" :placeholder="$t('sourcePage.inputRoleNameTip')"></el-input>
+      <el-input :disabled="stateType === 'view'" v-model="form.roleName" type="text" autocomplete="off" maxLength="255" :placeholder="$t('sourcePage.inputRoleNameTip')"></el-input>
     </el-form-item>
     <el-form-item :label="$t('sourcePage.description')" prop="description">
-      <el-input v-model="form.description" type="text" autocomplete="off" maxLength="100" :placeholder="$t('sourcePage.inputRoleDescTip')"></el-input>
+      <el-input :disabled="stateType === 'view'" v-model="form.description" type="text" autocomplete="off" maxLength="100" :placeholder="$t('sourcePage.inputRoleDescTip')"></el-input>
     </el-form-item>
     <el-form-item :label="$t('sourcePage.grantUser')">
-      <el-tag v-for="tag in form.users" :key="tag" closable type="success" size="small" @close="closeTag(tag)">
+      <el-tag v-for="tag in form.users" :key="tag" :closable="roleInfo.type === 'edit'" size="small" class="el-tag-deep-green" @close="closeTag(tag)">
         {{ tag }}
       </el-tag>
-      <svg class="icon" aria-hidden="true" @click="openGrantUserDialog">
+      <svg v-if="stateType === 'edit'" class="icon" aria-hidden="true" @click="openGrantUserDialog">
         <use xlink:href="#icon-add1"></use>
       </svg>
     </el-form-item>
-    <el-form-item>
+    <el-form-item v-if="stateType === 'edit'">
       <el-button @click="resetForm">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitForm">{{ $t('common.submit') }}</el-button>
     </el-form-item>
@@ -50,7 +50,7 @@ export default {
     const store = useStore();
     const internalInstance = getCurrentInstance();
     const emitter = internalInstance.appContext.config.globalProperties.emitter;
-
+    let stateType = ref();
     let form = ref({
       roleName: '',
       description: '',
@@ -70,6 +70,7 @@ export default {
           form.value.users = val.userList;
           oldForm.value = { ...form.value };
           roleForm.value.clearValidate();
+          stateType.value = props.roleInfo.type;
         }
       }
     );
@@ -80,8 +81,8 @@ export default {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
             let reg = /^[0-9]*$/;
-            if(reg.test(value)) {
-                callback(new Error('名称不能为纯数字'));
+            if (reg.test(value)) {
+              callback(new Error('名称不能为纯数字'));
             }
             // 重名检测
             if (oldForm?.value?.id && oldForm?.value?.roleName !== value) {
@@ -130,7 +131,7 @@ export default {
             await api.grantUserRole({ serverId, roleName }, { cancelUserList: deleteUser, userList: addUser });
           }
           ElMessage.success(`角色${isEdit.value ? '编辑' : '创建'}成功`);
-          emitter.emit('add-role');
+          emitter.emit('add-role', isEdit.value ? roleName : '');
         } catch (e) {
           //
         }
@@ -158,6 +159,7 @@ export default {
       changeUser,
       submitForm,
       roleForm,
+      stateType,
       store,
       closeTag,
       resetForm,
@@ -173,6 +175,9 @@ export default {
 <style scoped lang="scss">
 ::v-deep .el-tag {
   margin-right: 10px;
+}
+.el-input {
+  width: 280px;
 }
 .icon {
   cursor: pointer;

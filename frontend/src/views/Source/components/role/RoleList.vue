@@ -16,10 +16,10 @@
         </div>
         {{ item }}
         <div class="operate">
-          <svg class="icon" aria-hidden="true" v-if="isAdding">
+          <svg class="icon" aria-hidden="true" v-if="!isAdding && activeRole === item" @click.stop="editRole(item)">
             <use xlink:href="#icon-se-icon-f-edit"></use>
           </svg>
-          <svg class="icon delete" aria-hidden="true" @click.stop="deleteRole(item)">
+          <svg v-if="activeRole === item" class="icon delete" aria-hidden="true" @click.stop="deleteRole(item)">
             <use xlink:href="#icon-se-icon-delete"></use>
           </svg>
         </div>
@@ -48,14 +48,14 @@ export default {
     let isAdding = ref(false);
 
     // 获取所有角色
-    let getRoleList = async () => {
+    let getRoleList = async (roleName) => {
       isAdding.value = false;
       let result = await api.getRoles(serverId);
       roleList.value = result.data;
       if (!roleList.value.length) {
         emit('changeCurrRole', { id: '', name: 'NEW' });
       } else {
-        clickRole(result?.data[0]);
+        clickRole(roleName ? roleName : result?.data[0]);
       }
       emit('roleList', roleList.value);
     };
@@ -67,7 +67,7 @@ export default {
       }
       roleList.value.unshift('NEW');
       activeRole.value = 'NEW';
-      emit('changeCurrRole', { id: '', name: 'NEW' });
+      emit('changeCurrRole', { id: '', name: 'NEW', type: 'add' });
       isAdding.value = true;
     };
     const clickRole = async (item) => {
@@ -78,7 +78,17 @@ export default {
       activeRole.value = item;
       let roleInfo = await api.getRoleInfo({ serverId, roleName: item });
       let privileges = await api.getAuthPrivilege({ serverId, roleName: item });
-      emit('changeCurrRole', { ...roleInfo.data, roleName: item, privileges: privileges.data });
+      emit('changeCurrRole', { ...roleInfo.data, roleName: item, privileges: privileges.data, type: 'view' });
+    };
+    const editRole = async (item) => {
+      if (isAdding.value) {
+        ElMessage.error('请先完成新增操作');
+        return;
+      }
+      activeRole.value = item;
+      let roleInfo = await api.getRoleInfo({ serverId, roleName: item });
+      let privileges = await api.getAuthPrivilege({ serverId, roleName: item });
+      emit('changeCurrRole', { ...roleInfo.data, roleName: item, privileges: privileges.data, type: 'edit' });
     };
     const deleteRole = async (item) => {
       if (isAdding.value) {
@@ -122,6 +132,7 @@ export default {
       addRole,
       clickRole,
       deleteRole,
+      editRole,
       cancelAdd,
     };
   },
