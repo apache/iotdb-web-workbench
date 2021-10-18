@@ -98,8 +98,13 @@ export default {
     const handleClick = (tab) => {
       let data = urlTabs.value[tab.index];
       urlTabsValue.value = data.name;
-      treeRef.value.treeRef.setCurrentKey(data.id);
-      nodekey.value = data.id;
+      if (data.twinTab) {
+        treeRef.value.treeRef.setCurrentKey(data.node.id);
+        nodekey.value = data.node.id;
+      } else {
+        treeRef.value.treeRef.setCurrentKey(data.id);
+        nodekey.value = data.id;
+      }
       urlSkipMap(data.node);
     };
 
@@ -209,7 +214,12 @@ export default {
       }
       urlTabsValue.value = data.id + '';
       let list = urlTabs.value;
-      if (
+      if (data.extraParams && data.extraParams.twinTab) {
+        list.push({ node: data, title: data.extraParams.title, name: data.extraParams.id, id: data.extraParams.id, type: data.type, twinTab: true });
+        urlTabs.value = list;
+        urlTabsValue.value = data.extraParams.id;
+        urlSkipMap(data, true);
+      } else if (
         !list.some((e) => {
           return e.id === data.id + '';
         })
