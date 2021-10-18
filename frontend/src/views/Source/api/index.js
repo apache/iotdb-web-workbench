@@ -102,4 +102,9 @@ export default {
     let { serverId, groupName, deviceName } = params;
     return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries`);
   },
+  //修改用户数据管理权限
+  editUserDataPrivilege(params, payload) {
+    let { serverId, userName } = params;
+    return axios.post(`/servers/${serverId}/users/${userName}/dataPrivilege`, payload);
+  },
 };

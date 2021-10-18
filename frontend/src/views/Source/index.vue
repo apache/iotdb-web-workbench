@@ -19,8 +19,8 @@
 
 <template>
   <div class="source-detail-container">
-    <div v-if="showPermitDialog">
-      <permit-dialog ref="permitDialogRef" :showPermitDialog="showPermitDialog" :type="permitType" @cancelDialog="cancelDialog" />
+    <div>
+      <permit-dialog ref="permitDialogRef" @submit="submitPermit"></permit-dialog>
     </div>
     <div v-if="showRoleDialog">
       <role-dialog :showRoleDialog="showRoleDialog" :type="roleType" :editList="roleCheckeList" :serverId="serverId" @cancelRoleDialog="cancelRoleDialog" @submitRoleDialog="submitRoleDialog" />
@@ -440,6 +440,8 @@ import setOperation from '@/util/setOperation.js';
 
 import { useRouter } from 'vue-router';
 import PermitDialog from './components/permitDialog.vue';
+import api from './api/index';
+
 import roleDialog from './components/roleDialog.vue';
 export default {
   name: 'Source',
@@ -756,7 +758,6 @@ export default {
     /**
      * 数据管理权限弹框是否展示
      */
-    let showPermitDialog = ref(true);
     let permitType = ref(0);
     watch(locale, () => {
       funcList.value = {
@@ -1117,14 +1118,16 @@ export default {
         triggerRelationItems.value = [];
       }
     };
-
+    let oldValue = ref({});
     /**
      * 切换表格行编辑状态
      * scope:行数据
      * index: 行顺序
      */
     const changeEditState = (scope) => {
-      authTableData.value[scope.$index].edit = true;
+      oldValue.value = scope.row;
+      // authTableData.value[scope.$index].edit = true;
+      permitDialogRef.value.open({ type: 'edit', data: scope.row });
     };
     /**
      * 获取头部数据连接基本信息
@@ -1197,8 +1200,7 @@ export default {
         return false;
       }
       permitType.value = type;
-      showPermitDialog.value = true;
-      permitDialogRef.value.open({ type: 'add', origin: 'user' });
+      permitDialogRef.value.open({ type: 'add' });
       // for (let i = 0; i < authTableData.value.length; i++) {
       //   if (authTableData.value[i].new) {
       //     ElMessage.error(t(`sourcePage.addAuthFirstLabel`));
@@ -1218,8 +1220,41 @@ export default {
       //   type: null,
       // });
     };
+    const submitPermit = ({ type, privileges, dialogType, range } = {}) => {
+      console.log(type, privileges, dialogType, range);
+      let payload = { type };
+      let params = {
+        serverId: serverId.value,
+        userName: baseInfoForm.userName,
+      };
+      // 处理权限
+      let dealPivilege = handlePath('privileges', privileges);
+      payload.privileges = privileges;
+      payload.cancelPrivileges = dealPivilege.deleteList;
+      // 处理存储组
+      if (type === 1) {
+        let dealGroup = handlePath('groupPaths', range);
+        payload.groupPaths = dealGroup.addList;
+      }
+      // 处理实体
+      if (type === 2) {
+        payload.groupPaths = [range.storage];
+        payload.devicePaths = range.device;
+      }
+      // 处理物理量
+      if (type === 3) {
+        payload.groupPaths = [range.storage];
+        payload.devicePaths = [range.device];
+        payload.timeseriesPaths = range.time;
+      }
+      api.editUserDataPrivilege(params, payload);
+
+      permitDialogRef.value.visible = false;
+      ElMessage.success(`${dialogType === 'add' ? '新增' : '编辑'}权限成功`);
+      // getData();
+    };
     const cancelDialog = () => {
-      showPermitDialog.value = false;
+      // showPermitDialog.value = false;
     };
     const cancelRoleDialog = () => {
       showRoleDialog.value = false;
@@ -1230,6 +1265,14 @@ export default {
     const submitRoleDialog = (data) => {
       roleCheckeList.value = data;
       showRoleDialog.value = false;
+    };
+    const handlePath = (props, List) => {
+      let deleteList = oldValue?.value[props]?.filter((d) => !List.includes(d));
+      let addList = List.filter((d) => !oldValue?.value[props]?.includes(d));
+      return {
+        addList,
+        deleteList,
+      };
     };
     /**
      * 获取某一个用户权限
@@ -1686,6 +1729,7 @@ export default {
       cancelEditRole,
       doEditRole,
       authAdd,
+      submitPermit,
       cancelDialog,
       cancelRoleDialog,
       submitRoleDialog,
@@ -1721,7 +1765,6 @@ export default {
       changeRoleRelation,
       changeUdfRelation,
       changeTriggerRelation,
-      showPermitDialog,
       showRoleDialog,
       roleEditObj,
       roleType,
@@ -1730,6 +1773,7 @@ export default {
       getPermitPermissionList,
       permitPermissionListTemp,
       savepermitAuth,
+      permitDialogRef,
     };
   },
   components: {
