@@ -213,90 +213,61 @@
                           <template #default="scope">
                             <div v-if="scope.row.type == 0">-</div>
                             <div v-else-if="scope.row.type == 1">
-                              <div v-if="scope.row.edit">
-                                <el-select v-model="scope.row.groupPaths" multiple>
-                                  <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                                </el-select>
-                              </div>
-                              <div v-else>
-                                <span>{{ $t('sourcePage.groupNameLabel') }} {{ scope.row.groupPaths.length || 0 }} 个</span>
-                                <el-popover placement="top" width="180" trigger="hover">
-                                  <div style="margin: 0">
-                                    {{ $t('sourcePage.groupNameLabel') }}
-                                    <div v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</div>
+                              <span>{{ $t('sourcePage.groupNameLabel') }} {{ scope.row.groupPaths.length || 0 }} 个</span>
+                              <el-popover placement="top" width="180" trigger="hover">
+                                <div style="margin: 0">
+                                  {{ $t('sourcePage.groupNameLabel') }}
+                                  <div v-for="item in scope.row.groupPaths" :key="item" class="device-path">{{ item }}</div>
+                                </div>
+                                <template v-slot:reference>
+                                  <div class="popover-btns">
+                                    <svg class="icon" aria-hidden="true">
+                                      <use xlink:href="#icon-se-icon-caret-bottom"></use>
+                                    </svg>
                                   </div>
-                                  <template v-slot:reference>
-                                    <div class="popover-btns">
-                                      <svg class="icon" aria-hidden="true">
-                                        <use xlink:href="#icon-se-icon-caret-bottom"></use>
-                                      </svg>
-                                    </div>
-                                  </template>
-                                </el-popover>
-                              </div>
+                                </template>
+                              </el-popover>
                             </div>
                             <div v-else-if="scope.row.type == 2">
-                              <div v-if="scope.row.edit">
-                                <el-select class="row-select-range" v-model="scope.row.groupPaths[0]" @change="getDeviceByGroupName(scope.row.groupPaths[0], scope)">
-                                  <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                                </el-select>
-                                <el-select class="row-select-range" v-model="scope.row.devicePaths" multiple>
-                                  <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
-                                </el-select>
-                              </div>
-                              <div v-else>
-                                <span>{{ $t('sourcePage.groupNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp;
-                                <span>{{ $t('sourcePage.deviceNameLabel') }} {{ scope.row.devicePaths.length || 0 }} 个</span>
-                                <el-popover placement="top" width="180" trigger="hover">
-                                  <div style="margin: 0">
-                                    <p>{{ $t('sourcePage.groupNameLabel') }}</p>
-                                    <div class="device-path">{{ scope.row.groupPaths[0] }}</div>
-                                    <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
-                                    <div v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</div>
+                              <span>{{ $t('sourcePage.groupNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp;
+                              <span>{{ $t('sourcePage.deviceNameLabel') }} {{ scope.row.devicePaths.length || 0 }} 个</span>
+                              <el-popover placement="top" width="180" trigger="hover">
+                                <div style="margin: 0">
+                                  <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                                  <div class="device-path">{{ scope.row.groupPaths[0] }}</div>
+                                  <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
+                                  <div v-for="item in scope.row.devicePaths" :key="item" class="device-path">{{ item }}</div>
+                                </div>
+                                <template v-slot:reference>
+                                  <div class="popover-btns">
+                                    <svg class="icon" aria-hidden="true">
+                                      <use xlink:href="#icon-se-icon-caret-bottom"></use>
+                                    </svg>
                                   </div>
-                                  <template v-slot:reference>
-                                    <div class="popover-btns">
-                                      <svg class="icon" aria-hidden="true">
-                                        <use xlink:href="#icon-se-icon-caret-bottom"></use>
-                                      </svg>
-                                    </div>
-                                  </template>
-                                </el-popover>
-                              </div>
+                                </template>
+                              </el-popover>
+                              <!-- </div> -->
                             </div>
                             <div v-else-if="scope.row.type == 3">
-                              <div v-if="scope.row.edit">
-                                <el-select class="row-select-range" v-model="scope.row.groupPaths[0]" @change="getDeviceByGroupName(scope.row.groupPaths[0], scope)">
-                                  <el-option v-for="item in scope.row.allGroupPaths" :key="item" :value="item" :label="item"></el-option>
-                                </el-select>
-                                <el-select class="row-select-range" v-model="scope.row.devicePaths[0]" @change="getTimeSeriesByDeviceName(scope.row.devicePaths[0], scope)">
-                                  <el-option v-for="item in scope.row.allDevicePaths" :key="item" :value="item" :label="item"></el-option>
-                                </el-select>
-                                <el-select class="row-select-range" v-model="scope.row.timeseriesPaths" multiple>
-                                  <el-option v-for="item in scope.row.allTimeseriesPaths" :key="item" :value="item" :label="item"></el-option>
-                                </el-select>
-                              </div>
-                              <div v-else>
-                                <span>{{ $t('sourcePage.groupNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp; <span>{{ $t('sourcePage.deviceNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp;
-                                <span>{{ $t('sourcePage.timeNameLabel') }} {{ scope.row.timeseriesPaths.length || 0 }} 个</span>
-                                <el-popover placement="top" width="180" trigger="hover">
-                                  <div style="margin: 0">
-                                    <p>{{ $t('sourcePage.groupNameLabel') }}</p>
-                                    <div class="device-path">{{ scope.row.groupPaths[0] }}</div>
-                                    <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
-                                    <div class="device-path">{{ scope.row.devicePaths[0] }}</div>
-                                    <p>{{ $t('sourcePage.timeNameLabel') }}</p>
-                                    <div v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</div>
+                              <span>{{ $t('sourcePage.groupNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp; <span>{{ $t('sourcePage.deviceNameLabel') }} 1 个</span> &nbsp;&nbsp;| &nbsp;&nbsp;
+                              <span>{{ $t('sourcePage.timeNameLabel') }} {{ scope.row.timeseriesPaths.length || 0 }} 个</span>
+                              <el-popover placement="top" width="180" trigger="hover">
+                                <div style="margin: 0">
+                                  <p>{{ $t('sourcePage.groupNameLabel') }}</p>
+                                  <div class="device-path">{{ scope.row.groupPaths[0] }}</div>
+                                  <p>{{ $t('sourcePage.deviceNameLabel') }}</p>
+                                  <div class="device-path">{{ scope.row.devicePaths[0] }}</div>
+                                  <p>{{ $t('sourcePage.timeNameLabel') }}</p>
+                                  <div v-for="item in scope.row.timeseriesPaths" :key="item" class="device-path">{{ item }}</div>
+                                </div>
+                                <template v-slot:reference>
+                                  <div class="popover-btns">
+                                    <svg class="icon" aria-hidden="true">
+                                      <use xlink:href="#icon-se-icon-caret-bottom"></use>
+                                    </svg>
                                   </div>
-                                  <template v-slot:reference>
-                                    <div class="popover-btns">
-                                      <svg class="icon" aria-hidden="true">
-                                        <use xlink:href="#icon-se-icon-caret-bottom"></use>
-                                      </svg>
-                                    </div>
-                                  </template>
-                                </el-popover>
-                              </div>
+                                </template>
+                              </el-popover>
                             </div>
                           </template>
                         </el-table-column>
@@ -1266,7 +1237,7 @@ export default {
       showRoleDialog.value = false;
     };
     const handlePath = (props, List) => {
-      console.log(oldValue.value)
+      console.log(oldValue.value);
       let deleteList = oldValue?.value[props]?.filter((d) => !List.includes(d));
       let addList = List.filter((d) => !oldValue?.value[props]?.includes(d));
       return {
