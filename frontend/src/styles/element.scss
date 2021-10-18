@@ -190,3 +190,19 @@
 .el-checkbox__inner:hover {
   border-color: $theme-color !important;
 }
+.el-tag{
+  border-radius: 2px;
+  padding: 0 6px;
+  .el-tag__close {
+    font-size: 14px;
+    color: #222222 !important;
+    &:hover{
+      background-color:transparent
+    }
+  }
+}
+  .el-tag-deep-green {
+    color:#333333;
+    background-color: rgba(19, 195, 147, 0.1);
+    border-color: rgba(19, 195, 147, 0.5);
+  }
