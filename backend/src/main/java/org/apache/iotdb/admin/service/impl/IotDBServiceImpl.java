@@ -2537,9 +2537,10 @@ public class IotDBServiceImpl implements IotDBService {
   private List<String> executeQueryOneColumn(SessionPool sessionPool, String sql)
       throws BaseException {
     SessionDataSetWrapper sessionDataSetWrapper = null;
+    ExecutorService service = null;
     try {
       Callable call = () -> sessionPool.executeQueryStatement(sql);
-      ExecutorService service = Executors.newFixedThreadPool(1);
+      service = Executors.newFixedThreadPool(1);
       Future submit = service.submit(call);
       sessionDataSetWrapper = (SessionDataSetWrapper) submit.get(60, TimeUnit.SECONDS);
       int batchSize = sessionDataSetWrapper.getBatchSize();
@@ -2576,6 +2577,7 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.TIME_OUT, ErrorCode.TIME_OUT_MSG);
     } finally {
+      service.shutdown();
       closeResultSet(sessionDataSetWrapper);
     }
   }
