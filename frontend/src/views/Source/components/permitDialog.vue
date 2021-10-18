@@ -1,6 +1,6 @@
 <template>
   <div id="mains" class="mains-contain">
-    <el-dialog v-model="visible" :title="dialogType === 'add' ? '新增权限' : '编辑权限'" width="520px" :before-close="handleClose">
+    <el-dialog v-model="visible" :title="dialogType === 'add' ? '新增权限' : '编辑权限'" width="520px">
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="permit-form">
         <el-form-item :props="type" :label="$t('sourcePage.path')">
           <el-radio-group v-model="form.type" @change="changeRadio">
@@ -258,7 +258,7 @@ export default {
       oldForm.value = data;
       visible.value = true;
       // type 数据粒度
-      let { type: dataType } = data;
+      let dataType = data?.type;
       if (type === 'add') {
         form.type = 0;
         form.privileges = [];
@@ -275,6 +275,7 @@ export default {
           await getDeviceTree({ serverId, groupName: device.storage });
           device.device = [...data.devicePaths];
         } else {
+          if (dataType === 0) return;
           await getStorageGroup();
           time.storage = data.groupPaths[0];
           await getDevice({ serverId, groupName: time.storage });
@@ -349,10 +350,6 @@ export default {
     const getTimeseries = async ({ serverId, groupName, deviceName }) => {
       options.timeSeriesOption = (await api.getTimeseries({ serverId, groupName, deviceName })).data.map((timeSeries) => ({ id: timeSeries, name: timeSeries }));
       options.timeSeriesOption.unshift({ id: null, name: '全部物理量' });
-      console.log(options.timeSeriesOption);
-    };
-    const handleClose = () => {
-      visible.value = false;
     };
     const handleCancel = () => {
       visible.value = false;
@@ -375,7 +372,6 @@ export default {
           range.time = options.timeSeriesOption.filter((d) => d.id !== null).map((i) => i.name);
         }
       }
-      console.log({ type, range, privileges, dialogType: dialogType.value }, 111111);
       emit('submit', { type, range, privileges, dialogType: dialogType.value });
     };
     return {
@@ -384,7 +380,6 @@ export default {
       locale,
       visible,
       dialogType,
-      handleClose,
       handleSubmit,
       handleCancel,
       dataPrivileges,
