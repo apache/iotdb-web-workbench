@@ -4,7 +4,7 @@
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="permit-form">
         <el-form-item :props="type" :label="$t('sourcePage.path')">
           <el-radio-group v-model="form.type" @change="changeRadio">
-            <el-radio v-for="item in pathList" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
+            <el-radio v-for="item in pathList" :disabled="dialogType === 'edit'" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item :props="path" :label="$t('sourcePage.range')">
@@ -34,7 +34,7 @@
             </el-select>
           </template>
         </el-form-item>
-        <el-form-item :props="path" :label="$t('sourcePage.selectPermissions')">
+        <el-form-item :props="privileges" :label="$t('sourcePage.selectPermissions')">
           <el-checkbox-group v-model="form.privileges">
             <el-checkbox v-for="item in dataPrivileges[form.type]" :key="item.id" :label="item.id" :value="item.id">{{ item.label }}</el-checkbox>
           </el-checkbox-group>
@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { onMounted, reactive, ref, watch, computed, toRefs } from 'vue';
+import { reactive, ref, watch, computed, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TreeSelect from '@/components/TreeSelect';
 import api from '../api/index';
@@ -76,11 +76,6 @@ export default {
       type: 0, //数据粒度
       path: [], //树形
       privileges: [], //权限
-      groupPaths: [],
-      devicePaths: [],
-      timeseriesPaths: [],
-      dataGroupValue: [],
-      deviceValue: [],
     });
 
     let storage = ref([]);
@@ -93,8 +88,6 @@ export default {
       device: '',
       time: '',
     });
-
-    let groups = ref();
 
     let options = reactive({
       // 存储组树形
@@ -111,9 +104,6 @@ export default {
 
     let serverId = useRoute().params.serverid;
 
-    // let DataGranularityMap = computed(() => {
-    //   return dataMap;
-    // });
     let DataGranularityMap = reactive(dataMap);
 
     let dataPrivileges = ref({
@@ -261,7 +251,6 @@ export default {
       ];
       pathMap.value = { 0: t('sourcePage.selectAlias'), 1: t('sourcePage.selectGroup'), 2: t('sourcePage.selectDevice'), 3: t('sourcePage.selectTime') };
     });
-    let showPermitDialogs = ref(false);
     // type 弹出框类型 edit or add
     // data 编辑回显数据
     const open = async ({ type, data } = {}) => {
@@ -388,10 +377,6 @@ export default {
       }
       emit('submit', { type, range, privileges, dialogType: dialogType.value });
     };
-    onMounted(() => {
-      console.log(dataPrivileges.value);
-      showPermitDialogs.value = props.showPermitDialog;
-    });
     return {
       t,
       checkList,
@@ -408,7 +393,6 @@ export default {
       form,
       granularityValue,
       rules,
-      groups,
       ...toRefs(options),
       open,
       origin,
