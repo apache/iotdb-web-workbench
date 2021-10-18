@@ -26,8 +26,6 @@
       <role-dialog :showRoleDialog="showRoleDialog" :type="roleType" :editList="roleCheckeList" :serverId="serverId" @cancelRoleDialog="cancelRoleDialog" @submitRoleDialog="submitRoleDialog" />
     </div>
     <div class="info-box">
-      <TreeSelect :data="treeData" :selectArray="selectArray" :checkedKeys="checkedKeys" />
-
       <p class="title">{{ baseInfo.alias }}</p>
       <p class="more">
         <span
@@ -597,7 +595,6 @@ import {
 } from 'element-plus';
 // import { Close } from '@element-plus/icons';
 import NewSource from './components/newSource.vue';
-import TreeSelect from '@/components/TreeSelect.vue';
 import UserRole from './components/role/Index.vue';
 import { useI18n } from 'vue-i18n';
 import DataModal from './components/dataModal.vue';
@@ -1933,7 +1930,6 @@ export default {
     NewSource,
     PermitDialog,
     roleDialog,
-    TreeSelect,
     DataModal,
     ElTabs,
     ElTabPane,
@@ -2034,6 +2030,7 @@ export default {
       background: #f9fbfc;
       padding: 16px;
       height: calc(100% - 74px);
+      overflow: auto;
     }
     &:deep(.el-tab-pane) {
       height: 100%;

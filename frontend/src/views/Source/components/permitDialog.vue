@@ -12,14 +12,14 @@
           <template v-if="form.type === 0"> -- </template>
           <!-- 存储组 -->
           <template v-else-if="form.type === 1">
-            <tree-select :checkedKeys="storage" :data="storageGroupTreeOption" :type="DataGranularityMap.group" @change="changeTreeValue($event, DataGranularityMap.group)"></tree-select>
+            <tree-select :checked-keys="storage" :data="storageGroupTreeOption" :type="DataGranularityMap.group" @change="changeTreeValue($event, DataGranularityMap.group)"></tree-select>
           </template>
           <!-- 实体 -->
           <template v-else-if="form.type === 2">
             <el-select v-model="device.storage" placeholder="请选择存储组" @change="changeStorageInDevice">
               <el-option v-for="item in storageGroupOption" :key="item.groupName" :label="item.groupName" :value="item.groupName"> </el-option>
             </el-select>
-            <tree-select :checkedKeys="device.device" :data="deviceTreeOption" :type="DataGranularityMap.device" @change="changeTreeValue($event, DataGranularityMap.device)"></tree-select>
+            <tree-select :checked-keys="device.device" :data="deviceTreeOption" :type="DataGranularityMap.device" @change="changeTreeValue($event, DataGranularityMap.device)"></tree-select>
           </template>
           <!-- 物理量 -->
           <template v-else>
@@ -67,7 +67,6 @@ export default {
     let checkList = ref([]);
     let visible = ref(false);
     let dialogType = ref({});
-    let originType = ref({});
     let oldForm = ref({});
     let formRef = ref(null);
     // 数据粒度 0数据连接 1存储组 2实体 3物理量
@@ -263,16 +262,38 @@ export default {
       pathMap.value = { 0: t('sourcePage.selectAlias'), 1: t('sourcePage.selectGroup'), 2: t('sourcePage.selectDevice'), 3: t('sourcePage.selectTime') };
     });
     let showPermitDialogs = ref(false);
-    // type 弹出框类型
+    // type 弹出框类型 edit or add
     // data 编辑回显数据
-    // origin user or role
-    const open = ({ type, origin, data } = {}) => {
+    const open = async ({ type, data } = {}) => {
       dialogType.value = type;
-      originType.value = origin;
       oldForm.value = data;
       visible.value = true;
-      form.type = 0;
-      form.privileges = [];
+      // type 数据粒度
+      let { type: dataType } = data;
+      if (type === 'add') {
+        form.type = 0;
+        form.privileges = [];
+      } else {
+        form.type = dataType;
+        form.privileges = data.privileges;
+        // 存储组
+        if (dataType === 1) {
+          await getStorageGroupTree();
+          storage.value = [...data.groupPaths];
+        } else if (dataType === 2) {
+          await getStorageGroup();
+          device.storage = data.groupPaths[0];
+          await getDeviceTree({ serverId, groupName: device.storage });
+          device.device = [...data.devicePaths];
+        } else {
+          await getStorageGroup();
+          time.storage = data.groupPaths[0];
+          await getDevice({ serverId, groupName: time.storage });
+          time.device = data.devicePaths[0];
+          await getTimeseries({ serverId, groupName: time.storage, deviceName: time.device });
+          time.time = [...data.timeseriesPaths];
+        }
+      }
     };
     // 改变存储组/实体的树形
     const changeTreeValue = (data, type) => {

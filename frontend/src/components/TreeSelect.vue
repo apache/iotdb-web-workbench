@@ -2,17 +2,7 @@
   <div class="tree-select-wraper">
     <el-select v-model="mineStatus" :placeholder="placeholder" multiple collapse-tags @change="changeSelect" style="width: 100%">
       <el-option :value="mineStatusValue" style="height: auto">
-        <el-tree
-          class="tree-select-wrapers"
-          :data="treeData"
-          show-checkbox
-          node-key="id"
-          ref="treeRef"
-          highlight-current
-          :default-checked-keys="checkedKeys"
-          :props="defaultProps"
-          @check-change="handleCheckChange"
-        ></el-tree>
+        <el-tree class="tree-select-wrapers" :data="treeData" show-checkbox node-key="name" ref="treeRef" highlight-current :props="defaultProps" @check-change="handleCheckChange"></el-tree>
       </el-option>
     </el-select>
   </div>
@@ -31,7 +21,7 @@ export default {
         return [];
       },
     },
-    value: {
+    checkedKeys: {
       /**树形选择节点id */
       type: Array,
       default: () => {
@@ -121,6 +111,19 @@ export default {
       loop(root);
       return list;
     };
+    /**
+     * 给出节点的所有子节点
+     * */
+    const loopNode = (directory) => {
+      let res = [];
+      res.push(directory.name);
+      if (directory && directory.children) {
+        directory.children.forEach((i) => {
+          res.push(...loopNode(i));
+        });
+      }
+      return res;
+    };
     watch(
       () => props.data,
       (data) => {
@@ -137,6 +140,24 @@ export default {
         };
         treeData.value = [tree];
         treeList.value = loopDirectory({ ...tree });
+      }
+    );
+    watch(
+      () => props.checkedKeys,
+      (val) => {
+        mineStatus.value = [];
+        mineStatusValue.value = [];
+        val.forEach((e) => {
+          let obj = treeList.value.find((d) => d.name === e);
+          mineStatus.value = mineStatus.value.concat(loopNode(obj));
+          mineStatus.value.forEach((d) => {
+            let obj = treeList.value.find((e) => e.name === d);
+            obj && mineStatusValue.value.push(obj);
+          });
+
+          treeRef.value.setCheckedNodes(mineStatusValue.value); //设置勾选的值
+          console.log(mineStatusValue.value, mineStatus.value);
+        });
       }
     );
     return {
