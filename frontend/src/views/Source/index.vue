@@ -406,8 +406,7 @@ import { useI18n } from 'vue-i18n';
 import DataModal from './components/dataModal.vue';
 import axios from '@/util/axios.js';
 import setOperation from '@/util/setOperation.js';
-
-// import { useStore } from 'vuex';
+import { useStore } from 'vuex';
 
 import { useRouter } from 'vue-router';
 import PermitDialog from './components/permitDialog.vue';
@@ -419,7 +418,7 @@ export default {
   props: ['func', 'data'],
   setup(props) {
     const { t, locale } = useI18n();
-    // const store = useStore();
+    const store = useStore();
 
     let showDialog = ref(false);
     let permitDialogRef = ref(null);
@@ -841,7 +840,7 @@ export default {
      * 编辑用户基本信息(密码)
      */
     const editBaseInfo = () => {
-      if (!canModifyPassword.value) {
+      if (store.state.dataBaseM.privilegeListAll.indexOf('MODIFY_PASSWORD') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -909,7 +908,7 @@ export default {
      * item: 当前被删除的数据
      */
     const deleteUser = (item) => {
-      if (!canDeleteUser.value) {
+      if (store.state.dataBaseM.privilegeListAll.indexOf('DELETE_USER') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -925,8 +924,7 @@ export default {
      * 新建用户操作
      */
     const newUser = () => {
-      // todo
-      if (!canCreateUser.value || !canShowUser.value) {
+      if (store.state.dataBaseM.privilegeListAll.indexOf('CREATE_USER') < 0 || store.state.dataBaseM.privilegeListAll.indexOf('LIST_USER') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -1062,8 +1060,9 @@ export default {
     let editRole = ref(false);
     let roleEditObj = ref([]);
     let roleType = ref(0);
+
     const editRoleInfo = () => {
-      if (!canModifyPassword.value) {
+      if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_USER_ROLE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -1073,7 +1072,7 @@ export default {
      * 添加角色
      */
     const addRole = (type) => {
-      if (!canAuthRole.value) {
+      if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_ROLE_PRIVILEGE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -1094,8 +1093,11 @@ export default {
       let temp = roleCheckeListTemp.value;
       let deleteArr = setOperation(temp, roleCheckeList.value);
       let newArr = setOperation(roleCheckeList.value, temp);
-      console.log(deleteArr);
-      console.log(newArr);
+      debugger;
+      if (deleteArr.length && store.state.dataBaseM.privilegeListAll.indexOf('REVOKE_USER_ROLE') < 0) {
+        ElMessage.error(t(`sourcePage.noAuthTip`));
+        return false;
+      }
       let data = { roleList: newArr, cancelRoleList: deleteArr };
       grantRole(data, () => {
         ElMessage.success(t('sourcePage.editSuccessLabel'));
@@ -1106,7 +1108,7 @@ export default {
      * 添加权限按钮
      */
     const authAdd = (type) => {
-      if (!canAuth.value) {
+      if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_USER_PRIVILEGE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -1292,7 +1294,7 @@ export default {
      * scope当前行数据
      */
     const deleteRowAuth = (scope) => {
-      if (!canAuth.value) {
+      if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_USER_PRIVILEGE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
       }
@@ -1564,8 +1566,12 @@ export default {
       serverId.value = router.currentRoute.value.params.serverid;
       getBaseInfo((data) => {
         //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
-        getUserAuth(data, 1);
-        getPermitPermissionList(data, 1);
+        // getUserAuth(data, 1);
+        // getPermitPermissionList(data, 1);
+        store.dispatch('fetchAllPrivileges', {
+          serverId: serverId.value,
+          userName: data.username,
+        });
       });
       getGroupList();
       getUserList(1);

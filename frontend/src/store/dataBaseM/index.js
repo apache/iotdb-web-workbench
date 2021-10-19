@@ -16,11 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import axios from '@/util/axios.js';
 
 const dataBaseM = {
-  state: () => {},
-  mutations: {},
-  actions: {},
+  state: () => ({
+    privilegeListAll: [],
+  }),
+
+  mutations: {
+    setPrivilegeListAll(state, data) {
+      state.privilegeListAll = data;
+    },
+  },
+  actions: {
+    async fetchAllPrivileges({ commit }, params) {
+      axios.get(`/servers/${params.serverId}/users/${params.userName}/allAuthorityPrivilege`, {}).then((res) => {
+        commit('setPrivilegeListAll', res?.code === '0' ? res.data || [] : []);
+      });
+    },
+  },
   getters: {},
 };
 export default dataBaseM;
