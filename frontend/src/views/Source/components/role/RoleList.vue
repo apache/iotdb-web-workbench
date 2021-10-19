@@ -16,10 +16,10 @@
         </div>
         {{ item }}
         <div class="operate">
-          <svg class="icon" aria-hidden="true" v-if="isAdding">
+          <svg class="icon" aria-hidden="true" v-if="!isAdding && activeRole === item" @click.stop="editRole(item)">
             <use xlink:href="#icon-se-icon-f-edit"></use>
           </svg>
-          <svg class="icon delete" aria-hidden="true" @click.stop="deleteRole(item)">
+          <svg v-if="activeRole === item" class="icon delete" aria-hidden="true" @click.stop="deleteRole(item)">
             <use xlink:href="#icon-se-icon-delete"></use>
           </svg>
         </div>
@@ -31,15 +31,21 @@
 
 <script>
 import { useI18n } from 'vue-i18n';
-import { ref, onMounted, getCurrentInstance, onUnmounted } from 'vue';
+import { ref, onMounted, getCurrentInstance, onUnmounted, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../../api/index';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { useStore } from 'vuex';
 
 export default {
   name: 'RoleList',
   props: [],
   setup(props, { emit }) {
+    const store = useStore();
+    let canPrivilege = {};
+    watchEffect(() => {
+      canPrivilege = store.getters.canPrivilege;
+    });
     const { t, locale } = useI18n();
     let roleList = ref([]);
     let activeRole = ref(1);
@@ -48,14 +54,14 @@ export default {
     let isAdding = ref(false);
 
     // 获取所有角色
-    let getRoleList = async () => {
+    let getRoleList = async (roleName) => {
       isAdding.value = false;
       let result = await api.getRoles(serverId);
       roleList.value = result.data;
       if (!roleList.value.length) {
         emit('changeCurrRole', { id: '', name: 'NEW' });
       } else {
-        clickRole(result?.data[0]);
+        clickRole(roleName ? roleName : result?.data[0]);
       }
       emit('roleList', roleList.value);
     };
@@ -65,9 +71,13 @@ export default {
         ElMessage.error('请先完成新增操作');
         return;
       }
+      if (!canPrivilege.canAddRole) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
       roleList.value.unshift('NEW');
       activeRole.value = 'NEW';
-      emit('changeCurrRole', { id: '', name: 'NEW' });
+      emit('changeCurrRole', { id: '', name: 'NEW', type: 'add' });
       isAdding.value = true;
     };
     const clickRole = async (item) => {
@@ -78,14 +88,28 @@ export default {
       activeRole.value = item;
       let roleInfo = await api.getRoleInfo({ serverId, roleName: item });
       let privileges = await api.getAuthPrivilege({ serverId, roleName: item });
-      emit('changeCurrRole', { ...roleInfo.data, roleName: item, privileges: privileges.data });
+      emit('changeCurrRole', { ...roleInfo.data, roleName: item, privileges: privileges.data, type: 'view' });
+    };
+    const editRole = async (item) => {
+      if (isAdding.value) {
+        ElMessage.error('请先完成新增操作');
+        return;
+      }
+      activeRole.value = item;
+      let roleInfo = await api.getRoleInfo({ serverId, roleName: item });
+      let privileges = await api.getAuthPrivilege({ serverId, roleName: item });
+      emit('changeCurrRole', { ...roleInfo.data, roleName: item, privileges: privileges.data, type: 'edit' });
     };
     const deleteRole = async (item) => {
       if (isAdding.value) {
         ElMessage.error('请先完成新增操作');
         return;
       }
-      ElMessageBox.confirm('确认删除?', '提示', {
+      if (!canPrivilege.canDeleteRole) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
+      await ElMessageBox.confirm('确认删除?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -102,15 +126,20 @@ export default {
         clickRole(roleList?.value[0]);
       }
     };
+    const changeTab = () => {
+      clickRole(activeRole.value);
+    };
 
     onMounted(() => {
       getRoleList();
       emitter.on('add-role', getRoleList);
+      emitter.on('change-tab', changeTab);
       emitter.on('cancel-add-role', cancelAdd);
     });
     onUnmounted(() => {
       emitter.off('add-role', getRoleList);
       emitter.off('cancel-add-role', cancelAdd);
+      emitter.off('change-tab', changeTab);
     });
 
     return {
@@ -122,6 +151,7 @@ export default {
       addRole,
       clickRole,
       deleteRole,
+      editRole,
       cancelAdd,
     };
   },

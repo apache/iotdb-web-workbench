@@ -1,13 +1,13 @@
 <template>
   <div id="mains" class="mains-contain">
-    <el-dialog v-model="visible" :title="dialogType === 'add' ? '新增权限' : '编辑权限'" width="520px" :before-close="handleClose">
+    <el-dialog v-model="visible" :title="dialogType === 'add' ? '新增权限' : '编辑权限'" width="520px">
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="permit-form">
-        <el-form-item :props="type" :label="$t('sourcePage.path')">
+        <el-form-item prop="type" :label="$t('sourcePage.path')">
           <el-radio-group v-model="form.type" @change="changeRadio">
             <el-radio v-for="item in pathList" :disabled="dialogType === 'edit'" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item :props="path" :label="$t('sourcePage.range')">
+        <el-form-item prop="path" :label="$t('sourcePage.range')">
           <!-- 数据连接 -->
           <template v-if="form.type === 0"> -- </template>
           <!-- 存储组 -->
@@ -34,7 +34,7 @@
             </el-select>
           </template>
         </el-form-item>
-        <el-form-item :props="privileges" :label="$t('sourcePage.selectPermissions')">
+        <el-form-item prop="privileges" :label="$t('sourcePage.selectPermissions')">
           <el-checkbox-group v-model="form.privileges">
             <el-checkbox v-for="item in dataPrivileges[form.type]" :key="item.id" :label="item.id" :value="item.id">{{ item.label }}</el-checkbox>
           </el-checkbox-group>
@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { reactive, ref, watch, computed, toRefs } from 'vue';
+import { reactive, ref, watch, toRefs, nextTick, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TreeSelect from '@/components/TreeSelect';
 import api from '../api/index';
@@ -59,15 +59,25 @@ import api from '../api/index';
 // import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { DataGranularityMap as dataMap } from '@/util/constant';
+import { ElMessage } from 'element-plus';
 
 export default {
   name: 'PermitDialog',
-  setup(props, { emit }) {
+  props: {
+    dialogOrigin: {
+      type: String,
+      default: 'user',
+    },
+    name: {
+      type: String,
+      default: 'user',
+    },
+  },
+  setup(props, {emit}) {
     const { t, locale } = useI18n();
     let checkList = ref([]);
     let visible = ref(false);
     let dialogType = ref({});
-    let oldForm = ref({});
     let formRef = ref(null);
     // 数据粒度 0数据连接 1存储组 2实体 3物理量
     let granularityValue = ref(null);
@@ -88,6 +98,7 @@ export default {
       device: '',
       time: '',
     });
+    let oldValue = ref({});
 
     let options = reactive({
       // 存储组树形
@@ -105,6 +116,19 @@ export default {
     let serverId = useRoute().params.serverid;
 
     let DataGranularityMap = reactive(dataMap);
+
+    let methodMap = computed(() => {
+      return {
+        user: api.editUserDataPrivilege,
+        role: api.editDataPrivilege,
+      }[props.dialogOrigin];
+    });
+    let paramMap = computed(() => {
+      return {
+        user: 'userName',
+        role: 'roleName',
+      }[props.dialogOrigin];
+    });
 
     let dataPrivileges = ref({
       0: [
@@ -179,8 +203,43 @@ export default {
       2: t('sourcePage.selectDevice'),
       3: t('sourcePage.selectTime'),
     });
-    let rules = computed(() => {
-      return {};
+
+    const validatePath = (rule, value, callback) => {
+      if (form.type === 1 && !storage.value.length) {
+        callback(new Error('请选择数据范围'));
+      } else if (form.type === 2 && (!device.storage || !device.device.length)) {
+        callback(new Error('请选择数据范围'));
+      } else if (form.type === 3 && (!time.storage || !time.device || !time.time.length)) {
+        callback(new Error('请选择数据范围'));
+      } else {
+        callback();
+      }
+    };
+    const validatePrivileges = (rule, value, callback) => {
+      if (!value.length) {
+        callback(new Error('请选择权限'));
+      }
+      callback();
+    };
+    let rules = ref({
+      type: [
+        {
+          required: true,
+        },
+      ],
+      path: [
+        {
+          required: true,
+          validator: validatePath,
+          trigger: 'change',
+        },
+      ],
+      privileges: [
+        {
+          validator: validatePrivileges,
+          trigger: 'change',
+        },
+      ],
     });
     watch(locale, () => {
       dataPrivileges.value = {
@@ -255,10 +314,13 @@ export default {
     // data 编辑回显数据
     const open = async ({ type, data } = {}) => {
       dialogType.value = type;
-      oldForm.value = data;
+      oldValue.value = { ...data };
       visible.value = true;
+      nextTick(() => {
+        formRef.value.clearValidate();
+      });
       // type 数据粒度
-      let { type: dataType } = data;
+      let dataType = data?.type;
       if (type === 'add') {
         form.type = 0;
         form.privileges = [];
@@ -275,6 +337,7 @@ export default {
           await getDeviceTree({ serverId, groupName: device.storage });
           device.device = [...data.devicePaths];
         } else {
+          if (dataType === 0) return;
           await getStorageGroup();
           time.storage = data.groupPaths[0];
           await getDevice({ serverId, groupName: time.storage });
@@ -320,6 +383,9 @@ export default {
     const changeRadio = async (radio) => {
       let value = Number(radio);
       form.privileges = [];
+      nextTick(() => {
+        formRef.value.clearValidate();
+      });
       // 存储组
       if (value === 1) {
         getStorageGroupTree();
@@ -348,16 +414,12 @@ export default {
     // 获取物理量平铺
     const getTimeseries = async ({ serverId, groupName, deviceName }) => {
       options.timeSeriesOption = (await api.getTimeseries({ serverId, groupName, deviceName })).data.map((timeSeries) => ({ id: timeSeries, name: timeSeries }));
-      options.timeSeriesOption.unshift({ id: null, name: '全部物理量' });
-      console.log(options.timeSeriesOption);
-    };
-    const handleClose = () => {
-      visible.value = false;
+      options.timeSeriesOption.length && options.timeSeriesOption.unshift({ id: null, name: '全部物理量' });
     };
     const handleCancel = () => {
       visible.value = false;
     };
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       let { type, privileges } = form;
       let range = [];
       if (type === 0) {
@@ -375,8 +437,46 @@ export default {
           range.time = options.timeSeriesOption.filter((d) => d.id !== null).map((i) => i.name);
         }
       }
-      console.log({ type, range, privileges, dialogType: dialogType.value }, 111111);
-      emit('submit', { type, range, privileges, dialogType: dialogType.value });
+      await formRef.value.validate();
+      let payload = { type };
+      let params = {
+        serverId,
+      };
+      params[paramMap.value] = props.name;
+      // 处理权限
+      let dealPivilege = handlePath('privileges', [...privileges]);
+      payload.privileges = privileges;
+      payload.cancelPrivileges = dealPivilege.deleteList;
+      // 处理存储组
+      if (type === 1) {
+        let dealGroup = handlePath('groupPaths', [...range]);
+        payload.groupPaths = dealGroup.addList;
+      }
+      // 处理实体
+      if (type === 2) {
+        payload.groupPaths = [range.storage];
+        payload.devicePaths = range.device;
+      }
+      // 处理物理量
+      if (type === 3) {
+        payload.groupPaths = [range.storage];
+        payload.devicePaths = [range.device];
+        payload.timeseriesPaths = range.time;
+      }
+      console.log(params, payload)
+      await methodMap.value(params, payload);
+      visible.value = false;
+      ElMessage.success(`${dialogType.value === 'add' ? '新增' : '编辑'}权限成功`);
+      emit('submit');
+    };
+    const handlePath = (props, List) => {
+      if (!oldValue.value) return {};
+      let deleteList = oldValue?.value[props]?.filter((d) => !List.includes(d));
+      let addList = List.filter((d) => !oldValue?.value[props]?.includes(d));
+      return {
+        addList,
+        deleteList,
+      };
     };
     return {
       t,
@@ -384,7 +484,6 @@ export default {
       locale,
       visible,
       dialogType,
-      handleClose,
       handleSubmit,
       handleCancel,
       dataPrivileges,

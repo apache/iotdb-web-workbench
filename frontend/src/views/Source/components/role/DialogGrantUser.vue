@@ -1,10 +1,10 @@
 <!-- 授权用户弹窗 -->
 <template>
-  <el-dialog title="授权用户" width="520px" :append-to-body="true" v-model="visible" custom-class="grant-dialog">
+  <el-dialog :title="$t('sourcePage.grantUser')" width="520px" :append-to-body="true" v-model="visible" custom-class="grant-dialog">
     <div class="dialog-content">
       <div class="left">
         <el-checkbox v-model="allCheck" :indeterminate="isIndeterminate" @change="handleCheckAllChange"
-          ><span class="all-checkbox">用户列表 ({{ userList.length }})</span></el-checkbox
+          ><span class="all-checkbox">{{$t('sourcePage.userList')}} ({{ userList.length }})</span></el-checkbox
         >
         <el-checkbox-group v-model="checkedUser" @change="handleCheckedUser">
           <el-checkbox v-for="user in pagiUsers" :key="user" :label="user">
@@ -22,11 +22,11 @@
       <div class="divider"></div>
       <div class="right">
         <div class="right-title">
-          <span>已选用户({{ checkedUser.length }})</span><span class="clear" @click="handleClear">清空</span>
+          <span>{{$t('sourcePage.selectedUser')}}  ({{ checkedUser.length }})</span><span class="clear" @click="handleClear">{{$t('common.clear')}}</span>
         </div>
         <div class="right-item" v-for="user in checkedPagiUsers" :key="user">
           {{ user }}
-          <span class="delete" @click="deleteUser(user)">删除</span>
+          <span class="delete" @click="deleteUser(user)">{{$t('common.delete')}}</span>
         </div>
         <el-pagination
           layout="prev, pager, next"

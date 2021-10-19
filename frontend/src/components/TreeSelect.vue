@@ -154,9 +154,7 @@ export default {
             let obj = treeList.value.find((e) => e.name === d);
             obj && mineStatusValue.value.push(obj);
           });
-
           treeRef.value.setCheckedNodes(mineStatusValue.value); //设置勾选的值
-          console.log(mineStatusValue.value, mineStatus.value);
         });
       }
     );
@@ -175,6 +173,17 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+:deep(.el-tree-node__content) {
+  height: 30px;
+}
+:deep(.el-tree--highlight-current) {
+  & .el-tree-node {
+    & .el-tree-node__content {
+      border-width: 0;
+      font-size: 12px !important;
+    }
+  }
+}
 .tree-select-wraper {
   &:deep(.el-select-dropdown__item) {
     padding: 0 !important;

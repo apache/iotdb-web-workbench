@@ -20,7 +20,7 @@
 <template>
   <div class="source-detail-container">
     <div>
-      <permit-dialog ref="permitDialogRef" @submit="submitPermit"></permit-dialog>
+      <permit-dialog ref="permitDialogRef" :name="baseInfoForm.userName" dialog-origin="user" @submit="submitPermit"></permit-dialog>
     </div>
     <div v-if="showRoleDialog">
       <role-dialog :showRoleDialog="showRoleDialog" :type="roleType" :editList="roleCheckeList" :serverId="serverId" @cancelRoleDialog="cancelRoleDialog" @submitRoleDialog="submitRoleDialog" />
@@ -379,7 +379,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, reactive, ref, watch, onActivated } from 'vue';
+import { onMounted, reactive, ref, watch, onActivated, getCurrentInstance } from 'vue';
 import {
   ElButton,
   ElTable,
@@ -410,7 +410,6 @@ import { useStore } from 'vuex';
 
 import { useRouter } from 'vue-router';
 import PermitDialog from './components/permitDialog.vue';
-import api from './api/index';
 
 import roleDialog from './components/roleDialog.vue';
 export default {
@@ -419,6 +418,7 @@ export default {
   setup(props) {
     const { t, locale } = useI18n();
     const store = useStore();
+    const emitter = getCurrentInstance().appContext.config.globalProperties.emitter;
 
     let showDialog = ref(false);
     let permitDialogRef = ref(null);
@@ -765,14 +765,13 @@ export default {
         return false;
       }
       axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/authorityPrivilege`, { ...reqObj }).then((rs) => {
-         if (rs && rs.code == 0) {
+        if (rs && rs.code == 0) {
           ElMessage.success(t('sourcePage.successEditPermit'));
           store.dispatch('fetchAllPrivileges', {
-          serverId: serverId.value,
-          userName: baseInfoForm.userName,
-        });
+            serverId: serverId.value,
+            userName: baseInfoForm.userName,
+          });
         }
-        
       });
     };
     /**
@@ -829,6 +828,9 @@ export default {
       sourceTabs.value = tab.paneName;
       if (tab.paneName == 'a') {
         activeName.value = '1';
+      }
+      if (tab.paneName === 'r') {
+        emitter.emit('change-tab');
       }
     };
     /**
@@ -1133,37 +1135,8 @@ export default {
       permitType.value = type;
       permitDialogRef.value.open({ type: 'add' });
     };
-    const submitPermit = ({ type, privileges, dialogType, range } = {}) => {
-      console.log(type, privileges, dialogType, range);
-      let payload = { type };
-      let params = {
-        serverId: serverId.value,
-        userName: baseInfoForm.userName,
-      };
-      // 处理权限
-      let dealPivilege = handlePath('privileges', privileges);
-      payload.privileges = privileges;
-      payload.cancelPrivileges = dealPivilege.deleteList;
-      // 处理存储组
-      if (type === 1) {
-        payload.groupPaths = range;
-      }
-      // 处理实体
-      if (type === 2) {
-        payload.groupPaths = [range.storage];
-        payload.devicePaths = range.device;
-      }
-      // 处理物理量
-      if (type === 3) {
-        payload.groupPaths = [range.storage];
-        payload.devicePaths = [range.device];
-        payload.timeseriesPaths = range.time;
-      }
-      api.editUserDataPrivilege(params, payload);
-
-      permitDialogRef.value.visible = false;
-      ElMessage.success(`${dialogType === 'add' ? '新增' : '编辑'}权限成功`);
-      // getData();
+    const submitPermit = () => {
+      console.log(111);
     };
     const cancelDialog = () => {
       // showPermitDialog.value = false;
@@ -1178,15 +1151,7 @@ export default {
       roleCheckeList.value = data;
       showRoleDialog.value = false;
     };
-    const handlePath = (props, List) => {
-      console.log(oldValue.value);
-      let deleteList = oldValue?.value[props]?.filter((d) => !List.includes(d));
-      let addList = List.filter((d) => !oldValue?.value[props]?.includes(d));
-      return {
-        addList,
-        deleteList,
-      };
-    };
+
     /**
      * 获取某一个用户权限
      * userinfo:用户信息

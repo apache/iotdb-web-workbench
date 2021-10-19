@@ -179,6 +179,10 @@ const de = {
       prePage: '',
       successEditPermit: '',
       accountPermitLabel: '',
+      userRelevance: 'Benutzerbezogene Daten',
+      roleRelevance: 'Zusammenhang mit der Rolle',
+      udf: 'UDF',
+      trigger: 'Auslöser',
     },
     storagePage: {
       alias: 'Verbindung',

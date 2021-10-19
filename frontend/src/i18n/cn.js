@@ -199,6 +199,10 @@ const cn = {
       nextPage: '下一页',
       prePage: '上一页',
       successEditPermit: '修改权限管理权限成功',
+      userRelevance: '用户相关',
+      roleRelevance: '角色相关',
+      udf: 'UDF',
+      trigger: '触发器',
     },
     storagePage: {
       alias: '数据连接',

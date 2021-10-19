@@ -2,29 +2,29 @@
 <template>
   <el-form ref="roleForm" label-position="top" :model="form" :rules="rules" label-width="120px">
     <el-form-item :label="$t('sourcePage.roleName')" prop="roleName">
-      <el-input v-model="form.roleName" type="text" autocomplete="off" maxLength="255" :placeholder="$t('sourcePage.inputRoleNameTip')"></el-input>
+      <el-input :disabled="stateType === 'view'" v-model="form.roleName" type="text" autocomplete="off" maxLength="255" :placeholder="$t('sourcePage.inputRoleNameTip')"></el-input>
     </el-form-item>
     <el-form-item :label="$t('sourcePage.description')" prop="description">
-      <el-input v-model="form.description" type="text" autocomplete="off" maxLength="100" :placeholder="$t('sourcePage.inputRoleDescTip')"></el-input>
+      <el-input :disabled="stateType === 'view'" v-model="form.description" type="text" autocomplete="off" maxLength="100" :placeholder="$t('sourcePage.inputRoleDescTip')"></el-input>
     </el-form-item>
     <el-form-item :label="$t('sourcePage.grantUser')">
-      <el-tag v-for="tag in form.users" :key="tag" closable type="success" size="small" @close="closeTag(tag)">
+      <el-tag v-for="tag in form.users" :key="tag" :closable="roleInfo.type === 'edit'" size="small" class="el-tag-deep-green" @close="closeTag(tag)">
         {{ tag }}
       </el-tag>
-      <svg class="icon" aria-hidden="true" @click="openGrantUserDialog">
+      <svg v-if="stateType === 'edit' || stateType === 'add'" class="icon" aria-hidden="true" @click="openGrantUserDialog">
         <use xlink:href="#icon-add1"></use>
       </svg>
     </el-form-item>
-    <el-form-item>
+    <el-form-item v-if="stateType === 'edit' || stateType === 'add'">
       <el-button @click="resetForm">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitForm">{{ $t('common.submit') }}</el-button>
     </el-form-item>
-    <dialog-grant-user ref="dialogGrantUser" :user-list="userList" @change="changeUser"></dialog-grant-user>
+    <dialog-grant-user ref="dialogGrantUserRef" :user-list="userList" @change="changeUser"></dialog-grant-user>
   </el-form>
 </template>
 
 <script>
-import { ref, onMounted, watch, getCurrentInstance, computed } from 'vue';
+import { ref, onMounted, watch, getCurrentInstance, computed, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import DialogGrantUser from './DialogGrantUser.vue';
@@ -48,9 +48,13 @@ export default {
   setup(props) {
     const { t, locale } = useI18n();
     const store = useStore();
+    let canPrivilege = {};
+    watchEffect(() => {
+      canPrivilege = store.getters.canPrivilege;
+    });
     const internalInstance = getCurrentInstance();
     const emitter = internalInstance.appContext.config.globalProperties.emitter;
-
+    let stateType = ref();
     let form = ref({
       roleName: '',
       description: '',
@@ -61,6 +65,7 @@ export default {
     const roleForm = ref(null);
     let userList = ref([]);
     let serverId = useRoute().params.serverid;
+    let dialogGrantUserRef = ref(null);
 
     watch(
       () => props.roleInfo,
@@ -70,6 +75,7 @@ export default {
           form.value.users = val.userList;
           oldForm.value = { ...form.value };
           roleForm.value.clearValidate();
+          stateType.value = props.roleInfo.type;
         }
       }
     );
@@ -80,8 +86,8 @@ export default {
           trigger: 'blur',
           validator: async (rule, value, callback) => {
             let reg = /^[0-9]*$/;
-            if(reg.test(value)) {
-                callback(new Error('名称不能为纯数字'));
+            if (reg.test(value)) {
+              callback(new Error('名称不能为纯数字'));
             }
             // 重名检测
             if (oldForm?.value?.id && oldForm?.value?.roleName !== value) {
@@ -108,6 +114,10 @@ export default {
       form.value.users = userList;
     };
     let closeTag = (tag) => {
+      if (!canPrivilege.canCancelUserRole) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
       form.value.users = form.value.users.filter((d) => d !== tag);
     };
     let submitForm = async () => {
@@ -130,7 +140,7 @@ export default {
             await api.grantUserRole({ serverId, roleName }, { cancelUserList: deleteUser, userList: addUser });
           }
           ElMessage.success(`角色${isEdit.value ? '编辑' : '创建'}成功`);
-          emitter.emit('add-role');
+          emitter.emit('add-role', isEdit.value ? roleName : '');
         } catch (e) {
           //
         }
@@ -148,6 +158,13 @@ export default {
     onMounted(() => {
       getUserList();
     });
+    const openGrantUserDialog = () => {
+      if (!canPrivilege.canGrantUserRole) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
+      dialogGrantUserRef.value.open(form.value.users);
+    };
     return {
       oldForm,
       t,
@@ -158,21 +175,22 @@ export default {
       changeUser,
       submitForm,
       roleForm,
+      stateType,
       store,
       closeTag,
       resetForm,
+      dialogGrantUserRef,
+      openGrantUserDialog,
     };
-  },
-  methods: {
-    openGrantUserDialog() {
-      this.$refs.dialogGrantUser.open(this.form.users);
-    },
   },
 };
 </script>
 <style scoped lang="scss">
 ::v-deep .el-tag {
   margin-right: 10px;
+}
+.el-input {
+  width: 280px;
 }
 .icon {
   cursor: pointer;
