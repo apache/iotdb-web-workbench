@@ -10,7 +10,8 @@ import * as echarts from 'echarts';
 import { useI18n } from 'vue-i18n';
 import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
-import { useRouter, useRoute } from 'vue-router';
+//, useRoute
+import { useRouter } from 'vue-router';
 import img1 from '../../../assets/storage.png';
 import img2 from '../../../assets/data.png';
 import img3 from '../../../assets/device.png';
@@ -23,15 +24,15 @@ export default {
     const { t } = useI18n();
     const x = ref(0);
     const router = useRouter();
-    const route = useRoute();
+    // const route = useRoute();
 
     const datas = ref({});
 
     const getModalTreeData = (func) => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
         if (res && res.code == 0) {
-          dealData(res.data, (res.data && res.data.children) || []);
-          console.log(res.data);
+          // dealData(res.data, (res.data && res.data.children) || [], 0);
+          dealData([res.data] || {}, 0);
           datas.value = res.data || {};
           func && func();
         }
@@ -41,28 +42,74 @@ export default {
      * data父级数据
      * children子集数据
      */
-    const dealData = (data, children) => {
-      if (children.length > 10) {
-        data.pageNum = 1;
-        data.totalPage = Math.ceil(children.length / 10);
-        data.childrensTemp = JSON.parse(JSON.stringify(children));
-        // let temp = JSON.parse(JSON.stringify(data.childrensTemp));
-        data.children = data.children.splice((data.pageNum - 1) * 10, 10);
+    const dealData = (data, index) => {
+      for (let i = 0; i < data.length; i++) {
+        if (index < initialTreeDepth.value) {
+          data[i].collapsed = false;
+        } else {
+          data[i].collapsed = true;
+        }
+        if (data[i].children && data[i].children.length) {
+          if (data[i].children.length > 10) {
+            data[i].pageNum = 1;
+            data[i].totalPage = Math.ceil(data[i].children.length / 10);
+            data[i].childrensTemp = JSON.parse(JSON.stringify(data[i].children));
+            // let temp = JSON.parse(JSON.stringify(data[i].childrensTemp));
+            data[i].children = data[i].children.splice((data[i].pageNum - 1) * 10, 10);
 
-        data.children.push({ name: t('sourcePage.nextPage'), parentName: data.name, type: 'next', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
-        data.children.unshift({ name: t('sourcePage.prePage'), parentName: data.name, type: 'pre', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
-      } else {
-        data.pageNum = 1;
-        data.totalPage = 1;
-      }
-      for (let i = 0; i < data.children.length; i++) {
-        if (data.children[i].children && data.children[i].children.length) {
-          dealData(data.children[i], data.children[i].children || []);
+            data[i].children.push({ name: t('sourcePage.nextPage'), parentName: data[i].path, type: 'next', pageNum: 1, totalPage: Math.ceil(data[i].childrensTemp.length / 10) });
+            data[i].children.unshift({ name: t('sourcePage.prePage'), parentName: data[i].path, type: 'pre', pageNum: 1, totalPage: Math.ceil(data[i].childrensTemp.length / 10) });
+          } else {
+            data[i].pageNum = 1;
+            data[i].totalPage = 1;
+          }
+
+          index += 1;
+          dealData(data[i].children, index);
         }
       }
     };
+    // const dealData = (data, children, index) => {
+    //   // for (let i = 0; i < children.length; i++) {
+    //   //   if (index <= initialTreeDepth.value) {
+    //   //     children[i].collapsed = false;
+    //   //     console.log(111);
+    //   //     console.log(children[i].name);
+    //   //   } else {
+    //   //     children[i].collapsed = true;
+    //   //     console.log(children[i].name);
+
+    //   //     console.log(222);
+    //   //   }
+    //   // }
+    //   if (children.length > 10) {
+    //     data.pageNum = 1;
+    //     data.totalPage = Math.ceil(children.length / 10);
+    //     data.childrensTemp = JSON.parse(JSON.stringify(children));
+    //     // let temp = JSON.parse(JSON.stringify(data.childrensTemp));
+    //     data.children = data.children.splice((data.pageNum - 1) * 10, 10);
+
+    //     data.children.push({ name: t('sourcePage.nextPage'), parentName: data.name, type: 'next', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
+    //     data.children.unshift({ name: t('sourcePage.prePage'), parentName: data.name, type: 'pre', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
+    //   } else {
+    //     data.pageNum = 1;
+    //     data.totalPage = 1;
+    //   }
+
+    //   for (let i = 0; i < data.children.length; i++) {
+    //     if (children[i].children && children[i].children.length) {
+    //       console.log(children[i], 1111);
+    //       console.log(children[i].children, 1111);
+    //       index += 1;
+    //       dealData(children[i], children[i].children || [], index);
+    //     }
+    //   }
+    // };
+
     const clickFunction = (params) => {
+      console.log(params);
       let data = params.data || {};
+      console.log(datas.value);
       if (data.type) {
         //do next if has 'type' key;
         if (data.type == 'pre') {
@@ -78,20 +125,48 @@ export default {
             circulateData(data, 'next');
           }
         }
+      } else {
+        if (params.data.children && params.data.children.length) {
+          circulateDataSelf(data);
+        }
+      }
+    };
+    const circulateDataSelf = (data) => {
+      let name = data.path;
+      // let dataAll = datas.value;
+      let index = 1;
+      deepSearchSelf(datas.value, name, index);
+    };
+    const deepSearchSelf = (data, name, index) => {
+      if (data.path == name) {
+        debugger;
+        //找到
+        data.collapsed = !data.collapsed;
+        MyChart.clear();
+        setOption();
+      } else {
+        index++;
+        if (data.children && data.children.length) {
+          for (let i = 0; i < data.children.length; i++) {
+            deepSearchSelf(data.children[i], name, index);
+          }
+        }
       }
     };
     const circulateData = (data, type) => {
       let name = data.parentName;
       let dataAll = datas.value;
-
-      deepSearch(dataAll, name, type);
+      let index = 1;
+      deepSearch(dataAll, name, type, index);
     };
-    const deepSearch = (data, name, type) => {
-      console.log(name);
-      if (data.name == name) {
+    const initialTreeDepth = ref(1);
+    const deepSearch = (data, name, type, index) => {
+      if (data.path == name) {
         //找到
+        // data.collapsed = false;
         let temp = JSON.parse(JSON.stringify(data.childrensTemp));
-
+        console.log(index, 11111);
+        initialTreeDepth.value = index;
         if (type == 'next') {
           data.pageNum += 1;
           temp = temp.splice((data.pageNum - 1) * 10, 10);
@@ -111,12 +186,18 @@ export default {
             dealData(temp[i], temp[i].children || []);
           }
         }
+        // let dataTemp = datas.value;
+        console.log(datas.value);
+        // datas.value = [];
+        // datas.value = dataTemp;
+        MyChart.clear();
         setOption();
         return;
       } else {
+        index++;
         if (data.children && data.children.length) {
           for (let i = 0; i < data.children.length; i++) {
-            deepSearch(data.children[i], name, type);
+            deepSearch(data.children[i], name, type, index);
           }
         }
       }
@@ -153,6 +234,7 @@ export default {
             nodePadding: 80,
             // layerPadding: 33,
             expandAndCollapse: true,
+            initialTreeDepth: initialTreeDepth.value,
             itemStyle: {
               normal: {
                 color: '#fff', //圆圈颜色
@@ -203,7 +285,6 @@ export default {
                 },
               },
               formatter: (params) => {
-                console.log(params);
                 if (params.data.isGroup) {
                   return '{img|}' + '{style|' + `${params.data.name}` + '}';
                 } else if (params.data.isDevice) {
@@ -246,8 +327,8 @@ export default {
       });
     });
     onActivated(() => {
-      console.log(route);
       getModalTreeData(() => {
+        console.log(datas.value);
         initCharts();
       });
     });

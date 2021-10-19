@@ -362,9 +362,9 @@ export default {
               });
               deviceData.obj.name = form.formData.deviceName;
               router.go(-1);
-              if (deviceData.obj.dflag) {
+              // if (deviceData.obj.dflag) {
                 props.func.updateTree();
-              }
+              // }
             }
           });
         } else {

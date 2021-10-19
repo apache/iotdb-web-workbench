@@ -82,7 +82,7 @@
             <DataModal></DataModal>
           </div>
         </el-tab-pane>
-        <el-tab-pane :label="$t('sourcePage.accountPermit')" name="a">
+        <el-tab-pane :label="$t('sourcePage.accountPermitLabel')" name="a">
           <div class="tab-content">
             <div class="permit-content">
               <div class="left-part">
@@ -748,6 +748,10 @@ export default {
      * 保存用户权限管理权限
      */
     const savepermitAuth = () => {
+      if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_USER_PRIVILEGE') < 0) {
+        ElMessage.error(t(`sourcePage.noAuthTip`));
+        return false;
+      }
       let permitList = userRelationItems.value.concat(roleRelationItems.value).concat(udfRelationItems.value).concat(triggerRelationItems.value);
       let deletePermitList = permitPermissionListTemp.value.filter(function (val) {
         return permitList.indexOf(val) === -1;
@@ -756,8 +760,19 @@ export default {
         cancelPrivileges: deletePermitList,
         privileges: permitList,
       };
+      if (deletePermitList.length && store.state.dataBaseM.privilegeListAll.indexOf('REVOKE_USER_PRIVILEGE') < 0) {
+        ElMessage.error(t(`sourcePage.noAuthTip`));
+        return false;
+      }
       axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/authorityPrivilege`, { ...reqObj }).then((rs) => {
-        console.log(rs);
+         if (rs && rs.code == 0) {
+          ElMessage.success(t('sourcePage.successEditPermit'));
+          store.dispatch('fetchAllPrivileges', {
+          serverId: serverId.value,
+          userName: baseInfoForm.userName,
+        });
+        }
+        
       });
     };
     /**
@@ -1093,7 +1108,6 @@ export default {
       let temp = roleCheckeListTemp.value;
       let deleteArr = setOperation(temp, roleCheckeList.value);
       let newArr = setOperation(roleCheckeList.value, temp);
-      debugger;
       if (deleteArr.length && store.state.dataBaseM.privilegeListAll.indexOf('REVOKE_USER_ROLE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
         return false;
@@ -1101,6 +1115,10 @@ export default {
       let data = { roleList: newArr, cancelRoleList: deleteArr };
       grantRole(data, () => {
         ElMessage.success(t('sourcePage.editSuccessLabel'));
+        store.dispatch('fetchAllPrivileges', {
+          serverId: serverId.value,
+          userName: baseInfoForm.userName,
+        });
         editRole.value = false;
       });
     };

@@ -110,6 +110,7 @@ const en = {
       permitPermission: 'Permit Permission',
       permitTips: 'after check the [LIST_USER], you can make the [CREATE_USER]、[DELETE_USER]、[MODIFY_PASSWORD]take effect',
       dataModel: 'Data Model',
+      accountPermitLabel: 'account permission',
       accountRole: 'User Role',
       userNameTitle: 'Username',
       passwordTitle: 'Password',
@@ -195,6 +196,7 @@ const en = {
       showMore: 'Show More',
       nextPage: 'Next Page',
       prePage: 'Pre Page',
+      successEditPermit: 'You Have Success Edit Permission',
     },
     storagePage: {
       alias: 'connection',

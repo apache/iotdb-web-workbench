@@ -63,6 +63,7 @@ export default {
             nodePadding: 80,
             // layerPadding: 33,
             expandAndCollapse: true,
+            initialTreeDepth: 1,
             itemStyle: {
               normal: {
                 color: '#fff', //圆圈颜色

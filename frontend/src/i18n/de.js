@@ -177,6 +177,8 @@ const de = {
       showMore: '',
       nextPage: '',
       prePage: '',
+      successEditPermit: '',
+      accountPermitLabel: '',
     },
     storagePage: {
       alias: 'Verbindung',

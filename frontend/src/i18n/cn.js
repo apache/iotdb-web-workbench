@@ -111,6 +111,7 @@ const cn = {
       permitPermission: '权限管理权限',
       permitTips: '注：勾选用户/角色的【查看】权限后，相关创建、删除、修改能权限才能生效',
       dataModel: '数据模型',
+      accountPermitLabel: '账号权限',
       accountRole: '用户角色',
       userNameTitle: '账号',
       passwordTitle: '密码',
@@ -197,6 +198,7 @@ const cn = {
       showMore: '查看更多',
       nextPage: '下一页',
       prePage: '上一页',
+      successEditPermit: '修改权限管理权限成功',
     },
     storagePage: {
       alias: '数据连接',
