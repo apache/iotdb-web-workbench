@@ -379,7 +379,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, reactive, ref, watch, onActivated } from 'vue';
+import { onMounted, reactive, ref, watch, onActivated, getCurrentInstance } from 'vue';
 import {
   ElButton,
   ElTable,
@@ -419,6 +419,7 @@ export default {
   setup(props) {
     const { t, locale } = useI18n();
     const store = useStore();
+    const emitter = getCurrentInstance().appContext.config.globalProperties.emitter;
 
     let showDialog = ref(false);
     let permitDialogRef = ref(null);
@@ -814,6 +815,9 @@ export default {
       sourceTabs.value = tab.paneName;
       if (tab.paneName == 'a') {
         activeName.value = '1';
+      }
+      if (tab.paneName === 'r') {
+        emitter.emit('change-tab');
       }
     };
     /**

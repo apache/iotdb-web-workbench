@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { ref, watchEffect, watch } from 'vue';
+import { ref, watchEffect, watch, getCurrentInstance, onMounted, onUnmounted } from 'vue';
 import PermitDialog from '../permitDialog';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';
@@ -124,6 +124,7 @@ export default {
     let serverId = useRoute().params.serverid;
     let oldValue = ref({});
     let tableData = ref([]);
+    const emitter = getCurrentInstance().appContext.config.globalProperties.emitter;
 
     let pathMap = ref({
       0: t('sourcePage.selectAlias'),
@@ -247,6 +248,16 @@ export default {
       ElMessage.success(`删除权限成功`);
       getData();
     };
+    onMounted(() => {
+      emitter.on('change-tab', changeTab);
+    });
+
+    onUnmounted(() => {
+      emitter.off('change-tab', changeTab);
+    });
+    const changeTab = () => {
+      getData();
+    };
     watch(
       () => props.roleInfo.roleName,
       () => {
@@ -254,6 +265,82 @@ export default {
       },
       { immediate: true }
     );
+
+    watch(locale, () => {
+      pathMap.value = {
+        0: t('sourcePage.selectAlias'),
+        1: t('sourcePage.selectGroup'),
+        2: t('sourcePage.selectDevice'),
+        3: t('sourcePage.selectTime'),
+      };
+      (dataPrivileges.value = {
+        0: [
+          { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
+          {
+            id: 'CREATE_TIMESERIES',
+            label: t('sourcePage.createTimeSeries'),
+          },
+          {
+            id: 'INSERT_TIMESERIES',
+            label: t('sourcePage.insertTimeSeries'),
+          },
+          { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+          {
+            id: 'DELETE_TIMESERIES',
+            label: t('sourcePage.deleteTimeSeries'),
+          },
+        ],
+        1: [
+          { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
+          {
+            id: 'CREATE_TIMESERIES',
+            label: t('sourcePage.createTimeSeries'),
+          },
+          {
+            id: 'INSERT_TIMESERIES',
+            label: t('sourcePage.insertTimeSeries'),
+          },
+          { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+          {
+            id: 'DELETE_TIMESERIES',
+            label: t('sourcePage.deleteTimeSeries'),
+          },
+        ],
+        2: [
+          {
+            id: 'CREATE_TIMESERIES',
+            label: t('sourcePage.createTimeSeries'),
+          },
+          {
+            id: 'INSERT_TIMESERIES',
+            label: t('sourcePage.insertTimeSeries'),
+          },
+          { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+          {
+            id: 'DELETE_TIMESERIES',
+            label: t('sourcePage.deleteTimeSeries'),
+          },
+        ],
+        3: [
+          {
+            id: 'INSERT_TIMESERIES',
+            label: t('sourcePage.insertTimeSeries'),
+          },
+          { id: 'READ_TIMESERIES', label: t('sourcePage.readTimeSeries') },
+          {
+            id: 'DELETE_TIMESERIES',
+            label: t('sourcePage.deleteTimeSeries'),
+          },
+        ],
+      }),
+        (privilegeMap.value = {
+          SET_STORAGE_GROUP: t('sourcePage.createGroup'),
+          CREATE_TIMESERIES: t('sourcePage.createTimeSeries'),
+          INSERT_TIMESERIES: t('sourcePage.insertTimeSeries'),
+          READ_TIMESERIES: t('sourcePage.readTimeSeries'),
+          DELETE_TIMESERIES: t('sourcePage.deleteTimeSeries'),
+        });
+    });
     return {
       t,
       locale,

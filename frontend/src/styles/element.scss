@@ -220,3 +220,15 @@
       color: $theme-color;
     }
   }
+  .el-radio__input {
+    &.is-checked{
+      & .el-radio__inner{
+    border-color: $theme-color;
+    background: $theme-color;
+      }
+      
+    & + .el-radio__label{
+      color: $theme-color;
+    }
+    }
+  }

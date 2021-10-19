@@ -8,9 +8,7 @@
           <el-checkbox v-model="allChecked.user" :indeterminate="user" :label="$t('sourcePage.userRelevance')" @change="handleCheckAllChange('user')"></el-checkbox>
         </div>
         <el-checkbox-group v-model="checked.user" class="wraper" @change="handleItemCheckedChange($event, 'user')">
-          <el-checkbox v-for="item in relationList.user" :label="item.id" :disabled="checked.user.includes(item.label) && !canPrivilege.canCancelRolePrivilege" :key="item.id">{{
-            item.label
-          }}</el-checkbox>
+          <el-checkbox v-for="item in relationList.user" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
         </el-checkbox-group>
       </div>
       <div class="permit-list-type">
@@ -47,7 +45,7 @@
 
 <script>
 import { useI18n } from 'vue-i18n';
-import { ref, reactive, toRefs, computed, watch, watchEffect, toRef } from 'vue';
+import { ref, reactive, toRefs, computed, watch, watchEffect } from 'vue';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
@@ -70,10 +68,9 @@ export default {
     const { t, locale } = useI18n();
     let serverId = useRoute().params.serverid;
     const store = useStore();
-    let canPrivilege = ref(null);
+    let canPrivilege = {};
     watchEffect(() => {
-      canPrivilege.value = toRef(store.getters.canPrivilege);
-      console.log(canPrivilege.value);
+      canPrivilege = store.getters.canPrivilege;
     });
     let oldPrivileges = ref([]);
     let allChecked = ref({
@@ -97,8 +94,81 @@ export default {
       trigger: false,
     });
 
-    let relationList = computed(() => {
+    let relationList = ref({
+      user: [
+        {
+          id: 'LIST_USER',
+          label: t('sourcePage.listUser'),
+        },
+        {
+          id: 'CREATE_USER',
+          label: t('sourcePage.createUser'),
+        },
+        { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
+        { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
+        {
+          id: 'GRANT_USER_PRIVILEGE',
+          label: t('sourcePage.grantPrivilege'),
+        },
+        {
+          id: 'REVOKE_USER_PRIVILEGE',
+          label: t('sourcePage.revertPrivilege'),
+        },
+        {
+          id: 'GRANT_USER_ROLE',
+          label: t('sourcePage.grantUserRole'),
+        },
+        {
+          id: 'REVOKE_USER_ROLE',
+          label: t('sourcePage.revokeUserRole'),
+        },
+      ],
+      role: [
+        {
+          id: 'LIST_ROLE',
+          label: t('sourcePage.listRole'),
+        },
+
+        { id: 'CREATE_ROLE', label: t('sourcePage.createRole') },
+        { id: 'DELETE_ROLE', label: t('sourcePage.deleteRole') },
+        {
+          id: 'GRANT_ROLE_PRIVILEGE',
+          label: t('sourcePage.grantRolePrivilege'),
+        },
+        {
+          id: 'REVOKE_ROLE_PRIVILEGE',
+          label: t('sourcePage.revertRolePrivilege'),
+        },
+      ],
+      udf: [
+        {
+          id: 'CREATE_FUNCTION',
+          label: t('sourcePage.createFunction'),
+        },
+        {
+          id: 'DROP_FUNCTION',
+          label: t('sourcePage.uninstallFunction'),
+        },
+      ],
+      trigger: [
+        { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
+        { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
+        { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
+        { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
+      ],
+    });
+
+    let allPrivileges = computed(() => {
       return {
+        user: relationList.value.user.map((d) => d.id),
+        role: relationList.value.role.map((d) => d.id),
+        udf: relationList.value.udf.map((d) => d.id),
+        trigger: relationList.value.trigger.map((d) => d.id),
+      };
+    });
+
+    watch(locale, () => {
+      relationList.value = {
         user: [
           {
             id: 'LIST_USER',
@@ -162,16 +232,6 @@ export default {
         ],
       };
     });
-
-    let allPrivileges = computed(() => {
-      return {
-        user: relationList.value.user.map((d) => d.id),
-        role: relationList.value.role.map((d) => d.id),
-        udf: relationList.value.udf.map((d) => d.id),
-        trigger: relationList.value.trigger.map((d) => d.id),
-      };
-    });
-
     // 更新全选状态
     let resetAllChecked = (type) => {
       const checkedCount = checked.value[type].length;
@@ -179,58 +239,6 @@ export default {
       allChecked.value[type] = checkedCount === relationList.value[type].length;
     };
 
-    // watch(
-    //   () => checked.value.user,
-    //   (val, oldVal) => {
-    //     if (val.length > oldVal.length && !canPrivilege.canGrantRolePrivilege) {
-    //       ElMessage.error(t('sourcePage.noAuthTip'));
-    //       return;
-    //     }
-    //     if (val.length < oldVal.length && !canPrivilege.canCancelRolePrivilege) {
-    //       ElMessage.error(t('sourcePage.noAuthTip'));
-    //       return;
-    //     }
-    //   }
-    // );
-    // watch(
-    //   () => checked.value.role,
-    //   (val, oldVal) => {
-    //     if (val.length > oldVal.length && !canPrivilege.canGrantRolePrivilege) {
-    //       ElMessage.error(t('sourcePage.noAuthTip'));
-    //       return;
-    //     }
-    //     if (val.length < oldVal.length && !canPrivilege.canCancelRolePrivilege) {
-    //       ElMessage.error(t('sourcePage.noAuthTip'));
-    //       return;
-    //     }
-    //   }
-    // );
-    // watch(
-    //   () => checked.value.udf,
-    //   (val, oldVal) => {
-    //     if (val.length > oldVal.length && !canPrivilege.canGrantRolePrivilege) {
-    //       ElMessage.error(t('sourcePage.noAuthTip'));
-    //       return;
-    //     }
-    //     if (val.length < oldVal.length && !canPrivilege.canCancelRolePrivilege) {
-    //       ElMessage.error(t('sourcePage.noAuthTip'));
-    //       return;
-    //     }
-    //   }
-    // );
-    // watch(
-    //   () => checked.value.trigger,
-    //   (val, oldVal) => {
-    //     if (val.length > oldVal.length && !canPrivilege.canGrantRolePrivilege) {
-    //       ElMessage.error(t('sourcePage.noAuthTip'));
-    //       return;
-    //     }
-    //     if (val.length < oldVal.length && !canPrivilege.canCancelRolePrivilege) {
-    //       ElMessage.error(t('sourcePage.noAuthTip'));
-    //       return;
-    //     }
-    //   }
-    // );
     watch(
       () => props.roleInfo.privileges,
       () => {
@@ -276,6 +284,14 @@ export default {
       let newPrivileges = Object.values(checked.value).reduce((total, curr) => total.concat(curr));
       let cancelPrivileges = oldPrivileges?.value?.filter((d) => !newPrivileges.includes(d));
       let addPrivileges = newPrivileges?.filter((d) => !oldPrivileges?.value.includes(d));
+      if (!canPrivilege.canGrantRolePrivilege && addPrivileges.length) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
+      if (!canPrivilege.canCancelRolePrivilege && cancelPrivileges.length) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
       try {
         api.editAuthPrivilege({ serverId, roleName: props.roleInfo.roleName }, { cancelPrivileges, privileges: addPrivileges });
         oldPrivileges.value = newPrivileges;

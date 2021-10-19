@@ -126,15 +126,20 @@ export default {
         clickRole(roleList?.value[0]);
       }
     };
+    const changeTab = () => {
+      clickRole(activeRole.value);
+    };
 
     onMounted(() => {
       getRoleList();
       emitter.on('add-role', getRoleList);
+      emitter.on('change-tab', changeTab);
       emitter.on('cancel-add-role', cancelAdd);
     });
     onUnmounted(() => {
       emitter.off('add-role', getRoleList);
       emitter.off('cancel-add-role', cancelAdd);
+      emitter.off('change-tab', changeTab);
     });
 
     return {
