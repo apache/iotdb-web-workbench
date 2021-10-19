@@ -97,12 +97,13 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watchEffect } from 'vue';
 import PermitDialog from '../permitDialog';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
+import { useStore } from 'vuex';
 
 export default {
   name: 'DataManage',
@@ -114,6 +115,11 @@ export default {
   },
   setup(props) {
     const { t, locale } = useI18n();
+    const store = useStore();
+    let canPrivilege = {};
+    watchEffect(() => {
+      canPrivilege = store.getters.canPrivilege;
+    });
     let permitDialogRef = ref(null);
     let serverId = useRoute().params.serverid;
     let oldValue = ref({});
@@ -193,10 +199,18 @@ export default {
       ],
     });
     const addPermit = () => {
+      if (!canPrivilege.canGrantRolePrivilege) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
       permitDialogRef.value.open({ type: 'add' });
     };
 
     const editPrivilege = (row) => {
+      if (!canPrivilege.canGrantRolePrivilege) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
       oldValue.value = row;
       permitDialogRef.value.open({ type: 'edit', data: row });
     };
@@ -237,6 +251,10 @@ export default {
       tableData.value = result.data;
     };
     const deletePrivilege = async (row) => {
+      if (!canPrivilege.canCancelRolePrivilege) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
       let params = {
         serverId,
         roleName: props.roleInfo.roleName,

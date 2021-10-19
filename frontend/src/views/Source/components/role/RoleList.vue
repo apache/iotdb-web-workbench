@@ -31,15 +31,21 @@
 
 <script>
 import { useI18n } from 'vue-i18n';
-import { ref, onMounted, getCurrentInstance, onUnmounted } from 'vue';
+import { ref, onMounted, getCurrentInstance, onUnmounted, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../../api/index';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { useStore } from 'vuex';
 
 export default {
   name: 'RoleList',
   props: [],
   setup(props, { emit }) {
+    const store = useStore();
+    let canPrivilege = {};
+    watchEffect(() => {
+      canPrivilege = store.getters.canPrivilege;
+    });
     const { t, locale } = useI18n();
     let roleList = ref([]);
     let activeRole = ref(1);
@@ -63,6 +69,10 @@ export default {
     const addRole = () => {
       if (isAdding.value) {
         ElMessage.error('请先完成新增操作');
+        return;
+      }
+      if (!canPrivilege.canAddRole) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
         return;
       }
       roleList.value.unshift('NEW');
@@ -95,7 +105,11 @@ export default {
         ElMessage.error('请先完成新增操作');
         return;
       }
-      ElMessageBox.confirm('确认删除?', '提示', {
+      if (!canPrivilege.canDeleteRole) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
+      await ElMessageBox.confirm('确认删除?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',

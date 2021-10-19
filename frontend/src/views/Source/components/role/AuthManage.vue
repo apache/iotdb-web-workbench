@@ -8,7 +8,9 @@
           <el-checkbox v-model="allChecked.user" :indeterminate="user" :label="$t('sourcePage.userRelevance')" @change="handleCheckAllChange('user')"></el-checkbox>
         </div>
         <el-checkbox-group v-model="checked.user" class="wraper" @change="handleItemCheckedChange($event, 'user')">
-          <el-checkbox v-for="item in relationList.user" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
+          <el-checkbox v-for="item in relationList.user" :label="item.id" :disabled="checked.user.includes(item.label) && !canPrivilege.canCancelRolePrivilege" :key="item.id">{{
+            item.label
+          }}</el-checkbox>
         </el-checkbox-group>
       </div>
       <div class="permit-list-type">
@@ -21,7 +23,7 @@
       </div>
       <div class="permit-list-type">
         <div class="box box3">
-          <el-checkbox v-model="allChecked.udf" :indeterminate="udf" :label="$t('sourcePage.udf')"  @change="handleCheckAllChange('udf')"></el-checkbox>
+          <el-checkbox v-model="allChecked.udf" :indeterminate="udf" :label="$t('sourcePage.udf')" @change="handleCheckAllChange('udf')"></el-checkbox>
         </div>
         <el-checkbox-group v-model="checked.udf" @change="handleItemCheckedChange($event, 'udf')">
           <el-checkbox v-for="item in relationList.udf" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
@@ -45,9 +47,10 @@
 
 <script>
 import { useI18n } from 'vue-i18n';
-import { ref, reactive, toRefs, computed, watch } from 'vue';
+import { ref, reactive, toRefs, computed, watch, watchEffect, toRef } from 'vue';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';
+import { useStore } from 'vuex';
 import { ElMessage } from 'element-plus';
 export default {
   name: 'AuthManage',
@@ -66,6 +69,12 @@ export default {
   setup(props) {
     const { t, locale } = useI18n();
     let serverId = useRoute().params.serverid;
+    const store = useStore();
+    let canPrivilege = ref(null);
+    watchEffect(() => {
+      canPrivilege.value = toRef(store.getters.canPrivilege);
+      console.log(canPrivilege.value);
+    });
     let oldPrivileges = ref([]);
     let allChecked = ref({
       user: false,
@@ -170,6 +179,58 @@ export default {
       allChecked.value[type] = checkedCount === relationList.value[type].length;
     };
 
+    // watch(
+    //   () => checked.value.user,
+    //   (val, oldVal) => {
+    //     if (val.length > oldVal.length && !canPrivilege.canGrantRolePrivilege) {
+    //       ElMessage.error(t('sourcePage.noAuthTip'));
+    //       return;
+    //     }
+    //     if (val.length < oldVal.length && !canPrivilege.canCancelRolePrivilege) {
+    //       ElMessage.error(t('sourcePage.noAuthTip'));
+    //       return;
+    //     }
+    //   }
+    // );
+    // watch(
+    //   () => checked.value.role,
+    //   (val, oldVal) => {
+    //     if (val.length > oldVal.length && !canPrivilege.canGrantRolePrivilege) {
+    //       ElMessage.error(t('sourcePage.noAuthTip'));
+    //       return;
+    //     }
+    //     if (val.length < oldVal.length && !canPrivilege.canCancelRolePrivilege) {
+    //       ElMessage.error(t('sourcePage.noAuthTip'));
+    //       return;
+    //     }
+    //   }
+    // );
+    // watch(
+    //   () => checked.value.udf,
+    //   (val, oldVal) => {
+    //     if (val.length > oldVal.length && !canPrivilege.canGrantRolePrivilege) {
+    //       ElMessage.error(t('sourcePage.noAuthTip'));
+    //       return;
+    //     }
+    //     if (val.length < oldVal.length && !canPrivilege.canCancelRolePrivilege) {
+    //       ElMessage.error(t('sourcePage.noAuthTip'));
+    //       return;
+    //     }
+    //   }
+    // );
+    // watch(
+    //   () => checked.value.trigger,
+    //   (val, oldVal) => {
+    //     if (val.length > oldVal.length && !canPrivilege.canGrantRolePrivilege) {
+    //       ElMessage.error(t('sourcePage.noAuthTip'));
+    //       return;
+    //     }
+    //     if (val.length < oldVal.length && !canPrivilege.canCancelRolePrivilege) {
+    //       ElMessage.error(t('sourcePage.noAuthTip'));
+    //       return;
+    //     }
+    //   }
+    // );
     watch(
       () => props.roleInfo.privileges,
       () => {
@@ -251,6 +312,7 @@ export default {
       handleCheckAllChange,
       handleItemCheckedChange,
       resetAllChecked,
+      canPrivilege,
     };
   },
 };

@@ -19,12 +19,12 @@
       <el-button @click="resetForm">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitForm">{{ $t('common.submit') }}</el-button>
     </el-form-item>
-    <dialog-grant-user ref="dialogGrantUser" :user-list="userList" @change="changeUser"></dialog-grant-user>
+    <dialog-grant-user ref="dialogGrantUserRef" :user-list="userList" @change="changeUser"></dialog-grant-user>
   </el-form>
 </template>
 
 <script>
-import { ref, onMounted, watch, getCurrentInstance, computed } from 'vue';
+import { ref, onMounted, watch, getCurrentInstance, computed, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import DialogGrantUser from './DialogGrantUser.vue';
@@ -48,6 +48,10 @@ export default {
   setup(props) {
     const { t, locale } = useI18n();
     const store = useStore();
+    let canPrivilege = {};
+    watchEffect(() => {
+      canPrivilege = store.getters.canPrivilege;
+    });
     const internalInstance = getCurrentInstance();
     const emitter = internalInstance.appContext.config.globalProperties.emitter;
     let stateType = ref();
@@ -61,6 +65,7 @@ export default {
     const roleForm = ref(null);
     let userList = ref([]);
     let serverId = useRoute().params.serverid;
+    let dialogGrantUserRef = ref(null);
 
     watch(
       () => props.roleInfo,
@@ -109,6 +114,10 @@ export default {
       form.value.users = userList;
     };
     let closeTag = (tag) => {
+      if (!canPrivilege.canCancelUserRole) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
       form.value.users = form.value.users.filter((d) => d !== tag);
     };
     let submitForm = async () => {
@@ -149,6 +158,13 @@ export default {
     onMounted(() => {
       getUserList();
     });
+    const openGrantUserDialog = () => {
+      if (!canPrivilege.canGrantUserRole) {
+        ElMessage.error(t('sourcePage.noAuthTip'));
+        return;
+      }
+      dialogGrantUserRef.value.open(form.value.users);
+    };
     return {
       oldForm,
       t,
@@ -163,12 +179,9 @@ export default {
       store,
       closeTag,
       resetForm,
+      dialogGrantUserRef,
+      openGrantUserDialog,
     };
-  },
-  methods: {
-    openGrantUserDialog() {
-      this.$refs.dialogGrantUser.open(this.form.users);
-    },
   },
 };
 </script>

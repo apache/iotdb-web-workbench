@@ -23,6 +23,20 @@ const dataBaseM = {
     privilegeListAll: [],
   }),
 
+  getters: {
+    canPrivilege(state) {
+      return {
+        canViewRole: state.privilegeListAll.includes('LIST_ROLE'),
+        canAddRole: state.privilegeListAll.includes('CREATE_ROLE'),
+        canDeleteRole: state.privilegeListAll.includes('DELETE_ROLE'),
+        canGrantRolePrivilege: state.privilegeListAll.includes('GRANT_ROLE_PRIVILEGE'),
+        canCancelRolePrivilege: state.privilegeListAll.includes('REVOKE_ROLE_PRIVILEGE'),
+        canGrantUserRole: state.privilegeListAll.includes('GRANT_USER_ROLE'),
+        canCancelUserRole: state.privilegeListAll.includes('REVOKE_USER_ROLE'),
+      };
+    },
+  },
+
   mutations: {
     setPrivilegeListAll(state, data) {
       state.privilegeListAll = data;
@@ -35,6 +49,5 @@ const dataBaseM = {
       });
     },
   },
-  getters: {},
 };
 export default dataBaseM;
