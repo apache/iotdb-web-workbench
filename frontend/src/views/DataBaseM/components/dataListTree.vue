@@ -186,16 +186,17 @@ export default {
           name: e.name,
           id: node.data.id + e.name + 'device',
           type: 'device',
-          leaf: e.children === null ? true : false,
+          // leaf: e.children === null ? true : false,
+          leaf: false,
           rawid: e.name,
           storagegroupid: node.data.storagegroupid,
           connectionid: node.data.connectionid,
           deviceid: e.name,
         };
-        if (e.children) {
-          let innerChilds = recurseDeviceTree(e.children, { data: child });
-          child.zones = innerChilds;
-        }
+        // if (e.children) {
+        let innerChilds = recurseDeviceTree(e.children || [], { data: child });
+        child.zones = innerChilds;
+        // }
         return child;
       });
       childs.unshift(newDevice);
