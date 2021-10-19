@@ -39,7 +39,7 @@ const de = {
       edit: 'Bearbeiten',
       operation: 'Oeration',
       save: 'Speichern',
-      clear: 'Leer'
+      clear: 'Leer',
     },
     databasem: {
       newStoreGroup: 'Neue Speichergruppe ("storage group")',
@@ -161,7 +161,7 @@ const de = {
       timeNameLabel: 'Zeitreihe:',
       ttlErrorTips: 'ttl muss eine positive Ganzzahl sein',
       roleList: 'Liste der Aufgaben',
-      addRole:'Rolle hinzufügen',
+      addRole: 'Rolle hinzufügen',
       dataManagePrivilege: 'Behörde für das Datenmanagement',
       roleName: 'Name der Rolle',
       roleDescription: 'Beschreibung der Rolle',
@@ -172,8 +172,11 @@ const de = {
       roleNameLengthError: 'Ungenügende Rollenlänge',
       roleNameExistError: 'Die Rolle existiert bereits',
       grantUser: 'Zugelassener Benutzer',
-      userList:'Liste der Benutzer',
-      selectedUser: 'Ausgewählte Benutzer'
+      userList: 'Liste der Benutzer',
+      selectedUser: 'Ausgewählte Benutzer',
+      showMore: '',
+      nextPage: '',
+      prePage: '',
     },
     storagePage: {
       alias: 'Verbindung',

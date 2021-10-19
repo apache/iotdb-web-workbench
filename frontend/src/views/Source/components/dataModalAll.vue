@@ -49,8 +49,8 @@ export default {
         // let temp = JSON.parse(JSON.stringify(data.childrensTemp));
         data.children = data.children.splice((data.pageNum - 1) * 10, 10);
 
-        data.children.push({ name: '下一页', parentName: data.name, type: 'next', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
-        data.children.unshift({ name: '上一页', parentName: data.name, type: 'pre', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
+        data.children.push({ name: t('sourcePage.nextPage'), parentName: data.name, type: 'next', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
+        data.children.unshift({ name: t('sourcePage.prePage'), parentName: data.name, type: 'pre', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
       } else {
         data.pageNum = 1;
         data.totalPage = 1;

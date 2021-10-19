@@ -192,6 +192,9 @@ const en = {
       grantUser: 'Authorized user',
       userList: 'user list',
       selectedUser: 'Selected users',
+      showMore: 'Show More',
+      nextPage: 'Next Page',
+      prePage: 'Pre Page',
     },
     storagePage: {
       alias: 'connection',

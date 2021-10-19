@@ -194,6 +194,9 @@ const cn = {
       grantUser: '授权用户',
       userList: '用户列表',
       selectedUser: '已选用户',
+      showMore: '查看更多',
+      nextPage: '下一页',
+      prePage: '上一页',
     },
     storagePage: {
       alias: '数据连接',

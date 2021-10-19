@@ -78,7 +78,7 @@
       <el-tabs v-model="sourceTabs" @tab-click="handleClickSource" class="tabs">
         <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
           <div class="tab-content">
-            <el-button class="button-special title" @click="goToAllModal()">查看更多</el-button>
+            <el-button class="button-special title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
             <DataModal></DataModal>
           </div>
         </el-tab-pane>
@@ -441,48 +441,6 @@ export default {
     // 是否可以用户赋权角色
     let canAuthRole = ref(false);
     const router = useRouter();
-    let selectArray = ['一级 1'];
-    let checkedKeys = [1];
-    let treeData = [
-      {
-        id: 1,
-        label: '一级 1',
-        children: [
-          {
-            id: 4,
-            label: '二级 1-1',
-          },
-        ],
-      },
-      {
-        id: 2,
-        label: '一级 2',
-        children: [
-          {
-            id: 5,
-            label: '二级 2-1',
-          },
-          {
-            id: 6,
-            label: '二级 2-2',
-          },
-        ],
-      },
-      {
-        id: 3,
-        label: '一级 3',
-        children: [
-          {
-            id: 7,
-            label: '二级 3-1',
-          },
-          {
-            id: 8,
-            label: '二级 3-2',
-          },
-        ],
-      },
-    ];
     let pathList = ref([
       { label: t('sourcePage.selectAlias'), value: 0 },
       { label: t('sourcePage.selectGroup'), value: 1 },
@@ -574,18 +532,6 @@ export default {
     let funcTypeOne = () => {
       return [
         { id: 'SET_STORAGE_GROUP', label: t('sourcePage.createGroup') },
-        // { id: 'CREATE_USER', label: t('sourcePage.createUser') },
-        // { id: 'DELETE_USER', label: t('sourcePage.deleteUser') },
-        // { id: 'MODIFY_PASSWORD', label: t('sourcePage.editPassword') },
-        // { id: 'LIST_USER', label: t('sourcePage.listUser') },
-        // {
-        //   id: 'GRANT_USER_PRIVILEGE',
-        //   label: t('sourcePage.grantPrivilege'),
-        // },
-        // {
-        //   id: 'REVOKE_USER_PRIVILEGE',
-        //   label: t('sourcePage.revertPrivilege'),
-        // },
         {
           id: 'CREATE_TIMESERIES',
           label: t('sourcePage.createTimeSeries'),
@@ -599,12 +545,6 @@ export default {
           id: 'DELETE_TIMESERIES',
           label: t('sourcePage.deleteTimeSeries'),
         },
-        // { id: 'CREATE_TRIGGER', label: t('sourcePage.createTrigger') },
-        // { id: 'DROP_TRIGGER', label: t('sourcePage.uninstallTrigger') },
-        // { id: 'START_TRIGGER', label: t('sourcePage.startTrigger') },
-        // { id: 'STOP_TRIGGER', label: t('sourcePage.stopTrigger') },
-        // { id: 'CREATE_FUNCTION', label: t('sourcePage.createFunction') },
-        // { id: 'DROP_FUNCTION', label: t('sourcePage.uninstallFunction') },
       ];
     };
     let funcTypeTwo = () => {
@@ -758,7 +698,7 @@ export default {
      * 查看完整数据模型树
      */
     const goToAllModal = () => {
-      props.func.addTab(`${serverId.value}connection`, { type: 'modal' });
+      props.func.addTab(`${serverId.value}connection`, { twinTab: true, title: baseInfo.value.alias, id: new Date().getTime() + '', type: 'modal' });
     };
     /**
      * 新增或编辑数据连接
@@ -1172,24 +1112,6 @@ export default {
       }
       permitType.value = type;
       permitDialogRef.value.open({ type: 'add' });
-      // for (let i = 0; i < authTableData.value.length; i++) {
-      //   if (authTableData.value[i].new) {
-      //     ElMessage.error(t(`sourcePage.addAuthFirstLabel`));
-      //     return false;
-      //   }
-      // }
-      // authTableData.value.push({
-      //   edit: true,
-      //   new: true,
-      //   privileges: [],
-      //   groupPaths: [],
-      //   allGroupPaths: allGroupPaths.value,
-      //   allDevicePaths: [],
-      //   devicePaths: [],
-      //   allTimeseriesPaths: [],
-      //   timeseriesPaths: [],
-      //   type: null,
-      // });
     };
     const submitPermit = ({ type, privileges, dialogType, range } = {}) => {
       console.log(type, privileges, dialogType, range);
@@ -1680,9 +1602,6 @@ export default {
       authTableData,
       pathList,
       pathMap,
-      treeData,
-      selectArray,
-      checkedKeys,
       funcTypeOne,
       funcTypeTwo,
       funcTypeThree,
