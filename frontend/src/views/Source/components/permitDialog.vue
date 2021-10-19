@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { reactive, ref, watch, toRefs, nextTick } from 'vue';
+import { reactive, ref, watch, toRefs, nextTick, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TreeSelect from '@/components/TreeSelect';
 import api from '../api/index';
@@ -59,15 +59,25 @@ import api from '../api/index';
 // import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import { DataGranularityMap as dataMap } from '@/util/constant';
+import { ElMessage } from 'element-plus';
 
 export default {
   name: 'PermitDialog',
-  setup(props, { emit }) {
+  props: {
+    dialogOrigin: {
+      type: String,
+      default: 'user',
+    },
+    name: {
+      type: String,
+      default: 'user',
+    },
+  },
+  setup(props, {emit}) {
     const { t, locale } = useI18n();
     let checkList = ref([]);
     let visible = ref(false);
     let dialogType = ref({});
-    let oldForm = ref({});
     let formRef = ref(null);
     // 数据粒度 0数据连接 1存储组 2实体 3物理量
     let granularityValue = ref(null);
@@ -88,6 +98,7 @@ export default {
       device: '',
       time: '',
     });
+    let oldValue = ref({});
 
     let options = reactive({
       // 存储组树形
@@ -105,6 +116,19 @@ export default {
     let serverId = useRoute().params.serverid;
 
     let DataGranularityMap = reactive(dataMap);
+
+    let methodMap = computed(() => {
+      return {
+        user: api.editUserDataPrivilege,
+        role: api.editDataPrivilege,
+      }[props.dialogOrigin];
+    });
+    let paramMap = computed(() => {
+      return {
+        user: 'userName',
+        role: 'roleName',
+      }[props.dialogOrigin];
+    });
 
     let dataPrivileges = ref({
       0: [
@@ -290,7 +314,7 @@ export default {
     // data 编辑回显数据
     const open = async ({ type, data } = {}) => {
       dialogType.value = type;
-      oldForm.value = data;
+      oldValue.value = { ...data };
       visible.value = true;
       nextTick(() => {
         formRef.value.clearValidate();
@@ -414,7 +438,45 @@ export default {
         }
       }
       await formRef.value.validate();
-      emit('submit', { type, range, privileges, dialogType: dialogType.value });
+      let payload = { type };
+      let params = {
+        serverId,
+      };
+      params[paramMap.value] = props.name;
+      // 处理权限
+      let dealPivilege = handlePath('privileges', [...privileges]);
+      payload.privileges = privileges;
+      payload.cancelPrivileges = dealPivilege.deleteList;
+      // 处理存储组
+      if (type === 1) {
+        let dealGroup = handlePath('groupPaths', [...range]);
+        payload.groupPaths = dealGroup.addList;
+      }
+      // 处理实体
+      if (type === 2) {
+        payload.groupPaths = [range.storage];
+        payload.devicePaths = range.device;
+      }
+      // 处理物理量
+      if (type === 3) {
+        payload.groupPaths = [range.storage];
+        payload.devicePaths = [range.device];
+        payload.timeseriesPaths = range.time;
+      }
+      console.log(params, payload)
+      await methodMap.value(params, payload);
+      visible.value = false;
+      ElMessage.success(`${dialogType.value === 'add' ? '新增' : '编辑'}权限成功`);
+      emit('submit');
+    };
+    const handlePath = (props, List) => {
+      if (!oldValue.value) return {};
+      let deleteList = oldValue?.value[props]?.filter((d) => !List.includes(d));
+      let addList = List.filter((d) => !oldValue?.value[props]?.includes(d));
+      return {
+        addList,
+        deleteList,
+      };
     };
     return {
       t,

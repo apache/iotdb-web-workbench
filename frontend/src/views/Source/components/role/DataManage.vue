@@ -92,12 +92,12 @@
         </template>
       </el-table-column>
     </el-table>
-    <permit-dialog ref="permitDialogRef" @submit="submitPermit"></permit-dialog>
+    <permit-dialog ref="permitDialogRef" :name="roleInfo.roleName" dialog-origin="role" @submit="handleSubmit"></permit-dialog>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, watchEffect } from 'vue';
+import { ref, watchEffect, watch } from 'vue';
 import PermitDialog from '../permitDialog';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';
@@ -198,6 +198,9 @@ export default {
         },
       ],
     });
+    const handleSubmit = () => {
+      getData();
+    };
     const addPermit = () => {
       if (!canPrivilege.canGrantRolePrivilege) {
         ElMessage.error(t('sourcePage.noAuthTip'));
@@ -213,38 +216,6 @@ export default {
       }
       oldValue.value = row;
       permitDialogRef.value.open({ type: 'edit', data: row });
-    };
-    const submitPermit = ({ type, privileges, dialogType, range } = {}) => {
-      console.log(type, privileges, dialogType, range);
-      let payload = { type };
-      let params = {
-        serverId,
-        roleName: props.roleInfo.roleName,
-      };
-      // 处理权限
-      let dealPivilege = handlePath('privileges', privileges);
-      payload.privileges = privileges;
-      payload.cancelPrivileges = dealPivilege.deleteList;
-      // 处理存储组
-      if (type === 1) {
-        let dealGroup = handlePath('groupPaths', range);
-        payload.groupPaths = dealGroup.addList;
-      }
-      // 处理实体
-      if (type === 2) {
-        payload.groupPaths = [range.storage];
-        payload.devicePaths = range.device;
-      }
-      // 处理物理量
-      if (type === 3) {
-        payload.groupPaths = [range.storage];
-        payload.devicePaths = [range.device];
-        payload.timeseriesPaths = range.time;
-      }
-      api.editDataPrivilege(params, payload);
-      permitDialogRef.value.visible = false;
-      ElMessage.success(`${dialogType === 'add' ? '新增' : '编辑'}权限成功`);
-      getData();
     };
     const getData = async () => {
       let result = await api.getDataPrivilege({ serverId, roleName: props.roleInfo.roleName });
@@ -276,29 +247,26 @@ export default {
       ElMessage.success(`删除权限成功`);
       getData();
     };
-    const handlePath = (props, List) => {
-      let deleteList = oldValue?.value[props]?.filter((d) => !List.includes(d));
-      let addList = List.filter((d) => !oldValue?.value[props]?.includes(d));
-      return {
-        addList,
-        deleteList,
-      };
-    };
-    onMounted(() => {
-      getData();
-    });
+    watch(
+      () => props.roleInfo.roleName,
+      () => {
+        getData();
+      },
+      { immediate: true }
+    );
     return {
       t,
       locale,
       permitDialogRef,
       addPermit,
-      submitPermit,
       pathMap,
       tableData,
       editPrivilege,
       deletePrivilege,
       dataPrivileges,
       privilegeMap,
+      getData,
+      handleSubmit,
     };
   },
   components: {
