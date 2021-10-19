@@ -1136,10 +1136,7 @@ export default {
       permitDialogRef.value.open({ type: 'add' });
     };
     const submitPermit = () => {
-      console.log(111);
-    };
-    const cancelDialog = () => {
-      // showPermitDialog.value = false;
+      getUserAuth({ username: baseInfoForm.userName });
     };
     const cancelRoleDialog = () => {
       showRoleDialog.value = false;
@@ -1609,7 +1606,6 @@ export default {
       doEditRole,
       authAdd,
       submitPermit,
-      cancelDialog,
       cancelRoleDialog,
       submitRoleDialog,
       roleCheckeList,
