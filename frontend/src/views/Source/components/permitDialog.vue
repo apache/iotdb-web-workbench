@@ -449,8 +449,7 @@ export default {
       payload.cancelPrivileges = dealPivilege.deleteList;
       // 处理存储组
       if (type === 1) {
-        let dealGroup = handlePath('groupPaths', [...range]);
-        payload.groupPaths = dealGroup.addList;
+        payload.groupPaths = [...range];
       }
       // 处理实体
       if (type === 2) {
