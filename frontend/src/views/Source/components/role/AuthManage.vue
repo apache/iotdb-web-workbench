@@ -5,7 +5,7 @@
     <div class="permit-list">
       <div class="permit-list-type">
         <div class="box box1">
-          <el-checkbox v-model="allChecked.user" :indeterminate="user" label="用户相关" @change="handleCheckAllChange('user')"></el-checkbox>
+          <el-checkbox v-model="allChecked.user" :indeterminate="user" :label="$t('sourcePage.userRelevance')" @change="handleCheckAllChange('user')"></el-checkbox>
         </div>
         <el-checkbox-group v-model="checked.user" class="wraper" @change="handleItemCheckedChange($event, 'user')">
           <el-checkbox v-for="item in relationList.user" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
@@ -13,7 +13,7 @@
       </div>
       <div class="permit-list-type">
         <div class="box box2">
-          <el-checkbox v-model="allChecked.role" :indeterminate="role" label="角色相关" @change="handleCheckAllChange('role')"></el-checkbox>
+          <el-checkbox v-model="allChecked.role" :indeterminate="role" :label="$t('sourcePage.roleRelevance')" @change="handleCheckAllChange('role')"></el-checkbox>
         </div>
         <el-checkbox-group v-model="checked.role" @change="handleItemCheckedChange($event, 'role')">
           <el-checkbox v-for="item in relationList.role" :label="item.id" :key="item.id" @change="changeItemCheck">{{ item.label }}</el-checkbox>
@@ -21,7 +21,7 @@
       </div>
       <div class="permit-list-type">
         <div class="box box3">
-          <el-checkbox v-model="allChecked.udf" :indeterminate="udf" label="UDF" @change="handleCheckAllChange('udf')"></el-checkbox>
+          <el-checkbox v-model="allChecked.udf" :indeterminate="udf" :label="$t('sourcePage.udf')"  @change="handleCheckAllChange('udf')"></el-checkbox>
         </div>
         <el-checkbox-group v-model="checked.udf" @change="handleItemCheckedChange($event, 'udf')">
           <el-checkbox v-for="item in relationList.udf" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
@@ -29,7 +29,7 @@
       </div>
       <div class="permit-list-type">
         <div class="box box4">
-          <el-checkbox v-model="allChecked.trigger" :indeterminate="trigger" label="触发器" @change="handleCheckAllChange('trigger')"></el-checkbox>
+          <el-checkbox v-model="allChecked.trigger" :indeterminate="trigger" :label="$t('sourcePage.trigger')" @change="handleCheckAllChange('trigger')"></el-checkbox>
         </div>
         <el-checkbox-group v-model="checked.trigger" @change="handleItemCheckedChange($event, 'trigger')">
           <el-checkbox v-for="item in relationList.trigger" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
@@ -284,6 +284,7 @@ export default {
         padding-left: 10px;
         height: 32px;
         line-height: 32px;
+        display: block;
       }
       .box {
         border-radius: 4px;

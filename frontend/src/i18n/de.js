@@ -177,6 +177,10 @@ const de = {
       showMore: '',
       nextPage: '',
       prePage: '',
+      userRelevance: 'Benutzerbezogene Daten',
+      roleRelevance: 'Zusammenhang mit der Rolle',
+      udf: 'UDF',
+      trigger: 'Auslöser'
     },
     storagePage: {
       alias: 'Verbindung',

@@ -11,11 +11,11 @@
       <el-tag v-for="tag in form.users" :key="tag" :closable="roleInfo.type === 'edit'" size="small" class="el-tag-deep-green" @close="closeTag(tag)">
         {{ tag }}
       </el-tag>
-      <svg v-if="stateType === 'edit'" class="icon" aria-hidden="true" @click="openGrantUserDialog">
+      <svg v-if="stateType === 'edit' || stateType === 'add'" class="icon" aria-hidden="true" @click="openGrantUserDialog">
         <use xlink:href="#icon-add1"></use>
       </svg>
     </el-form-item>
-    <el-form-item v-if="stateType === 'edit'">
+    <el-form-item v-if="stateType === 'edit' || stateType === 'add'">
       <el-button @click="resetForm">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitForm">{{ $t('common.submit') }}</el-button>
     </el-form-item>

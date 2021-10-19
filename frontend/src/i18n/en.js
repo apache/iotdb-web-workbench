@@ -190,11 +190,15 @@ const en = {
       roleNameLengthError: 'Insufficient role length',
       roleNameExistError: 'Role already exists',
       grantUser: 'Authorized user',
-      userList: 'user list',
+      userList: 'User list',
       selectedUser: 'Selected users',
       showMore: 'Show More',
       nextPage: 'Next Page',
       prePage: 'Pre Page',
+      userRelevance: 'User Relevance',
+      roleRelevance: 'Role Relevance',
+      udf: 'UDF',
+      trigger: 'trigger'
     },
     storagePage: {
       alias: 'connection',

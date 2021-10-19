@@ -1,9 +1,9 @@
 <!-- 角色数据管理权限 -->
 <template>
   <div class="data-manage">
-    <el-button class="add-btn" type="primary" @click="addPermit">添加权限</el-button>
+    <el-button class="add-btn" type="primary" @click="addPermit">{{ $t('sourcePage.addAuthBtn') }}</el-button>
     <el-table :data="tableData" style="width: 100%">
-      <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="180">
+      <el-table-column show-overflow-tooltip :label="$t('sourcePage.path')" width="80">
         <template #default="{ row }">
           <span>{{ pathMap[row.type] }}</span>
         </template>
@@ -70,7 +70,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('sourcePage.func')" width="300px">
+      <el-table-column :label="$t('sourcePage.func')">
         <template #default="scope">
           <div class="privilege-name">
             <span class="privilege-item" v-for="(item, index) in scope.row.privileges" :key="item">

@@ -197,6 +197,11 @@ const cn = {
       showMore: '查看更多',
       nextPage: '下一页',
       prePage: '上一页',
+      userRelevance: '用户相关',
+      roleRelevance: '角色相关',
+      udf: 'UDF',
+      trigger: '触发器',
+
     },
     storagePage: {
       alias: '数据连接',
