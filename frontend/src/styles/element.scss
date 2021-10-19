@@ -187,6 +187,15 @@
     border-color: $theme-color;
   }
 }
+.el-checkbox__input{
+  &.is-indeterminate{
+    & .el-checkbox__inner{
+      
+    background-color:$theme-color;
+    border-color: $theme-color;
+    }
+  }
+}
 .el-checkbox__inner:hover {
   border-color: $theme-color !important;
 }
@@ -205,4 +214,9 @@
     color:#333333;
     background-color: rgba(19, 195, 147, 0.1);
     border-color: rgba(19, 195, 147, 0.5);
+  }
+  .el-pager {
+    li.active {
+      color: $theme-color;
+    }
   }
