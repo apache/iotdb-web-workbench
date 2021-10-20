@@ -19,9 +19,15 @@
           <svg class="icon" aria-hidden="true" v-if="!isAdding && activeRole === item" @click.stop="editRole(item)">
             <use xlink:href="#icon-se-icon-f-edit"></use>
           </svg>
-          <svg v-if="activeRole === item" class="icon delete" aria-hidden="true" @click.stop="deleteRole(item)">
-            <use xlink:href="#icon-se-icon-delete"></use>
-          </svg>
+          <el-popconfirm placement="top" :title="$t('sourcePage.deleteRoleConfirm')" @confirm="deleteRole(item)">
+            <template #reference>
+              <span class="icon-del del-user">
+                <svg v-if="activeRole === item" class="icon delete" aria-hidden="true">
+                  <use xlink:href="#icon-se-icon-delete"></use>
+                </svg>
+              </span>
+            </template>
+          </el-popconfirm>
         </div>
       </li>
     </ul>
@@ -31,7 +37,7 @@
 
 <script>
 import { useI18n } from 'vue-i18n';
-import { ref, onMounted, getCurrentInstance, onUnmounted, watchEffect } from 'vue';
+import { ref, onActivated, onDeactivated, getCurrentInstance, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../../api/index';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -60,6 +66,7 @@ export default {
       roleList.value = result.data;
       if (!roleList.value.length) {
         emit('changeCurrRole', { id: '', name: 'NEW' });
+        activeRole.value = '';
       } else {
         clickRole(roleName ? roleName : result?.data[0]);
       }
@@ -120,23 +127,27 @@ export default {
       });
     };
     const cancelAdd = () => {
+      //新增状态的时候点取消, 退出新增状态,并锁定第一个角色
       if (isAdding.value) {
         roleList.value.splice(0, 1);
         isAdding.value = false;
         clickRole(roleList?.value[0]);
+      } else {
+        //编辑时候点取消, 退出编辑状态
+        clickRole(activeRole.value);
       }
     };
     const changeTab = () => {
-      clickRole(activeRole.value);
+      activeRole.value && clickRole(activeRole.value);
     };
 
-    onMounted(() => {
+    onActivated(() => {
       getRoleList();
       emitter.on('add-role', getRoleList);
       emitter.on('change-tab', changeTab);
       emitter.on('cancel-add-role', cancelAdd);
     });
-    onUnmounted(() => {
+    onDeactivated(() => {
       emitter.off('add-role', getRoleList);
       emitter.off('cancel-add-role', cancelAdd);
       emitter.off('change-tab', changeTab);
@@ -200,7 +211,7 @@ export default {
     height: calc(100% - 44px);
     overflow: auto;
     .active-item {
-      background: #ffffff;
+      background: #fff;
     }
     &-item {
       width: 100%;
@@ -212,15 +223,15 @@ export default {
       display: flex;
       position: relative;
       cursor: pointer;
-      border-radius: 30px 0px 0px 30px;
+      border-radius: 30px 0 0 30px;
 
       &:hover {
-        background: #ffffff;
-        color: #333333;
+        background: #fff;
+        color: #333;
         .circle {
-          background: #ffffff;
+          background: #fff;
           .small-circle {
-            background: #ffffff;
+            background: #fff;
           }
         }
       }

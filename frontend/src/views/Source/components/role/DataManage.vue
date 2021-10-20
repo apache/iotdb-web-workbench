@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { ref, watchEffect, watch, getCurrentInstance, onMounted, onUnmounted } from 'vue';
+import { ref, watchEffect, watch, getCurrentInstance, onActivated, onDeactivated } from 'vue';
 import PermitDialog from '../permitDialog';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';
@@ -219,6 +219,7 @@ export default {
       permitDialogRef.value.open({ type: 'edit', data: row });
     };
     const getData = async () => {
+      if (!props.roleInfo.roleName) return;
       let result = await api.getDataPrivilege({ serverId, roleName: props.roleInfo.roleName });
       tableData.value = result.data;
     };
@@ -248,11 +249,11 @@ export default {
       ElMessage.success(`删除权限成功`);
       getData();
     };
-    onMounted(() => {
+    onActivated(() => {
       emitter.on('change-tab', changeTab);
     });
 
-    onUnmounted(() => {
+    onDeactivated(() => {
       emitter.off('change-tab', changeTab);
     });
     const changeTab = () => {
@@ -260,8 +261,8 @@ export default {
     };
     watch(
       () => props.roleInfo.roleName,
-      () => {
-        getData();
+      (val) => {
+        val && getData();
       },
       { immediate: true }
     );

@@ -349,7 +349,7 @@ export default {
 
     .permit-list-type {
       flex: 1;
-      background: #ffffff;
+      background: #fff;
       border-radius: 4px;
       border: 1px solid #eaecf0;
       margin-right: 20px;
