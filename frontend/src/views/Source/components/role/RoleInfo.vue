@@ -2,20 +2,20 @@
 <template>
   <el-form ref="roleForm" label-position="top" :model="form" :rules="rules" label-width="120px">
     <el-form-item :label="$t('sourcePage.roleName')" prop="roleName">
-      <el-input :disabled="stateType === 'view'" v-model="form.roleName" type="text" autocomplete="off" maxLength="255" :placeholder="$t('sourcePage.inputRoleNameTip')"></el-input>
+      <el-input :disabled="['view', 'edit'].includes(stateType)" v-model="form.roleName" type="text" autocomplete="off" maxlength="255" :placeholder="$t('sourcePage.inputRoleNameTip')"></el-input>
     </el-form-item>
     <el-form-item :label="$t('sourcePage.description')" prop="description">
-      <el-input :disabled="stateType === 'view'" v-model="form.description" type="text" autocomplete="off" maxLength="100" :placeholder="$t('sourcePage.inputRoleDescTip')"></el-input>
+      <el-input :disabled="stateType === 'view'" v-model="form.description" type="text" autocomplete="off" maxlength="100" :placeholder="$t('sourcePage.inputRoleDescTip')"></el-input>
     </el-form-item>
     <el-form-item :label="$t('sourcePage.grantUser')">
       <el-tag v-for="tag in form.users" :key="tag" :closable="roleInfo.type === 'edit'" size="small" class="el-tag-deep-green" @close="closeTag(tag)">
         {{ tag }}
       </el-tag>
-      <svg v-if="stateType === 'edit' || stateType === 'add'" class="icon" aria-hidden="true" @click="openGrantUserDialog">
+      <svg v-if="['add', 'edit'].includes(stateType)" class="icon" aria-hidden="true" @click="openGrantUserDialog">
         <use xlink:href="#icon-add1"></use>
       </svg>
     </el-form-item>
-    <el-form-item v-if="stateType === 'edit' || stateType === 'add'">
+    <el-form-item v-if="['add', 'edit'].includes(stateType)">
       <el-button @click="resetForm">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitForm">{{ $t('common.submit') }}</el-button>
     </el-form-item>
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, getCurrentInstance, computed, watchEffect } from 'vue';
+import { ref, watch, getCurrentInstance, computed, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import DialogGrantUser from './DialogGrantUser.vue';
@@ -149,20 +149,14 @@ export default {
       }
     };
     const resetForm = () => {
-      if (oldForm.value.id) {
-        form.value = { ...oldForm.value };
-      } else {
-        emitter.emit('cancel-add-role');
-      }
+      emitter.emit('cancel-add-role');
     };
-    onMounted(() => {
-      getUserList();
-    });
-    const openGrantUserDialog = () => {
+    const openGrantUserDialog = async () => {
       if (!canPrivilege.canGrantUserRole) {
         ElMessage.error(t('sourcePage.noAuthTip'));
         return;
       }
+      await getUserList();
       dialogGrantUserRef.value.open(form.value.users);
     };
     return {

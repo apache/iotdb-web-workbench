@@ -170,6 +170,7 @@ const en = {
       deleteAuthConfirm: 'are you sure to delete this auth?',
       deleteSourceConfirm: 'are you sure to delete this source?',
       deleteUserConfirm: 'are you sure to delete this user?',
+      deleteRoleConfirm: 'are you sure to delete this role?',
       newSourceSuccessLabel: 'you have new or edit source successful',
       addAuthFirstLabel: 'please do auth add present first',
       authTips: 'attention please: after check the [LIST_USER], you can make the [CREATE_USER]、[DELETE_USER]、[MODIFY_PASSWORD]、[GRANT_USER_PRIVILEGE]、[REVOKE_USER_PRIVILEGE] take effect',

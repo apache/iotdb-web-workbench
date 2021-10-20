@@ -150,6 +150,7 @@ const de = {
       deleteAuthConfirm: 'Soll dieses Recht sicher gelöscht werden?',
       deleteSourceConfirm: 'Soll diese Datenquelle sicher gelöscht werden?',
       deleteUserConfirm: 'Soll der Benutzer sicher gelöscht werden?',
+      deleteRoleConfirm: 'Diese Rolle löschen?',
       newSourceSuccessLabel: 'Datenquelle erfolgreich gespeichert',
       addAuthFirstLabel: 'please do auth add present first',
       authTips: 'Vorsicht: Erst nach der Prüfung [LIST_USER], kann [CREATE_USER]、[DELETE_USER]、[MODIFY_PASSWORD]、[GRANT_USER_PRIVILEGE]、[REVOKE_USER_PRIVILEGE] angewendet werden',
