@@ -199,7 +199,6 @@ export default {
       codeArr = codeArr.filter((item) => {
         return item;
       });
-      console.log(codeArr);
     }
     function querySqlRun() {
       if (runFlag.value) {
@@ -218,7 +217,6 @@ export default {
           tableData.list = [];
           let lengthArry = [];
           tabelNum.value = res.data.length;
-          console.log(res);
           res.data.forEach((item) => {
             let length = [];
             time.list.push(item.queryTime);
@@ -333,9 +331,7 @@ export default {
       });
     }
     function stopquery() {
-      queryStop(routeData.obj.connectionid, { timestamp: timeNumber.value }).then((res) => {
-        console.log(res);
-      });
+      queryStop(routeData.obj.connectionid, { timestamp: timeNumber.value }).then(() => {});
     }
     function exportSql(i) {
       exportDataSql(routeData.obj.connectionid, { sql: codeArr[i] }).then((res) => {
@@ -375,8 +371,6 @@ export default {
     }
     onActivated(() => {
       routeData.obj = route.params;
-      console.log(11111);
-      console.log(routeData.obj);
       if (route.params.forceupdate) {
         getSqlCode();
         getGroupList();

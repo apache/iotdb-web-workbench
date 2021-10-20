@@ -34,7 +34,6 @@ function useLangSwitch(domRef, divwerHeight) {
       } else {
         divwerHeight.value = 0;
       }
-      console.log(divwerHeight.value);
     };
     document.onmouseup = function () {
       document.documentElement.style.cursor = 'auto';

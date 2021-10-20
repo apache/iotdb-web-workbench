@@ -234,8 +234,6 @@ export default {
      * row:要被删除的实体的信息
      */
     const editDevice = (row) => {
-      console.log(row);
-      console.log(props.data);
       router.push({
         name: 'Device',
         params: { name: row.deviceName, connectionid: props.data.connectionid, storagegroupid: props.data.storagegroupid, parentids: props.data.parent.name, dflag: true },

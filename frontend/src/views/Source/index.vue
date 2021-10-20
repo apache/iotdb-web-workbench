@@ -779,7 +779,6 @@ export default {
      */
     const getPermitPermissionList = (userinfo, type) => {
       axios.get(`/servers/${serverId.value}/users/${userinfo.username || baseInfoForm.userName}/authorityPrivilege`, {}).then((rs) => {
-        console.log(rs);
         if (rs && rs.code == 0) {
           permitPermissionListTemp.value = rs.data;
           let userRelationItemsTemp = [];
@@ -806,7 +805,6 @@ export default {
               triggerRelationItemsTemp.push(userRelationList.value[3][m].id);
             }
           }
-          console.log(triggerRelationItemsTemp);
           userRelationItems.value = userRelationItemsTemp;
           roleRelationItems.value = roleRelationItemsTemp;
           udfRelationItems.value = udfRelationItemsTemp;
@@ -1157,7 +1155,6 @@ export default {
     const getUserAuth = (userinfo, type) => {
       getUserInfo(userinfo);
       axios.get(`/servers/${serverId.value}/users/${userinfo.username}/dataPrivilege`, {}).then((res) => {
-        console.log(res);
         if (res && res.code == 0) {
           // userAuthInfo.value = res.data;
           userAuthInfoTemp.value.privileges = JSON.parse(JSON.stringify(res.data || []));
@@ -1182,7 +1179,6 @@ export default {
      */
     const getUserInfo = (userinfo) => {
       axios.get(`/servers/${serverId.value}/users/${userinfo.username}`).then((rs) => {
-        console.log(rs);
         if (rs && rs.code == 0) {
           userAuthInfo.value = rs.data;
           userAuthInfoTemp.value.username = userinfo.username;

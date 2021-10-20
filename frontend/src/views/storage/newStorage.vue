@@ -190,7 +190,6 @@ export default {
     });
     onActivated(() => {
       if (route.params.forceupdate) {
-        console.log(route.params, 'update');
         form.groupName = null;
         form.ttl = null;
         form.ttiUnit = null;

@@ -109,7 +109,7 @@ const cn = {
       baseConfig: '基本配置',
       accountPermit: '数据管理权限',
       permitPermission: '权限管理权限',
-      permitTips: '注：勾选用户/角色的【查看】权限后，相关创建、删除、修改能权限才能生效',
+      permitTips: '注：勾选用户/角色的【查看】权限后，相关创建、删除、修改等权限才能生效',
       dataModel: '数据模型',
       accountPermitLabel: '账号权限',
       accountRole: '用户角色',

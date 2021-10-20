@@ -4,7 +4,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref, onActivated } from 'vue';
+import { onMounted, ref, onActivated, onDeactivated } from 'vue';
 import * as echarts from 'echarts';
 // import { ElButton } from 'element-plus';
 import { useI18n } from 'vue-i18n';
@@ -39,8 +39,8 @@ export default {
       });
     };
     /**
-     * data父级数据
-     * children子集数据
+     * data 当前层级数据
+     * index  层级数
      */
     const dealData = (data, index) => {
       for (let i = 0; i < data.length; i++) {
@@ -54,7 +54,6 @@ export default {
             data[i].pageNum = 1;
             data[i].totalPage = Math.ceil(data[i].children.length / 10);
             data[i].childrensTemp = JSON.parse(JSON.stringify(data[i].children));
-            // let temp = JSON.parse(JSON.stringify(data[i].childrensTemp));
             data[i].children = data[i].children.splice((data[i].pageNum - 1) * 10, 10);
 
             data[i].children.push({ name: t('sourcePage.nextPage'), parentName: data[i].path, type: 'next', pageNum: 1, totalPage: Math.ceil(data[i].childrensTemp.length / 10) });
@@ -69,47 +68,9 @@ export default {
         }
       }
     };
-    // const dealData = (data, children, index) => {
-    //   // for (let i = 0; i < children.length; i++) {
-    //   //   if (index <= initialTreeDepth.value) {
-    //   //     children[i].collapsed = false;
-    //   //     console.log(111);
-    //   //     console.log(children[i].name);
-    //   //   } else {
-    //   //     children[i].collapsed = true;
-    //   //     console.log(children[i].name);
-
-    //   //     console.log(222);
-    //   //   }
-    //   // }
-    //   if (children.length > 10) {
-    //     data.pageNum = 1;
-    //     data.totalPage = Math.ceil(children.length / 10);
-    //     data.childrensTemp = JSON.parse(JSON.stringify(children));
-    //     // let temp = JSON.parse(JSON.stringify(data.childrensTemp));
-    //     data.children = data.children.splice((data.pageNum - 1) * 10, 10);
-
-    //     data.children.push({ name: t('sourcePage.nextPage'), parentName: data.name, type: 'next', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
-    //     data.children.unshift({ name: t('sourcePage.prePage'), parentName: data.name, type: 'pre', pageNum: 1, totalPage: Math.ceil(data.childrensTemp.length / 10) });
-    //   } else {
-    //     data.pageNum = 1;
-    //     data.totalPage = 1;
-    //   }
-
-    //   for (let i = 0; i < data.children.length; i++) {
-    //     if (children[i].children && children[i].children.length) {
-    //       console.log(children[i], 1111);
-    //       console.log(children[i].children, 1111);
-    //       index += 1;
-    //       dealData(children[i], children[i].children || [], index);
-    //     }
-    //   }
-    // };
 
     const clickFunction = (params) => {
-      console.log(params);
       let data = params.data || {};
-      console.log(datas.value);
       if (data.type) {
         //do next if has 'type' key;
         if (data.type == 'pre') {
@@ -139,11 +100,12 @@ export default {
     };
     const deepSearchSelf = (data, name, index) => {
       if (data.path == name) {
-        debugger;
         //找到
         data.collapsed = !data.collapsed;
+        initialTreeDepth.value = index;
         MyChart.clear();
         setOption();
+        return;
       } else {
         index++;
         if (data.children && data.children.length) {
@@ -165,7 +127,6 @@ export default {
         //找到
         // data.collapsed = false;
         let temp = JSON.parse(JSON.stringify(data.childrensTemp));
-        console.log(index, 11111);
         initialTreeDepth.value = index;
         if (type == 'next') {
           data.pageNum += 1;
@@ -186,10 +147,6 @@ export default {
             dealData(temp[i], temp[i].children || []);
           }
         }
-        // let dataTemp = datas.value;
-        console.log(datas.value);
-        // datas.value = [];
-        // datas.value = dataTemp;
         MyChart.clear();
         setOption();
         return;
@@ -216,6 +173,19 @@ export default {
         tooltip: {
           trigger: 'item',
           triggerOn: 'mousemove',
+          formatter: (params) => {
+            let data = params.data;
+            if (data.name == 'root') {
+              //根节点
+              return t('sourcePage.storageNum') + ':' + data.groupCount || 0;
+            } else if (data.isGroup) {
+              return t('sourcePage.entityNum') + ':' + data.deviceCount || 0;
+            } else if (data.isDevice) {
+              return t('sourcePage.physicalNum') + ':' + data.measurementCount || 0;
+            } else if (data.isMeasurement) {
+              return t('device.datatype') + data.dataInfo.dataType + '</Br>' + t('sourcePage.dataNum') + data.dataInfo.dataCount + '</Br>' + t('device.newValue') + data.dataInfo.newValue;
+            }
+          },
         },
         series: [
           {
@@ -322,15 +292,18 @@ export default {
 
     // }
     onMounted(() => {
+      // getModalTreeData(() => {
+      //   initCharts();
+      // });
+    });
+    onActivated(() => {
+      initialTreeDepth.value = 1;
       getModalTreeData(() => {
         initCharts();
       });
     });
-    onActivated(() => {
-      getModalTreeData(() => {
-        console.log(datas.value);
-        initCharts();
-      });
+    onDeactivated(() => {
+      MyChart && MyChart.dispose();
     });
     return {
       t,

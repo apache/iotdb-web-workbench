@@ -73,7 +73,7 @@ export default {
       default: 'user',
     },
   },
-  setup(props, {emit}) {
+  setup(props, { emit }) {
     const { t, locale } = useI18n();
     let checkList = ref([]);
     let visible = ref(false);
@@ -462,7 +462,6 @@ export default {
         payload.devicePaths = [range.device];
         payload.timeseriesPaths = range.time;
       }
-      console.log(params, payload)
       await methodMap.value(params, payload);
       visible.value = false;
       ElMessage.success(`${dialogType.value === 'add' ? '新增' : '编辑'}权限成功`);
