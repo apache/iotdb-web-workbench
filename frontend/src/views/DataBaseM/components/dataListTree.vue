@@ -205,7 +205,6 @@ export default {
 
     const loadNode = (node, resolve) => {
       if (node?.data?.zones) {
-        console.log(node.data.zones, 'node.data.zones');
         resolve(node.data.zones);
         return;
       }
@@ -307,19 +306,20 @@ export default {
                 resolve(childs);
               } else {
                 let rootDevice = {
-                  parent: node.data,
+                  // parent: node.data,
                   name: res.data.name,
-                  id: node.data.id + res.data.name + 'device',
-                  type: 'device',
-                  leaf: false,
-                  rawid: res.data.name,
-                  storagegroupid: node.data.storagegroupid,
-                  connectionid: node.data.connectionid,
-                  deviceid: res.data.name,
+                  // id: node.data.id + res.data.name + 'device',
+                  // type: 'device',
+                  // leaf: false,
+                  // rawid: res.data.name,
+                  // storagegroupid: node.data.storagegroupid,
+                  // connectionid: node.data.connectionid,
+                  // deviceid: res.data.name,
+                  children: res.data.children,
                 };
-                let childs = recurseDeviceTree(res.data.children || [], rootDevice);
-                rootDevice.zones = childs;
-                resolve([rootDevice]);
+                let childs = recurseDeviceTree([rootDevice] || [], node);
+                node.zones = childs;
+                resolve(childs);
               }
             } else {
               resolve([]);
@@ -422,7 +422,7 @@ export default {
     }
     .icon-1 {
       top: 2px;
-      right: 0px;
+      right: 0;
       position: absolute;
     }
     .icon-2 {
@@ -434,7 +434,7 @@ export default {
   .data-list-input {
     margin: 0 20px 15px;
   }
-  &:deep(.el-tree) {
+  ::v-deep(.el-tree) {
     height: calc(100% - 50px);
     width: 100%;
     overflow: auto;
