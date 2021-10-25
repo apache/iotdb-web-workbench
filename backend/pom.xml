@@ -195,17 +195,7 @@
           </execution>
         </executions>
       </plugin>
-      <!--https://blog.csdn.net/eguid/article/details/78291497-->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <verbose>true</verbose>
-          <fork>true</fork>
-          <executable>${JAVA_HOME}/bin/javac</executable>
-        </configuration>
-      </plugin>
+
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
@@ -220,6 +210,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>

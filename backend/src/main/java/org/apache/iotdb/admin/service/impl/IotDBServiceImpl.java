@@ -55,44 +55,11 @@ public class IotDBServiceImpl implements IotDBService {
 
   private static final Logger logger = LoggerFactory.getLogger(IotDBServiceImpl.class);
 
-  private static final HashMap<String, Boolean> SPECIAL_PRIVILEGES = new HashMap();
-
-  private static final String NO_NEED_PRIVILEGES = "SET_STORAGE_GROUP";
-
-  private static final List<String> PRIVILEGES = new ArrayList<>();
-
   private static final Set<String> AUTHORITY_PRIVILEGES = new HashSet<>();
 
   private static final Set<String> DATA_PRIVILEGES = new HashSet<>();
 
   private static final HashMap<String, Boolean> QUERY_STOP = new HashMap<>();
-
-  static {
-    SPECIAL_PRIVILEGES.put("CREATE_TIMESERIES", true);
-    SPECIAL_PRIVILEGES.put("INSERT_TIMESERIES", true);
-    SPECIAL_PRIVILEGES.put("READ_TIMESERIES", true);
-    SPECIAL_PRIVILEGES.put("DELETE_TIMESERIES", true);
-  }
-
-  static {
-    PRIVILEGES.add("SET_STORAGE_GROUP");
-    PRIVILEGES.add("CREATE_TIMESERIES");
-    PRIVILEGES.add("INSERT_TIMESERIES");
-    PRIVILEGES.add("READ_TIMESERIES");
-    PRIVILEGES.add("DELETE_TIMESERIES");
-    PRIVILEGES.add("CREATE_USER");
-    PRIVILEGES.add("DELETE_USER");
-    PRIVILEGES.add("MODIFY_PASSWORD");
-    PRIVILEGES.add("LIST_USER");
-    PRIVILEGES.add("GRANT_USER_PRIVILEGE");
-    PRIVILEGES.add("REVOKE_USER_PRIVILEGE");
-    PRIVILEGES.add("CREATE_FUNCTION");
-    PRIVILEGES.add("DROP_FUNCTION");
-    PRIVILEGES.add("CREATE_TRIGGER");
-    PRIVILEGES.add("DROP_TRIGGER");
-    PRIVILEGES.add("START_TRIGGER");
-    PRIVILEGES.add("STOP_TRIGGER");
-  }
 
   static {
     AUTHORITY_PRIVILEGES.add("CREATE_USER");
@@ -2731,46 +2698,6 @@ public class IotDBServiceImpl implements IotDBService {
     return list;
   }
 
-  private List<Object> handleValueStr(List<String> values, List<TSDataType> types)
-      throws BaseException {
-    List<Object> list = new ArrayList<>();
-    for (int i = 0; i < types.size(); i++) {
-      TSDataType type = types.get(i);
-      if (type == TSDataType.BOOLEAN) {
-        Integer booleanNum = Integer.valueOf(values.get(i));
-        Boolean flag = null;
-        if (booleanNum == 0) {
-          flag = false;
-        }
-        if (booleanNum == 1) {
-          flag = true;
-        }
-        if (flag != null) {
-          list.add(flag);
-          continue;
-        }
-        throw new BaseException(ErrorCode.DB_BOOL_WRONG, ErrorCode.DB_BOOL_WRONG_MSG);
-      }
-      if (type == TSDataType.INT32 || type == TSDataType.INT64) {
-        Integer intNum = Integer.valueOf(values.get(i));
-        list.add(intNum);
-        continue;
-      }
-      if (type == TSDataType.FLOAT) {
-        Float floatNum = Float.valueOf(values.get(i));
-        list.add(floatNum);
-        continue;
-      }
-      if (type == TSDataType.DOUBLE) {
-        Double doubleNum = Double.valueOf(values.get(i));
-        list.add(doubleNum);
-        continue;
-      }
-      list.add(values.get(i));
-    }
-    return list;
-  }
-
   private List<TSDataType> handleTypeStr(List<String> types) throws BaseException {
     List<TSDataType> list = new ArrayList<>();
     for (String type : types) {
@@ -2814,27 +2741,6 @@ public class IotDBServiceImpl implements IotDBService {
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     }
     return sessionPool;
-  }
-
-  private String handlerPrivilegeStrToSql(String privilege, String userName, String roleName) {
-    int i = privilege.indexOf(":");
-    String path = privilege.substring(0, i).trim();
-    String[] privileges = privilege.substring(i + 1).trim().split(" ");
-    int len = privileges.length;
-    if (len == 0) {
-      return null;
-    }
-    StringBuilder str = new StringBuilder();
-    if (userName != null) {
-      str.append("grant user " + userName + " privileges ");
-    } else {
-      str.append("grant role " + roleName + " privileges ");
-    }
-    for (int j = 0; i < len - 1; j++) {
-      str.append("'" + privileges[j] + "',");
-    }
-    str.append("'" + privileges[len - 1] + "' on " + path);
-    return str.toString();
   }
 
   private void closeSessionPool(SessionPool sessionPool) {

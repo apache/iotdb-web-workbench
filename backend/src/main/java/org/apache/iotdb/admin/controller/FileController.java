@@ -80,10 +80,10 @@ public class FileController {
   }
 
   @ApiOperation("将查询结果导出为csv文件  (新增2.10)")
-  @PostMapping("/servers/{serverId}/exportData")
+  @GetMapping("/servers/{serverId}/exportData")
   public ResponseEntity<Resource> exportData(
       @PathVariable("serverId") Integer serverId,
-      @RequestBody String sql,
+      @RequestParam("sql") String sql,
       HttpServletRequest request)
       throws BaseException {
     check(request, serverId);
