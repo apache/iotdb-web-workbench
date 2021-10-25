@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -229,13 +228,13 @@ public class ImportCsv {
       for (String s : insertErrorInfo) {
         bw.write(s + "\n");
       }
-      String fileDownloadUri =
-          ServletUriComponentsBuilder.fromCurrentContextPath()
-              .path("/downloadFile/")
-              .path(errorFileName)
-              .toUriString();
+      int errorCount = insertErrorInfo.size();
+      String fileDownloadUri = null;
+      if (errorCount > 0) {
+        fileDownloadUri = "/downloadFile/" + errorFileName;
+      }
       Integer totalCount = lineNumber * (cols.length - 1);
-      return new ImportDataVO(totalCount, insertErrorInfo.size(), fileDownloadUri);
+      return new ImportDataVO(totalCount, errorCount, fileDownloadUri);
     } catch (FileNotFoundException e) {
       throw new BaseException(ErrorCode.UPLOAD_FILE_FAIL, ErrorCode.UPLOAD_FILE_FAIL_MSG);
     } catch (IOException e) {
