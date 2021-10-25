@@ -1,3 +1,7 @@
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![GitHub release](https://img.shields.io/github/release/apache/iotdb.svg)](https://github.com/loveher147/iotdb-admin/releases)
+![](https://img.shields.io/badge/java--language-1.8-blue.svg)
+
 # IoTDB-Workbench
 
 IoTDB-Workbench是IoTDB的可视化管理工具，可对IoTDB的数据进行增删改查、权限控制等，简化IoTDB的使用及学习成本。
