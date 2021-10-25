@@ -1107,9 +1107,19 @@ public class IotDBController {
   }
 
   private void checkParameter(String groupName) throws BaseException {
+    String checkName = StringUtils.removeStart(groupName, "root").toLowerCase();
     if (!groupName.matches("^root\\.[^ ]+$")
-        || StringUtils.removeStart(groupName, "root.").toLowerCase().contains("root.")) {
+        || checkName.contains(".root.")
+        || checkName.matches("\\.root$")) {
       throw new BaseException(ErrorCode.NO_SUP_CONTAIN_ROOT, ErrorCode.NO_SUP_CONTAIN_ROOT_MSG);
+    }
+    if (checkName.contains(".as.")
+        || checkName.contains(".null.")
+        || checkName.contains(".like.")
+        || checkName.matches("^[^ ]+as$")
+        || checkName.matches("^[^ ]+null$")
+        || checkName.matches("^[^ ]+like$")) {
+      throw new BaseException(ErrorCode.NO_SUP_CONTAIN_WORD, ErrorCode.NO_SUP_CONTAIN_WORD_MSG);
     }
   }
 
@@ -1125,6 +1135,10 @@ public class IotDBController {
       throws BaseException {
     checkParameter(deviceName, timeseriesName);
     checkParameter(groupName, deviceName);
+    if (StringUtils.removeStart(timeseriesName, deviceName + ".").contains(".")) {
+      throw new BaseException(
+          ErrorCode.MEASUREMENTS_NAME_CONTAIN_DOT, ErrorCode.MEASUREMENTS_NAME_CONTAIN_DOT_MSG);
+    }
   }
 
   private void checkName(String name) throws BaseException {

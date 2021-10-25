@@ -1366,6 +1366,7 @@ public class IotDBServiceImpl implements IotDBService {
       List<TSEncoding> encodings = handleEncodingStr(encodingsStr);
       List<CompressionType> compressionTypes = handleCompressionStr(compressionStr);
       sessionPool = getSessionPool(connection);
+      checkDevicePath(sessionPool, deviceInfoDTO.getDeviceName());
       sessionPool.createMultiTimeseries(
           measurements, types, encodings, compressionTypes, null, null, null, null);
     } catch (IoTDBConnectionException e) {
@@ -1382,6 +1383,15 @@ public class IotDBServiceImpl implements IotDBService {
       }
     } finally {
       closeSessionPool(sessionPool);
+    }
+  }
+
+  private void checkDevicePath(SessionPool sessionPool, String deviceName) throws BaseException {
+    String sql = "show timeseries " + deviceName;
+    List<String> measurements = executeQueryOneColumn(sessionPool, sql);
+    if (measurements.size() > 0 && measurements.get(0).equals(deviceName)) {
+      throw new BaseException(
+          ErrorCode.MEASUREMENT_NAME_EQUALS_DEVICE, ErrorCode.MEASUREMENT_NAME_EQUALS_DEVICE_MSG);
     }
   }
 

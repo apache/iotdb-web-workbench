@@ -279,7 +279,7 @@ public class ErrorCode {
   public static final String NO_PRI_TIMESERIES_DATA_MSG = "没有权限查看测点数据";
 
   public static final String NO_SUP_CONTAIN_ROOT = "IOTDB-0052";
-  public static final String NO_SUP_CONTAIN_ROOT_MSG = "\"root.\"必须且只能出现在路径开头";
+  public static final String NO_SUP_CONTAIN_ROOT_MSG = "root必须且只能作为路径开头";
 
   public static final String GET_DATA_FAIL = "IOTDB-0053";
   public static final String GET_DATA_FAIL_MSG = "获取物理量数据失败";
@@ -367,6 +367,15 @@ public class ErrorCode {
 
   public static final String ROLE_NAME_EXISTS = "IOTDB-0083";
   public static final String ROLE_NAME_EXISTS_MSG = "角色名已存在";
+
+  public static final String NO_SUP_CONTAIN_WORD = "IOTDB-0084";
+  public static final String NO_SUP_CONTAIN_WORD_MSG = "as/null/like不能作为路径名";
+
+  public static final String MEASUREMENTS_NAME_CONTAIN_DOT = "IOTDB-0085";
+  public static final String MEASUREMENTS_NAME_CONTAIN_DOT_MSG = "物理量层名不能级联";
+
+  public static final String MEASUREMENT_NAME_EQUALS_DEVICE = "IOTDB-0086";
+  public static final String MEASUREMENT_NAME_EQUALS_DEVICE_MSG = "实体名不能和已有物理量重名";
 
   // 存储组表相关
   public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
