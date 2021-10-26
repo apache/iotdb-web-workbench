@@ -202,6 +202,13 @@ const en = {
       roleRelevance: 'Role Relevance',
       udf: 'UDF',
       trigger: 'trigger',
+      addPermission: 'Add permission',
+      editPermission: 'Add permission',
+      selectdataconnection: 'Please select a storage group',
+      selectEntity: 'Please select an entity',
+      selectTimeseries: 'Please select physical quantity',
+      selectRange: 'Please select a data range',
+      selectPermission: 'Please select permission',
     },
     storagePage: {
       alias: 'connection',

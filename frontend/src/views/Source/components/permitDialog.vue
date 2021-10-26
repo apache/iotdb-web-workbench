@@ -1,6 +1,6 @@
 <template>
   <div id="mains" class="mains-contain">
-    <el-dialog v-model="visible" :title="dialogType === 'add' ? '新增权限' : '编辑权限'" width="520px">
+    <el-dialog v-model="visible" :title="dialogType === 'add' ? $t('sourcePage.addPermission') : $t('sourcePage.editPermission')" width="520px">
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="permit-form">
         <el-form-item prop="type" :label="$t('sourcePage.path')">
           <el-radio-group v-model="form.type" @change="changeRadio">
@@ -16,20 +16,20 @@
           </template>
           <!-- 实体 -->
           <template v-else-if="form.type === 2">
-            <el-select v-model="device.storage" placeholder="请选择存储组" @change="changeStorageInDevice">
+            <el-select v-model="device.storage" :placeholder="$t('sourcePage.selectdataconnection')" @change="changeStorageInDevice">
               <el-option v-for="item in storageGroupOption" :key="item.groupName" :label="item.groupName" :value="item.groupName"> </el-option>
             </el-select>
             <tree-select :checked-keys="device.device" :data="deviceTreeOption" :type="DataGranularityMap.device" @change="changeTreeValue($event, DataGranularityMap.device)"></tree-select>
           </template>
           <!-- 物理量 -->
           <template v-else>
-            <el-select v-model="time.storage" placeholder="请选择存储组" @change="changeStorageInTime">
+            <el-select v-model="time.storage" :placeholder="$t('sourcePage.selectdataconnection')" @change="changeStorageInTime">
               <el-option v-for="item in storageGroupOption" :key="item.groupName" :label="item.groupName" :value="item.groupName"> </el-option>
             </el-select>
-            <el-select v-model="time.device" placeholder="请选择实体" @change="changeDeviceInTime">
+            <el-select v-model="time.device" :placeholder="$t('sourcePage.selectEntity')" @change="changeDeviceInTime">
               <el-option v-for="item in deviceOption" :key="item" :label="item" :value="item"> </el-option>
             </el-select>
-            <el-select v-model="time.time" placeholder="请选择物理量" multiple @change="changeTime">
+            <el-select v-model="time.time" :placeholder="$t('sourcePage.selectTimeseries')" multiple @change="changeTime">
               <el-option v-for="item in timeSeriesOption" :key="item.id" :label="item.name" :value="item.id"> </el-option>
             </el-select>
           </template>
@@ -206,18 +206,18 @@ export default {
 
     const validatePath = (rule, value, callback) => {
       if (form.type === 1 && !storage.value.length) {
-        callback(new Error('请选择数据范围'));
+        callback(new Error(t('sourcePage.selectRange')));
       } else if (form.type === 2 && (!device.storage || !device.device.length)) {
-        callback(new Error('请选择数据范围'));
+        callback(new Error(t('sourcePage.selectRange')));
       } else if (form.type === 3 && (!time.storage || !time.device || !time.time.length)) {
-        callback(new Error('请选择数据范围'));
+        callback(new Error(t('sourcePage.selectRange')));
       } else {
         callback();
       }
     };
     const validatePrivileges = (rule, value, callback) => {
       if (!value.length) {
-        callback(new Error('请选择权限'));
+        callback(new Error(t('sourcePage.selectPermission')));
       }
       callback();
     };
@@ -518,6 +518,7 @@ export default {
   overflow: auto;
   &:deep(.el-select) {
     width: 100%;
+    margin-bottom: 10px;
   }
 }
 </style>

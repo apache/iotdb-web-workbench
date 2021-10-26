@@ -184,6 +184,13 @@ const de = {
       roleRelevance: 'Zusammenhang mit der Rolle',
       udf: 'UDF',
       trigger: 'Auslöser',
+      addPermission: 'Berechtigung hinzufügen',
+      editPermission: 'Bearbeiten von Berechtigungen',
+      selectdataconnection: 'Bitte wählen Sie eine Speichergruppe aus',
+      selectEntity: 'Bitte wählen Sie ein Entity',
+      selectTimeseries: 'Bitte wählen Sie die physikalische Menge',
+      selectRange: 'Bitte wählen Sie einen Datenbereich',
+      selectPermission: 'Bitte wählen Sie die Berechtigung',
     },
     storagePage: {
       alias: 'Verbindung',

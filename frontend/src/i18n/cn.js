@@ -204,6 +204,13 @@ const cn = {
       roleRelevance: '角色相关',
       udf: 'UDF',
       trigger: '触发器',
+      addPermission: '新增权限',
+      editPermission: '编辑权限',
+      selectdataconnection: '请选择存储组',
+      selectEntity: '请选择实体',
+      selectTimeseries: '请选择物理量',
+      selectRange: '请选择数据范围',
+      selectPermission: '请选择权限',
     },
     storagePage: {
       alias: '数据连接',
