@@ -217,7 +217,7 @@
         </span>
       </template>
     </el-dialog>
-    <el-dialog :title="$t('common.editData')" v-model="dialogFormVisible.editflag" width="500px">
+    <el-dialog :title="$t('device.editData')" v-model="dialogFormVisible.editflag" width="500px">
       <div>
         <form-table v-if="dialogFormVisible.editflag" ref="formTable" :form="editFormData" :labelIcon="true"></form-table>
       </div>
@@ -344,7 +344,6 @@ export default {
           endPlaceholder: '结束日期', //灰色提示文字
           defauleTime: [new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)],
           disabledDate: (time) => {
-            console.log(time);
             return time > dayjs(dayjs().format('YYYY-MM-DD 23:59:59')).valueOf();
           },
         },
@@ -689,7 +688,7 @@ export default {
       valueList.value = Object.values(editFormData.formData);
       editData(routeData.obj, { timestamp: new Date(timestamp.value), measurementList: measurementList.value, valueList: valueList.value })
         .then((res) => {
-          if (res.data) {
+          if (res.code === '0') {
             ElMessage({
               type: 'success',
               message: `保存成功!`,
@@ -803,13 +802,14 @@ export default {
       console.log(pagination);
     }
     //获取物理量列表
-    function getListData() {
-      getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
+    async function getListData() {
+      await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
         totalCount.value = res.data.totalCount;
-        timeseriesOptions.value = res.data.measurementVOList.map((d) => ({ label: d.timeseries, value: d.timeseries }));
-        timeseriesOptions.value.unshift({ label: '全部', value: '' });
-        getPview();
+        if (!timeseriesOptions.value.length) {
+          timeseriesOptions.value = res.data.measurementVOList.map((d) => ({ label: d.timeseries, value: d.timeseries }));
+          timeseriesOptions.value.unshift({ label: '全部', value: '' });
+        }
       });
     }
     //获取物理量数据预览列表
@@ -882,13 +882,15 @@ export default {
     }
     onActivated(() => {
       routeData.obj = Object.assign(routeData.obj, route.params);
+      timeseriesOptions.value = [];
       form.formData.keyword = '';
       if (route.params.forceupdate === 'true') {
         formdate.formData.time = [];
       }
-      setTimeout(() => {
+      setTimeout(async () => {
         getdData();
-        getListData();
+        await getListData();
+        await getPview();
       }, 500);
     });
     return {

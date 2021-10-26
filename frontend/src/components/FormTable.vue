@@ -45,7 +45,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         :style="{ width: item.width }"
         prefix-icon=""
         range-separator="~"
-        :default-time="item.defaultTime"
+        :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)]"
         type="datetimerange"
         :start-placeholder="item.startPlaceholder"
         :end-placeholder="item.endPlaceholder"

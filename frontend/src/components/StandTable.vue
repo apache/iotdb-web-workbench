@@ -39,7 +39,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               v-model="scope.row[item.prop]"
               :size="item.size"
               :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border }"
-              :placeholder="$t('device.inputTip') + ' ' + $t(item.label)"
+              :placeholder="$t('device.inputTip') + $t(item.label)"
               @blur="item.event(scope, scope.row, scope.row[item.prop], $event)"
             >
             </el-input>
@@ -48,7 +48,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               v-model="scope.row[item.prop]"
               :maxlength="item.maxlength"
               :size="item.size"
-              :placeholder="$t('device.inputTip') + ' ' + $t(item.label)"
+              :placeholder="$t('device.inputTip') + $t(item.label)"
               @blur="checkInput(scope.row[item.prop], item.required)"
             >
             </el-input>
