@@ -30,11 +30,9 @@
   min-height: 28px !important;
   padding: 0 12px !important;
   font-size: 12px;
-  &:hover {
-    cursor: pointer;
-  }
 }
 .el-button:hover {
+  cursor: pointer;
   background: #fff;
   border: 1px solid $theme-color;
   color: $theme-color;
@@ -101,7 +99,7 @@
   }
   .el-dialog__body {
     text-align: left;
-    padding: 10px 20px;
+    padding: 20px 20px 30px;
   }
   .el-dialog__footer {
     border-top: 1px solid #eef0f5;
@@ -118,9 +116,16 @@
   }
 }
 .el-form {
+  
   .el-form-item {
-    margin-bottom: 12px;
+    margin-bottom: 24px;
     .el-form-item__label {
+font-size: 12px;
+      line-height: 32px;
+      padding-bottom: 4px;
+      color:rgba(128, 139, 163, 1)
+    }
+    .el-form-item__content{
       line-height: 28px;
     }
   }
@@ -131,7 +136,7 @@
   font-size: 12px !important;
 }
 .el-table th {
-  color: #222222 !important;
+  color: #222 !important;
 }
 
 .el-input__icon {
@@ -190,7 +195,6 @@
 .el-checkbox__input{
   &.is-indeterminate{
     & .el-checkbox__inner{
-      
     background-color:$theme-color;
     border-color: $theme-color;
     }
@@ -204,14 +208,14 @@
   padding: 0 6px;
   .el-tag__close {
     font-size: 14px;
-    color: #222222 !important;
+    color: #222 !important;
     &:hover{
       background-color:transparent
     }
   }
 }
   .el-tag-deep-green {
-    color:#333333;
+    color:#333;
     background-color: rgba(19, 195, 147, 0.1);
     border-color: rgba(19, 195, 147, 0.5);
   }

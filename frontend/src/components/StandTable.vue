@@ -23,8 +23,8 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column v-if="selectData" type="selection" width="50" align="center"> </el-table-column>
-        <el-table-column :key="item.prop" v-for="item of columns.list" :width="item.width + 'px'" :align="item.align" :fixed="item.fixed" show-overflow-tooltip>
+        <el-table-column fixed="left" v-if="selectData" type="selection" width="50" align="center"> </el-table-column>
+        <el-table-column :key="item.prop" v-for="item of columns.list" min-width="150px" :width="item.width + 'px'" :align="item.align" :fixed="item.fixed" show-overflow-tooltip>
           <template #header>
             <span :class="{ spanbox: item.required }"></span>
             <svg v-if="iconArr.icon[item.icon]" class="icon" @click="sqlClick" aria-hidden="true">
@@ -39,7 +39,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               v-model="scope.row[item.prop]"
               :size="item.size"
               :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border }"
-              :placeholder="$t(item.label)"
+              :placeholder="$t('device.inputTip') + ' ' + $t(item.label)"
               @blur="item.event(scope, scope.row, scope.row[item.prop], $event)"
             >
             </el-input>
@@ -48,7 +48,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               v-model="scope.row[item.prop]"
               :maxlength="item.maxlength"
               :size="item.size"
-              :placeholder="$t(item.label)"
+              :placeholder="$t('device.inputTip') + ' ' + $t(item.label)"
               @blur="checkInput(scope.row[item.prop], item.required)"
             >
             </el-input>
@@ -67,7 +67,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
             <el-select
               v-model="scope.row[item.prop]"
               :class="{ borderRed: !scope.row[item.prop] && scope.row.seBorder }"
-              :placeholder="$t(item.label)"
+              :placeholder="$t('device.selectTip')"
               v-if="item.type === 'SELECTCH' && (!scope.row[item.prop] || scope.row.display)"
               :size="item.size"
             >
@@ -75,18 +75,18 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
                 <span style="float: left">{{ item.label }}</span>
               </el-option>
             </el-select>
-            <div v-if="item.type === 'TAGS'">
-              <span v-for="(item, index) in scope.row[item.prop]" :key="index"> {{ item[0] }}={{ item[1] }}, </span>
+            <!-- <div v-if="item.type === 'TAGS'">
+              <span v-for="(item, index) in scope.row[item.prop]" :key="index"> {{ item }}={{ item[1] }}, </span>
+            </div> -->
+            <div v-if="item.type === 'ATTRIBUTES' || item.type === 'TAG'">
+              <i v-if="!item.onlyShow" class="el-icon-edit editF" @click="editTag(scope.row[item.prop], scope.row.timeseries, item.prop, scope.$index)"></i>
+              <span v-for="(item, index) in scope.row[item.prop]" :key="index">{{ item[0] }} = {{ item[1] }}, </span>
             </div>
-            <div v-if="item.type === 'TAG'">
-              <i class="el-icon-edit editF" @click="editTag(scope.row[item.prop], scope.row.timeseries, item.prop)"></i>
-              <span v-for="(item, index) in scope.row[item.prop]" :key="index"> {{ item[0] }}, </span>
-            </div>
-            <span v-if="item.type && scope.row[item.prop] && !scope.row.display && item.type !== 'TEXT' && item.type !== 'TAG' && item.type !== 'TAGS'">{{ scope.row[item.prop] }}</span>
+            <span v-if="item.type && scope.row[item.prop] && !scope.row.display && item.type !== 'TEXT' && item.type !== 'ATTRIBUTES' && item.type !== 'TAG'">{{ scope.row[item.prop] }}</span>
             <span v-if="!item.type">{{ scope.row[item.prop] || item.value }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="actionO" :label="$t(actionO.label)" :align="actionO.align">
+        <el-table-column fixed="right" v-if="actionO" :label="$t(actionO.label)" min-width="150px">
           <template #default="scope">
             <slot :scope="scope"></slot>
           </template>
@@ -94,7 +94,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
       </el-table>
     </div>
     <div class="paination" v-if="paginations || deleteArry">
-      <el-button v-if="deleteArry" @click="deleteArrys">{{ $t('standTable.deleteArry') }}</el-button>
+      <el-button v-if="deleteArry" type="primary" @click="deleteArrys">{{ $t('standTable.deleteArry') }}</el-button>
       <div></div>
       <el-pagination
         v-if="paginations"
@@ -102,11 +102,11 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         @current-change="getList"
         v-model:currentPage="paginations.pageNum"
         :page-size="paginations.pageSize"
-        :page-count="5"
-        layout="total, prev, pager, next"
+        layout="slot, prev, pager, next"
         :total="total"
         :hide-on-single-page="true"
       >
+        <span> 共{{ total }}条 </span>
       </el-pagination>
     </div>
     <el-dialog :title="`${edData.label}编辑`" v-model="dialogFormVisible.flag" width="500px" class="dialog_tag">
@@ -116,15 +116,14 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         </div>
         <div>
           <span>物理量{{ edData.label }}：</span>
-          <span class="icon_color" @click="addData(edData.data)">
-            <svg class="icon" @click="editTag(scope.row[item.prop])" aria-hidden="true" v-icon="`#icon-add`">
-              <use xlink:href="#icon-add1"></use>
-            </svg>
-          </span>
+          <svg class="icon" aria-hidden="true" @click="addData(edData.data)">
+            <use xlink:href="#icon-add1"></use>
+          </svg>
         </div>
         <div class="content">
           <div v-for="(item, index) in edData.data" :key="index">
-            <el-input v-model="item[0]" size="small" /> = <el-input v-model="item[1]" size="small" /><el-button type="text"
+            <el-input v-model="item[0]" size="small" maxlength="30" :placeholder="`${edData.label}名`" /> =
+            <el-input v-model="item[1]" size="small" maxlength="30" :placeholder="`${edData.label}值`" /><el-button type="text"
               ><i class="el-icon-delete" @click="deleTag(edData.data, index)"
             /></el-button>
           </div>
@@ -133,7 +132,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogFormVisible.flag = false">取 消</el-button>
-          <el-button type="primary" @click="dialogFormVisible.flag = false">确 定</el-button>
+          <el-button type="primary" @click="confirmTag">确 定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -142,7 +141,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
 
 <script>
 import { ElTable, ElTableColumn, ElInput, ElSelect, ElOption, ElMessage, ElButton, ElPagination, ElDialog } from 'element-plus';
-import { onMounted, reactive } from 'vue';
+import { onActivated, reactive } from 'vue';
 export default {
   name: 'StandTable',
   props: {
@@ -230,14 +229,15 @@ export default {
     function iconEvent(iconNum) {
       emit('iconEvent', iconNum);
     }
-    function editTag(arr, name, str) {
+    function editTag(arr, name, str, index) {
       let obj = {
         tags: '标签',
         attributes: '属性',
       };
-      edData.data = arr;
+      edData.data = [...arr];
       edData.name = name;
       edData.label = obj[str];
+      edData.index = index;
       dialogFormVisible.flag = true;
     }
     function addData(arr) {
@@ -246,8 +246,40 @@ export default {
     function deleTag(arr, index) {
       arr.splice(index, 1);
     }
-    onMounted(() => {
-      console.log(columns);
+    const isRepeat = (arr) => {
+      var hash = {};
+
+      for (var i in arr) {
+        if (hash[arr[i]]) return true;
+
+        hash[arr[i]] = true;
+      }
+
+      return false;
+    };
+
+    const confirmTag = () => {
+      let result = isRepeat(edData.data.map((d) => d[0]));
+      let keys = edData.data.map((d) => d[0]);
+      let values = edData.data.map((d) => d[1]);
+      if (!keys.every((d) => d !== null) || !values.find((d) => d !== null)) {
+        ElMessage.error(`请填写完整`);
+        return;
+      }
+      if (result) {
+        ElMessage.error(`${edData.label}名不能重复`);
+        return;
+      }
+      if (edData.label === '标签') {
+        tableDatas.list[edData.index].tags = edData.data;
+      } else {
+        tableDatas.list[edData.index].attributes = edData.data;
+      }
+      console.log(tableDatas.list[edData.index].tags);
+      dialogFormVisible.flag = false;
+    };
+    onActivated(() => {
+      //
     });
     return {
       iconArr,
@@ -268,6 +300,7 @@ export default {
       getColumn,
       editTag,
       dialogFormVisible,
+      confirmTag,
     };
   },
   components: {
@@ -284,6 +317,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.standTable {
+  .icon {
+    cursor: pointer;
+  }
+}
 .border_table {
   border-radius: 4px;
   border: 1px solid #eaecf0;
@@ -294,7 +332,7 @@ export default {
 }
 .tag_content {
   div {
-    padding: 8px 0px;
+    padding: 8px 0;
   }
   .icon_color {
     cursor: pointer;
@@ -317,21 +355,20 @@ export default {
   color: #f56c6c;
   margin-right: 4px;
 }
-.borderRed .el-input__inner {
-  border: 1px solid red;
-}
 .paination {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0px;
+  margin-top: 10px;
+
+  // padding: 10px 0px;
   .el-pagination {
-    padding: 4px 5px 0px 5px;
+    padding: 4px 5px 0 5px;
   }
 }
 .export_button {
   height: 30px;
   line-height: 0px;
-  min-height: 0px !important;
+  min-height: 0 !important;
 }
 </style>
 <style lang="scss">
@@ -340,16 +377,11 @@ export default {
     border: 1px solid red;
   }
 }
-.standTable {
-  .el-dialog__header {
-    border-bottom: 1px solid #eef0f5;
-  }
-}
 .tag_content {
   .content {
     .el-input {
       width: 100px;
-      padding: 0px 16px;
+      padding: 0 16px;
     }
   }
 }

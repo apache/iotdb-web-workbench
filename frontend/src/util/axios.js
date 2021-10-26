@@ -24,6 +24,7 @@ import router from '../router';
 const instance = axios.create({});
 const headerUrls = ['/api/login', '/api/downloadFile/template'];
 const exportUrl = '/exportData';
+const downUrl = '/downloadFile';
 instance.defaults.withCredentials = true;
 instance.defaults.timeout = 100000;
 instance.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -67,7 +68,7 @@ instance.interceptors.response.use(
     if (headerUrls.indexOf(response.config.url) !== -1) {
       return response;
     }
-    if (response.config.url.indexOf(exportUrl) !== -1) {
+    if (response.config.url.indexOf(exportUrl) !== -1 || response.config.url.indexOf(downUrl) !== -1) {
       return response.data;
     }
     if (response && response.data && response.data.code == '0') {
