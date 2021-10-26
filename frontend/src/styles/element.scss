@@ -120,13 +120,16 @@
   .el-form-item {
     margin-bottom: 24px;
     .el-form-item__label {
-font-size: 12px;
+      font-size: 12px;
       line-height: 32px;
       padding-bottom: 4px;
       color:rgba(128, 139, 163, 1)
     }
     .el-form-item__content{
       line-height: 28px;
+    }
+    .el-dialog__footer{
+      text-align: right;
     }
   }
 }

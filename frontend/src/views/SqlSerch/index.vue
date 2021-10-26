@@ -35,7 +35,7 @@
             </eltooltip>
             <eltooltip label="sqlserch.run">
               <span>
-                <svg class="icon icon-1" aria-hidden="true" @click="querySqlRun" v-icon="`#icon-yunhang-color`">
+                <svg class="icon icon-1 stop" aria-hidden="true" @click="querySqlRun">
                   <use xlink:href="#icon-yunhang"></use>
                 </svg>
               </span>
