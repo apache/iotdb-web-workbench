@@ -172,7 +172,7 @@
         </span>
       </template>
     </el-dialog>
-    <el-dialog :title="$t('device.batchImport')" v-model="dialogVisible1.flag" width="600px" @close="cencelexport" class="export_form">
+    <el-dialog :title="$t('device.batchImport')" v-model="dialogVisible1.flag" width="700px" @close="cencelexport" class="export_form">
       <div v-if="display.flag" class="div_children">
         <div>
           <input ref="filesd" type="file" multiple="multiple" style="display: none" @change="getfile" />
@@ -203,6 +203,7 @@
       </div>
       <div v-else class="div_children">
         <div>
+          <div class="import-result">批量导入结果：</div>
           <stand-table :column="column2" :tableData="tableData2" :lineHeight="10" :celineHeight="10">
             <template #default="{ scope }">
               <span :class="['table2 edit', !scope.row.failCount ? 'no-edit' : '']" @click="downfile(scope.row.downloadUrl, '')">下载</span>
@@ -983,6 +984,10 @@ $cursor: pointer;
   display: flex;
   width: 100%;
   align-items: center;
+  .import-result {
+    padding-bottom: 10px;
+    color: gray;
+  }
   div {
     width: 100%;
     .info_div {
