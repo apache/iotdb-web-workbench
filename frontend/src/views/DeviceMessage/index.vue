@@ -744,13 +744,15 @@ export default {
         cancelButtonText: t('device.cencel'),
         type: 'warning',
       }).then(() => {
-        deleteDeviceData(routeData.obj, { timestampList: timeArr, measurementList: arr }).then(() => {
-          ElMessage({
-            type: 'success',
-            message: `${t('device.deleteSuccess')}!`,
-          });
-          handleChange.value = null;
-          getPview();
+        deleteDeviceData(routeData.obj, { timestampList: timeArr, measurementList: arr }).then((res) => {
+          if (res?.code === '0') {
+            ElMessage({
+              type: 'success',
+              message: `${t('device.deleteSuccess')}!`,
+            });
+            handleChange.value = null;
+            getPview();
+          }
         });
       });
     }
@@ -863,12 +865,14 @@ export default {
     //随机导入物理量数据
     async function randomImData() {
       await formTable.value.checkData(dialogFormVisible);
-      randomImport(routeData.obj, newData.formData).then(() => {
-        ElMessage({
-          type: 'success',
-          message: `导入成功!`,
-        });
-        getPview();
+      randomImport(routeData.obj, newData.formData).then((res) => {
+        if (res?.code === '0') {
+          ElMessage({
+            type: 'success',
+            message: `导入成功!`,
+          });
+          getPview();
+        }
       });
       dialogFormVisible.flag = false;
     }
