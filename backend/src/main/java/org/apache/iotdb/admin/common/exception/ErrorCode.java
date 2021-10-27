@@ -276,7 +276,7 @@ public class ErrorCode {
   public static final String TTL_WRONG_MSG = "存活时间必须大于等于0";
 
   public static final String NO_PRI_TIMESERIES_DATA = "IOTDB-0051";
-  public static final String NO_PRI_TIMESERIES_DATA_MSG = "没有权限查看测点数据";
+  public static final String NO_PRI_TIMESERIES_DATA_MSG = "没有权限查看物理量数据";
 
   public static final String NO_SUP_CONTAIN_ROOT = "IOTDB-0052";
   public static final String NO_SUP_CONTAIN_ROOT_MSG = "root必须且只能作为路径开头";
@@ -379,6 +379,9 @@ public class ErrorCode {
 
   public static final String GET_DATA_PRIVILEGE_FAIL = "IOTDB-0087";
   public static final String GET_DATA_PRIVILEGE_FAIL_MSG = "获取数据管理权限信息失败";
+
+  public static final String NO_PRI_INSERT_DATA = "IOTDB-0088";
+  public static final String NO_PRI_INSERT_DATA_MSG = "没有权限插入数据";
 
   // 存储组表相关
   public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";

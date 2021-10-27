@@ -1842,6 +1842,9 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } catch (StatementExecutionException e) {
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(ErrorCode.NO_PRI_INSERT_DATA, ErrorCode.NO_PRI_INSERT_DATA_MSG);
+      }
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.UPDATE_DATA_FAIL, ErrorCode.UPDATE_DATA_FAIL_MSG);
     } finally {
@@ -1869,10 +1872,14 @@ public class IotDBServiceImpl implements IotDBService {
       }
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
+      if (e.getStatusCode() == 602) {
+        throw new BaseException(
+            ErrorCode.NO_PRI_DELETE_TIMESERIES, ErrorCode.NO_PRI_DELETE_TIMESERIES_MSG);
+      }
+      throw new BaseException(ErrorCode.DELETE_DATA_FAIL, ErrorCode.DELETE_DATA_FAIL_MSG);
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.DELETE_DATA_FAIL, ErrorCode.DELETE_DATA_FAIL_MSG);
+      throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } finally {
       closeSessionPool(sessionPool);
     }
@@ -1887,10 +1894,10 @@ public class IotDBServiceImpl implements IotDBService {
     int stepSize = randomImportDTO.getStepSize();
     Long startTime = randomImportDTO.getStartTime().getTime();
 
-    List<Long> times = new ArrayList<>();
-    List<List<String>> measurementsList = new ArrayList<>();
-    List<List<Object>> valuesList = new ArrayList<>();
-    List<List<TSDataType>> typesList = new ArrayList<>();
+    List<Long> times = new ArrayList<>(totalLine);
+    List<List<String>> measurementsList = new ArrayList<>(totalLine);
+    List<List<Object>> valuesList = new ArrayList<>(totalLine);
+    List<List<TSDataType>> typesList = new ArrayList<>(totalLine);
     try {
       sessionPool = getSessionPool(connection);
       SessionDataSetWrapper sessionDataSetWrapper =
@@ -1934,9 +1941,11 @@ public class IotDBServiceImpl implements IotDBService {
       }
 
       List<TSDataType> types = handleTypeStr(typesStr);
+      List<String> devices = new ArrayList<>(totalLine);
       for (int i = 0; i < totalLine; i++) {
         typesList.add(types);
         measurementsList.add(measurements);
+        devices.add(deviceName);
 
         List<Object> values = createRandomData(typesStr);
         valuesList.add(values);
@@ -1944,15 +1953,19 @@ public class IotDBServiceImpl implements IotDBService {
         times.add(stepSize * i + startTime);
       }
 
-      sessionPool.insertOneDeviceRecords(
-          deviceName, times, measurementsList, typesList, valuesList, false);
+      sessionPool.insertRecords(devices, times, measurementsList, typesList, valuesList);
 
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.NO_MEASUREMENT, ErrorCode.NO_MEASUREMENT_MSG);
+      System.out.println(e.getStatusCode());
+      if (e.getMessage().contains("No permissions")) {
+        throw new BaseException(ErrorCode.NO_PRI_INSERT_DATA, ErrorCode.NO_PRI_INSERT_DATA_MSG);
+      }
+      throw new BaseException(
+          ErrorCode.RANDOM_IMPORT_DATA_FAIL, ErrorCode.RANDOM_IMPORT_DATA_FAIL_MSG);
     } finally {
       closeSessionPool(sessionPool);
     }
