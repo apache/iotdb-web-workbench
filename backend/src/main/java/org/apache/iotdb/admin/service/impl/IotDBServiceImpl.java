@@ -1159,11 +1159,13 @@ public class IotDBServiceImpl implements IotDBService {
 
   private String getSupPath(String path, List<String> allSupPath) throws BaseException {
     for (String supPath : allSupPath) {
-      if (path.contains(supPath) && StringUtils.removeStart(path, supPath).startsWith(".")) {
+      String checkPath = StringUtils.removeStart(path, supPath);
+      if (path.contains(supPath) && checkPath.startsWith(".") || checkPath.equals("")) {
         return supPath;
       }
     }
-    throw new BaseException("-1", "代码逻辑错误");
+    throw new BaseException(
+        ErrorCode.GET_DATA_PRIVILEGE_FAIL, ErrorCode.GET_DATA_PRIVILEGE_FAIL_MSG);
   }
 
   private List<NodeTreeVO> switchListToNodeList(List<String> list) {

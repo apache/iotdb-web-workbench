@@ -377,6 +377,9 @@ public class ErrorCode {
   public static final String MEASUREMENT_NAME_EQUALS_DEVICE = "IOTDB-0086";
   public static final String MEASUREMENT_NAME_EQUALS_DEVICE_MSG = "实体名不能和已有物理量重名";
 
+  public static final String GET_DATA_PRIVILEGE_FAIL = "IOTDB-0087";
+  public static final String GET_DATA_PRIVILEGE_FAIL_MSG = "获取数据管理权限信息失败";
+
   // 存储组表相关
   public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
   public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";
