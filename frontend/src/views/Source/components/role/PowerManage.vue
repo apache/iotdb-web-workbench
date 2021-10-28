@@ -9,7 +9,7 @@
         <el-tab-pane :label="$t('sourcePage.dataManagePrivilege')" name="dataManagePrivilege">
           <data-manage :roleInfo="current"></data-manage>
         </el-tab-pane>
-        <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission"> 
+        <el-tab-pane :label="$t('sourcePage.permitPermission')" name="permitPermission">
           <auth-manage :roleInfo="current" :base-info="baseInfo"></auth-manage>
         </el-tab-pane>
       </template>
@@ -20,7 +20,7 @@
 
 <script>
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import RoleInfo from './RoleInfo.vue';
 import AuthManage from './AuthManage';
 import DataManage from './DataManage';
@@ -38,12 +38,18 @@ export default {
     baseInfo: {
       type: Object,
       default: () => {},
-    }
+    },
   },
-  setup() {
+  setup(props) {
     const { t, locale } = useI18n();
     const activeTab = ref('baseConfig');
     const handleClick = () => {};
+    watch(
+      () => props.current,
+      () => {
+        activeTab.value = 'baseConfig';
+      }
+    );
 
     return {
       t,
@@ -55,7 +61,7 @@ export default {
   components: {
     RoleInfo,
     AuthManage,
-    DataManage
+    DataManage,
   },
 };
 </script>
