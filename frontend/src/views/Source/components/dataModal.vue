@@ -56,6 +56,8 @@ export default {
               return t('sourcePage.physicalNum') + ':' + data.measurementCount || 0;
             } else if (data.isMeasurement) {
               return t('device.datatype') + data.dataInfo.dataType + '</Br>' + t('sourcePage.dataNum') + data.dataInfo.dataCount + '</Br>' + t('device.newValue') + data.dataInfo.newValue;
+            } else {
+              return data.name;
             }
           },
         },

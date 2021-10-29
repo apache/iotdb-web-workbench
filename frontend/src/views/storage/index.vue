@@ -75,7 +75,7 @@
             <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
             <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('device.devicename')" width="180" sortable>
               <template #default="scope">
-                <a @click="goToEntity(scope)">{{ scope.row.deviceName }}</a>
+                <a class="el-button--text" @click="goToEntity(scope)">{{ scope.row.deviceName }}</a>
               </template>
             </el-table-column>
             <el-table-column show-overflow-tooltip prop="description" :label="$t('device.description')"> </el-table-column>
@@ -83,6 +83,8 @@
             <el-table-column prop="creator" :label="$t('storagePage.creator')"> </el-table-column>
             <el-table-column :label="$t('storagePage.operation')">
               <template #default="scope">
+                <el-button type="text" size="small" @click="goToEntity(scope)">{{ $t('common.detail') }}{{ scope.row.ttl }}</el-button>
+
                 <el-button type="text" size="small" @click="editDevice(scope.row)">{{ $t('common.edit') }}{{ scope.row.ttl }}</el-button>
                 <el-popconfirm placement="top" :title="$t('storagePage.deleteDeviceConfirm')" @confirm="deleteDevice(scope)">
                   <template #reference>

@@ -35,7 +35,7 @@ const cn = {
     common: {
       submit: '确定',
       cancel: '取消',
-      detail: '查看',
+      detail: '详情',
       edit: '编辑',
       delete: '删除',
       operation: '操作',

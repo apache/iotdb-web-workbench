@@ -57,6 +57,7 @@
   color: #fb5151ff !important;
   &:hover {
     color: #f56c6c !important;
+    cursor: pointer;
   }
 }
 .el-tree--highlight-current .el-tree-node {
@@ -187,48 +188,47 @@
     border-color: $theme-color;
   }
 }
-.el-checkbox__input{
-  &.is-indeterminate{
-    & .el-checkbox__inner{
-      
-    background-color:$theme-color;
-    border-color: $theme-color;
+.el-checkbox__input {
+  &.is-indeterminate {
+    & .el-checkbox__inner {
+      background-color: $theme-color;
+      border-color: $theme-color;
     }
   }
 }
 .el-checkbox__inner:hover {
   border-color: $theme-color !important;
 }
-.el-tag{
+.el-tag {
   border-radius: 2px;
   padding: 0 6px;
   .el-tag__close {
     font-size: 14px;
     color: #222222 !important;
-    &:hover{
-      background-color:transparent
+    &:hover {
+      background-color: transparent;
     }
   }
 }
-  .el-tag-deep-green {
-    color:#333333;
-    background-color: rgba(19, 195, 147, 0.1);
-    border-color: rgba(19, 195, 147, 0.5);
+.el-tag-deep-green {
+  color: #333333;
+  background-color: rgba(19, 195, 147, 0.1);
+  border-color: rgba(19, 195, 147, 0.5);
+}
+.el-pager {
+  li.active {
+    color: $theme-color;
   }
-  .el-pager {
-    li.active {
+}
+.el-radio__input {
+  &.is-checked {
+    & .el-radio__inner {
+      border-color: $theme-color;
+      background: $theme-color;
+    }
+
+    & + .el-radio__label {
       color: $theme-color;
     }
   }
-  .el-radio__input {
-    &.is-checked{
-      & .el-radio__inner{
-    border-color: $theme-color;
-    background: $theme-color;
-      }
-      
-    & + .el-radio__label{
-      color: $theme-color;
-    }
-    }
-  }
+}

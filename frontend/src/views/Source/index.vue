@@ -63,9 +63,9 @@
           {{ $t('common.edit') }}</el-button
         >
 
-        <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')">
+        <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')" @confirm="deleteSource()">
           <template #reference>
-            <el-button @confirm="deleteSource()" class="button-delete"
+            <el-button  class="button-delete"
               ><svg aria-hidden="true" class="icon icon-delete">
                 <use xlink:href="#icon-se-icon-delete"></use></svg
               >{{ $t('common.delete') }}</el-button
