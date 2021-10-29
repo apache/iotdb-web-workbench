@@ -27,12 +27,12 @@
             <el-button @click="editDevce">
               <svg class="icon edit" aria-hidden="true">
                 <use xlink:href="#icon-se-icon-f-edit"></use></svg
-              >&nbsp;编辑</el-button
+              >&nbsp;{{ $t('common.edit') }}</el-button
             >
             <el-button @click="deleteData">
               <svg class="icon delete" aria-hidden="true">
                 <use xlink:href="#icon-se-icon-delete"></use></svg
-              >&nbsp;删除</el-button
+              >&nbsp;{{ $t('common.delete') }}</el-button
             >
           </div>
         </div>
@@ -71,11 +71,11 @@
       </div>
     </div>
     <el-tabs v-model="activeName" @tab-click="handleClick" class="tab_class">
-      <el-tab-pane label="实体结构" name="first">
+      <el-tab-pane :label="$t('device.entityStructure')" name="first">
         <div class="frist_div">
-          <div style="padding: 0px 0px 10px 0px" class="flexBox">
+          <div style="padding: 0 0 10px 0" class="flexBox">
+            <el-button type="primary" class="newButton" @click="editDevce">{{ $t('device.editTimeseries') }}</el-button>
             <form-table :form="form" @serchFormData="serchFormData"></form-table>
-            <!-- <el-button type="primary" class="newButton" @click="creatDevice">{{ $t('storagePage.newDevice') }}</el-button> -->
           </div>
           <stand-table
             :column="column"
@@ -90,7 +90,7 @@
             @getPagintions="getPagintions"
           >
             <template #default="{ scope }">
-              <div style="padding: 7px 0px" @click="searchRow(scope.row)" v-if="scope.row.newValue * 1">
+              <div style="padding: 7px 0" @click="searchRow(scope.row)" v-if="scope.row.newValue * 1">
                 <action :echartsData="routeData.obj" :row="scope.row" :scope="scope"></action>
               </div>
               <div v-else class="actionSpan">
@@ -100,20 +100,20 @@
           </stand-table>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="数据预览" name="second">
+      <el-tab-pane :label="$t('device.dataPreview')" name="second">
         <div class="frist_div">
-          <div style="padding: 0px 0px 10px 0px" class="flexBox">
+          <div style="padding: 0 0 10px 0" class="flexBox">
             <div class="button_div">
               <el-dropdown trigger="click">
-                <el-button type="primary">新增数据</el-button>
+                <el-button type="primary">{{ $t('device.addData') }}</el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item @click="dialogFormVisible.flag = true">随机生成</el-dropdown-item>
-                    <el-dropdown-item @click="dialogVisible1.flag = true">批量导入</el-dropdown-item>
+                    <el-dropdown-item @click="openRandomDataDialog">{{ $t('device.randomGeneration') }}</el-dropdown-item>
+                    <el-dropdown-item @click="dialogVisible1.flag = true">{{ $t('device.batchImport') }}</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
-              <el-button @click="exportData">导出数据</el-button>
+              <el-button @click="exportData">{{ $t('device.exportData') }}</el-button>
             </div>
             <div>
               <form-table :form="form1" @serchFormData="serchFormData1"></form-table>
@@ -134,8 +134,8 @@
             @getPagintions="getPagintions"
           >
             <template #default="{ scope }">
-              <span class="table2 edit" @click="editRow(scope.row)">编辑</span>
-              <span class="table2 delete" @click="deleteRow([scope.row], scope.$index)">{{ $t('device.delete') }}</span>
+              <span class="table2 edit" @click="editRow(scope.row)">{{ $t('common.edit') }}</span>
+              <span class="table2 delete" @click="deleteRow([scope.row], scope.$index)">{{ $t('common.delete') }}</span>
             </template>
           </stand-table>
         </div>
@@ -167,28 +167,28 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogFormVisible.flag = false">取 消</el-button>
-          <el-button type="primary" @click="randomImData">确 定</el-button>
+          <el-button @click="dialogFormVisible.flag = false">{{ $t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="randomImData"> {{ $t('common.submit') }}</el-button>
         </span>
       </template>
     </el-dialog>
-    <el-dialog title="导入" v-model="dialogVisible1.flag" width="500px" @close="cencelexport" class="export_form">
+    <el-dialog :title="$t('device.batchImport')" v-model="dialogVisible1.flag" width="700px" @close="cencelexport" class="export_form">
       <div v-if="display.flag" class="div_children">
         <div>
           <input ref="filesd" type="file" multiple="multiple" style="display: none" @change="getfile" />
-          <el-form ref="ruleForm" label-width="100%">
-            <el-form-item label="模板下载：">
+          <el-form ref="ruleForm" label-position="top">
+            <el-form-item :label="$t('device.templateDownload')">
               <el-button size="small" @click="downloadEx"
-                >下载模板
+                >{{ $t('device.downloadTemplate') }}
                 <i class="iconfont se-icon-download"></i>
               </el-button>
             </el-form-item>
-            <el-form-item label="选择文件：" prop="categoryName">
+            <el-form-item :label="$t('device.fileUpload')" prop="categoryName">
               <el-button type="primary" size="small" @click="selectFile"
-                >选择文件
+                >{{ $t('device.fileUpload') }}
                 <i class="iconfont se-icon-upload2"></i>
               </el-button>
-              <span class="export_notice">仅支持csv格式文件</span>
+              <span class="export_notice">{{ $t('device.uploadTip') }}</span>
             </el-form-item>
           </el-form>
         </div>
@@ -198,33 +198,34 @@
           <el-progress :text-inside="true" :stroke-width="12" :percentage="percentage.count" color="#16C493">
             <span></span>
           </el-progress>
-          <div class="info_div">上传中：{{ percentage.count }}%</div>
+          <div class="info_div">{{ $t('device.uploading') }}：{{ percentage.count }}%</div>
         </div>
       </div>
       <div v-else class="div_children">
         <div>
+          <div class="import-result">批量导入结果：</div>
           <stand-table :column="column2" :tableData="tableData2" :lineHeight="10" :celineHeight="10">
             <template #default="{ scope }">
-              <span class="table2 edit" @click="downfile(scope.row.downloadUrl, '')">下载</span>
+              <span :class="['table2 edit', !scope.row.failCount ? 'no-edit' : '']" @click="downfile(scope.row.downloadUrl, '')">下载</span>
             </template>
           </stand-table>
         </div>
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="cencelexport">取 消</el-button>
-          <el-button type="primary" @click="cencelexport">确 定</el-button>
+          <el-button @click="cencelexport">{{ $t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="cencelexport">{{ $t('common.submit') }}</el-button>
         </span>
       </template>
     </el-dialog>
-    <el-dialog title="编辑数据" v-model="dialogFormVisible.editflag" width="500px">
+    <el-dialog :title="$t('device.editData')" v-model="dialogFormVisible.editflag" width="500px">
       <div>
         <form-table v-if="dialogFormVisible.editflag" ref="formTable" :form="editFormData" :labelIcon="true"></form-table>
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogFormVisible.editflag = false">取 消</el-button>
-          <el-button type="primary" @click="saveData">确 定</el-button>
+          <el-button @click="dialogFormVisible.editflag = false">{{ $t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="saveData">{{ $t('common.submit') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -242,6 +243,8 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import action from './components/action.vue';
 import { handleExport } from '@/util/export';
+import axios from '@/util/axios';
+import dayjs from 'dayjs';
 export default {
   name: 'DeviceMessage',
   props: {
@@ -261,6 +264,7 @@ export default {
     const dialogVisible1 = reactive({
       flag: false,
     });
+    let timeseriesOptions = ref([]);
     let widths = ref(window.screen.width);
     let drawer = ref(0);
     let loading = ref(true);
@@ -277,6 +281,7 @@ export default {
     const percentage = reactive({
       count: 0,
     });
+    // const _dayjs = reactive(dayjs);
     const pagination = reactive({
       pageSize: 10,
       pageNum: 1,
@@ -325,7 +330,8 @@ export default {
     const form1 = reactive({
       inline: true, //横向
       formData: {
-        time: [],
+        time: [dayjs(dayjs().format('YYYY-MM-DD 00:00:00')).valueOf() - 7 * 24 * 60 * 60 * 1000, dayjs(dayjs().format('YYYY-MM-DD 23:59:59')).valueOf()],
+        measurementList: [''],
       },
       formItem: [
         {
@@ -337,18 +343,20 @@ export default {
           // suffixIcon: "el-icon-search", // 后图标样式
           startPlaceholder: '开始日期', //灰色提示文字
           endPlaceholder: '结束日期', //灰色提示文字
+          defauleTime: [new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)],
+          disabledDate: (time) => {
+            return time > dayjs(dayjs().format('YYYY-MM-DD 23:59:59')).valueOf();
+          },
         },
         {
           label: '物理量筛选', //名称
           type: 'SELECT', //控件类型
           size: 'small', //element尺寸
           width: '150px',
-          itemID: 'keyword', //数据字段名
+          itemID: 'measurementList', //数据字段名
           placeholder: 'device.serchPy', //灰色提示文字
-          options: [
-            { label: '全部', value: '1' },
-            { label: '启动', value: '1' },
-          ],
+          options: timeseriesOptions,
+          multiple: true,
         },
       ],
     });
@@ -402,7 +410,7 @@ export default {
           rules: [
             { required: true, message: '请输入生成数量', trigger: 'blur' },
             {
-              trigger: 'change',
+              trigger: ['change', 'blur'],
               validator: async (rule, value, callback) => {
                 if (!/^[0-9]*$/.test(value)) {
                   callback(new Error('请输入正整数'));
@@ -445,7 +453,7 @@ export default {
           value: '——', //默认值，该项如果没有数据显示
         },
         {
-          label: '别名',
+          label: 'device.alias',
           prop: 'alias',
           value: '——',
         },
@@ -460,12 +468,12 @@ export default {
           value: '——', //默认值，该项如果没有数据显示
         },
         {
-          label: '压缩方式',
+          label: 'device.compressionMode',
           prop: 'compression',
           value: '——',
         },
         {
-          label: '数据总量(条)',
+          label: 'device.dataNum',
           prop: 'dataCount',
           value: '——',
         },
@@ -479,21 +487,23 @@ export default {
           prop: 'action',
         },
         {
+          label: 'device.tag',
+          prop: 'tags',
+          type: 'TAG',
+          onlyShow: true,
+          value: '——',
+        },
+        {
+          label: 'device.attributes',
+          prop: 'attributes',
+          onlyShow: true,
+          type: 'ATTRIBUTES',
+          value: '——',
+        },
+        {
           label: 'device.physicaldescr',
           prop: 'description',
           value: '——', //默认值，该项如果没有数据显示
-        },
-        {
-          label: '标签',
-          prop: 'tags',
-          type: 'TAGS',
-          value: '——',
-        },
-        {
-          label: '属性',
-          prop: 'attributes',
-          type: 'TAGS',
-          value: '——',
         },
       ],
     });
@@ -514,12 +524,12 @@ export default {
           value: 0,
         },
         {
-          label: '成功数',
+          label: '成功数量',
           prop: 'SCount',
           value: 0,
         },
         {
-          label: '失败数',
+          label: '失败数量',
           prop: 'failCount',
           value: 0,
         },
@@ -545,7 +555,13 @@ export default {
     }
     //上传文件
     function getfile(obj) {
-      if (!obj.target.files) {
+      console.log('obj', obj);
+      let files = obj?.target?.files[0];
+      if (!files) {
+        return;
+      }
+      if (files.name.split('.')[1] !== 'csv' && files.name.split('.')[1] !== 'CSV') {
+        ElMessage.error('仅支持csv格式');
         return;
       }
       display.flag = false;
@@ -559,35 +575,35 @@ export default {
       let file = obj.target.files[0];
       let data = new FormData();
       data.append('file', file);
-      importData(routeData.obj, data).then((res) => {
-        percentage.count = 100;
-        let arr = [
-          {
-            totalCount: res.data.totalCount,
-            SCount: res.data.totalCount - res.data.failCount,
-            failCount: res.data.failCount,
-            downloadUrl: res.data.fileDownloadUri,
-            // res.data.fileDownloadUri.slice(-36),
-          },
-        ];
-        tableData2.list = arr;
-        clearInterval(timeId);
-        setTimeout(() => {
-          display.flag1 = false;
-        }, 500);
-      });
+      importData(routeData.obj, data)
+        .then((res) => {
+          percentage.count = 100;
+          let arr = [
+            {
+              totalCount: res.data.totalCount,
+              SCount: res.data.totalCount - res.data.failCount,
+              failCount: res.data.failCount,
+              downloadUrl: res.data.fileDownloadUri,
+              // res.data.fileDownloadUri.slice(-36),
+            },
+          ];
+          tableData2.list = arr;
+          clearInterval(timeId);
+          setTimeout(() => {
+            display.flag1 = false;
+          }, 500);
+        })
+        .catch(() => {
+          setTimeout(() => {
+            display.flag1 = false;
+          }, 500);
+        });
     }
     // 下载失败数据
-    function downfile(downUrl, fileName) {
-      let a = document.createElement('a'); // 创建a标签
-      if ('download' in a) {
-        a.download = fileName; // 设置下载文件的文件名
-      }
-      (document.body || document.documentElement).appendChild(a);
-      a.href = downUrl; // downUrl为后台返回的下载地址
-      a.target = '_parent';
-      a.click(); // 设置点击事件
-      a.remove(); // 移除a标签
+    function downfile(downUrl) {
+      axios.get(downUrl).then((res) => {
+        handleExport(res, `log.txt`);
+      });
     }
     //文件导入弹窗关闭,重置数据
     function cencelexport() {
@@ -638,9 +654,11 @@ export default {
     }
     //批量删除
     function deleteArry() {
-      if (handleChange.value) {
+      if (handleChange?.value?.length) {
         deleteRow(handleChange.value);
+        return;
       }
+      ElMessage.error('请先选择数据');
     }
     //编辑物理量数据
     function editRow(row) {
@@ -669,14 +687,20 @@ export default {
     //编辑保存物理量
     function saveData() {
       valueList.value = Object.values(editFormData.formData);
-      editData(routeData.obj, { timestamp: new Date(timestamp.value), measurementList: measurementList.value, valueList: valueList.value }).then(() => {
-        ElMessage({
-          type: 'success',
-          message: `保存成功!`,
+      editData(routeData.obj, { timestamp: new Date(timestamp.value), measurementList: measurementList.value, valueList: valueList.value })
+        .then((res) => {
+          if (res.code === '0') {
+            ElMessage({
+              type: 'success',
+              message: `保存成功!`,
+            });
+            getPview();
+            dialogFormVisible.editflag = false;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
         });
-        getPview();
-        dialogFormVisible.editflag = false;
-      });
     }
     function getDate(timeS, timeE) {
       formdate.formData.time = [timeS, timeE];
@@ -715,18 +739,20 @@ export default {
     function deleteRow(dataArr) {
       let arr = column1.list.filter((item) => item.prop !== 't0' && item.prop !== 'action').map((item) => item.label);
       let timeArr = dataArr.map((item) => new Date(item.t0));
-      ElMessageBox.confirm(`确定是否删除物理量`, '提示', {
+      ElMessageBox.confirm(`${t('device.deleteSingleDataTip')}`, `${t('device.tips')}`, {
         confirmButtonText: t('device.ok'),
         cancelButtonText: t('device.cencel'),
         type: 'warning',
       }).then(() => {
-        deleteDeviceData(routeData.obj, { timestampList: timeArr, measurementList: arr }).then(() => {
-          ElMessage({
-            type: 'success',
-            message: `${t('device.deleteSuccess')}!`,
-          });
-          handleChange.value = null;
-          getPview();
+        deleteDeviceData(routeData.obj, { timestampList: timeArr, measurementList: arr }).then((res) => {
+          if (res?.code === '0') {
+            ElMessage({
+              type: 'success',
+              message: `${t('device.deleteSuccess')}!`,
+            });
+            handleChange.value = null;
+            getPview();
+          }
         });
       });
     }
@@ -742,7 +768,7 @@ export default {
       exportDataCSV(routeData.obj, { measurementList: arr, startTime: sTime, endTime: eTime }).then((res) => {
         ElMessage({
           type: 'success',
-          message: `导出成功!`,
+          message: `${t('device.exportSucceeded')}!`,
         });
         let name = routeData.obj.name.split('.')[routeData.obj.name.split('.').length - 1];
         handleExport(res, `${name}.CSV`);
@@ -755,7 +781,21 @@ export default {
       getListData();
     }
     //物理量数据预览翻页
-    function serchFormData1() {
+    function serchFormData1({ type, value } = {}) {
+      if (type === 'select') {
+        let lastValue = value[value.length - 1];
+        if (!value.length) {
+          form1.formData.measurementList = [''];
+        } else if (!form1.formData.measurementList?.includes('') && form1.formData.measurementList?.length === timeseriesOptions.value.length - 1) {
+          form1.formData.measurementList = [''];
+        } else if (form1.formData.measurementList?.includes('') && form1.formData.measurementList?.length < timeseriesOptions.value.length) {
+          if (lastValue !== '') {
+            form1.formData.measurementList = form1.formData.measurementList.filter((d) => d !== '');
+          } else {
+            form1.formData.measurementList = [''];
+          }
+        }
+      }
       pagination1.pageSize = 10;
       pagination1.pageNum = 1;
       getPview();
@@ -765,23 +805,27 @@ export default {
       console.log(pagination);
     }
     //获取物理量列表
-    function getListData() {
-      getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
+    async function getListData() {
+      await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
         totalCount.value = res.data.totalCount;
-        getPview();
+        if (!timeseriesOptions.value.length) {
+          timeseriesOptions.value = res.data.measurementVOList.map((d) => ({ label: d.timeseries, value: d.timeseries }));
+          timeseriesOptions.value.unshift({ label: '全部', value: '' });
+        }
       });
     }
     //获取物理量数据预览列表
     function getPview() {
+      debugger;
       tableflag.flag = false;
       let sTime = null;
       let eTime = null;
-      if (form1.formData.time.length > 0) {
+      if (form1.formData.time?.length > 0) {
         sTime = form1.formData.time[0];
         eTime = form1.formData.time[1];
       }
-      let data = tableData.list.map((item) => item.timeseries);
+      console.log(form1.formData.measurementList);
       column1.list = [
         {
           label: 'device.action',
@@ -790,6 +834,10 @@ export default {
         },
       ];
       tableData1.list = [];
+      let data = [...form1.formData.measurementList];
+      if (form1.formData.measurementList[0] === '') {
+        data = timeseriesOptions.value.filter((d) => d.value !== '').map((d) => d.value);
+      }
       getDataDeviceList(routeData.obj, pagination1, { startTime: sTime, endTime: eTime, measurementList: data }).then((res) => {
         res.data.metaDataList.forEach((item, index) => {
           column1.list.push({ label: item, prop: `t${index}`, value: '——', icon: res.data.typeList[index] });
@@ -805,14 +853,26 @@ export default {
         tableflag.flag = true;
       });
     }
+    const openRandomDataDialog = () => {
+      newData.formData = {
+        startTime: new Date(),
+        stepSize: null,
+        totalLine: null,
+      };
+      dialogFormVisible.flag = true;
+      formTable.value.clearValidator();
+    };
     //随机导入物理量数据
-    function randomImData() {
-      randomImport(routeData.obj, newData.formData).then(() => {
-        ElMessage({
-          type: 'success',
-          message: `导入成功!`,
-        });
-        getPview();
+    async function randomImData() {
+      await formTable.value.checkData(dialogFormVisible);
+      randomImport(routeData.obj, newData.formData).then((res) => {
+        if (res?.code === '0') {
+          ElMessage({
+            type: 'success',
+            message: `导入成功!`,
+          });
+          getPview();
+        }
       });
       dialogFormVisible.flag = false;
     }
@@ -827,13 +887,15 @@ export default {
     }
     onActivated(() => {
       routeData.obj = Object.assign(routeData.obj, route.params);
+      timeseriesOptions.value = [];
       form.formData.keyword = '';
       if (route.params.forceupdate === 'true') {
         formdate.formData.time = [];
       }
-      setTimeout(() => {
+      setTimeout(async () => {
         getdData();
-        getListData();
+        await getListData();
+        await getPview();
       }, 500);
     });
     return {
@@ -893,6 +955,8 @@ export default {
       closeDrawer,
       creatDevice,
       loading,
+      timeseriesOptions,
+      openRandomDataDialog,
     };
   },
   components: {
@@ -921,10 +985,13 @@ $cursor: pointer;
   color: #abb1c7;
 }
 .div_children {
-  height: 150px;
   display: flex;
   width: 100%;
   align-items: center;
+  .import-result {
+    padding-bottom: 10px;
+    color: gray;
+  }
   div {
     width: 100%;
     .info_div {
@@ -947,6 +1014,11 @@ $cursor: pointer;
     color: red;
     margin-left: 15px;
   }
+
+  &.no-edit {
+    color: gray;
+    pointer-events: none;
+  }
 }
 .frist_div {
   background: #fff;
@@ -954,9 +1026,10 @@ $cursor: pointer;
   border-radius: 4px;
   border: 1px solid #eaecf0;
   padding: 20px;
+  overflow: auto;
 }
 .messIcon {
-  color: rgba($color: #000000, $alpha: 0.25);
+  color: rgba($color: #000, $alpha: 0.25);
 }
 .content_padding {
   padding: 20px;
@@ -986,13 +1059,13 @@ $cursor: pointer;
 }
 .drawer {
   // width: 84%;
-  bottom: 0px;
+  bottom: 0;
   background: #fff;
   position: absolute;
   z-index: 9;
   overflow: hidden;
   transition: all 0.3s ease-out 0.1s;
-  box-shadow: 14px -2px 12px 0px rgba(0, 0, 0, 0.16);
+  box-shadow: 14px -2px 12px 0 rgba(0, 0, 0, 0.16);
   //   box-shadow: 3px 3px 3px #a2a2a2;
 }
 .headerbox {
@@ -1007,9 +1080,14 @@ $cursor: pointer;
   font-size: 20px;
   font-weight: bold;
 }
-.flexBox {
+:deep(.flexBox) {
   display: flex;
   justify-content: space-between;
+  .el-form {
+    .el-form-item {
+      margin-bottom: 0;
+    }
+  }
 }
 .headerIcon {
   width: 110px;
@@ -1032,9 +1110,9 @@ $cursor: pointer;
   font-size: 14px;
 }
 .creatButton {
-  padding: 0px 40px;
+  padding: 0 40px;
   height: 35px;
-  min-height: 0px !important;
+  min-height: 0 !important;
   background: #409eff;
   color: #fff;
   margin-top: 3px;
@@ -1055,11 +1133,11 @@ $cursor: pointer;
   }
 }
 .content_message {
-  .el-form-item__label {
-    text-align: left;
-  }
-  .el-form-item__content {
-    margin-left: 0px !important;
-  }
+  // .el-form-item__label {
+  //   text-align: left;
+  // }
+  // .el-form-item__content {
+  //   margin-left: 0px !important;
+  // }
 }
 </style>

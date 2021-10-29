@@ -49,7 +49,7 @@
       </stand-table>
     </div>
     <div class="footer" :style="{ left: dividerWidth + 'px', width: widths - dividerWidth + 'px' }">
-      <el-button type="info" @click="closeTab">{{ $t('device.cencel') }}</el-button>
+      <el-button @click="closeTab">{{ $t('device.cencel') }}</el-button>
       <el-button type="primary" class="sumbitButton" @click="sumbitData">{{ $t('device.ok') }}</el-button>
     </div>
   </div>
@@ -63,6 +63,7 @@ import { onActivated, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
+import _cloneDeep from 'lodash/cloneDeep';
 export default {
   name: 'DeviceAddEidt',
   props: {
@@ -109,7 +110,7 @@ export default {
           event: checkVal,
         },
         {
-          label: '别名',
+          label: 'device.alias',
           prop: 'alias',
           type: 'INPUT', //控件类型
           size: 'small',
@@ -140,7 +141,7 @@ export default {
           icon: 'el-icon-question',
         },
         {
-          label: '压缩方式',
+          label: 'device.compressionMode',
           prop: 'compression',
           type: 'SELECT',
           size: 'small',
@@ -159,15 +160,15 @@ export default {
           size: 'small',
         },
         {
-          label: '标签',
+          label: 'device.tag',
           prop: 'tags',
           type: 'TAG',
           size: 'small',
         },
         {
-          label: '属性',
+          label: 'device.attributes',
           prop: 'attributes',
-          type: 'TAG',
+          type: 'ATTRIBUTES',
           size: 'small',
         },
         {
@@ -320,10 +321,6 @@ export default {
       }
     }
     function closeTab() {
-      ElMessage({
-        type: 'info',
-        message: `${t('device.cencel')}!`,
-      });
       router.go(-1);
       // router.push({ name: 'DeviceMessage', params: { ...deviceData.obj } });
     }
@@ -346,29 +343,34 @@ export default {
           checkfalg = false;
         }
       });
-      if (checkfalg && form.formData.deviceName) {
-        if (tableData.list.length > 0) {
-          tableData.list.forEach((item) => {
-            if (item.timeseries.indexOf(form.formData.groupName) === -1) {
-              item.timeseries = form.formData.groupName + '.' + form.formData.deviceName + '.' + item.timeseries;
+      // 验证通过
+      if (checkfalg) {
+        let copyForm = _cloneDeep(form);
+        let { deviceName, groupName } = copyForm.formData;
+        let copyTableData = _cloneDeep(tableData);
+        copyForm.formData.deviceName = deviceName ? groupName + '.' + deviceName : groupName;
+
+        if (copyTableData.list.length > 0) {
+          copyTableData.list.forEach((item) => {
+            if (item.timeseries.indexOf(groupName) === -1) {
+              item.timeseries = copyForm.formData.deviceName + '.' + item.timeseries;
             }
           });
-          form.formData.deviceName = form.formData.groupName + '.' + form.formData.deviceName;
-          deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...form.formData, deviceDTOList: tableData.list }).then((res) => {
+          deviceAddEdite(deviceData.obj.connectionid, deviceData.obj.storagegroupid, { ...copyForm.formData, deviceDTOList: copyTableData.list }).then((res) => {
             if (res.code === '0') {
               ElMessage({
                 type: 'success',
                 message: `${t('device.savesuccess')}!`,
               });
-              deviceData.obj.name = form.formData.deviceName;
+              deviceData.obj.name = copyForm.formData.deviceName;
               router.go(-1);
               // if (deviceData.obj.dflag) {
-                props.func.updateTree();
+              props.func.updateTree();
               // }
             }
           });
         } else {
-          if (tableData.list.length <= 0) {
+          if (copyTableData.list.length <= 0) {
             ElMessage.error(`${t('device.minphysical')}`);
           }
         }
@@ -425,6 +427,7 @@ export default {
               seBorder: false,
             },
           ];
+          totalCount.value = 0;
         }
       }
     });
@@ -460,7 +463,7 @@ export default {
   color: #606266;
 }
 .addbutton {
-  color: #ffffff;
+  color: #fff;
   margin-left: 20px;
   padding: 10px 30px;
   background-color: $theme-color;
@@ -480,7 +483,7 @@ export default {
 }
 .footer {
   position: absolute;
-  bottom: 0px;
+  bottom: 0;
   left: 50%;
   background: #fff;
   height: 52px;

@@ -67,7 +67,7 @@
           <!-- <span class="search-title">{{ $t('storagePage.deviceName') }}</span> -->
           <el-button type="primary" @click="newDevice">{{ $t('storagePage.newDevice') }}</el-button>
 
-          <el-input v-model="searchVal" class="search-btn" suffix-icon="el-icon-search" @blur="search()" @keyup.enter="search()"></el-input>
+          <el-input v-model="searchVal" class="search-btn" suffix-icon="el-icon-search" :placeholder="$t('device.devicename')" @blur="search()" @keyup.enter="search()"></el-input>
         </div>
         <div class="device-list">
           <!-- @selection-change="handleSelectionChange" -->
@@ -75,7 +75,7 @@
             <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
             <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('device.devicename')" width="180" sortable>
               <template #default="scope">
-                <a class="el-button--text" @click="goToEntity(scope)">{{ scope.row.deviceName }}</a>
+                <a class="to-entity" @click="goToEntity(scope)">{{ scope.row.deviceName }}</a>
               </template>
             </el-table-column>
             <el-table-column show-overflow-tooltip prop="description" :label="$t('device.description')"> </el-table-column>
@@ -308,7 +308,6 @@ export default {
 .storage-container {
   height: 100%;
   text-align: left;
-
   background: #f9fbfc;
   .base-info,
   .device-content {
@@ -330,7 +329,7 @@ export default {
         margin-bottom: 10px;
       }
       &:deep(.el-descriptions :not(.is-bordered) th, .el-descriptions :not(.is-bordered) td) {
-        margin-bottom: 0px;
+        margin-bottom: 0;
       }
     }
     .btns {
@@ -349,18 +348,21 @@ export default {
         color: $theme-color;
       }
       .icon-del {
-        margin-right: 0px;
+        margin-right: 0;
         .icon {
           color: #fb5151ff;
         }
       }
     }
   }
+  .to-entity {
+    color: $theme-color;
+    cursor: pointer;
+  }
   .device-content {
     .device-padding {
       background: #fff;
       padding: 20px;
-
       border-radius: 4px;
       border: 1px solid #eaecf0;
     }

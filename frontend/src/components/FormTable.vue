@@ -25,7 +25,16 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
       >
         <template #prepend v-if="item.inputHeader">{{ formData[item.inputHeaderText] }}</template>
       </el-input>
-      <el-select v-if="item.type === 'SELECT'" v-model="formData[item.itemID]" :style="{ width: item.width }" :size="item.size" placeholder="请选择" @change="getFormData">
+      <el-select
+        v-if="item.type === 'SELECT'"
+        v-model="formData[item.itemID]"
+        :style="{ width: item.width }"
+        :multiple="item.multiple"
+        :size="item.size"
+        :collapse-tags="item.multiple"
+        placeholder="请选择"
+        @change="getFormData($event, 'select')"
+      >
         <el-option v-for="item in item.options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
       </el-select>
       <el-input :size="item.size" v-if="item.type === 'TEXT'" v-model="formData[item.itemID]" class="input-inner" :suffix-icon="item.suffixIcon" :prefix-icon="item.prefixIcon" readonly> </el-input>
@@ -36,10 +45,11 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         :style="{ width: item.width }"
         prefix-icon=""
         range-separator="~"
+        :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)]"
         type="datetimerange"
         :start-placeholder="item.startPlaceholder"
         :end-placeholder="item.endPlaceholder"
-        @blur="item.Event"
+        :disabledDate="item.disabledDate"
         @change="getFormData"
       >
       </el-date-picker>
@@ -60,7 +70,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
                 }
               "
             >
-              <span style="top: 0px">
+              <span style="top: 0">
                 <i class="el-icon-caret-top" />
               </span>
             </div>
@@ -73,7 +83,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
                 }
               "
             >
-              <span style="bottom: 0px">
+              <span style="bottom: 0">
                 <i class="el-icon-caret-bottom" />
               </span>
             </div>
@@ -118,18 +128,25 @@ export default {
       });
     }
     const rules = reactive(prop);
-    function getFormData() {
-      emit('serchFormData');
+    function getFormData(val, type) {
+      emit('serchFormData', { value: val, type });
     }
     function checkData(obj) {
-      formtable.value.validate((valid) => {
-        if (valid) {
-          alert('成功');
-          obj.flag = false;
-        } else {
-          obj.flag = true;
-        }
+      return new Promise((resolve, reject) => {
+        formtable.value.validate((valid) => {
+          if (valid) {
+            // alert('成功');
+            obj.flag = false;
+            return resolve('success');
+          } else {
+            obj.flag = true;
+            return reject('error');
+          }
+        });
       });
+    }
+    function clearValidator() {
+      formtable.value.clearValidate();
     }
     return {
       ...toRefs(formObj),
@@ -137,6 +154,7 @@ export default {
       label,
       formtable,
       rules,
+      clearValidator,
       checkData,
       getFormData,
     };
@@ -162,12 +180,12 @@ export default {
 <style lang="scss">
 .form_label {
   .el-form-item__label {
-    padding: 0px 20px;
+    padding: 0 20px;
   }
   .icon_span {
     position: absolute;
     top: -1px;
-    left: 0px;
+    left: 0;
   }
 }
 .form_style {
@@ -181,7 +199,7 @@ export default {
   .el-input-group__append {
     line-height: 23px;
     background: #fff;
-    padding: 0 0px;
+    padding: 0 0;
     overflow: hidden;
   }
   .el-input-group__prepend {

@@ -56,6 +56,6 @@ export function deleteQueryS(serverId, queryId) {
   return axios.delete(`/servers/${serverId}/query/${queryId}`);
 }
 // 导入查询
-export function exportDataSql(serverId, data) {
-  return axios.post(`/servers/${serverId}/exportData`, data);
+export function exportDataSql(serverId, params) {
+  return axios.get(`/servers/${serverId}/exportData`, { params });
 }

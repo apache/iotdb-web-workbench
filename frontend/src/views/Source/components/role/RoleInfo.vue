@@ -108,7 +108,7 @@ export default {
     });
     let getUserList = async () => {
       let result = await api.getUsers(serverId);
-      userList.value = result.data;
+      userList.value = result.data.filter((d) => d !== 'root');
     };
     let changeUser = ({ userList } = {}) => {
       form.value.users = userList;
