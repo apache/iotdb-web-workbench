@@ -23,15 +23,15 @@
       <span>{{ $t('rootPage.dataList') }}</span>
       <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
         <div class="icon-1">
-          <svg class="icon" @click="sqlClick" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
-            <use xlink:href="#icon-xinjianchaxun"></use>
+          <svg class="icon" @click="sqlClick" aria-hidden="true">
+            <use xlink:href="#icon-add"></use>
           </svg>
         </div>
       </el-tooltip>
       <el-tooltip :content="$t('rootPage.newdatasource')" :visible-arrow="false" effect="light">
         <div class="icon-2">
-          <svg v-icon="`#icon-xinzengshujulianjie-color`" class="icon" aria-hidden="true" @click="newSource">
-            <use xlink:href="#icon-xinzengshujulianjie"></use>
+          <svg class="icon" aria-hidden="true" @click="newSource">
+            <use xlink:href="#icon-add"></use>
           </svg>
         </div>
       </el-tooltip>
