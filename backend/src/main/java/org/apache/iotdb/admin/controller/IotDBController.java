@@ -225,7 +225,6 @@ public class IotDBController {
     GroupVO groupVO = new GroupVO();
     if (ttl != null && !"null".equalsIgnoreCase(ttl)) {
       Long totalTime = Long.valueOf(ttl);
-      // TODO 当ttl为毫秒级时会有问题
       ttlUnit = getTTL(totalTime);
       Long times = switchTime(ttlUnit);
       ttl = String.valueOf(totalTime / times);
@@ -1150,6 +1149,9 @@ public class IotDBController {
   private Long switchTime(String ttlUnit) throws BaseException {
     Long time = 0L;
     switch (ttlUnit) {
+      case "millisecond":
+        time = 1L;
+        break;
       case "second":
         time = 1000L;
         break;
@@ -1209,6 +1211,6 @@ public class IotDBController {
     if ((time / secondTime != 0) && (time % secondTime == 0)) {
       return "second";
     }
-    return null;
+    return "millisecond";
   }
 }
