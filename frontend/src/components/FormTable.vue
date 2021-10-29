@@ -47,8 +47,8 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         range-separator="~"
         :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)]"
         type="datetimerange"
-        :start-placeholder="item.startPlaceholder"
-        :end-placeholder="item.endPlaceholder"
+        :start-placeholder="$t(item.startPlaceholder)"
+        :end-placeholder="$t(item.endPlaceholder)"
         :disabledDate="item.disabledDate"
         @change="getFormData"
       >
@@ -58,7 +58,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         <el-radio label="false">false</el-radio>
       </el-radio-group>
       <el-date-picker v-model="formData[item.itemID]" v-if="item.type === 'DATETIME'" type="datetime" :style="{ width: item.width }" :placeholder="item.placeholder"> </el-date-picker>
-      <el-input v-model="formData[item.itemID]" v-if="item.type === 'INPUTNUM'" :style="{ width: item.width }" controls-position="right">
+      <el-input v-model="formData[item.itemID]" v-if="item.type === 'INPUTNUM'" :placeholder="$t(item.placeholder)" :style="{ width: item.width }" controls-position="right">
         <template #append>
           <span v-if="item.unit" style="padding: 0 10px">{{ item.unit }}</span>
           <div class="icon_but">

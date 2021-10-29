@@ -236,6 +236,7 @@ export default {
       ],
       privileges: [
         {
+          required: true,
           validator: validatePrivileges,
           trigger: 'change',
         },

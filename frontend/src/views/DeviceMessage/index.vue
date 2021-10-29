@@ -158,9 +158,9 @@
         <action :echartsData="routeData.obj" :row="echart.row" :idCopyStr="1"></action>
       </div>
     </div>
-    <el-dialog title="随机数据" v-model="dialogFormVisible.flag" width="500px">
+    <el-dialog :title="$t('device.randomData')" v-model="dialogFormVisible.flag" width="500px">
       <div>
-        <span style="color: red">提示：同时间戳的数据将会被覆盖</span>
+        <span style="color: red">{{$t('device.randomTip')}}</span>
         <div style="padding-top: 20px">
           <form-table ref="formTable" :form="newData"></form-table>
         </div>
@@ -203,10 +203,10 @@
       </div>
       <div v-else class="div_children">
         <div>
-          <div class="import-result">批量导入结果：</div>
+          <div class="import-result">{{$t('device.importResult')}}</div>
           <stand-table :column="column2" :tableData="tableData2" :lineHeight="10" :celineHeight="10">
             <template #default="{ scope }">
-              <span :class="['table2 edit', !scope.row.failCount ? 'no-edit' : '']" @click="downfile(scope.row.downloadUrl, '')">下载</span>
+              <span :class="['table2 edit', !scope.row.failCount ? 'no-edit' : '']" @click="downfile(scope.row.downloadUrl, '')">{{$t('standTable.download')}}</span>
             </template>
           </stand-table>
         </div>
@@ -335,21 +335,21 @@ export default {
       },
       formItem: [
         {
-          label: 'device.time', //名称
+          label: 'device.timeRange', //名称
           type: 'DATE', //控件类型
           size: 'small', //element尺寸
           width: '400px',
           itemID: 'time', //数据字段名
           // suffixIcon: "el-icon-search", // 后图标样式
-          startPlaceholder: '开始日期', //灰色提示文字
-          endPlaceholder: '结束日期', //灰色提示文字
+          startPlaceholder: 'device.startTime', //灰色提示文字
+          endPlaceholder: 'device.endTime', //灰色提示文字
           defauleTime: [new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)],
           disabledDate: (time) => {
             return time > dayjs(dayjs().format('YYYY-MM-DD 23:59:59')).valueOf();
           },
         },
         {
-          label: '物理量筛选', //名称
+          label: 'device.screenPhysical', //名称
           type: 'SELECT', //控件类型
           size: 'small', //element尺寸
           width: '150px',
@@ -368,7 +368,7 @@ export default {
       },
       formItem: [
         {
-          label: '开始时间', //名称
+          label: 'device.startTime', //名称
           type: 'DATETIME', //控件类型
           size: 'small', //element尺寸
           width: '100%',
@@ -378,21 +378,21 @@ export default {
           rules: [{ required: true, message: '请选择开始时间', trigger: 'blur' }],
         },
         {
-          label: '步长', //名称
+          label: 'device.step', //名称
           type: 'INPUTNUM', //控件类型
           size: 'small', //element尺寸
           width: '100%',
           itemID: 'stepSize', //数据字段名
-          placeholder: '请输入步长', //灰色提示文字
+          placeholder: 'device.stepTip', //灰色提示文字
           unit: 'ms',
           required: true,
           rules: [
-            { required: true, message: '请填写步长', trigger: 'blur' },
+            { required: true, message: t('device.stepTip'), trigger: 'blur' },
             {
               trigger: 'change',
               validator: async (rule, value, callback) => {
                 if (!/^[0-9]*$/.test(value) || value < 0) {
-                  callback(new Error('请输入正整数'));
+                  callback(new Error(t('device.stepErrorTip')));
                   return;
                 }
               },
@@ -400,24 +400,24 @@ export default {
           ],
         },
         {
-          label: '生成数量', //名称
+          label: 'device.generatedQuantity', //名称
           type: 'INPUTNUM', //控件类型
           size: 'small', //element尺寸
           width: '100%',
           itemID: 'totalLine', //数据字段名
-          placeholder: '请输入生成数量', //灰色提示文字
+          placeholder: 'device.generateTip', //灰色提示文字
           required: true,
           rules: [
-            { required: true, message: '请输入生成数量', trigger: 'blur' },
+            { required: true, message: t('device.generateTip'), trigger: 'blur' },
             {
               trigger: ['change', 'blur'],
               validator: async (rule, value, callback) => {
                 if (!/^[0-9]*$/.test(value)) {
-                  callback(new Error('请输入正整数'));
+                  callback(new Error(t('device.stepErrorTip')));
                   return;
                 }
                 if (value > 1000000) {
-                  callback(new Error('限制100万条以内'));
+                  callback(new Error(t('device.generateErrorTip')));
                   return;
                 }
               },
@@ -439,8 +439,8 @@ export default {
           width: '400px',
           itemID: 'time', //数据字段名
           // suffixIcon: "el-icon-search", // 后图标样式
-          startPlaceholder: '开始日期', //灰色提示文字
-          endPlaceholder: '结束日期', //灰色提示文字
+          startPlaceholder: 'device.startTime', //灰色提示文字
+          endPlaceholder: 'device.endTime', //灰色提示文字
           Event: checkDateValue,
         },
       ],
@@ -519,17 +519,17 @@ export default {
     const column2 = reactive({
       list: [
         {
-          label: '上传总数',
+          label: 'device.uploadedNum',
           prop: 'totalCount',
           value: 0,
         },
         {
-          label: '成功数量',
+          label: 'device.successNum',
           prop: 'SCount',
           value: 0,
         },
         {
-          label: '失败数量',
+          label: 'device.failedNum',
           prop: 'failCount',
           value: 0,
         },
@@ -692,7 +692,7 @@ export default {
           if (res.code === '0') {
             ElMessage({
               type: 'success',
-              message: `保存成功!`,
+              message: t('device.savesuccess'),
             });
             getPview();
             dialogFormVisible.editflag = false;
@@ -869,7 +869,7 @@ export default {
         if (res?.code === '0') {
           ElMessage({
             type: 'success',
-            message: `导入成功!`,
+            message: t('standTable.importTip'),
           });
           getPview();
         }

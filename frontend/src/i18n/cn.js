@@ -41,6 +41,7 @@ const cn = {
       operation: '操作',
       save: '保存',
       clear: '清空',
+      noData: '暂无数据',
     },
     databasem: {
       newStoreGroup: '新建存储组',
@@ -307,6 +308,22 @@ const cn = {
       editData: '编辑数据',
       deleteSingleDataTip: '是否确认删除选中的数据',
       exportSucceeded: '导出成功',
+      screenPhysical: '物理量筛选',
+      timeRange: '时间范围',
+      startTime: '开始时间',
+      endTime: '结束时间',
+      randomData: '随机数据',
+      randomTip: '提示：同时间戳的数据将会被覆盖',
+      importResult: '批量导入结果：',
+      step:'步长',
+      generatedQuantity:'生成数量',
+      stepTip:'请输入步长',
+      stepErrorTip:'请输入正整数',
+      generateTip: '请输入生成数量',
+      generateErrorTip:'限制100万条以内',
+      uploadedNum: '上传总数',
+      successNum: '成功数量',
+      failedNum: '失败数量',
     },
     sqlserch: {
       Aggregate: '聚合函数',
@@ -369,6 +386,7 @@ const cn = {
       savequery: '保存查询',
       queryname: '查询名称',
       deleteArry: '批量删除',
+      importTip:'导入成功'
     },
   },
 };

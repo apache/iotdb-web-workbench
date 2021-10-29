@@ -102,11 +102,10 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         @current-change="getList"
         v-model:currentPage="paginations.pageNum"
         :page-size="paginations.pageSize"
-        layout="slot, prev, pager, next"
+        layout="total, prev, pager, next"
         :total="total"
         :hide-on-single-page="true"
       >
-        <span> 共{{ total }}条 </span>
       </el-pagination>
     </div>
     <el-dialog :title="`${edData.label}编辑`" v-model="dialogFormVisible.flag" width="500px" class="dialog_tag">

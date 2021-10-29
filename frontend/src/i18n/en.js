@@ -40,6 +40,7 @@ const en = {
       operation: 'operation',
       save: 'save',
       clear: 'clear',
+      noData: 'No data'
     },
     databasem: {
       newStoreGroup: 'New storage group',
@@ -305,6 +306,22 @@ const en = {
       editData: 'Edit Data',
       deleteSingleDataTip: 'Are you sure to delete the selected data',
       exportSucceeded: 'Export Succeeded',
+      screenPhysical: 'Physical quantity screening',
+      timeRange: 'time frame',
+      startTime: 'Start Time',
+      endTime: 'End Time',
+      randomData: 'Random Data',
+      randomTip: 'Tip: data with the same timestamp will be overwritten',
+      importResult: 'Batch import results:',
+      step:'step',
+      generatedQuantity:'Generated quantity',
+      stepTip:'Please enter the step size',
+      stepErrorTip:'Please enter a positive integer',
+      generateTip: 'Please enter the generated quantity',
+      generateErrorTip:'Limited to 1 million',
+      uploadedNum: 'Total uploads',
+      successNum: 'Number of successes',
+      failedNum: 'Number of failures',
     },
     sqlserch: {
       Aggregate: 'Aggregate',
@@ -366,6 +383,8 @@ const en = {
       data: 'data',
       savequery: 'save query',
       queryname: 'query name',
+      deleteArry: 'Batch delete',
+      importTip:'Import succeeded'
     },
   },
 };
