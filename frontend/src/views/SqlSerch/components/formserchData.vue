@@ -178,7 +178,7 @@ export default {
   font-size: 12px;
   justify-content: space-between;
   border-bottom: 1px solid #ebeef5;
-  padding: 10px 0px;
+  padding: 10px 0;
   cursor: pointer;
   span {
     flex: 1;

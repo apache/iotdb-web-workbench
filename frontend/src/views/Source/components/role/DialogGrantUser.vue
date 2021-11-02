@@ -4,7 +4,7 @@
     <div class="dialog-content">
       <div class="left">
         <el-checkbox v-model="allCheck" :indeterminate="isIndeterminate" @change="handleCheckAllChange"
-          ><span class="all-checkbox">{{$t('sourcePage.userList')}} ({{ userList.length }})</span></el-checkbox
+          ><span class="all-checkbox">{{ $t('sourcePage.userList') }} ({{ userList.length }})</span></el-checkbox
         >
         <el-checkbox-group v-model="checkedUser" @change="handleCheckedUser">
           <el-checkbox v-for="user in pagiUsers" :key="user" :label="user">
@@ -22,11 +22,11 @@
       <div class="divider"></div>
       <div class="right">
         <div class="right-title">
-          <span>{{$t('sourcePage.selectedUser')}}  ({{ checkedUser.length }})</span><span class="clear" @click="handleClear">{{$t('common.clear')}}</span>
+          <span>{{ $t('sourcePage.selectedUser') }} ({{ checkedUser.length }})</span><span class="clear" @click="handleClear">{{ $t('common.clear') }}</span>
         </div>
         <div class="right-item" v-for="user in checkedPagiUsers" :key="user">
           {{ user }}
-          <span class="delete" @click="deleteUser(user)">{{$t('common.delete')}}</span>
+          <span class="delete" @click="deleteUser(user)">{{ $t('common.delete') }}</span>
         </div>
         <el-pagination
           layout="prev, pager, next"
@@ -93,7 +93,7 @@ export default {
       const checkedCount = checkedUser.value.length;
       isIndeterminate.value = checkedUser.value.length > 0 && checkedUser.value.length < props.userList.length;
       allCheck.value = checkedCount === props.userList.length;
-    }
+    };
 
     let handleCurrentChange = (currPage) => {
       pagination.value.currPage = currPage;
@@ -140,10 +140,15 @@ export default {
   },
 };
 </script>
-<style scoped lang="scss"></style>
 <style lang="scss">
 .grant-dialog {
   .el-dialog__body {
+    position: relative;
+
+    .el-pagination {
+      position: absolute;
+      bottom: 10px;
+    }
     .dialog-content {
       display: flex;
 
@@ -201,14 +206,6 @@ export default {
           cursor: pointer;
         }
       }
-    }
-  }
-  .el-dialog__body {
-    position: relative;
-
-    .el-pagination {
-      position: absolute;
-      bottom: 10px;
     }
   }
 }

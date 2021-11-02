@@ -160,7 +160,7 @@
     </div>
     <el-dialog :title="$t('device.randomData')" v-model="dialogFormVisible.flag" width="500px">
       <div>
-        <span style="color: red">{{$t('device.randomTip')}}</span>
+        <span style="color: red">{{ $t('device.randomTip') }}</span>
         <div style="padding-top: 20px">
           <form-table ref="formTable" :form="newData"></form-table>
         </div>
@@ -203,10 +203,10 @@
       </div>
       <div v-else class="div_children">
         <div>
-          <div class="import-result">{{$t('device.importResult')}}</div>
+          <div class="import-result">{{ $t('device.importResult') }}</div>
           <stand-table :column="column2" :tableData="tableData2" :lineHeight="10" :celineHeight="10">
             <template #default="{ scope }">
-              <span :class="['table2 edit', !scope.row.failCount ? 'no-edit' : '']" @click="downfile(scope.row.downloadUrl, '')">{{$t('standTable.download')}}</span>
+              <span :class="['table2 edit', !scope.row.failCount ? 'no-edit' : '']" @click="downfile(scope.row.downloadUrl, '')">{{ $t('standTable.download') }}</span>
             </template>
           </stand-table>
         </div>
@@ -817,7 +817,6 @@ export default {
     }
     //获取物理量数据预览列表
     function getPview() {
-      debugger;
       tableflag.flag = false;
       let sTime = null;
       let eTime = null;
@@ -825,7 +824,6 @@ export default {
         sTime = form1.formData.time[0];
         eTime = form1.formData.time[1];
       }
-      console.log(form1.formData.measurementList);
       column1.list = [
         {
           label: 'device.action',

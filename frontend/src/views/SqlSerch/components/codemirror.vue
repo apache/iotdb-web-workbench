@@ -151,7 +151,7 @@ export default {
 </script>
 <style lang="scss">
 .CodeMirror-linenumber {
-  padding: 5px 3px 5px 0px !important;
+  padding: 5px 3px 5px 0 !important;
 }
 pre.CodeMirror-line {
   padding: 5px 20px !important;
@@ -159,6 +159,12 @@ pre.CodeMirror-line {
 }
 .CodeMirror {
   background: #f9fbfc !important;
+  pre {
+    &.CodeMirror-line {
+      font-size: 11px !important;
+      font-family: 'PingFang SC, Arial, sans-serif';
+    }
+  }
 }
 .CodeMirror-gutters {
   background-color: #f9fbfc !important;
@@ -166,10 +172,6 @@ pre.CodeMirror-line {
   border-right: none !important;
 }
 .font_fmiy {
-  .CodeMirror-line {
-    font-size: 11px !important;
-    font-family: 'PingFang SC, Arial, sans-serif' !important;
-  }
   .CodeMirror-scroll {
     background: #f9fbfc !important;
   }

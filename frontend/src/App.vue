@@ -25,7 +25,7 @@
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #222222;
+  color: #222;
   font-family: PingFang SC, Arial, sans-serif;
   text-align: center;
   height: 100vh;

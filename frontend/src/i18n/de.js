@@ -40,7 +40,7 @@ const de = {
       operation: 'Oeration',
       save: 'Speichern',
       clear: 'Leer',
-      noData: 'Keine Daten'
+      noData: 'Keine Daten',
     },
     databasem: {
       newStoreGroup: 'Neue Speichergruppe ("storage group")',
@@ -295,12 +295,12 @@ const de = {
       randomData: 'Zufällige Daten',
       randomTip: 'Tipp: Daten mit dem gleichen Zeitstempel werden überschrieben',
       importResult: 'Ergebnisse beim Stapelimport:',
-      step:'Schritt',
-      generatedQuantity:'Erzeugte Menge',
-      stepTip:'Bitte geben Sie die Schrittgröße ein',
-      stepErrorTip:'Bitte geben Sie eine positive Ganzzahl ein',
+      step: 'Schritt',
+      generatedQuantity: 'Erzeugte Menge',
+      stepTip: 'Bitte geben Sie die Schrittgröße ein',
+      stepErrorTip: 'Bitte geben Sie eine positive Ganzzahl ein',
       generateTip: 'Bitte geben Sie die erzeugte Menge ein',
-      generateErrorTip:'Begrenzt auf eine Million',
+      generateErrorTip: 'Begrenzt auf eine Million',
       uploadedNum: 'Uploads insgesamt',
       successNum: 'Anzahl der Erfolge',
       failedNum: 'Anzahl der Ausfälle',
@@ -366,7 +366,7 @@ const de = {
       savequery: 'Query speichern',
       queryname: 'Name des Queries',
       deleteArry: 'Stapel löschen',
-      importTip:'Import erfolgreich'
+      importTip: 'Import erfolgreich',
     },
   },
 };

@@ -159,7 +159,7 @@ export default {
           font-size: 30px;
           font-weight: 500;
           line-height: 38px;
-          color: #222222;
+          color: #222;
           margin-bottom: 30px;
         }
         .line-4,
@@ -167,7 +167,7 @@ export default {
           font-size: 14px;
           font-weight: 400;
           line-height: 22px;
-          color: #222222;
+          color: #222;
           margin-bottom: 20px;
         }
         .line-6 {
@@ -190,7 +190,7 @@ export default {
         .line-7 {
           font-size: 14px;
           line-height: 22px;
-          color: #222222;
+          color: #222;
         }
       }
       .right {

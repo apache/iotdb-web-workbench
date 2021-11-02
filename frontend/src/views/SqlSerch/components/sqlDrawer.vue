@@ -100,7 +100,7 @@ export default {
   .el-form-item {
     display: flex;
     width: 100%;
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
   .el-select {
     width: 100%;

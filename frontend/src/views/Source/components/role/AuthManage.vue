@@ -341,8 +341,6 @@ export default {
     font-size: 12px;
     margin-bottom: 16px;
   }
-  .wraper {
-  }
   .permit-list {
     display: flex;
     height: calc(100% - 60px);

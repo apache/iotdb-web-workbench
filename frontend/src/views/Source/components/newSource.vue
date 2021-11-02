@@ -295,7 +295,6 @@ export default {
   .source-form {
     .eg {
       font-size: 12px;
-
       color: rgba(34, 34, 34, 0.4);
     }
   }

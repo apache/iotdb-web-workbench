@@ -40,7 +40,7 @@ const en = {
       operation: 'operation',
       save: 'save',
       clear: 'clear',
-      noData: 'No data'
+      noData: 'No data',
     },
     databasem: {
       newStoreGroup: 'New storage group',
@@ -313,12 +313,12 @@ const en = {
       randomData: 'Random Data',
       randomTip: 'Tip: data with the same timestamp will be overwritten',
       importResult: 'Batch import results:',
-      step:'step',
-      generatedQuantity:'Generated quantity',
-      stepTip:'Please enter the step size',
-      stepErrorTip:'Please enter a positive integer',
+      step: 'step',
+      generatedQuantity: 'Generated quantity',
+      stepTip: 'Please enter the step size',
+      stepErrorTip: 'Please enter a positive integer',
       generateTip: 'Please enter the generated quantity',
-      generateErrorTip:'Limited to 1 million',
+      generateErrorTip: 'Limited to 1 million',
       uploadedNum: 'Total uploads',
       successNum: 'Number of successes',
       failedNum: 'Number of failures',
@@ -384,7 +384,7 @@ const en = {
       savequery: 'save query',
       queryname: 'query name',
       deleteArry: 'Batch delete',
-      importTip:'Import succeeded'
+      importTip: 'Import succeeded',
     },
   },
 };

@@ -245,7 +245,7 @@ export default {
       position: absolute;
       width: 100px;
       top: 46px;
-      left: 0px;
+      left: 0;
     }
   }
 

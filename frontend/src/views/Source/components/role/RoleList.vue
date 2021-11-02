@@ -31,7 +31,7 @@
         </div>
       </li>
     </ul>
-    <div v-else class="no-data">{{$t('common.noData')}}</div>
+    <div v-else class="no-data">{{ $t('common.noData') }}</div>
   </div>
 </template>
 
@@ -225,17 +225,6 @@ export default {
       cursor: pointer;
       border-radius: 30px 0 0 30px;
 
-      &:hover {
-        background: #fff;
-        color: #333;
-        .circle {
-          background: #fff;
-          .small-circle {
-            background: #fff;
-          }
-        }
-      }
-
       .circle {
         width: 20px;
         height: 20px;
@@ -256,6 +245,16 @@ export default {
           background: #edf8f5;
           .small-circle {
             background: #13c393;
+          }
+        }
+      }
+      &:hover {
+        background: #fff;
+        color: #333;
+        .circle {
+          background: #fff;
+          .small-circle {
+            background: #fff;
           }
         }
       }
