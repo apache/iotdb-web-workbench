@@ -261,7 +261,7 @@ export default {
       let result = isRepeat(edData.data.map((d) => d[0]));
       let keys = edData.data.map((d) => d[0]);
       let values = edData.data.map((d) => d[1]);
-      if (!keys.every((d) => d !== null) || !values.find((d) => d !== null)) {
+      if (edData.data.length && (!keys.every((d) => d !== null) || !values.find((d) => d !== null))) {
         ElMessage.error(`请填写完整`);
         return;
       }
