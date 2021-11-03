@@ -40,19 +40,19 @@
       <p class="more last">
         <span
           ><span class="more-title">{{ $t('sourcePage.storageNum') + ':' }}</span
-          >{{ baseInfo.host }}</span
+          >{{ countInfo.groupCount }}</span
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.entityNum') + ':' }}</span
-          >{{ baseInfo.port }}</span
+          >{{ countInfo.deviceCount }}</span
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.physicalNum') + ':' }}</span
-          >{{ baseInfo.port }}</span
+          >{{ countInfo.measurementCount }}</span
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.dataNum') + ':' }}</span
-          >{{ baseInfo.port }}</span
+          >{{ countInfo.dataCount }}</span
         >
       </p>
       <div class="buttons">
@@ -1295,7 +1295,7 @@ export default {
       let reqObj = scope.row;
       reqObj.cancelPrivileges = scope.row.privileges;
       reqObj.privileges = [];
-      axios.post(`/servers/${serverId.value}/users/${activeIndex.value}`, { ...reqObj }).then((rs) => {
+      axios.post(`/servers/${serverId.value}/users/${activeIndex.value}/dataPrivilege`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
           ElMessage.success(t('sourcePage.deleteAuthLabel'));
           getUserAuth({ username: activeIndex.value });
@@ -1547,6 +1547,24 @@ export default {
       props.func.expandByIds([serverId.value + 'connection']);
       props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', {}, true);
     };
+    let countInfo = ref({
+      groupCount: null,
+      deviceCount: null,
+      dataCount: null,
+      measurementCount: null,
+    });
+    /**
+     * 获取数据连接统计数据
+     */
+    const getDataCount = () => {
+      axios.get(`/servers/${serverId.value}/dataCount`, {}).then((res) => {
+        if (res && res.code == 0) {
+          countInfo.value = res.data;
+        } else {
+          countInfo.value = {};
+        }
+      });
+    };
     onMounted(() => {
       // serverId.value = router.currentRoute.value.params.serverid;
       // getBaseInfo((data) => {
@@ -1569,6 +1587,7 @@ export default {
       });
       getGroupList();
       getUserList(1);
+      getDataCount();
     });
     return {
       editSource,
@@ -1630,6 +1649,8 @@ export default {
       getDeviceByGroupName,
       getTimeSeriesByDeviceName,
       deleteGroup,
+      getDataCount,
+      countInfo,
       canCreateUser,
       canGroupSet,
       canDeleteUser,
