@@ -1728,7 +1728,7 @@ export default {
   }
   .icon-del {
     position: absolute;
-    top: 0px;
+    top: 0;
     right: 40px;
     color: #fb5151ff;
   }
@@ -1746,7 +1746,7 @@ export default {
   .info-box {
     font-size: 16px;
     font-weight: 500;
-    color: #222222;
+    color: #222;
     border: 1px solid #eaecf0;
     margin: 16px;
     .title {
@@ -1862,8 +1862,8 @@ export default {
             }
             .active {
               color: #7a859eff;
-              background: #ffffff;
-              border-radius: 30px 0px 0px 30px;
+              background: #fff;
+              border-radius: 30px 0 0 30px;
             }
             li {
               height: 36px;
@@ -1887,8 +1887,8 @@ export default {
               }
               &:hover {
                 color: #7a859eff;
-                background: #ffffff;
-                border-radius: 30px 0px 0px 30px;
+                background: #fff;
+                border-radius: 30px 0 0 30px;
                 .active-circle {
                   visibility: inherit;
                 }
@@ -1930,7 +1930,7 @@ export default {
             }
           }
           &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
-            color: #222222;
+            color: #222;
             cursor: default;
           }
           &:deep(.el-checkbox__label) {
@@ -1977,7 +1977,7 @@ export default {
 
               .permit-list-type {
                 flex: 1;
-                background: #ffffff;
+                background: #fff;
                 border-radius: 4px;
                 border: 1px solid #eaecf0;
                 margin-right: 10px;
@@ -2033,7 +2033,6 @@ export default {
             }
             .user-name {
               max-width: calc(100% - 50px);
-
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
@@ -2066,7 +2065,7 @@ export default {
                   border: 1px solid rgba(19, 195, 147, 0.5);
                   height: 24px;
                   line-height: 24px;
-                  padding: 0px 6px;
+                  padding: 0 6px;
                   margin-right: 10px;
                   span {
                     // max-width: 20px;
@@ -2265,7 +2264,7 @@ export default {
     line-height: 40px;
     background: #f6f6f8;
     font-size: 14px;
-    color: #222222;
+    color: #222;
     padding-left: 20px;
     .icon {
       font-size: 16px;

@@ -85,7 +85,7 @@ export default {
   padding: 20px 20px 0 20px;
   background: #fff;
   &.maxheight {
-    height: 65vh;
+    height: calc(100vh - 289px);
     overflow: auto;
   }
 }

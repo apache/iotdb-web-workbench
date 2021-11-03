@@ -9,7 +9,6 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
       <el-table
         :data="tableDatas.list"
         style="width: 100%"
-        :max-height="maxHeight"
         :height="Height"
         tooltip-effect="light"
         :cell-style="{
@@ -35,7 +34,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
           </template>
           <template #default="scope">
             <el-input
-              v-if="item.type === 'INPUT' && (!scope.row[item.prop] || scope.row.display)"
+              v-if="item.type === 'INPUT' && (!scope.row[item.prop] || scope.row.display || item.canEdit)"
               v-model="scope.row[item.prop]"
               :size="item.size"
               :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border }"

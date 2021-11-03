@@ -28,8 +28,8 @@
           <div class="rightIcon flex">
             <eltooltip label="sqlserch.save">
               <span>
-                <svg class="icon icon-1" aria-hidden="true" @click="centerDialogVisible = true" v-icon="`#icon-baocun-color`">
-                  <use xlink:href="#icon-baocun"></use>
+                <svg class="icon icon-1" aria-hidden="true" @click="centerDialogVisible = true">
+                  <use xlink:href="#icon-se-icon-save"></use>
                 </svg>
               </span>
             </eltooltip>
@@ -117,9 +117,9 @@
     </el-aside>
   </el-container>
   <div class="footer_button">
-    <el-dialog :title="$t('standTable.savequery')" v-model="centerDialogVisible" width="30%" center>
+    <el-dialog :title="$t('standTable.savequery')" v-model="centerDialogVisible" width="400px">
       <div class="dilog_div">
-        <span>{{ $t('standTable.queryname') }}：</span><el-input style="width: 50%" v-model="sqlName"></el-input>
+        <span>{{ $t('standTable.queryname') }}：</span><el-input style="width: 70%" v-model="sqlName"></el-input>
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -273,10 +273,6 @@ export default {
     }
     function centerDialog() {
       centerDialogVisible.value = false;
-      ElMessage({
-        type: 'info',
-        message: t('device.cencel'),
-      });
     }
     function centerDialogOk() {
       let codes = '';
@@ -437,13 +433,12 @@ export default {
 }
 .dilog_div {
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 .el_aside_div {
-  width: 298px;
+  width: 240px;
   height: calc(100vh - 106px);
-  // overflow: hidden;
+  box-sizing: border-box;
   position: absolute;
   border-left: 1px solid #ebeef5;
 }

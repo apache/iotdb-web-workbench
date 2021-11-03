@@ -129,7 +129,7 @@ export default {
 
 <style scoped lang="scss">
 .root {
-  &:deep(.el-header) {
+  &::v-deep(.el-header) {
     height: 64px !important;
     border-width: 0;
     border-bottom-width: 1px;
@@ -166,10 +166,10 @@ export default {
     position: absolute;
     background-image: url(~@/assets/logo.png);
     background-size: 100% 100%;
-    width: 200px;
-    height: 36px;
+    width: 150px;
+    height: 22px;
     left: 20px;
-    top: 14px;
+    top: 20px;
   }
   .lang-btn {
     position: absolute;

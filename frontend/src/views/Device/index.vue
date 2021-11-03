@@ -38,7 +38,6 @@
         :lineHeight="5"
         :celineHeight="5"
         :encoding="encoding"
-        :maxHeight="430"
         @iconEvent="openWin"
       >
         <template #default="{ scope }">
@@ -114,6 +113,7 @@ export default {
           prop: 'alias',
           type: 'INPUT', //控件类型
           size: 'small',
+          canEdit: true,
         },
         {
           label: 'device.datatype',
@@ -384,10 +384,9 @@ export default {
     }
     function getdData() {
       getDeviceDate(deviceData.obj).then((res) => {
-        let name = deviceData.obj.name.split('.');
         form.formData = reactive({
           description: res.data.description,
-          deviceName: name[name.length - 1],
+          deviceName: deviceData.obj.name.slice(deviceData.obj.storagegroupid.length + 1),
           groupName: `${deviceData.obj.storagegroupid}`,
           deviceId: res.data.deviceId,
         });
