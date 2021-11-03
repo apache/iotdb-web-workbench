@@ -194,11 +194,11 @@ export default {
     .header-logo {
       background-image: url(~@/assets/logo.png);
       background-size: 100% 100%;
-      width: 200px;
-      height: 36px;
+      width: 150px;
+      height: 22px;
       position: absolute;
       left: 20px;
-      top: 14px;
+      top: 20px;
     }
   }
   .body {
@@ -224,8 +224,8 @@ export default {
         .login-img {
           background-image: url(~@/assets/logo.png);
           background-size: 100% 100%;
-          width: 156px;
-          height: 28px;
+          width: 150px;
+          height: 22px;
           margin-bottom: 12px;
         }
         .login-title {
