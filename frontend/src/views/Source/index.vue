@@ -63,9 +63,9 @@
           {{ $t('common.edit') }}</el-button
         >
 
-        <el-popconfirm placement="top" :title="$t('sourcePage.deleteSourceConfirm')" @confirm="deleteSource()">
+        <el-popconfirm placement="top" :confirmButtonText="$t('common.submit')" :cancelButtonText="$t('common.cancel')" :title="$t('sourcePage.deleteSourceConfirm')" @confirm="deleteSource()">
           <template #reference>
-            <el-button  class="button-delete"
+            <el-button class="button-delete"
               ><svg aria-hidden="true" class="icon icon-delete">
                 <use xlink:href="#icon-se-icon-delete"></use></svg
               >{{ $t('common.delete') }}</el-button
@@ -102,7 +102,13 @@
                     </div>
                     <span class="content">{{ item.username }}</span>
                     <!-- </el-tooltip> -->
-                    <el-popconfirm placement="top" :title="$t('sourcePage.deleteUserConfirm')" @confirm="deleteUser(item)">
+                    <el-popconfirm
+                      placement="top"
+                      :confirmButtonText="$t('common.submit')"
+                      :cancelButtonText="$t('common.cancel')"
+                      :title="$t('sourcePage.deleteUserConfirm')"
+                      @confirm="deleteUser(item)"
+                    >
                       <template #reference>
                         <span class="icon-del del-user">
                           <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true">
@@ -289,7 +295,13 @@
                             </div>
                             <div v-else>
                               <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" @click="changeEditState(scope)">{{ $t('common.edit') }}</el-button>
-                              <el-popconfirm placement="top" :title="$t('sourcePage.deleteAuthConfirm')" @confirm="deleteRowAuth(scope)">
+                              <el-popconfirm
+                                placement="top"
+                                :confirmButtonText="$t('common.submit')"
+                                :cancelButtonText="$t('common.cancel')"
+                                :title="$t('sourcePage.deleteAuthConfirm')"
+                                @confirm="deleteRowAuth(scope)"
+                              >
                                 <template #reference>
                                   <el-button type="text" size="small" :disabled="baseInfoForm.userName == 'root'" class="el-button-delete">{{ $t('common.delete') }}</el-button>
                                 </template>
@@ -361,7 +373,13 @@
                   <el-button type="text" size="small" @click="goEditGroup(scope)">
                     {{ $t('common.edit') }}
                   </el-button>
-                  <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup(scope)">
+                  <el-popconfirm
+                    placement="top"
+                    :confirmButtonText="$t('common.submit')"
+                    :cancelButtonText="$t('common.cancel')"
+                    :title="$t('storagePage.deleteGroupConfirm')"
+                    @confirm="deleteGroup(scope)"
+                  >
                     <template #reference>
                       <el-button type="text" size="small" class="el-button-delete" :disable="canGroupSet"> {{ $t('common.delete') }} </el-button>
                     </template>
