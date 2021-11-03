@@ -180,7 +180,7 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-::v-deep .el-tag {
+:deep(.el-tag) {
   margin-right: 10px;
 }
 .el-input {
