@@ -330,7 +330,9 @@ export default {
             position: relative;
             &.is-active {
               background: rgba(69, 117, 246, 0.04);
-              color: $theme-color !important;
+              span {
+                color: $theme-color !important;
+              }
             }
           }
         }
