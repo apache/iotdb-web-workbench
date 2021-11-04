@@ -358,10 +358,7 @@ public class IotDBController {
     }
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    iotDBService.createDeviceWithMeasurements(connection, deviceInfoDTO);
-    iotDBService.upsertMeasurementAlias(connection, deviceInfoDTO.getDeviceDTOList());
-    iotDBService.upsertMeasurementTags(connection, deviceInfoDTO.getDeviceDTOList());
-    iotDBService.upsertMeasurementAttributes(connection, deviceInfoDTO.getDeviceDTOList());
+    iotDBService.upsertMeasurements(connection, deviceInfoDTO);
     String host = connection.getHost();
     if (deviceInfoDTO.getDeviceId() == null) {
       deviceService.setDeviceInfo(connection, deviceInfoDTO);
@@ -1109,15 +1106,15 @@ public class IotDBController {
     String checkName = StringUtils.removeStart(groupName, "root").toLowerCase();
     if (!groupName.matches("^root\\.[^ ]+$")
         || checkName.contains(".root.")
-        || checkName.matches("\\.root$")) {
+        || checkName.matches("^[^ ]*\\.root$")) {
       throw new BaseException(ErrorCode.NO_SUP_CONTAIN_ROOT, ErrorCode.NO_SUP_CONTAIN_ROOT_MSG);
     }
     if (checkName.contains(".as.")
         || checkName.contains(".null.")
         || checkName.contains(".like.")
-        || checkName.matches("^[^ ]+as$")
-        || checkName.matches("^[^ ]+null$")
-        || checkName.matches("^[^ ]+like$")) {
+        || checkName.matches("^[^ ]*\\.as$")
+        || checkName.matches("^[^ ]*\\.null$")
+        || checkName.matches("^[^ ]*\\.like$")) {
       throw new BaseException(ErrorCode.NO_SUP_CONTAIN_WORD, ErrorCode.NO_SUP_CONTAIN_WORD_MSG);
     }
   }

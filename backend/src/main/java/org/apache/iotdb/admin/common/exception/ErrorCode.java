@@ -383,6 +383,18 @@ public class ErrorCode {
   public static final String NO_PRI_INSERT_DATA = "IOTDB-0088";
   public static final String NO_PRI_INSERT_DATA_MSG = "没有权限插入数据";
 
+  public static final String NO_PRI_ALTER_MEASUREMENT = "IOTDB-0089";
+  public static final String NO_PRI_ALTER_MEASUREMENT_MSG = "没有权限修改物理量";
+
+  public static final String NO_SUP_WORD = "IOTDB-0090";
+  public static final String NO_SUP_WORD_MSG = "标签/属性不能为as/null/like";
+
+  public static final String NO_SUP_ALL_DIGIT = "IOTDB-0091";
+  public static final String NO_SUP_ALL_DIGIT_MSG = "标签/属性的键不能为纯数字";
+
+  public static final String NO_SUP_ALIAS_WORD = "IOTDB-0092";
+  public static final String NO_SUP_ALIAS_WORD_MSG = "物理量别名不能为as、like或纯数字";
+
   // 存储组表相关
   public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
   public static final String INSERT_GROUP_INFO_FAIL_MSG = "插入存储组信息失败";

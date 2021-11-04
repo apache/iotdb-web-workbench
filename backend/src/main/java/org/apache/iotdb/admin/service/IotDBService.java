@@ -106,17 +106,7 @@ public interface IotDBService {
   List<String> deleteTimeseriesByDevice(Connection connection, String deviceName)
       throws BaseException;
 
-  void createDeviceWithMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO)
-      throws BaseException;
-
-  void upsertMeasurementAlias(Connection connection, List<DeviceDTO> deviceDTOList)
-      throws BaseException;
-
-  void upsertMeasurementTags(Connection connection, List<DeviceDTO> deviceDTOList)
-      throws BaseException;
-
-  void upsertMeasurementAttributes(Connection connection, List<DeviceDTO> deviceDTOList)
-      throws BaseException;
+  void upsertMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
 
   Integer getOneDataCount(Connection connection, String deviceName, String measurementName)
       throws BaseException;
