@@ -319,6 +319,9 @@ export default {
       height: 100%;
       .el-tabs__header {
         margin: 0;
+        .el-tabs__nav-scroll {
+          background-color: #f9fbfc;
+        }
         .el-tabs__nav {
           border: 0;
           .el-tabs__item {
@@ -330,6 +333,12 @@ export default {
             position: relative;
             &.is-active {
               background: rgba(69, 117, 246, 0.04);
+              background-color: #fff;
+              border-width: 0;
+              border-left-width: 1px;
+              border-right-width: 1px;
+              border-color: #e7eaec;
+              border-style: solid;
               span {
                 color: $theme-color !important;
               }
