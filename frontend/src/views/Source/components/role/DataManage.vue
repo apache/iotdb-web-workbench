@@ -84,10 +84,7 @@
       <el-table-column :label="$t('common.operation')">
         <template #default="{ row }">
           <el-button type="text" size="small" @click="editPrivilege(row)">{{ $t('common.edit') }}</el-button>
-          <el-popconfirm
-                      placement="top"
-                      :confirmButtonText="$t('common.submit')"
-                      :cancelButtonText="$t('common.cancel')" :title="$t('sourcePage.deleteAuthConfirm')" @confirm="deletePrivilege(row)">
+          <el-popconfirm placement="top" :confirmButtonText="$t('common.submit')" :cancelButtonText="$t('common.cancel')" :title="$t('sourcePage.deleteAuthConfirm')" @confirm="deletePrivilege(row)">
             <template #reference>
               <el-button type="text" size="small" class="el-button-delete">{{ $t('common.delete') }}</el-button>
             </template>
@@ -249,7 +246,7 @@ export default {
         payload.delTimeseriesPaths = row.timeseriesPaths;
       }
       await api.editDataPrivilege(params, payload);
-      ElMessage.success(`删除权限成功`);
+      ElMessage.success(t('common.deleteSuccess'));
       getData();
     };
     onActivated(() => {

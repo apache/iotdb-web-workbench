@@ -41,6 +41,8 @@ const de = {
       save: 'Speichern',
       clear: 'Leer',
       noData: 'Keine Daten',
+      tip: 'Tipps',
+      deleteSuccess: 'Löschen erfolgreich',
     },
     databasem: {
       newStoreGroup: 'Neue Speichergruppe ("storage group")',
@@ -192,6 +194,10 @@ const de = {
       selectTimeseries: 'Bitte wählen Sie die physikalische Menge',
       selectRange: 'Bitte wählen Sie einen Datenbereich',
       selectPermission: 'Bitte wählen Sie die Berechtigung',
+      addRoleTip: 'Bitte schließen Sie die Hinzufügung zuerst aus',
+      confirmDelete: 'Löschung bestätigen?',
+      roleNameLimit1: 'Der Name kann keine reine Zahl sein',
+      roleNameLimit2: 'Name existiert bereits',
     },
     storagePage: {
       alias: 'Verbindung',
@@ -304,6 +310,8 @@ const de = {
       uploadedNum: 'Uploads insgesamt',
       successNum: 'Anzahl der Erfolge',
       failedNum: 'Anzahl der Ausfälle',
+      deleteTip: 'Bitte zuerst Daten auswählen',
+      all: 'ganze',
     },
     sqlserch: {
       Aggregate: 'Aggregate',

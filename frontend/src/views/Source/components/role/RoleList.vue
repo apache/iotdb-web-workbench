@@ -40,7 +40,7 @@ import { useI18n } from 'vue-i18n';
 import { ref, onActivated, onDeactivated, getCurrentInstance, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../../api/index';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { useStore } from 'vuex';
 
 export default {
@@ -75,7 +75,7 @@ export default {
 
     const addRole = () => {
       if (isAdding.value) {
-        ElMessage.error('请先完成新增操作');
+        ElMessage.error(t('sourcePage.addRoleTip'));
         return;
       }
       if (!canPrivilege.canAddRole) {
@@ -89,7 +89,7 @@ export default {
     };
     const clickRole = async (item) => {
       if (isAdding.value) {
-        ElMessage.error('请先完成新增操作');
+        ElMessage.error(t('sourcePage.addRoleTip'));
         return;
       }
       activeRole.value = item;
@@ -99,7 +99,7 @@ export default {
     };
     const editRole = async (item) => {
       if (isAdding.value) {
-        ElMessage.error('请先完成新增操作');
+        ElMessage.error(t('sourcePage.addRoleTip'));
         return;
       }
       activeRole.value = item;
@@ -109,22 +109,17 @@ export default {
     };
     const deleteRole = async (item) => {
       if (isAdding.value) {
-        ElMessage.error('请先完成新增操作');
+        ElMessage.error(t('sourcePage.addRoleTip'));
         return;
       }
       if (!canPrivilege.canDeleteRole) {
         ElMessage.error(t('sourcePage.noAuthTip'));
         return;
       }
-      await ElMessageBox.confirm('确认删除?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }).then(async () => {
-        await api.deleteRole({ serverId, roleName: item });
-        ElMessage.success('删除成功');
-        getRoleList();
-      });
+
+      await api.deleteRole({ serverId, roleName: item });
+      ElMessage.success(t('common.deleteSuccess'));
+      getRoleList();
     };
     const cancelAdd = () => {
       //新增状态的时候点取消, 退出新增状态,并锁定第一个角色
@@ -215,7 +210,6 @@ export default {
     }
     &-item {
       width: 100%;
-      transition: all 0.2s;
       height: 40px;
       line-height: 20px;
       padding: 10px;
@@ -224,6 +218,25 @@ export default {
       position: relative;
       cursor: pointer;
       border-radius: 30px 0 0 30px;
+
+      .circle {
+        width: 20px;
+        height: 20px;
+        background: #f9fbfc;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+      }
+
+      .small-circle {
+        width: 6px;
+        height: 6px;
+        background: #f9fbfc;
+        border-radius: 50%;
+        position: absolute;
+      }
 
       &:hover {
         background: #fff;
@@ -235,30 +248,12 @@ export default {
           }
         }
       }
-      .circle {
-        width: 20px;
-        height: 20px;
-        background: #f9fbfc;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 10px;
+      .circle.active-circle {
+        background: #edf8f5;
         .small-circle {
-          width: 6px;
-          height: 6px;
-          background: #f9fbfc;
-          border-radius: 50%;
-          position: absolute;
-        }
-        &.active-circle {
-          background: #edf8f5;
-          .small-circle {
-            background: #13c393;
-          }
+          background: #13c393;
         }
       }
-
       .operate {
         position: absolute;
         right: 10px;

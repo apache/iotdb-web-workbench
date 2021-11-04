@@ -42,6 +42,8 @@ const cn = {
       save: '保存',
       clear: '清空',
       noData: '暂无数据',
+      tip: '提示',
+      deleteSuccess: '删除成功',
     },
     databasem: {
       newStoreGroup: '新建存储组',
@@ -212,6 +214,10 @@ const cn = {
       selectTimeseries: '请选择物理量',
       selectRange: '请选择数据范围',
       selectPermission: '请选择权限',
+      addRoleTip: '请先完成新增操作',
+      confirmDelete: '确认删除?',
+      roleNameLimit1: '名称不能为纯数字',
+      roleNameLimit2: '名称已存在',
     },
     storagePage: {
       alias: '数据连接',
@@ -324,6 +330,8 @@ const cn = {
       uploadedNum: '上传总数',
       successNum: '成功数量',
       failedNum: '失败数量',
+      deleteTip: '请先选择数据',
+      all: '全部',
     },
     sqlserch: {
       Aggregate: '聚合函数',
