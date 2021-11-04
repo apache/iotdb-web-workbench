@@ -19,7 +19,7 @@
           <svg class="icon" aria-hidden="true" v-if="!isAdding && activeRole === item" @click.stop="editRole(item)">
             <use xlink:href="#icon-se-icon-f-edit"></use>
           </svg>
-          <el-popconfirm placement="top" :title="$t('sourcePage.deleteRoleConfirm')" @confirm="deleteRole(item)">
+          <el-popconfirm placement="top" :confirmButtonText="$t('common.submit')" :cancelButtonText="$t('common.cancel')" :title="$t('sourcePage.deleteRoleConfirm')" @confirm="deleteRole(item)">
             <template #reference>
               <span class="icon-del del-user">
                 <svg v-if="activeRole === item" class="icon delete" aria-hidden="true">

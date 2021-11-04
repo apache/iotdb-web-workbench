@@ -29,7 +29,7 @@
             <use xlink:href="#icon-se-icon-f-edit"></use></svg
           >{{ $t('common.edit') }}</el-button
         >
-        <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup()">
+        <el-popconfirm placement="top" :confirmButtonText="$t('common.submit')" :cancelButtonText="$t('common.cancel')" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup()">
           <template #reference>
             <span class="icon-del">
               <el-button
