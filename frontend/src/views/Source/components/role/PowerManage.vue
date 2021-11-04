@@ -14,7 +14,7 @@
         </el-tab-pane>
       </template>
     </el-tabs>
-    <div v-else class="no-data">暂无数据</div>
+    <div v-else class="no-data">{{ $t('common.noData') }}</div>
   </div>
 </template>
 

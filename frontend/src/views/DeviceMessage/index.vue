@@ -561,7 +561,7 @@ export default {
         return;
       }
       if (files.name.split('.')[1] !== 'csv' && files.name.split('.')[1] !== 'CSV') {
-        ElMessage.error('仅支持csv格式');
+        ElMessage.error(t('device.uploadTip'));
         return;
       }
       display.flag = false;
@@ -658,7 +658,7 @@ export default {
         deleteRow(handleChange.value);
         return;
       }
-      ElMessage.error('请先选择数据');
+      ElMessage.error(t('device.deleteTip'));
     }
     //编辑物理量数据
     function editRow(row) {
@@ -811,7 +811,7 @@ export default {
         totalCount.value = res.data.totalCount;
         if (!timeseriesOptions.value.length) {
           timeseriesOptions.value = res.data.measurementVOList.map((d) => ({ label: d.timeseries, value: d.timeseries }));
-          timeseriesOptions.value.unshift({ label: '全部', value: '' });
+          timeseriesOptions.value.unshift({ label: t('device.all'), value: '' });
         }
       });
     }

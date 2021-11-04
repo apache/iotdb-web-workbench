@@ -41,6 +41,8 @@ const en = {
       save: 'save',
       clear: 'clear',
       noData: 'No data',
+      tip: 'tips',
+      deleteSuccess: 'delete success',
     },
     databasem: {
       newStoreGroup: 'New storage group',
@@ -210,6 +212,10 @@ const en = {
       selectTimeseries: 'Please select physical quantity',
       selectRange: 'Please select a data range',
       selectPermission: 'Please select permission',
+      addRoleTip: 'Please complete the adding operation first',
+      confirmDelete: 'Confirm deletion?',
+      roleNameLimit1: 'The name cannot be a pure number',
+      roleNameLimit2: 'Name already exists',
     },
     storagePage: {
       alias: 'connection',
@@ -322,6 +328,8 @@ const en = {
       uploadedNum: 'Total uploads',
       successNum: 'Number of successes',
       failedNum: 'Number of failures',
+      deleteTip: 'Please select data first',
+      all: 'all',
     },
     sqlserch: {
       Aggregate: 'Aggregate',

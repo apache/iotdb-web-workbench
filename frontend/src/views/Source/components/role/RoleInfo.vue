@@ -87,15 +87,15 @@ export default {
           validator: async (rule, value, callback) => {
             let reg = /^[0-9]*$/;
             if (reg.test(value)) {
-              callback(new Error('名称不能为纯数字'));
+              callback(new Error(t('sourcePage.roleNameLimit1')));
             }
             // 重名检测
             if (oldForm?.value?.id && oldForm?.value?.roleName !== value) {
               if (props.roleList.includes(value)) {
-                callback(new Error('名称已存在'));
+                callback(new Error(t('sourcePage.roleNameLimit2')));
               }
             } else if (!oldForm?.value?.id && props.roleList.includes(value)) {
-              callback(new Error('名称已存在'));
+              callback(new Error(t('sourcePage.roleNameLimit2')));
             }
             callback();
           },
