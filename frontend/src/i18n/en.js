@@ -56,8 +56,8 @@ const en = {
       help: 'Help book',
       databaseManagement: 'Database Management',
       dataList: 'Data List',
-      newdatasource: 'New data source',
-      newQueryWindow: 'New query window',
+      newdatasource: 'data source',
+      newQueryWindow: 'query',
       nodatasource: 'It is has no data source at present, please',
     },
     loginPage: {

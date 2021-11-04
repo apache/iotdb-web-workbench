@@ -57,9 +57,9 @@ const cn = {
       help: '帮助手册',
       databaseManagement: '数据库管理',
       dataList: '数据列表',
-      newdatasource: '新建数据连接',
+      newdatasource: '数据连接',
       nodatasource: '目前还没有数据连接，请',
-      newQueryWindow: '新建查询窗口',
+      newQueryWindow: '查询',
     },
     loginPage: {
       account: '账号',

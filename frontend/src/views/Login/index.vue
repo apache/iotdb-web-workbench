@@ -41,12 +41,12 @@
           <div class="login-title">
             {{ $t('loginPage.welcomeLogin') }}
           </div>
-          <el-form label-position="left" :model="ruleForm" :rules="rules" ref="formNameRef">
+          <el-form :hide-required-asterisk="true" label-position="top" :model="ruleForm" :rules="rules" ref="formNameRef">
             <el-form-item :label="$t('loginPage.account')" prop="account">
-              <el-input v-model="ruleForm.account" autocomplete="off" :placeholder="$t('loginPage.placeholderAccount')"></el-input>
+              <el-input class="form-item-input" v-model="ruleForm.account" autocomplete="off" :placeholder="$t('loginPage.placeholderAccount')"></el-input>
             </el-form-item>
             <el-form-item class="form-item" :label="$t('loginPage.password')" prop="passport">
-              <el-input type="password" v-model="ruleForm.passport" autocomplete="off" :placeholder="$t('loginPage.placeholderPassword')"></el-input>
+              <el-input class="form-item-input" type="password" v-model="ruleForm.passport" autocomplete="off" :placeholder="$t('loginPage.placeholderPassword')"></el-input>
               <span class="forget-btn" @click="showDialog">{{ $t('loginPage.forgetPassWord') }}?</span>
             </el-form-item>
             <el-form-item>
@@ -216,7 +216,7 @@ export default {
       flex-grow: 1;
       position: relative;
       .login-block {
-        width: 35vw;
+        width: 520px;
         position: absolute;
         left: 50%;
         top: 45%;
@@ -237,7 +237,15 @@ export default {
         }
         .submit-btn {
           width: 100%;
-          margin-top: 10px;
+          margin-top: 16px;
+        }
+        .form-item-input {
+          width: 520px;
+          &::v-deep {
+            .el-input__inner {
+              padding: 0 12px;
+            }
+          }
         }
         .form-item {
           position: relative;
@@ -245,7 +253,7 @@ export default {
             cursor: pointer;
             position: absolute;
             right: 0;
-            top: 0;
+            top: -30px;
             font-size: 12px;
             color: $theme-color;
           }
