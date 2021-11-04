@@ -37,10 +37,18 @@
   border: 1px solid $theme-color;
   color: $theme-color;
 }
+
+.el-button--default {
+  &:hover {
+    color: #15c294 !important;
+    background-color: transparent !important;
+    border-color: #15c294 !important;
+  }
+}
 .button-delete:hover {
-  background: #fff;
-  border: 1px solid #fb5151ff;
-  color: #fb5151ff;
+  background: #fff !important;
+  border: 1px solid #fb5151ff !important;
+  color: #fb5151ff !important;
 }
 .el-button--text {
   color: $theme-color !important;
@@ -59,7 +67,6 @@
   }
 }
 .el-tree--highlight-current .el-tree-node {
-  
   .el-tree-node__content {
     border-style: solid;
     border-color: transparent;
@@ -96,8 +103,14 @@
       font-size: 16px;
     }
     .el-dialog__headerbtn {
-      top: 10px;
+      top: 13px;
     }
+  }
+  .el-tabs__nav-scroll {
+    background-color: #fff !important;
+  }
+  .el-input__inner:focus {
+    border-color: $theme-color;
   }
   .el-dialog__body {
     text-align: left;
@@ -159,7 +172,7 @@
 }
 .el-tabs__item {
   color: #8e97aaff !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
 .el-tabs__item:hover {
   color: $theme-color !important;

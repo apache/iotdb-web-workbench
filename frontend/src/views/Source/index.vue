@@ -78,7 +78,7 @@
       <el-tabs v-model="sourceTabs" @tab-click="handleClickSource" class="tabs">
         <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
           <div class="tab-content">
-            <el-button class="button-special title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
+            <el-button class=" title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
             <DataModal></DataModal>
           </div>
         </el-tab-pane>
@@ -1755,7 +1755,7 @@ export default {
     .more {
       span {
         color: rgba(34, 34, 34, 0.65);
-        font-size: 14px;
+        font-size: 12px;
         margin-right: 40px;
       }
       .more-title {
