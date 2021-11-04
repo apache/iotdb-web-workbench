@@ -63,3 +63,7 @@ export function importData(info, data) {
 export function downloadFile() {
   return axios.get(`/downloadFile/template`);
 }
+//指定设备下的物理量列表
+export function getTimeseiresList(serverId, groupName, deviceName) {
+  return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries`);
+}

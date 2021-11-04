@@ -85,7 +85,7 @@
             :lineHeight="10"
             :lineWidth="21"
             :celineWidth="23"
-            :maxHeight="450"
+            :maxHeight="500"
             :pagination="pagination"
             @getPagintions="getPagintions"
           >
@@ -127,7 +127,7 @@
             :total="totalCount1"
             :lineHeight="10"
             :celineHeight="10"
-            :maxHeight="450"
+            :maxHeight="500"
             :pagination="pagination1"
             :selectData="selectData"
             :deleteArry="deleteArry"
@@ -237,7 +237,7 @@ import { ElMessageBox, ElMessage, ElButton, ElTabs, ElTabPane, ElDropdown, ElDro
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
 import { reactive, ref, onActivated } from 'vue';
-import { getList, getDeviceDate, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile, importData } from './api';
+import { getList, getDeviceDate, getTimeseiresList, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile, importData } from './api';
 import Echarts from '@/components/Echarts';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
@@ -809,8 +809,13 @@ export default {
       await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
         totalCount.value = res.data.totalCount;
-        if (!timeseriesOptions.value.length) {
-          timeseriesOptions.value = res.data.measurementVOList.map((d) => ({ label: d.timeseries, value: d.timeseries }));
+      });
+    }
+    async function getTimeseriesOption() {
+      let { connectionid, storagegroupid, deviceid } = routeData.obj;
+      await getTimeseiresList(connectionid, storagegroupid, deviceid).then((res) => {
+        if (res.code === '0') {
+          timeseriesOptions.value = res.data.map((d) => ({ label: d, value: d }));
           timeseriesOptions.value.unshift({ label: t('device.all'), value: '' });
         }
       });
@@ -892,6 +897,7 @@ export default {
       }
       setTimeout(async () => {
         getdData();
+        await getTimeseriesOption();
         await getListData();
         await getPview();
       }, 500);
@@ -1081,6 +1087,7 @@ $cursor: pointer;
 :deep(.flexBox) {
   display: flex;
   justify-content: space-between;
+  margin-right: -10px;
   .el-form {
     .el-form-item {
       margin-bottom: 0;
