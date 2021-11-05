@@ -71,7 +71,7 @@
                     :tableData="tableData.list[index]"
                     :lineHeight="5"
                     :celineHeight="5"
-                    :maxHeight="divwerHeight - 70"
+                    :maxHeight="divwerHeight - 78"
                     :pagination="pagination"
                     backColor="#E7EAF2"
                   >
@@ -469,10 +469,15 @@ export default {
       height: 2px;
     }
   }
-  .tabs {
-    height: 30px;
+  :deep(.tabs) {
+    height: 40px;
     background: #fff;
     box-shadow: 0 0 2px #d2d2d2;
+    .el-tabs {
+      .el-tabs__header {
+        margin-bottom: 0;
+      }
+    }
     .frist_span {
       color: #ccc;
       font-size: 11px;
