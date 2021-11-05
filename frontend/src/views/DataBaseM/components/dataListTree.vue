@@ -455,6 +455,11 @@ export default {
     overflow: auto;
     .el-tree-node {
       min-width: fit-content;
+      &.is-current > .el-tree-node__content > .custom-tree-node {
+        & > span {
+          color: $theme-color;
+        }
+      }
     }
     .el-tree-node__content {
       min-width: fit-content;
