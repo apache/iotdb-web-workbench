@@ -36,7 +36,7 @@
       <div class="divider" ref="dividerRef"></div>
       <el-main>
         <template v-if="urlTabs.length !== 0 || route.path === `/databasem/empty`">
-          <el-tabs v-model="urlTabsValue" type="card" @tab-click="handleClick" @tab-remove="removeTab" closable>
+          <el-tabs v-model="urlTabsValue" type="card" @tab-click="handleClick" @tab-remove="removeTab" closable class="top-tab-content">
             <el-tab-pane v-for="item in urlTabs" :key="item.name" :name="item.name">
               <template #label>
                 <span>
@@ -309,15 +309,15 @@ export default {
     width: 100%;
     overflow: auto;
   }
-  &:deep(.content-container) {
+  &::v-deep(.content-container) {
     height: 100%;
-    .el-aside {
+    & > .el-aside {
       height: 100%;
     }
-    .el-main {
+    & > .el-main {
       padding: 0;
       height: 100%;
-      .el-tabs__header {
+      .top-tab-content > .el-tabs__header {
         margin: 0;
         .el-tabs__nav-scroll {
           background-color: #f9fbfc;
@@ -325,7 +325,7 @@ export default {
         .el-tabs__nav {
           border: 0;
           .el-tabs__item {
-            padding: 10px 15px;
+            padding: 10px 20px;
             box-sizing: content-box;
             border-width: 0;
             line-height: 22px;
@@ -334,11 +334,6 @@ export default {
             &.is-active {
               background: rgba(69, 117, 246, 0.04);
               background-color: #fff;
-              border-width: 0;
-              border-left-width: 1px;
-              border-right-width: 1px;
-              border-color: #e7eaec;
-              border-style: solid;
               span {
                 color: $theme-color !important;
               }
