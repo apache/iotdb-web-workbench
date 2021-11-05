@@ -10,7 +10,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         :data="tableDatas.list"
         style="width: 100%"
         :height="Height"
-        :max-height="maxHeigt"
+        :max-height="maxHeight"
         tooltip-effect="light"
         :cell-style="{
           padding: `${celineHeight ? celineHeight : 0}px ${celineWidth ? celineWidth : 0}px !important`,
@@ -24,7 +24,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         @selection-change="handleSelectionChange"
       >
         <el-table-column fixed="left" v-if="selectData" type="selection" width="50" align="center"> </el-table-column>
-        <el-table-column :key="item.prop" v-for="item of columns.list" min-width="150px" :width="item.width + 'px'" :align="item.align" :fixed="item.fixed" show-overflow-tooltip>
+        <el-table-column :key="item.prop" v-for="item of columns.list" min-width="180px" :width="item.width + 'px'" :align="item.align" :fixed="item.fixed" show-overflow-tooltip>
           <template #header>
             <span :class="{ spanbox: item.required }"></span>
             <svg v-if="iconArr.icon[item.icon]" class="icon" @click="sqlClick" aria-hidden="true">
