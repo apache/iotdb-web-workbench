@@ -23,7 +23,7 @@
       <div class="headerbox">
         <div class="flexBox" style="padding: 15px 0 10px 0">
           <div class="headerSpan">{{ routeData.obj.name }}</div>
-          <div class="flexBox headerIcon">
+          <div class="flexBox">
             <el-button @click="editDevce">
               <svg class="icon edit" aria-hidden="true">
                 <use xlink:href="#icon-se-icon-f-edit"></use></svg
@@ -73,7 +73,7 @@
     <el-tabs v-model="activeName" @tab-click="handleClick" class="tab_class">
       <el-tab-pane :label="$t('device.entityStructure')" name="first">
         <div class="frist_div">
-          <div style="padding: 0 0 10px 0" class="flexBox">
+          <div style="padding: 0 0 10px 0" class="flexBox edit-box">
             <el-button type="primary" class="newButton" @click="editDevce">{{ $t('device.editTimeseries') }}</el-button>
             <form-table :form="form" @serchFormData="serchFormData"></form-table>
           </div>
@@ -102,7 +102,7 @@
       </el-tab-pane>
       <el-tab-pane :label="$t('device.dataPreview')" name="second">
         <div class="frist_div">
-          <div style="padding: 0 0 10px 0" class="flexBox">
+          <div style="padding: 0 0 10px 0" class="flexBox edit-box">
             <div class="button_div">
               <el-dropdown trigger="click">
                 <el-button type="primary">{{ $t('device.addData') }}</el-button>
@@ -1087,16 +1087,14 @@ $cursor: pointer;
 :deep(.flexBox) {
   display: flex;
   justify-content: space-between;
-  margin-right: -10px;
+  &.edit-box {
+    margin-right: -10px;
+  }
   .el-form {
     .el-form-item {
       margin-bottom: 0;
     }
   }
-}
-.headerIcon {
-  width: 110px;
-  padding: 0 20px;
 }
 .edit {
   color: #16c493;
