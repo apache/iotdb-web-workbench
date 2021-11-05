@@ -79,7 +79,7 @@ export default {
       }
 
       margin-bottom: 4px;
-      background-color: #f9fbfc;
+      background-color: #fff;
     }
   }
 

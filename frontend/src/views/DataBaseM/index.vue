@@ -325,11 +325,10 @@ export default {
         .el-tabs__nav {
           border: 0;
           .el-tabs__item {
-            padding: 10px 20px;
             box-sizing: content-box;
             border-width: 0;
-            line-height: 22px;
-            height: 22px;
+            line-height: 42px;
+            height: 42px;
             position: relative;
             &.is-active {
               background: rgba(69, 117, 246, 0.04);
