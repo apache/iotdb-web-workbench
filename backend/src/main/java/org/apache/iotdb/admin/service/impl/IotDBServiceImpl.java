@@ -2206,13 +2206,15 @@ public class IotDBServiceImpl implements IotDBService {
       id_plus_timestamp = id + ":" + timestamp;
       QUERY_STOP.put(id_plus_timestamp, true);
       for (String sql : sqls) {
-        int firstSpaceIndex = sql.indexOf(" ");
-        String judge = sql.substring(0, firstSpaceIndex);
-        if ("show".equalsIgnoreCase(judge)
-            || "count".equalsIgnoreCase(judge)
-            || "list".equalsIgnoreCase(judge)
-            || "select".equalsIgnoreCase(judge)) {
-          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, false, id_plus_timestamp);
+        if (StringUtils.isBlank(sql)) {
+          continue;
+        }
+        String judge = sql.toLowerCase();
+        if (judge.startsWith("show")
+            || judge.startsWith("count")
+            || judge.startsWith("list")
+            || judge.startsWith("select")) {
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
           results.add(sqlResultVO);
           continue;
         }
@@ -2232,12 +2234,10 @@ public class IotDBServiceImpl implements IotDBService {
           logger.error(e.getMessage());
           throw new BaseException(
               ErrorCode.SQL_EP,
-              ErrorCode.SQL_EP_MSG + ":" + sql + "执行出错,错误信息[" + e.getMessage() + "]");
+              ErrorCode.SQL_EP_MSG + ":" + sql + "语句执行出错,错误信息[" + e.getMessage() + "]");
         } catch (IoTDBConnectionException e) {
           logger.error(e.getMessage());
-          throw new BaseException(
-              ErrorCode.SQL_EP,
-              ErrorCode.SQL_EP_MSG + ":" + sql + "执行出错,错误信息[" + e.getMessage() + "]");
+          throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
         }
       }
     } finally {
@@ -2452,8 +2452,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
   }
 
-  private SqlResultVO executeQuery(
-      SessionPool sessionPool, String sql, Boolean closePool, String notStopKey)
+  private SqlResultVO executeQuery(SessionPool sessionPool, String sql, String notStopKey)
       throws BaseException {
     SqlResultVO sqlResultVO = new SqlResultVO();
     List<List<String>> valuelist = new ArrayList<>();
@@ -2493,21 +2492,16 @@ public class IotDBServiceImpl implements IotDBService {
         sqlResultVO.setQueryTime(queryTime);
         sqlResultVO.setLine(count);
       }
-    } catch (IoTDBConnectionException e) {
-      logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
     } catch (StatementExecutionException e) {
       logger.error(e.getMessage());
-      if (e.getStatusCode() == 602) {
-        throw new BaseException(
-            ErrorCode.NO_PRI_TIMESERIES_DATA, ErrorCode.NO_PRI_TIMESERIES_DATA_MSG);
-      }
-      throw new BaseException(ErrorCode.SQL_EP, ErrorCode.SQL_EP_MSG);
+      throw new BaseException(
+          ErrorCode.SQL_EP,
+          ErrorCode.SQL_EP_MSG + ":" + sql + "语句执行出错,错误信息[" + e.getMessage() + "]");
+    } catch (IoTDBConnectionException e) {
+      logger.error(e.getMessage());
+      throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } finally {
       closeResultSet(sessionDataSetWrapper);
-      if (sessionPool != null && closePool) {
-        sessionPool.close();
-      }
     }
     sqlResultVO.setValueList(valuelist);
     return sqlResultVO;
