@@ -71,8 +71,15 @@ export default {
   &:deep(.el-tabs) {
     margin-left: 20px;
     .el-tabs__header {
+      .el-tabs__nav {
+        .el-tabs__item.is-active {
+          background-color: transparent !important;
+          border: 0;
+        }
+      }
+
       margin-bottom: 4px;
-      background-color: #f9fbfc;
+      background-color: #fff;
     }
   }
 

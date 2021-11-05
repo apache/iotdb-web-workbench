@@ -1125,24 +1125,28 @@ $cursor: pointer;
 </style>
 <style lang="scss">
 .tab_class {
+  margin-left: 20px;
+  .el-tabs__header {
+    .el-tabs__nav {
+      .el-tabs__item.is-active {
+        background-color: transparent !important;
+        border: 0 !important;
+      }
+    }
+    .el-tabs__nav-scroll {
+      background-color: transparent !important;
+    }
+
+    margin-bottom: 4px;
+    background-color: #fff;
+  }
   .el-tabs__nav-wrap::after {
     background: none;
-  }
-  .el-tabs__header {
-    padding: 0 20px;
   }
   .el-tabs__content {
     background: #f9fbfc;
     padding: 20px;
     height: calc(100vh - 343px);
   }
-}
-.content_message {
-  // .el-form-item__label {
-  //   text-align: left;
-  // }
-  // .el-form-item__content {
-  //   margin-left: 0px !important;
-  // }
 }
 </style>

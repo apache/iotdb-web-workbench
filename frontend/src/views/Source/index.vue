@@ -1788,6 +1788,9 @@ export default {
     height: calc(100% - 130px);
     &:deep(.el-tabs) {
       height: 100%;
+      .el-tabs__header {
+        margin-left: 20px;
+      }
     }
     &:deep(.el-tabs__content) {
       background: #f9fbfc;
