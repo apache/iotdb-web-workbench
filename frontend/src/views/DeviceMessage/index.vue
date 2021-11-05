@@ -23,7 +23,7 @@
       <div class="headerbox">
         <div class="flexBox" style="padding: 15px 0 10px 0">
           <div class="headerSpan">{{ routeData.obj.name }}</div>
-          <div class="flexBox">
+          <div class="flexBox headerIcon">
             <el-button @click="editDevce">
               <svg class="icon edit" aria-hidden="true">
                 <use xlink:href="#icon-se-icon-f-edit"></use></svg
@@ -1095,6 +1095,10 @@ $cursor: pointer;
       margin-bottom: 0;
     }
   }
+}
+.headerIcon {
+  width: 110px;
+  padding: 0 20px;
 }
 .edit {
   color: #16c493;
