@@ -10,6 +10,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         :data="tableDatas.list"
         style="width: 100%"
         :height="Height"
+        :max-height="maxHeigt"
         tooltip-effect="light"
         :cell-style="{
           padding: `${celineHeight ? celineHeight : 0}px ${celineWidth ? celineWidth : 0}px !important`,
