@@ -229,6 +229,7 @@ const en = {
       line: 'Line',
       measurement: 'measurement',
       operation: 'Operation',
+      millsSecondLabel: 'millisecond',
       secondLabel: 'Second',
       minuteLabel: 'Minute',
       hourLabel: 'Hour',

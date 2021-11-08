@@ -32,6 +32,7 @@
       <el-form-item :label="$t('storagePage.ttl')" class="form-input-item" prop="ttl">
         <el-input v-model="form.ttl" min="0" max="9007199254740992" class="ttl-input"></el-input>
         <el-select v-model="form.ttiUnit" class="ttl-input unit" clearable placeholder="  ">
+          <el-option :label="$t('storagePage.millsSecondLabel')" value="millisecond"> </el-option>
           <el-option :label="$t('storagePage.secondLabel')" value="second"> </el-option>
           <el-option :label="$t('storagePage.minuteLabel')" value="minute"> </el-option>
           <el-option :label="$t('storagePage.hourLabel')" value="hour"> </el-option>
@@ -165,7 +166,6 @@ export default {
               props.func.removeTab(props.data.id);
               props.func.updateTreeByIds([props.data.id]);
               props.func.expandByIds([props.data.id]);
-              debugger;
               props.func.addTab(router.currentRoute.value.params.serverid + 'connectionroot.' + form.groupName + 'storageGroup');
             }
           });
