@@ -123,7 +123,7 @@ public class ErrorCode {
 
   // iotDB相关
   public static final String INSERT_TS_FAIL = "IOTDB-0001";
-  public static final String INSERT_TS_FAIL_MSG = "插入时间序列失败";
+  public static final String INSERT_TS_FAIL_MSG = "物理量创建失败";
 
   public static final String DELETE_TS_FAIL = "IOTDB-0002";
   public static final String DELETE_TS_FAIL_MSG = "删除时间序列失败";
@@ -394,6 +394,12 @@ public class ErrorCode {
 
   public static final String NO_SUP_ALIAS_WORD = "IOTDB-0092";
   public static final String NO_SUP_ALIAS_WORD_MSG = "物理量别名不能为as、like或纯数字";
+
+  public static final String TTL_OVER = "IOTDB-0093";
+  public static final String TTL_OVER_MSG = "存活时间设置过长";
+
+  public static final String MEASUREMENT_ALREADY_EXIST = "IOTDB-0094";
+  public static final String MEASUREMENT_ALREADY_EXIST_MSG = "物理量创建失败,请检查是否与已有物理量或别名重名";
 
   // 存储组表相关
   public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";

@@ -161,6 +161,7 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     Long ttl = groupDTO.getTtl();
     String ttlUnit = groupDTO.getTtlUnit();
+    checkTtl(ttl, ttlUnit);
     Integer groupId = groupDTO.getGroupId();
     groupDTO.setGroupName(groupName);
 
@@ -1144,7 +1145,7 @@ public class IotDBController {
   }
 
   private Long switchTime(String ttlUnit) throws BaseException {
-    Long time = 0L;
+    Long time;
     switch (ttlUnit) {
       case "millisecond":
         time = 1L;
@@ -1209,5 +1210,11 @@ public class IotDBController {
       return "second";
     }
     return "millisecond";
+  }
+
+  private void checkTtl(Long ttl, String unit) throws BaseException {
+    if (Long.MAX_VALUE / switchTime(unit) < ttl) {
+      throw new BaseException(ErrorCode.TTL_OVER, ErrorCode.TTL_OVER_MSG);
+    }
   }
 }

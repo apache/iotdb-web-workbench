@@ -1345,11 +1345,11 @@ public class IotDBServiceImpl implements IotDBService {
 
   private void createMeasurement(SessionPool sessionPool, DeviceDTO deviceDTO)
       throws BaseException {
+    String measurement = deviceDTO.getTimeseries();
     try {
       TSDataType type = handleTypeStr(deviceDTO.getDataType());
       TSEncoding encoding = handleEncodingStr(deviceDTO.getEncoding());
       CompressionType compressionType = handleCompressionStr(deviceDTO.getCompression());
-      String measurement = deviceDTO.getTimeseries();
       String alias = deviceDTO.getAlias();
       if (alias == null || "null".equals(alias) || StringUtils.isBlank(alias)) {
         alias = null;
@@ -1362,12 +1362,17 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
     } catch (StatementExecutionException e) {
+      logger.error(e.getMessage());
       if (e.getMessage().contains("No permissions")) {
         throw new BaseException(
             ErrorCode.NO_PRI_CREATE_TIMESERIES, ErrorCode.NO_PRI_CREATE_TIMESERIES_MSG);
       }
-      logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.INSERT_TS_FAIL, ErrorCode.INSERT_TS_FAIL_MSG);
+      if (e.getMessage().contains("already exist")) {
+        throw new BaseException(
+            ErrorCode.MEASUREMENT_ALREADY_EXIST,
+            measurement + ErrorCode.MEASUREMENT_ALREADY_EXIST_MSG);
+      }
+      throw new BaseException(ErrorCode.INSERT_TS_FAIL, measurement + ErrorCode.INSERT_TS_FAIL_MSG);
     }
   }
 
