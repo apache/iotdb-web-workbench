@@ -47,6 +47,7 @@
                 <el-dropdown-item command="0">{{ $t('rootPage.loginoutText') }}</el-dropdown-item>
                 <el-dropdown-item command="1">{{ $t('rootPage.about') }}</el-dropdown-item>
                 <el-dropdown-item command="2">{{ $t('rootPage.help') }}</el-dropdown-item>
+                <el-dropdown-item command="3">{{ $t('rootPage.feedback') }}</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -89,6 +90,9 @@ export default {
       }
       if (val === '2') {
         window.open('https://iotdb.apache.org/zh/UserGuide/Master/QuickStart/QuickStart.html');
+      }
+      if (val === '3') {
+        window.open('https://docs.qq.com/sheet/DWXlxU2pVVGFab1Vi?tab=BB08J2');
       }
     };
 

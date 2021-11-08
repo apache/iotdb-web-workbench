@@ -62,6 +62,7 @@ const de = {
       newdatasource: 'Neue Datenquelle',
       newQueryWindow: 'Neues Query Fenster',
       nodatasource: 'Aktuell existiert keine Datenquelle',
+      feedback: 'Problem Feedback',
     },
     loginPage: {
       account: 'Account',

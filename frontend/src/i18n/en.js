@@ -62,6 +62,7 @@ const en = {
       newdatasource: 'Data Source',
       newQueryWindow: 'Query',
       nodatasource: 'It Is Has No Data Source At Present, Please',
+      feedback: 'Problem Feedback',
     },
     loginPage: {
       account: 'Account',
