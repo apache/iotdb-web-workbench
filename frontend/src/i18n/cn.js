@@ -63,6 +63,7 @@ const cn = {
       newdatasource: '数据连接',
       nodatasource: '目前还没有数据连接，请',
       newQueryWindow: '查询',
+      feedback: '问题反馈',
     },
     loginPage: {
       account: '账号',
