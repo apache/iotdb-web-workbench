@@ -79,7 +79,7 @@
               </template>
             </el-table-column>
             <el-table-column show-overflow-tooltip prop="description" :label="$t('device.description')"> </el-table-column>
-            <el-table-column prop="line" :label="$t('storagePage.line')"> </el-table-column>
+            <el-table-column prop="line" :label="$t('storagePage.measurement')"> </el-table-column>
             <el-table-column prop="creator" :label="$t('storagePage.creator')"> </el-table-column>
             <el-table-column :label="$t('storagePage.operation')">
               <template #default="scope">

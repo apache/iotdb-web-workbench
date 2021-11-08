@@ -424,7 +424,7 @@ export default {
     border-bottom-width: 1px;
     border-style: solid;
     border-color: #f5f5f7;
-    margin: 0 20px 14px;
+    margin: 0 14px 14px;
     &::v-deep {
       .el-button {
         border-width: 0;

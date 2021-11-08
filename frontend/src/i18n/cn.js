@@ -54,6 +54,7 @@ const cn = {
     rootPage: {
       chinalang: '中文',
       englishlang: '英文',
+      deutsch: '德文',
       loginoutText: '退出登录',
       about: '关于我们',
       help: '帮助手册',
@@ -94,6 +95,7 @@ const cn = {
       addDialogTitle: '新建数据连接',
       editDialogTitle: '编辑数据连接',
       eg: '示例:127.0.0.1',
+
       aliasEmptyTip: '请输入数据连接名称',
       hostEmptyTip: '请输入IP地址',
       hostErrorTip: '请正确填写IP地址',
@@ -228,8 +230,10 @@ const cn = {
       deviceName: '实体名称:',
       newDevice: '新建实体',
       line: '物理量',
+      measurement: '物理量',
       operation: '操作',
       secondLabel: '秒',
+      millsSecondLabel: '毫秒',
       minuteLabel: '分',
       hourLabel: '小时',
       dayLabel: '天',
