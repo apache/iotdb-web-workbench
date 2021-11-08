@@ -1748,7 +1748,7 @@ export default {
     font-weight: 500;
     color: #222;
     border: 1px solid #eaecf0;
-    margin: 16px;
+    margin: 16px 16px 0;
     .title {
       margin: 10px 0 20px;
     }

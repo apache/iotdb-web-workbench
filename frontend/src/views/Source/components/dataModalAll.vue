@@ -257,7 +257,9 @@ export default {
                 },
               },
               formatter: (params) => {
-                if (params.data.isGroup) {
+                if (params.data.isGroup && params.data.isDevice) {
+                  return '{img|}{img2|}' + '{style|' + `${params.data.name}` + '}';
+                } else if (params.data.isGroup) {
                   return '{img|}' + '{style|' + `${params.data.name}` + '}';
                 } else if (params.data.isDevice) {
                   return '{img2|}' + '{style|' + `${params.data.name}` + '}';
