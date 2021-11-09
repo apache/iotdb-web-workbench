@@ -84,10 +84,10 @@ public class QueryController {
     check(request, serverId);
     if (query.getId() != null) {
       queryService.update(serverId, query);
-      return BaseVO.success("更新查询脚本成功", null);
+      return BaseVO.success("更新查询脚本成功", query.getId());
     }
-    queryService.save(serverId, query);
-    return BaseVO.success("保存查询脚本成功", null);
+    Integer id = queryService.save(serverId, query);
+    return BaseVO.success("保存查询脚本成功", id);
   }
 
   @GetMapping("/query")

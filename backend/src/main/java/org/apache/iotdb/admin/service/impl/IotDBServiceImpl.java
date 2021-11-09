@@ -2228,8 +2228,8 @@ public class IotDBServiceImpl implements IotDBService {
             long start = System.currentTimeMillis();
             sessionPool.executeNonQueryStatement(sql);
             long end = System.currentTimeMillis();
-            double time = (end - start + 0.0d) / 1000;
-            String queryTime = time + "s";
+            long time = end - start;
+            String queryTime = time + "ms";
             SqlResultVO sqlResultVO = new SqlResultVO();
             sqlResultVO.setQueryTime(queryTime);
             sqlResultVO.setLine(0L);
@@ -2492,8 +2492,8 @@ public class IotDBServiceImpl implements IotDBService {
           valuelist.add(strList);
         }
         long end = System.currentTimeMillis();
-        double time = (end - start + 0.0d) / 1000;
-        String queryTime = time + "s";
+        long time = end - start;
+        String queryTime = time + "ms";
         sqlResultVO.setQueryTime(queryTime);
         sqlResultVO.setLine(count);
       }
