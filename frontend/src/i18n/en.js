@@ -186,6 +186,7 @@ const en = {
       deviceNameLabel: 'Entity:',
       timeNameLabel: 'Timeseries:',
       ttlErrorTips: 'Ttl Must Be An Positive Integer',
+      maxErrorTips: 'Ttl Must Be Less Than 9007199254740992',
       addRole: 'Add Role',
       dataManagePrivilege: 'Data Manage Privilege',
       roleName: 'Role Name',

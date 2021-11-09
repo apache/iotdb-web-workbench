@@ -177,6 +177,7 @@ const de = {
       deviceNameLabel: 'Device:',
       timeNameLabel: 'Zeitreihe:',
       ttlErrorTips: 'ttl muss eine positive Ganzzahl sein',
+      maxErrorTips: 'Die Überlebenszeit kann 9007199254740992 nicht überschreiten',
       roleList: 'Liste der Aufgaben',
       addRole: 'Rolle hinzufügen',
       dataManagePrivilege: 'Behörde für das Datenmanagement',

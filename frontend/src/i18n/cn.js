@@ -189,6 +189,7 @@ const cn = {
       deviceNameLabel: '实体:',
       timeNameLabel: '物理量:',
       ttlErrorTips: '存活时间只能为正整数',
+      maxErrorTips: '存活时间不能超过9007199254740992',
       addRole: '添加角色',
       dataManagePrivilege: '数据管理权限',
       roleName: '角色名称',

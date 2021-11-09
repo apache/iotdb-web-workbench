@@ -150,6 +150,10 @@ export default {
     const submit = () => {
       formRef.value.validate((valid) => {
         if (valid) {
+          if (form.ttl && form.ttl > 9007199254740992) {
+            ElMessage.error(t('sourcePage.maxErrorTips'));
+            return false;
+          }
           if ((form.ttl && !form.ttiUnit) || (!form.ttl && form.ttiUnit)) {
             ElMessage.error(t('storagePage.ttlErrTips'));
             return false;
