@@ -56,8 +56,8 @@ export default {
     const linkData = ref(null);
     function centerDialog() {
       if (linkData.value) {
-        props.func.updateTree([`${linkData.value}connection`, `${linkData.value}connection:querylist`]);
-        props.func.addTab(`${linkData.value}connection:querylist:newquery`);
+        props.func.updateTree([`${linkData.value}connection`, `${linkData.value}connection:querylist`], true);
+        props.func.addTab(`${linkData.value}connection:querylist:newquery`, {}, true);
         emit('coloseDrawer');
       } else {
         ElMessage.error(`${t('device.selectdataconnection')}!`);
