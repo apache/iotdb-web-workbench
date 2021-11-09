@@ -27,7 +27,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         <el-table-column :key="item.prop" v-for="item of columns.list" min-width="180px" :width="item.width + 'px'" :align="item.align" :fixed="item.fixed" show-overflow-tooltip>
           <template #header>
             <span :class="{ spanbox: item.required }"></span>
-            <svg v-if="iconArr.icon[item.icon]" class="icon" @click="sqlClick" aria-hidden="true">
+            <svg v-if="iconArr.icon[item.icon]" :class="['icon', { 'icon-time': item.icon === 'TIME' }]" @click="sqlClick" aria-hidden="true">
               <use :xlink:href="`#icon-${iconArr.icon[item.icon]}`"></use>
             </svg>
             <span :style="{ 'margin-left': iconArr.icon[item.icon] ? '5px' : '' }">{{ $t(item.label) }}</span>
@@ -82,8 +82,12 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               <i v-if="!item.onlyShow" class="el-icon-edit editF" @click="editTag(scope.row[item.prop], scope.row.timeseries, item.prop, scope.$index)"></i>
               <span v-for="(item, index) in scope.row[item.prop]" :key="index">{{ item[0] }} = {{ item[1] }}, </span>
             </div>
-            <span v-if="item.type && scope.row[item.prop] && !scope.row.display && item.type !== 'TEXT' && item.type !== 'ATTRIBUTES' && item.type !== 'TAG'">{{ scope.row[item.prop] }}</span>
-            <span v-if="!item.type">{{ scope.row[item.prop] || item.value }}</span>
+            <span
+              :class="item.type"
+              v-if="item.type && scope.row[item.prop] && !scope.row.display && item.type !== 'TEXT' && item.type !== 'ATTRIBUTES' && item.type !== 'TAG' && item.prop !== 'alias'"
+              >{{ scope.row[item.prop] }}</span
+            >
+            <span class="item.type" v-if="!item.type">{{ scope.row[item.prop] || item.value }}</span>
           </template>
         </el-table-column>
         <el-table-column fixed="right" v-if="actionO" :label="$t(actionO.label)" min-width="150px">
@@ -172,6 +176,7 @@ export default {
         TEXT: 'TEXT',
         DOUBLE: 'DOUBLE',
         FLOAT: 'FLOAT',
+        TIME: 'time',
       },
     });
     let edData = reactive({
@@ -261,6 +266,12 @@ export default {
       let result = isRepeat(edData.data.map((d) => d[0]));
       let keys = edData.data.map((d) => d[0]);
       let values = edData.data.map((d) => d[1]);
+
+      let pattern = /^[0-9]*$/;
+      if (keys.every((d) => pattern.test(d)) || values.every((d) => pattern.test(d))) {
+        ElMessage.error(`${edData.label}不能完全为数值`);
+        return;
+      }
       if (edData.data.length && (!keys.every((d) => d !== null) || !values.find((d) => d !== null))) {
         ElMessage.error(`请填写完整`);
         return;
@@ -274,7 +285,6 @@ export default {
       } else {
         tableDatas.list[edData.index].attributes = edData.data;
       }
-      console.log(tableDatas.list[edData.index].tags);
       dialogFormVisible.flag = false;
     };
     onActivated(() => {
@@ -319,6 +329,9 @@ export default {
 .standTable {
   .icon {
     cursor: pointer;
+  }
+  .icon-time {
+    color: #4eb5ff;
   }
 }
 .border_table {

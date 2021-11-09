@@ -216,11 +216,14 @@ export default {
           column.list = [];
           tableData.list = [];
           let lengthArry = [];
+          time.list = [];
+          line.list = [];
           tabelNum.value = res.data.length;
           res.data.forEach((item) => {
             let length = [];
             time.list.push(item.queryTime);
             line.list.push(item.line);
+            debugger;
             if (item.metaDataList) {
               column.list.push({
                 list: item.metaDataList.map((eleitem, index) => {
@@ -263,6 +266,7 @@ export default {
           // });
           display.value = true;
           runFlag.value = true;
+          console.log(line.list);
         });
         setTimeout(() => {
           runFlag.value = true;
@@ -293,6 +297,14 @@ export default {
           });
           centerDialogVisible.value = false;
           props.func.updateTree();
+          let locationId = '';
+          if (routeData.obj.id.endsWith('newquery')) {
+            locationId = routeData.obj.id.substring(0, routeData.obj.id.length - 9) + res.data + 'query';
+          } else {
+            locationId = route.params.connectionid + 'connection:querylist' + res.data.id + 'query';
+          }
+          props.func.updateTree();
+          props.func.addTab(locationId, {}, true);
         }
       });
     }
