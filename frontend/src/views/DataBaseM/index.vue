@@ -20,8 +20,8 @@
 <template>
   <div class="databasem">
     <el-container class="content-container">
-      <el-aside :width="dividerWidth + 'px'"
-        ><data-list-tree
+      <el-aside :width="dividerWidth + 'px'">
+        <data-list-tree
           :func="{
             removeTab,
             addTab,
@@ -31,8 +31,8 @@
           :nodekey="nodekey"
           ref="treeRef"
           :handleNodeClick="handleNodeClick"
-        ></data-list-tree
-      ></el-aside>
+        ></data-list-tree>
+      </el-aside>
       <div class="divider" ref="dividerRef"></div>
       <el-main>
         <template v-if="urlTabs.length !== 0 || route.path === `/databasem/empty`">
@@ -181,6 +181,9 @@ export default {
       } else if (data.type === 'querylist') {
         //查询列表
       } else if (data.type === 'storageGroup') {
+        // todo params存储对象会丢失, 固存在store里面
+        store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent?.parent?.name, forceupdate, ...extraParams });
+
         //判断是进入存储组详情还是编辑存储组
         if (data.extraParams && data.extraParams.type == 'edit') {
           router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
@@ -190,13 +193,13 @@ export default {
         }
       } else if (data.type === 'newdevice') {
         //新建实体
-        console.log(data);
         // todo params存储对象会丢失, 固存在store里面
         store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams });
-        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
+        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams }, query: { id: data.id } });
       } else if (data.type === 'device') {
         //实体
-        console.log(data);
+        // todo params存储对象会丢失, 固存在store里面
+        store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams });
         router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询
