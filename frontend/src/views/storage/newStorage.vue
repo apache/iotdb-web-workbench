@@ -238,10 +238,10 @@ export default {
     }
     .ttl-input {
       display: inline-block;
-      width: 350px;
+      width: 310px;
     }
     .unit {
-      width: 90px;
+      width: 130px;
       margin-left: 10px;
     }
     .tips {
