@@ -24,9 +24,9 @@ const en = {
     el: enLocale.el,
     about: {
       'line-2': 'About Us',
-      'line-3': 'Visual Management Tool Of IotDB',
-      'line-4': `IotDB Admin Is A GUI Interface Of IotDB, Providing All The Adding, Deleting, Altering And Querying Operations. Besides That, Accessing Control Is Also Built. It Extremely Simplifies The Use Of IotDB And Has Very Little Learning Cost. `,
-      'line-5': `IotDB Is One Of The Best Time Series Database In Our Opinion. We Will Always Try Our Best To Advance The Development And Application Of Time Series Database, Making Contribution To Rise Of Native Open Source Ability And Ecosystem Development.Welcome Everyone Of You To Join Us, Waiting For You! Contact Us:`,
+      'line-3': 'Visual Management Tool Of IoTDB',
+      'line-4': `IoTDB Admin Is A GUI Interface Of IoTDB, Providing All The Adding, Deleting, Altering And Querying Operations. Besides That, Accessing Control Is Also Built. It Extremely Simplifies The Use Of IoTDB And Has Very Little Learning Cost. `,
+      'line-5': `IoTDB Is One Of The Best Time Series Database In Our Opinion. We Will Always Try Our Best To Advance The Development And Application Of Time Series Database, Making Contribution To Rise Of Native Open Source Ability And Ecosystem Development.Welcome Everyone Of You To Join Us, Waiting For You! Contact Us:`,
       'line-6-text': 'Scan Wechat',
       'line-7': 'Version: 0.12',
       'back-btn': 'Return To Work Page',
@@ -78,7 +78,7 @@ const en = {
       accountLengthTip: 'The User Name Must Be Greater Than Or Equal To 3 Characters And Less Than Or Equal To 32 Characters',
       passwordEmptyTip: 'Password Can Not Be Empty',
       passwordLenghtTip: 'Password Must Be Greater Than Or Equal To 6 Digits. Please Check The Number Of Digits',
-      welcomeLogin: 'Welcome To IotDB Admin',
+      welcomeLogin: 'Welcome To IoTDB Admin',
       loginErrorTip: 'Incorrect User Name Or Password, Please Re-enter',
     },
 

@@ -142,9 +142,10 @@
                               <use xlink:href="#icon-se-icon-f-edit"></use>
                             </svg>
                             <div v-if="!edit" class="password">
-                              <el-tooltip class="item" effect="dark" :content="baseInfoForm.password" placement="top">
-                                <div>{{ baseInfoForm.password }}</div>
-                              </el-tooltip>
+                              <!-- <el-tooltip class="item" effect="dark" :content="baseInfoForm.password" placement="top"> -->
+                                <!-- <div>{{ baseInfoForm.password }}</div> -->
+                                <div>***</div>
+                              <!-- </el-tooltip> -->
                             </div>
                             <div v-if="edit">
                               <el-button @click="cancelEdit()">{{ $t('common.cancel') }}</el-button>

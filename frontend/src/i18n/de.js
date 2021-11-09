@@ -24,9 +24,9 @@ const de = {
     el: deLocale.el,
     about: {
       'line-2': 'Über uns',
-      'line-3': 'Visual management tool für IotDB',
-      'line-4': `IotDB Admin ist eine browserbasiertes Verwaltungsoberfläche für IotDB, dass alle nötigen Operationen wie das Hinzufügen, Löschen, Verändern oder Abfragen von Werten ermöglicht. Ausserdem wird die Zugriffskontrolle unterstützt. Es vereinfacht die Benutzung von IoTDB deutlich und ist einfach zu verwenden.`,
-      'line-5': `IotDB ist unserer Meinung nach eine der besten Zeitreihendatenbanken. Wir werden stets versuchen die Entwicklung und Anwendung dieser Zeitreihendatenbank zu unterstützen. Wir heissen jeden herzlich Willkommen mitzumachen. Ihr könnt uns kontaktieren unter:`,
+      'line-3': 'Visual management tool für IoTDB',
+      'line-4': `IoTDB Admin ist eine browserbasiertes Verwaltungsoberfläche für IoTDB, dass alle nötigen Operationen wie das Hinzufügen, Löschen, Verändern oder Abfragen von Werten ermöglicht. Ausserdem wird die Zugriffskontrolle unterstützt. Es vereinfacht die Benutzung von IoTDB deutlich und ist einfach zu verwenden.`,
+      'line-5': `IoTDB ist unserer Meinung nach eine der besten Zeitreihendatenbanken. Wir werden stets versuchen die Entwicklung und Anwendung dieser Zeitreihendatenbank zu unterstützen. Wir heissen jeden herzlich Willkommen mitzumachen. Ihr könnt uns kontaktieren unter:`,
       'line-6-text': 'Wechat scannen',
       'line-7': 'Version: 0.12',
       'back-btn': 'Zurück zur Hauptseite',
@@ -78,7 +78,7 @@ const de = {
       accountLengthTip: 'Der Benutzername muss zwischen 3 und 32 Zeichen lang sein',
       passwordEmptyTip: 'Passwort darf nicht leer sein',
       passwordLenghtTip: 'Das Passwort muss mindestens 6 Zeichen lang sein',
-      welcomeLogin: 'Willkommen bei der IotDB Admin Oberfläche',
+      welcomeLogin: 'Willkommen bei der IoTDB Admin Oberfläche',
       loginErrorTip: 'Benutzername oder Passwort falsch',
     },
 
