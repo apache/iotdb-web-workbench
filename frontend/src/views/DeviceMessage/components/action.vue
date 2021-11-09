@@ -65,7 +65,6 @@ export default {
         let max = Math.max.apply(null, dataarr);
         let min = Math.min.apply(null, dataarr);
         let myChart = echarts.init(document.getElementById(id));
-        console.log(myChart.setOption);
         myChart.setOption({
           grid: {
             width: 'auto',

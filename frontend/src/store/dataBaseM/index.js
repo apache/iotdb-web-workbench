@@ -21,6 +21,7 @@ import axios from '@/util/axios.js';
 const dataBaseM = {
   state: () => ({
     privilegeListAll: [],
+    currRouteParams: null,
   }),
 
   getters: {
@@ -40,6 +41,9 @@ const dataBaseM = {
   mutations: {
     setPrivilegeListAll(state, data) {
       state.privilegeListAll = data;
+    },
+    setCurrRouteParams(state, data) {
+      state.currRouteParams = data;
     },
   },
   actions: {

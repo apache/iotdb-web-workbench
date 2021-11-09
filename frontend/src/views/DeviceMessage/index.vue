@@ -85,12 +85,14 @@
             :lineHeight="10"
             :lineWidth="21"
             :celineWidth="23"
+            :celineHeight="10"
             :maxHeight="500"
             :pagination="pagination"
             @getPagintions="getPagintions"
           >
             <template #default="{ scope }">
-              <div style="padding: 7px 0" @click="searchRow(scope.row)" v-if="scope.row.newValue * 1">
+              <div @click="searchRow(scope.row)" v-if="scope.row.newValue * 1">
+                {{ scope.row }}
                 <action :echartsData="routeData.obj" :row="scope.row" :scope="scope"></action>
               </div>
               <div v-else class="actionSpan">
@@ -482,10 +484,10 @@ export default {
           prop: 'newValue',
           value: '——', //默认值，该项如果没有数据显示
         },
-        {
-          label: 'device.datatrends',
-          prop: 'action',
-        },
+        // {
+        //   label: 'device.datatrends',
+        //   prop: 'action',
+        // },
         {
           label: 'device.tag',
           prop: 'tags',
@@ -843,7 +845,7 @@ export default {
       }
       getDataDeviceList(routeData.obj, pagination1, { startTime: sTime, endTime: eTime, measurementList: data }).then((res) => {
         res.data.metaDataList.forEach((item, index) => {
-          column1.list.push({ label: item, prop: `t${index}`, value: '——', icon: res.data.typeList[index] });
+          column1.list.push({ label: item, prop: `t${index}`, value: '——', icon: index ? res.data.typeList[index] : 'TIME' });
         });
         res.data.valueList.forEach((item) => {
           let obj = {};
@@ -852,6 +854,7 @@ export default {
           });
           tableData1.list.push(obj);
         });
+
         totalCount1.value = res.data.totalCount;
         tableflag.flag = true;
       });

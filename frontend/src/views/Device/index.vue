@@ -63,6 +63,7 @@ import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import _cloneDeep from 'lodash/cloneDeep';
+import { useStore } from 'vuex';
 export default {
   name: 'DeviceAddEidt',
   props: {
@@ -71,6 +72,7 @@ export default {
     dividerWidth: Object,
   },
   setup(props) {
+    const store = useStore();
     const route = useRoute();
     const router = useRouter();
     const standtable = ref(null);
@@ -396,8 +398,10 @@ export default {
     function openWin() {
       window.open('https://iotdb.apache.org/zh/UserGuide/Master/Data-Concept/Encoding.html', '_blank');
     }
+    // const addDevice = () => {};
     onActivated(() => {
       deviceData.obj = route.params;
+      const currRouteParams = store.state.dataBaseM.currRouteParams;
       let keys = Object.keys(deviceData.obj);
       if (keys.length > 3) {
         if (route.params.type !== 'newdevice') {
@@ -407,7 +411,7 @@ export default {
           form.formData = reactive({
             description: null,
             deviceName: null,
-            groupName: `${deviceData.obj.storagegroupid}`,
+            groupName: `${currRouteParams.parent.deviceid ? currRouteParams.parent.deviceid : currRouteParams.storagegroupid}`,
             deviceId: null,
           });
           tableData.list = [

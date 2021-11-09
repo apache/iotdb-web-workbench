@@ -293,6 +293,14 @@ export default {
           });
           centerDialogVisible.value = false;
           props.func.updateTree();
+          let locationId = '';
+          if (routeData.obj.id.endsWith('newquery')) {
+            locationId = routeData.obj.id.substring(0, routeData.obj.id.length - 9) + res.data + 'query';
+          } else {
+            locationId = route.params.connectionid + 'connection:querylist' + res.data.id + 'query';
+          }
+          props.func.updateTree();
+          props.func.addTab(locationId, {}, true);
         }
       });
     }
