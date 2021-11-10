@@ -111,7 +111,7 @@
                     >
                       <template #reference>
                         <span class="icon-del del-user">
-                          <svg v-if="activeIndex == item.username" class="icon" aria-hidden="true">
+                          <svg v-if="activeIndex == item.username && item.username !=='new'" class="icon" aria-hidden="true">
                             <use xlink:href="#icon-se-icon-delete"></use>
                           </svg>
                         </span>
