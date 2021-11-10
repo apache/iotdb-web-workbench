@@ -80,6 +80,7 @@ export default {
     let totalCount = ref(0);
     let erroflag = ref(true);
     let widths = ref(window.screen.width);
+    let currRouteParams = reactive({});
     const deviceData = reactive({
       obj: {},
     });
@@ -367,7 +368,22 @@ export default {
               deviceData.obj.name = copyForm.formData.deviceName;
               router.go(-1);
               // if (deviceData.obj.dflag) {
+              let parentId = currRouteParams.parentid;
+              let isAdd = route.query.id.endsWith(':newdevice');
+              let id = '';
+              if (isAdd) {
+                // 如果是在存储组下新增的实体, id另做处理
+                if (currRouteParams.parent.type === 'storageGroup') {
+                  id = parentId + currRouteParams.storagegroupid + 'device' + copyForm.formData.deviceName + 'device';
+                } else {
+                  id = parentId + copyForm.formData.deviceName + 'device';
+                }
+              } else {
+                id = route.query.id;
+              }
+              console.log('跳转id', id);
               props.func.updateTree();
+              props.func.addTab(id, {}, true);
               // }
             }
           });
@@ -401,7 +417,9 @@ export default {
     // const addDevice = () => {};
     onActivated(() => {
       deviceData.obj = route.params;
-      const currRouteParams = store.state.dataBaseM.currRouteParams;
+      currRouteParams = store.state.dataBaseM.currRouteParams;
+
+      console.log(currRouteParams);
       let keys = Object.keys(deviceData.obj);
       if (keys.length > 3) {
         if (route.params.type !== 'newdevice') {

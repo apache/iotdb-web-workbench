@@ -768,12 +768,12 @@ export default {
       }
       let arr = column1.list.filter((item) => item.prop !== 't0' && item.prop !== 'action').map((item) => item.label);
       exportDataCSV(routeData.obj, { measurementList: arr, startTime: sTime, endTime: eTime }).then((res) => {
+        let name = routeData.obj.name.split('.')[routeData.obj.name.split('.').length - 1];
+        handleExport(res, `${name}.CSV`);
         ElMessage({
           type: 'success',
           message: `${t('device.exportSucceeded')}!`,
         });
-        let name = routeData.obj.name.split('.')[routeData.obj.name.split('.').length - 1];
-        handleExport(res, `${name}.CSV`);
       });
     }
     //物理量翻页
