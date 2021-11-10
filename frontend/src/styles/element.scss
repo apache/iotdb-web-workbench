@@ -109,6 +109,10 @@
   .el-tabs__nav-scroll {
     background-color: #fff !important;
   }
+  .el-input .el-input__inner {
+    height: 28px !important;
+    line-height: 28px !important;
+  }
   .el-input__inner:focus {
     border-color: $theme-color;
   }
@@ -181,10 +185,7 @@
   background-color: $theme-color !important;
   min-width: 48px !important;
 }
-.el-input .el-input__inner {
-  height: 28px !important;
-  line-height: 28px !important;
-}
+
 .button-special {
   border: transparent;
   text-align: left;
