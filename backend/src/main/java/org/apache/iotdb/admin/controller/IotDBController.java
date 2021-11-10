@@ -277,11 +277,11 @@ public class IotDBController {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setDeviceName(deviceName);
         deviceInfo.setLine(lines.get(i));
+        deviceInfo.setParents(iotDBService.getDeviceParents(connection, groupName, deviceName));
         if (devices.get(i) != null) {
           deviceInfo.setDeviceId(devices.get(i).getId());
           deviceInfo.setCreator(devices.get(i).getCreator());
           deviceInfo.setDescription(devices.get(i).getDescription());
-          deviceInfo.setParents(iotDBService.getDeviceParents(connection, groupName, deviceName));
         }
         deviceInfos.add(deviceInfo);
       }

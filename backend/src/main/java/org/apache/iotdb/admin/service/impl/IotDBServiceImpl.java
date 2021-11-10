@@ -1691,8 +1691,10 @@ public class IotDBServiceImpl implements IotDBService {
       List<String> parents =
           devices.stream()
               .filter(d -> deviceName.startsWith(d))
+              .filter(d -> StringUtils.removeStart(deviceName, d).startsWith("."))
               .sorted()
               .collect(Collectors.toList());
+      parents.add(deviceName);
       return parents;
     } finally {
       closeSessionPool(sessionPool);
