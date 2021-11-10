@@ -232,7 +232,6 @@ export default {
         serverId,
         roleName: props.roleInfo.roleName,
       };
-      console.log(row);
       let { type } = row;
       let payload = { type: row.type };
       payload.cancelPrivileges = row.privileges;
@@ -245,9 +244,11 @@ export default {
       if (type === 3) {
         payload.delTimeseriesPaths = row.timeseriesPaths;
       }
-      await api.editDataPrivilege(params, payload);
-      ElMessage.success(t('common.deleteSuccess'));
-      getData();
+      let result = await api.editDataPrivilege(params, payload);
+      if (result.code === '0') {
+        ElMessage.success(t('common.deleteSuccess'));
+        getData();
+      }
     };
     onActivated(() => {
       emitter.on('change-tab', changeTab);

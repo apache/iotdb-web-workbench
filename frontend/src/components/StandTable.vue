@@ -38,7 +38,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               v-if="item.type === 'INPUT' && (!scope.row[item.prop] || scope.row.display || item.canEdit)"
               v-model="scope.row[item.prop]"
               :size="item.size"
-              :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border }"
+              :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border && item.border }"
               :placeholder="$t('device.inputTip') + $t(item.label)"
               @blur="item.event(scope, scope.row, scope.row[item.prop], $event)"
             >

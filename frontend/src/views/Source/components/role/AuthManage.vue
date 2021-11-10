@@ -280,7 +280,7 @@ export default {
       });
       typeArr.forEach((e) => resetAllChecked(e));
     };
-    let submit = () => {
+    let submit = async () => {
       let newPrivileges = Object.values(checked.value).reduce((total, curr) => total.concat(curr));
       let cancelPrivileges = oldPrivileges?.value?.filter((d) => !newPrivileges.includes(d));
       let addPrivileges = newPrivileges?.filter((d) => !oldPrivileges?.value.includes(d));
@@ -293,8 +293,12 @@ export default {
         return;
       }
       try {
-        api.editAuthPrivilege({ serverId, roleName: props.roleInfo.roleName }, { cancelPrivileges, privileges: addPrivileges });
+        await api.editAuthPrivilege({ serverId, roleName: props.roleInfo.roleName }, { cancelPrivileges, privileges: addPrivileges });
         oldPrivileges.value = newPrivileges;
+        store.dispatch('fetchAllPrivileges', {
+          serverId: serverId,
+          userName: props.baseInfo.userName,
+        });
         ElMessage.success('编辑成功');
       } catch (e) {
         //

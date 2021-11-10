@@ -109,6 +109,7 @@ export default {
           type: 'INPUT', //控件类型
           required: true, //必填标志
           size: 'small',
+          border: true,
           event: checkVal,
         },
         {
