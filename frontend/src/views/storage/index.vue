@@ -257,8 +257,19 @@ export default {
       // props.func.removeTab(props.data.id);
     };
     const goToEntity = (scope) => {
-      props.func.updateTree([props.data.parent.id, props.data.id]);
-      props.func.addTab(`${props.data.id}${scope.row.deviceName}device`, {});
+      let parentList = scope.row.parents || [];
+      let path = '';
+      let pathArray = [props.data.id];
+      for (let i = 0; i < parentList.length; i++) {
+        path += parentList[i] + 'device';
+        if (i > 0) {
+          pathArray.push(pathArray[i - 1] + parentList[i - 1] + 'device');
+        }
+      }
+      pathArray.unshift(router.currentRoute.value.params.serverid + 'connection');
+      props.func.updateTree(pathArray);
+      props.func.expandByIds(pathArray);
+      props.func.addTab(`${props.data.id}${path}`, {});
     };
     onActivated(() => {
       getGroupDetail();
