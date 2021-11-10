@@ -223,7 +223,6 @@ export default {
             let length = [];
             time.list.push(item.queryTime);
             line.list.push(item.line);
-            debugger;
             if (item.metaDataList) {
               column.list.push({
                 list: item.metaDataList.map((eleitem, index) => {

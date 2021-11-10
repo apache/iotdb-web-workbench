@@ -78,7 +78,7 @@
       <el-tabs v-model="sourceTabs" @tab-click="handleClickSource" class="tabs">
         <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
           <div class="tab-content">
-            <el-button class=" title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
+            <el-button class="title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
             <DataModal></DataModal>
           </div>
         </el-tab-pane>
@@ -143,8 +143,8 @@
                             </svg>
                             <div v-if="!edit" class="password">
                               <!-- <el-tooltip class="item" effect="dark" :content="baseInfoForm.password" placement="top"> -->
-                                <!-- <div>{{ baseInfoForm.password }}</div> -->
-                                <div>***</div>
+                              <!-- <div>{{ baseInfoForm.password }}</div> -->
+                              <div>***</div>
                               <!-- </el-tooltip> -->
                             </div>
                             <div v-if="edit">
@@ -318,13 +318,17 @@
                       <p class="tips">{{ $t('sourcePage.permitTips') }}</p>
                       <div class="permit-list">
                         <div class="permit-list-type">
-                          <div class="box box1"><el-checkbox v-model="userRelationAll" :disabled="baseInfoForm.userName == 'root'" label="用户相关" @change="changeUserRelation()"></el-checkbox></div>
+                          <div class="box box1">
+                            <el-checkbox v-model="userRelationAll" :disabled="baseInfoForm.userName == 'root'" :label="$t('sourcePage.userRelevance')" @change="changeUserRelation()"></el-checkbox>
+                          </div>
                           <el-checkbox-group v-model="userRelationItems" class="wraper" :disabled="baseInfoForm.userName == 'root'">
                             <el-checkbox v-for="item in userRelationList[0]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
                           </el-checkbox-group>
                         </div>
                         <div class="permit-list-type">
-                          <div class="box box2"><el-checkbox v-model="roleRelationAll" :disabled="baseInfoForm.userName == 'root'" label="角色相关" @change="changeRoleRelation()"></el-checkbox></div>
+                          <div class="box box2">
+                            <el-checkbox v-model="roleRelationAll" :disabled="baseInfoForm.userName == 'root'" :label="$t('sourcePage.roleRelevance')" @change="changeRoleRelation()"></el-checkbox>
+                          </div>
                           <el-checkbox-group v-model="roleRelationItems" :disabled="baseInfoForm.userName == 'root'">
                             <el-checkbox v-for="item in userRelationList[1]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
                           </el-checkbox-group>
@@ -337,7 +341,7 @@
                         </div>
                         <div class="permit-list-type">
                           <div class="box box4">
-                            <el-checkbox v-model="triggerRelationAll" :disabled="baseInfoForm.userName == 'root'" label="触发器" @change="changeTriggerRelation()"></el-checkbox>
+                            <el-checkbox v-model="triggerRelationAll" :disabled="baseInfoForm.userName == 'root'" :label="$t('sourcePage.trigger')" @change="changeTriggerRelation()"></el-checkbox>
                           </div>
                           <el-checkbox-group v-model="triggerRelationItems" :disabled="baseInfoForm.userName == 'root'">
                             <el-checkbox v-for="item in userRelationList[3]" :label="item.id" :key="item.id">{{ item.label }}</el-checkbox>
@@ -702,6 +706,12 @@ export default {
         { label: t('sourcePage.selectTime'), value: 3 },
       ];
       pathMap.value = { 0: t('sourcePage.selectAlias'), 1: t('sourcePage.selectGroup'), 2: t('sourcePage.selectDevice'), 3: t('sourcePage.selectTime') };
+      userRelationList.value = {
+        0: userRelationListFunc(),
+        1: roleRelationListFunc(),
+        2: udfRelationListFunc(),
+        3: triggerRelationListFunc(),
+      };
     });
     /**
      * 用户基本信息及所有权限列表

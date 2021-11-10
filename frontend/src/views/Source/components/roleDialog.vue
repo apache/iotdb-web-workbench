@@ -39,7 +39,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, onActivated } from 'vue';
 import { ElDialog } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 // import axios from '@/util/axios.js';
@@ -72,11 +72,19 @@ export default {
     // const router = useRouter();
     // const route = useRoute();
     let showRoleDialogs = ref(false);
+    let checkList = ref([]);
+    let roleList = ref([]);
+    let allChecked = ref(false);
+
     watch(
       () => props.showRoleDialog,
       (val) => {
         showRoleDialogs.value = val;
-      }
+        if (props.type == 0) {
+          checkList.value = JSON.parse(JSON.stringify(props.editList || []));
+        }
+      },
+      { immediate: true }
     );
     const handleClose = () => {
       showRoleDialogs.value = false;
@@ -91,13 +99,14 @@ export default {
       showRoleDialogs.value = false;
     };
 
-    let allChecked = ref(false);
-    let checkList = ref([]);
-    let roleList = ref([]);
-
     const getRoleList = async () => {
       let result = await api.getRoles(props.serverId);
       roleList.value = result.data;
+      if (checkList.value.length == roleList.value.length && checkList.value.length > 0) {
+        allChecked.value = true;
+      } else {
+        allChecked.value = false;
+      }
     };
     const checkAllRole = () => {
       if (allChecked.value) {
@@ -127,10 +136,10 @@ export default {
       showRoleDialogs.value = props.showRoleDialog;
       getRoleList();
       if (props.type == 1) {
-        checkList.value = props.editList;
+        checkList.value = props.editList || [];
       }
     });
-    // onActivated(() => {});
+    onActivated(() => {});
     return {
       t,
       showRoleDialogs,
@@ -182,6 +191,7 @@ export default {
     }
     .right-part {
       padding: 0 0 0 20px;
+      overflow: auto;
       .btn {
         float: right;
         margin-top: 1px;
