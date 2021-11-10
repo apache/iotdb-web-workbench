@@ -1680,6 +1680,25 @@ public class IotDBServiceImpl implements IotDBService {
     }
   }
 
+  @Override
+  public List<String> getDeviceParents(Connection connection, String groupName, String deviceName)
+      throws BaseException {
+    SessionPool sessionPool = null;
+    try {
+      sessionPool = getSessionPool(connection);
+      String sql = "show devices " + groupName;
+      List<String> devices = executeQueryOneColumn(sessionPool, sql);
+      List<String> parents =
+          devices.stream()
+              .filter(d -> deviceName.startsWith(d))
+              .sorted()
+              .collect(Collectors.toList());
+      return parents;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
+  }
+
   private void assembleDeviceList(NodeTreeVO node, String deviceName, SessionPool sessionPool)
       throws BaseException {
     List<String> descendants = findDescendants(deviceName, sessionPool);

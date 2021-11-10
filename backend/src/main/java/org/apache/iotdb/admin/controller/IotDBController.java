@@ -281,6 +281,7 @@ public class IotDBController {
           deviceInfo.setDeviceId(devices.get(i).getId());
           deviceInfo.setCreator(devices.get(i).getCreator());
           deviceInfo.setDescription(devices.get(i).getDescription());
+          deviceInfo.setParents(iotDBService.getDeviceParents(connection, groupName, deviceName));
         }
         deviceInfos.add(deviceInfo);
       }
@@ -329,6 +330,21 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     NodeTreeVO deviceList = iotDBService.getDeviceList(connection, groupName);
     return BaseVO.success("获取设备列表成功", deviceList);
+  }
+
+  @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/parents")
+  @ApiOperation("获取指定实体的父实体列表  (新增2.31)")
+  public BaseVO<List<String>> getDeviceParents(
+      @PathVariable("serverId") Integer serverId,
+      @PathVariable("groupName") String groupName,
+      @PathVariable("deviceName") String deviceName,
+      HttpServletRequest request)
+      throws BaseException {
+    checkParameter(groupName);
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    List<String> deviceParents = iotDBService.getDeviceParents(connection, groupName, deviceName);
+    return BaseVO.success("获取父实体列表成功", deviceParents);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/exist")

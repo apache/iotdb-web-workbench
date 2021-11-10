@@ -47,7 +47,14 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     List<Connection> connections = connectionMapper.selectList(queryWrapper);
     List<ConnVO> ConnVOs = new ArrayList();
     for (Connection connection : connections) {
-      ConnVOs.add(new ConnVO(connection.getId(), connection.getAlias()));
+      ConnVOs.add(
+          new ConnVO(
+              connection.getId(),
+              connection.getAlias(),
+              connection.getHost(),
+              connection.getPort(),
+              connection.getUsername(),
+              connection.getPassword()));
     }
     return ConnVOs;
   }

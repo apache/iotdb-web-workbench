@@ -32,4 +32,8 @@ import java.io.Serializable;
 public class ConnVO implements Serializable {
   private Integer id;
   private String alias;
+  private String host;
+  private Integer port;
+  private String username;
+  private String password;
 }

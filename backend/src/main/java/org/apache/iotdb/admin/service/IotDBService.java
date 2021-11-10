@@ -121,6 +121,9 @@ public interface IotDBService {
 
   NodeTreeVO getDeviceList(Connection connection, String groupName) throws BaseException;
 
+  List<String> getDeviceParents(Connection connection, String groupName, String deviceName)
+      throws BaseException;
+
   Boolean deviceExist(Connection connection, String groupName, String deviceName)
       throws BaseException;
 
