@@ -1749,12 +1749,6 @@ export default {
   .info-box {
     padding: 10px 20px 14px;
     position: relative;
-    // .icon {
-    //   position: absolute;
-    //   top: 19px;
-    // }
-  }
-  .info-box {
     font-size: 16px;
     font-weight: 500;
     color: #222;
@@ -1785,13 +1779,25 @@ export default {
     position: absolute;
     top: 16px;
     right: 16px;
-
     .icon-edit {
       color: $theme-color;
       margin-right: 4px;
     }
     .icon-delete {
       color: #fb5151ff;
+      margin-right: 4px;
+    }
+  }
+  .info-head {
+    height: 40px;
+    line-height: 40px;
+    background: #f6f6f8;
+    font-size: 14px;
+    color: #222;
+    padding-left: 20px;
+    .icon {
+      font-size: 16px;
+      cursor: pointer;
       margin-right: 4px;
     }
   }
@@ -1823,7 +1829,6 @@ export default {
         height: 100%;
         .left-part {
           width: 220px;
-          // margin-top: 12px;
           margin-right: 20px;
           .title {
             height: 40px !important;
@@ -1913,9 +1918,6 @@ export default {
         .right-part {
           flex: 1;
           position: relative;
-          &:deep(.el-input__suffix .el-input__icon) {
-            // line-height: 42px !important;
-          }
           &:deep(.el-input__icon) {
             line-height: 28px !important;
           }
@@ -1943,16 +1945,16 @@ export default {
               display: none;
             }
           }
-          &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
-            color: #222;
-            cursor: default;
-          }
           &:deep(.el-checkbox__label) {
             font-size: 12px !important;
             font-weight: 400;
           }
           &:deep(.el-input .el-input__inner) {
             font-size: 12px !important;
+          }
+          &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
+            color: #222;
+            cursor: default;
           }
           .el-select {
             width: 100%;
@@ -1971,7 +1973,6 @@ export default {
             font-size: 12px;
             color: #fb5151ff;
             line-height: 16px;
-            margin-left: 10px;
             background: rgba(211, 45, 47, 0.04);
             padding: 3px 8px;
             margin: 16px 18px 16px 14px;
@@ -1983,12 +1984,9 @@ export default {
               font-size: 12px;
               margin-bottom: 16px;
             }
-            .wraper {
-            }
             .permit-list {
               display: flex;
               height: calc(100% - 60px);
-
               .permit-list-type {
                 flex: 1;
                 background: #fff;
@@ -2053,7 +2051,6 @@ export default {
             }
             .password-form-item {
               position: relative;
-
               .icon {
                 color: $theme-color;
                 position: absolute;
@@ -2082,10 +2079,6 @@ export default {
                   padding: 0 6px;
                   margin-right: 10px;
                   span {
-                    // max-width: 20px;
-                    // overflow: hidden;
-                    // text-overflow: ellipsis;
-                    // white-space: nowrap;
                     margin-right: 10px;
                   }
                 }
@@ -2098,192 +2091,16 @@ export default {
             }
             .el-input {
               width: 200px;
-              // display: block;
               .el-input__suffix {
                 top: auto;
               }
             }
-            // .source-form {
             &:deep(.el-form--label-top .el-form-item__label) {
-              //        .el-form--label-top .el-form-item__label {
               padding: 0 !important;
             }
-            //       }
-            // }
           }
         }
       }
-    }
-  }
-  // .permission-box {
-  //   .permit-content {
-  //     display: flex;
-  //     flex-direction: row;
-  //     .left-part {
-  //       width: 240px;
-  //       margin-top: 12px;
-  //       border-right: 1px solid #e0e0e0;
-  //       .title {
-  //         height: 17px;
-  //         font-size: 12px;
-  //         font-weight: 400;
-  //         line-height: 20px;
-  //         font-size: 12px;
-  //         color: #fb5151ff;
-  //         line-height: 16px;
-  //         margin-left: 10px;
-  //         padding: 3px 8px;
-  //         color: rgba(34, 34, 34, 0.65);
-  //         padding: 0 8px 10px 16px;
-
-  //         button {
-  //           float: right;
-  //           font-size: 12px;
-  //           margin-top: -7px;
-  //           padding-right: 0;
-  //         }
-  //       }
-  //       .user-list {
-  //         margin-bottom: 10px;
-  //         max-height: 250px;
-  //         overflow: auto;
-  //         .active {
-  //           background: rgba(69, 117, 246, 0.04);
-  //           color: $theme-color;
-  //         }
-  //         li {
-  //           height: 36px;
-  //           line-height: 36px;
-  //           position: relative;
-  //           font-size: 12px;
-  //           padding: 0 16px;
-  //           cursor: pointer;
-  //           .content {
-  //             display: inline-block;
-  //             max-width: 150px;
-  //             overflow: hidden;
-  //             text-overflow: ellipsis;
-  //             height: 36px;
-  //           }
-  //           .icon {
-  //             position: absolute;
-  //             right: 16px;
-  //             top: 12px;
-  //           }
-  //         }
-  //       }
-  //     }
-  //     .right-part {
-  //       flex: 1;
-  //       position: relative;
-  //       &:deep(.el-input__suffix .el-input__icon) {
-  //         line-height: 42px !important;
-  //       }
-  //       .auth-add-btn {
-  //         position: absolute;
-  //         right: 10px;
-  //         top: 6px;
-  //         z-index: 1000;
-  //       }
-
-  //       .tabs {
-  //         position: relative;
-  //       }
-  //       .show-only {
-  //         &:deep(.el-checkbox) {
-  //           display: none;
-  //         }
-  //         &:deep(.is-checked) {
-  //           display: inline-block !important;
-  //           .is-checked {
-  //             display: none !important;
-  //           }
-  //         }
-  //         &:deep(.el-checkbox__input) {
-  //           display: none;
-  //         }
-  //       }
-  //       &:deep(.el-checkbox__input.is-disabled + span.el-checkbox__label) {
-  //         color: #222222;
-  //         cursor: default;
-  //       }
-  //       &:deep(.el-checkbox__label) {
-  //         font-size: 12px !important;
-  //         font-weight: 400;
-  //       }
-  //       &:deep(.el-input .el-input__inner) {
-  //         font-size: 12px !important;
-  //       }
-  //       .el-select {
-  //         width: 100%;
-  //       }
-  //       .device-path {
-  //         margin-right: 10px;
-  //       }
-  //       .row-select-range {
-  //         display: block;
-  //       }
-  //       .auth-tips {
-  //         font-size: 12px;
-  //         color: #fb5151ff;
-  //         line-height: 16px;
-  //         margin-left: 10px;
-  //         background: rgba(211, 45, 47, 0.04);
-  //         padding: 3px 8px;
-  //         margin: 16px 18px 16px 14px;
-  //       }
-  //       .tab-content {
-  //         padding: 10px 16px;
-  //         .password {
-  //           div {
-  //             max-width: 200px;
-  //             overflow: hidden;
-  //             text-overflow: ellipsis;
-  //             white-space: nowrap;
-  //           }
-  //         }
-  //         .user-name {
-  //           max-width: calc(100% - 50px);
-
-  //           overflow: hidden;
-  //           text-overflow: ellipsis;
-  //           white-space: nowrap;
-  //         }
-  //         .password-form-item {
-  //           position: relative;
-
-  //           .icon {
-  //             color: $theme-color;
-  //             position: absolute;
-  //             top: -31px;
-  //             left: 100px;
-  //             cursor: pointer;
-  //           }
-  //         }
-  //       }
-  //       .left-base-content {
-  //         .el-input {
-  //           width: 200px;
-  //           // display: block;
-  //           .el-input__suffix {
-  //             top: auto;
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-  .info-head {
-    height: 40px;
-    line-height: 40px;
-    background: #f6f6f8;
-    font-size: 14px;
-    color: #222;
-    padding-left: 20px;
-    .icon {
-      font-size: 16px;
-      cursor: pointer;
-      margin-right: 4px;
     }
   }
   .group-table {

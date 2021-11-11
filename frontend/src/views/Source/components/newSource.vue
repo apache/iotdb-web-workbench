@@ -292,6 +292,12 @@ export default {
 
 <style scoped lang="scss">
 .new-source {
+  &:deep(.el-form-item__content) {
+    line-height: 20px;
+  }
+  &:deep(.el-dialog) {
+    margin-top: 10vh !important;
+  }
   &:deep(.el-form .el-form-item .el-form-item__label) {
     width: 100px !important;
   }
@@ -303,12 +309,6 @@ export default {
   }
   .test-form-item {
     margin-top: 20px;
-  }
-  &:deep(.el-form-item__content) {
-    line-height: 20px;
-  }
-  &:deep(.el-dialog) {
-    margin-top: 10vh !important;
   }
 }
 </style>
