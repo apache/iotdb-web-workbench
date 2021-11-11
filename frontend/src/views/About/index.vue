@@ -26,11 +26,12 @@
       </div>
       <div class="lang-btn">
         <el-dropdown @command="handleLangCommand">
-          <span class="el-dropdown-link"> {{ [$t('rootPage.chinalang'), $t('rootPage.englishlang')][langIndex] }}<i class="el-icon-arrow-down el-icon--right"></i> </span>
+          <span class="el-dropdown-link"> {{ [$t('rootPage.chinalang'), $t('rootPage.englishlang'), $t('rootPage.deutsch')][langIndex] }}<i class="el-icon-arrow-down el-icon--right"></i> </span>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item :disabled="langIndex === 0" command="0">{{ $t('rootPage.chinalang') }}</el-dropdown-item>
               <el-dropdown-item :disabled="langIndex === 1" command="1">{{ $t('rootPage.englishlang') }}</el-dropdown-item>
+              <el-dropdown-item :disabled="langIndex === 2" command="2">{{ $t('rootPage.deutsch') }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -119,11 +120,11 @@ export default {
     .header-logo {
       background-image: url(~@/assets/logo.png);
       background-size: 100% 100%;
-      width: 200px;
-      height: 36px;
+      width: 150px;
+      height: 22px;
       position: absolute;
       left: 20px;
-      top: 14px;
+      top: 20px;
     }
   }
   .body {
@@ -159,7 +160,7 @@ export default {
           font-size: 30px;
           font-weight: 500;
           line-height: 38px;
-          color: #222222;
+          color: #222;
           margin-bottom: 30px;
         }
         .line-4,
@@ -167,7 +168,7 @@ export default {
           font-size: 14px;
           font-weight: 400;
           line-height: 22px;
-          color: #222222;
+          color: #222;
           margin-bottom: 20px;
         }
         .line-6 {
@@ -190,7 +191,7 @@ export default {
         .line-7 {
           font-size: 14px;
           line-height: 22px;
-          color: #222222;
+          color: #222;
         }
       }
       .right {

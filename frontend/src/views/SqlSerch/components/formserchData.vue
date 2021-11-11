@@ -30,7 +30,9 @@
     </div>
     <div class="serch_div maxheight">
       <span class="custom-tree-node chil" v-for="(item, index) in pyData.list" :key="item.value" @dblclick="getFunction(item)" :style="{ color: index === 0 ? '#c7c6c6' : 'black' }">
-        <span>{{ item.label }}</span>
+        <el-tooltip content="item.label" placement="top">
+          <span>{{ item.label }}</span>
+        </el-tooltip>
         <span>{{ item.decr || '——' }}</span>
         <span>{{ item.type }}</span>
       </span>
@@ -74,7 +76,7 @@ export default {
     }
     function getFunction(val) {
       console.log(userInfo.state.userInfo.name);
-      emit('getFunction', `root.${val.parents}.${val.parent}.${val.label}`);
+      emit('getFunction', val.label);
     }
     function getdevicel() {
       deviceName.value = '';
@@ -178,7 +180,7 @@ export default {
   font-size: 12px;
   justify-content: space-between;
   border-bottom: 1px solid #ebeef5;
-  padding: 10px 0px;
+  padding: 10px 0;
   cursor: pointer;
   span {
     flex: 1;

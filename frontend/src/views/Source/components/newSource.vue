@@ -292,10 +292,12 @@ export default {
 
 <style scoped lang="scss">
 .new-source {
+  &:deep(.el-form .el-form-item .el-form-item__label) {
+    width: 100px !important;
+  }
   .source-form {
     .eg {
       font-size: 12px;
-
       color: rgba(34, 34, 34, 0.4);
     }
   }

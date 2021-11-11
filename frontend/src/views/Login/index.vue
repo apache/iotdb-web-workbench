@@ -23,11 +23,12 @@
       <div class="header-logo"></div>
       <div class="lang-btn">
         <el-dropdown @command="handleLangCommand">
-          <span class="el-dropdown-link"> {{ [$t('rootPage.chinalang'), $t('rootPage.englishlang')][langIndex] }}<i class="el-icon-arrow-down el-icon--right"></i> </span>
+          <span class="el-dropdown-link"> {{ [$t('rootPage.chinalang'), $t('rootPage.englishlang'), $t('rootPage.deutsch')][langIndex] }}<i class="el-icon-arrow-down el-icon--right"></i> </span>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item :disabled="langIndex === 0" command="0">{{ $t('rootPage.chinalang') }}</el-dropdown-item>
               <el-dropdown-item :disabled="langIndex === 1" command="1">{{ $t('rootPage.englishlang') }}</el-dropdown-item>
+              <el-dropdown-item :disabled="langIndex === 2" command="2">{{ $t('rootPage.deutsch') }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -41,12 +42,12 @@
           <div class="login-title">
             {{ $t('loginPage.welcomeLogin') }}
           </div>
-          <el-form label-position="left" :model="ruleForm" :rules="rules" ref="formNameRef">
+          <el-form :hide-required-asterisk="true" label-position="top" :model="ruleForm" :rules="rules" ref="formNameRef">
             <el-form-item :label="$t('loginPage.account')" prop="account">
-              <el-input v-model="ruleForm.account" autocomplete="off" :placeholder="$t('loginPage.placeholderAccount')"></el-input>
+              <el-input class="form-item-input" v-model="ruleForm.account" autocomplete="off" :placeholder="$t('loginPage.placeholderAccount')"></el-input>
             </el-form-item>
             <el-form-item class="form-item" :label="$t('loginPage.password')" prop="passport">
-              <el-input type="password" v-model="ruleForm.passport" autocomplete="off" :placeholder="$t('loginPage.placeholderPassword')"></el-input>
+              <el-input class="form-item-input" type="password" v-model="ruleForm.passport" autocomplete="off" :placeholder="$t('loginPage.placeholderPassword')"></el-input>
               <span class="forget-btn" @click="showDialog">{{ $t('loginPage.forgetPassWord') }}?</span>
             </el-form-item>
             <el-form-item>
@@ -194,11 +195,11 @@ export default {
     .header-logo {
       background-image: url(~@/assets/logo.png);
       background-size: 100% 100%;
-      width: 200px;
-      height: 36px;
+      width: 150px;
+      height: 22px;
       position: absolute;
       left: 20px;
-      top: 14px;
+      top: 20px;
     }
   }
   .body {
@@ -216,7 +217,7 @@ export default {
       flex-grow: 1;
       position: relative;
       .login-block {
-        width: 35vw;
+        width: 520px;
         position: absolute;
         left: 50%;
         top: 45%;
@@ -224,8 +225,8 @@ export default {
         .login-img {
           background-image: url(~@/assets/logo.png);
           background-size: 100% 100%;
-          width: 156px;
-          height: 28px;
+          width: 150px;
+          height: 22px;
           margin-bottom: 12px;
         }
         .login-title {
@@ -237,7 +238,15 @@ export default {
         }
         .submit-btn {
           width: 100%;
-          margin-top: 10px;
+          margin-top: 16px;
+        }
+        .form-item-input {
+          width: 520px;
+          &::v-deep {
+            .el-input__inner {
+              padding: 0 12px;
+            }
+          }
         }
         .form-item {
           position: relative;
@@ -245,7 +254,7 @@ export default {
             cursor: pointer;
             position: absolute;
             right: 0;
-            top: 0;
+            top: -30px;
             font-size: 12px;
             color: $theme-color;
           }

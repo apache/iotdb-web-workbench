@@ -21,31 +21,35 @@
   <span class="iconTypes">
     <span v-if="data.type === 'connection'" class="custom-tree-node-icon"
       ><svg class="icon" aria-hidden="true">
-        <use :xlink:href="nodekey == data.id ? '#icon-shujulianjie-color' : '#icon-shujulianjie'"></use></svg
+        <use :xlink:href="nodekey == data.id ? '#icon-shujulianjie1' : '#icon-shujulianjie1'"></use></svg
     ></span>
-    <span v-if="data.type === 'storageGroup' || data.type === 'newstorageGroup'" class="custom-tree-node-icon"
+    <span v-if="data.type === 'newstorageGroup'" class="custom-tree-node-icon"
       ><svg class="icon" aria-hidden="true">
-        <use :xlink:href="nodekey == data.id ? '#icon-cunchuzu-color' : '#icon-cunchuzu'"></use></svg
+        <use :xlink:href="nodekey == data.id ? '#icon-add1' : '#icon-add1'"></use></svg
+    ></span>
+    <span v-if="data.type === 'storageGroup'" class="custom-tree-node-icon"
+      ><svg class="icon" aria-hidden="true">
+        <use :xlink:href="nodekey == data.id ? '#icon-cunchuzu1' : '#icon-cunchuzu1'"></use></svg
     ></span>
     <span v-if="data.type === 'querylist'" class="custom-tree-node-icon"
       ><svg class="icon" aria-hidden="true">
-        <use :xlink:href="nodekey == data.id ? '#icon-chaxun-color' : '#icon-chaxun'"></use></svg
+        <use :xlink:href="nodekey == data.id ? '#icon-chaxun1' : '#icon-chaxun1'"></use></svg
     ></span>
     <span v-if="data.type === 'newquery'" class="custom-tree-node-icon"
       ><svg class="icon" aria-hidden="true">
-        <use :xlink:href="nodekey == data.id ? '#icon-xinjianchaxun-color' : '#icon-xinjianchaxun'"></use></svg
+        <use :xlink:href="nodekey == data.id ? '#icon-add1' : '#icon-add1'"></use></svg
     ></span>
     <span v-if="data.type === 'query'" class="custom-tree-node-icon"
       ><svg class="icon" aria-hidden="true">
-        <use :xlink:href="nodekey == data.id ? '#icon-chaxun-color' : '#icon-chaxun'"></use></svg
+        <use :xlink:href="nodekey == data.id ? '#icon-chaxun1' : '#icon-chaxun1'"></use></svg
     ></span>
     <span v-if="data.type === 'newdevice'" class="custom-tree-node-icon"
       ><svg class="icon" aria-hidden="true">
-        <use :xlink:href="nodekey == data.id ? '#icon-xinjianshebei-color' : '#icon-xinjianshebei'"></use></svg
+        <use :xlink:href="nodekey == data.id ? '#icon-add1' : '#icon-add1'"></use></svg
     ></span>
     <span v-if="data.type === 'device'" class="custom-tree-node-icon"
       ><svg class="icon" aria-hidden="true">
-        <use :xlink:href="nodekey == data.id ? '#icon-shebei-color' : '#icon-shebei'"></use></svg
+        <use :xlink:href="nodekey == data.id ? '#icon-shiti' : '#icon-shiti'"></use></svg
     ></span>
   </span>
 </template>

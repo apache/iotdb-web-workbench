@@ -21,20 +21,20 @@
   <div class="data-list-tree">
     <div class="data-list-top">
       <span>{{ $t('rootPage.dataList') }}</span>
-      <el-tooltip :content="$t('rootPage.newQueryWindow')" :visible-arrow="false" effect="light">
-        <div class="icon-1">
-          <svg class="icon" @click="sqlClick" aria-hidden="true" v-icon="`#icon-xinjianchaxun-color`">
-            <use xlink:href="#icon-xinjianchaxun"></use>
-          </svg>
-        </div>
-      </el-tooltip>
-      <el-tooltip :content="$t('rootPage.newdatasource')" :visible-arrow="false" effect="light">
-        <div class="icon-2">
-          <svg v-icon="`#icon-xinzengshujulianjie-color`" class="icon" aria-hidden="true" @click="newSource">
-            <use xlink:href="#icon-xinzengshujulianjie"></use>
-          </svg>
-        </div>
-      </el-tooltip>
+    </div>
+    <div class="data-list-btn">
+      <el-button @click="newSource">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-add"></use>
+        </svg>
+        {{ $t('rootPage.newdatasource') }}
+      </el-button>
+      <el-button @click="sqlClick">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-add"></use>
+        </svg>
+        {{ $t('rootPage.newQueryWindow') }}
+      </el-button>
     </div>
     <!-- <div class="data-list-input">
       <el-input size="small" placeholder="" v-model="searchVal">
@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { ElTree, ElTooltip } from 'element-plus';
+import { ElTree, ElButton } from 'element-plus';
 import { reactive, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
@@ -170,7 +170,44 @@ export default {
       treeExpandKey.value = arr;
     };
 
+    const recurseDeviceTree = (data, node) => {
+      let newDevice = {
+        id: node.data.id + ':newdevice',
+        name: computed(() => t(`databasem.newDevice`)),
+        type: 'newdevice',
+        leaf: true,
+        parent: node.data,
+        connectionid: node.data.connectionid,
+        storagegroupid: node.data.storagegroupid,
+      };
+      let childs = data.map((e) => {
+        let child = {
+          parent: node.data,
+          name: e.name,
+          id: node.data.id + e.name + 'device',
+          type: 'device',
+          // leaf: e.children === null ? true : false,
+          leaf: false,
+          rawid: e.name,
+          storagegroupid: node.data.storagegroupid,
+          connectionid: node.data.connectionid,
+          deviceid: e.name,
+        };
+        // if (e.children) {
+        let innerChilds = recurseDeviceTree(e.children || [], { data: child });
+        child.zones = innerChilds;
+        // }
+        return child;
+      });
+      childs.unshift(newDevice);
+      return childs;
+    };
+
     const loadNode = (node, resolve) => {
+      if (node?.data?.zones) {
+        resolve(node.data.zones);
+        return;
+      }
       if (node.level === 0) {
         axios
           .get('/servers', { params: { userId: store.state?.userInfo?.userId } })
@@ -248,33 +285,42 @@ export default {
         let groupName = node.data.rawid;
         let serverId = node.data.parent.rawid;
         axios
-          .get(`/servers/${serverId}/storageGroups/${groupName}/devices`, {})
+          .get(`/servers/${serverId}/storageGroups/${groupName}/devices/tree`, {})
           .then((res) => {
-            let newDevice = {
-              id: node.data.id + ':newdevice',
-              name: computed(() => t(`databasem.newDevice`)),
-              type: 'newdevice',
-              leaf: true,
-              parent: node.data,
-              connectionid: node.data.connectionid,
-              storagegroupid: node.data.storagegroupid,
-            };
             if (res?.code === '0') {
-              let data = (res.data || []).map((e) => {
-                return {
-                  parent: node.data,
-                  name: e,
-                  id: node.data.id + e + 'device',
-                  type: 'device',
+              if (!res.data) {
+                let newDevice = {
+                  id: node.data.id + ':newdevice',
+                  name: computed(() => t(`databasem.newDevice`)),
+                  type: 'newdevice',
                   leaf: true,
-                  rawid: e,
-                  storagegroupid: node.data.storagegroupid,
+                  parent: node.data,
                   connectionid: node.data.connectionid,
-                  deviceid: e,
+                  storagegroupid: node.data.storagegroupid,
                 };
-              });
-              data.unshift(newDevice);
-              return resolve(data);
+                resolve([newDevice]);
+                return;
+              }
+              if (res.data.name === null) {
+                let childs = recurseDeviceTree(res.data.children || [], node);
+                resolve(childs);
+              } else {
+                let rootDevice = {
+                  // parent: node.data,
+                  name: res.data.name,
+                  // id: node.data.id + res.data.name + 'device',
+                  // type: 'device',
+                  // leaf: false,
+                  // rawid: res.data.name,
+                  // storagegroupid: node.data.storagegroupid,
+                  // connectionid: node.data.connectionid,
+                  // deviceid: res.data.name,
+                  children: res.data.children,
+                };
+                let childs = recurseDeviceTree([rootDevice] || [], node);
+                node.zones = childs;
+                resolve(childs);
+              }
             } else {
               resolve([]);
             }
@@ -350,8 +396,8 @@ export default {
   components: {
     ElTree,
     IconTypes,
+    ElButton,
     // ElInput,
-    ElTooltip,
     NewSource,
     SqlDrawer,
   },
@@ -364,36 +410,56 @@ export default {
   height: 100%;
   overflow: auto;
   .data-list-top {
-    color: rgba(34, 34, 34, 0.65);
+    color: #333;
     font-size: 12px;
     line-height: 20px;
     text-align: left;
-    margin: 15px 20px;
-    position: relative;
-    .icon {
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .icon-1 {
-      top: 2px;
-      right: 0px;
-      position: absolute;
-    }
-    .icon-2 {
-      top: 2px;
-      right: 30px;
-      position: absolute;
+    margin: 14px 20px;
+    font-weight: 600;
+  }
+  .data-list-btn {
+    text-align: left;
+    padding: 0 0 14px;
+    border-width: 0;
+    border-bottom-width: 1px;
+    border-style: solid;
+    border-color: #f5f5f7;
+    margin: 0 14px 14px;
+    &::v-deep {
+      .el-button {
+        border-width: 0;
+        background-color: #f9fbfc;
+        color: #333;
+        font-size: 12px;
+        &:hover {
+          background-color: #edf8f5;
+          color: #16c493;
+        }
+        .icon {
+          font-size: 14px;
+          margin-right: 8px;
+        }
+      }
     }
   }
   .data-list-input {
     margin: 0 20px 15px;
   }
-  &:deep(.el-tree) {
-    height: calc(100% - 50px);
+  .custom-tree-node {
+    font-size: 12px;
+    color: #333;
+  }
+  ::v-deep(.el-tree) {
+    height: calc(100% - 105px);
     width: 100%;
     overflow: auto;
     .el-tree-node {
       min-width: fit-content;
+      &.is-current > .el-tree-node__content > .custom-tree-node {
+        & > span {
+          color: $theme-color;
+        }
+      }
     }
     .el-tree-node__content {
       min-width: fit-content;

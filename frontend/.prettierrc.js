@@ -21,4 +21,5 @@ module.exports = {
   tabWidth: 2,
   singleQuote: true,
   printWidth: 200,
+  endOfLine: 'auto'
 };

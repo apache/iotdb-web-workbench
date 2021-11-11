@@ -19,5 +19,13 @@
 
 module.exports = {
   extends: ['stylelint-config-standard-scss', 'stylelint-config-prettier'],
-  rules: {},
+  rules: {
+    'selector-pseudo-element-no-unknown': null,
+    'selector-pseudo-class-no-unknown': [true, {
+      ignorePseudoClasses: [
+          'deep'
+      ]
+   }],
+   "font-family-no-missing-generic-family-keyword": "never",  
+  },
 };
