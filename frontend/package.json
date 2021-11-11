@@ -1,0 +1,69 @@
+{
+  "name": "iotdb",
+  "version": "0.1.0",
+  "private": true,
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,vue,ts,tsx}": [
+      "node_modules/.bin/prettier --write",
+      "node_modules/.bin/eslint --fix",
+      "git add"
+    ],
+    "src/**/*.{css,scss,less,vue,html}": [
+      "node_modules/.bin/stylelint --fix",
+      "git add"
+    ]
+  },
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "lint-css": "stylelint src/**/*.{css,less,scss,vue} --fix",
+    "test:unit": "vue-cli-service test:unit"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "codemirror": "^5.62.0",
+    "core-js": "^3.6.5",
+    "echarts": "^5.1.2",
+    "element-plus": "^1.0.2-beta.70",
+    "nprogress": "^0.2.0",
+    "vue": "^3.2.0",
+    "vue-i18n": "^9.1.7",
+    "vue-router": "^4.0.0-0",
+    "vuex": "^4.0.0-0"
+  },
+  "devDependencies": {
+    "@types/codemirror": "^5.60.1",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-unit-mocha": "^4.5.13",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.1.1",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "@vue/test-utils": "^2.0.0-0",
+    "babel-eslint": "^10.1.0",
+    "babel-plugin-import": "^1.13.3",
+    "chai": "^4.3.4",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^7.0.0",
+    "husky": "^6.0.0",
+    "lint-staged": "^11.0.0",
+    "mocha": "^9.0.0",
+    "prettier": "^2.2.1",
+    "sass": "^1.26.5",
+    "sass-loader": "^8.0.2",
+    "stylelint": "^13.13.1",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-standard-scss": "^1.1.0",
+    "stylelint-scss": "^3.19.0",
+    "vue-loader-v16": "^16.0.0-beta.5.4"
+  }
+}
