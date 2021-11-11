@@ -1,27 +1,27 @@
 <!--
-  - Licensed to the Apache Software Foundation (ASF) under one
-  - or more contributor license agreements.  See the NOTICE file
-  - distributed with this work for additional information
-  - regarding copyright ownership.  The ASF licenses this file
-  - to you under the Apache License, Version 2.0 (the
-  - "License"); you may not use this file except in compliance
-  - with the License.  You may obtain a copy of the License at
-  -
-  -   http://www.apache.org/licenses/LICENSE-2.0
-  -
-  - Unless required by applicable law or agreed to in writing,
-  - software distributed under the License is distributed on an
-  - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  - KIND, either express or implied.  See the License for the
-  - specific language governing permissions and limitations
-  - under the License.
-  -->
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+-->
 
 <template>
   <div class="databasem">
     <el-container class="content-container">
-      <el-aside :width="dividerWidth + 'px'"
-        ><data-list-tree
+      <el-aside :width="dividerWidth + 'px'">
+        <data-list-tree
           :func="{
             removeTab,
             addTab,
@@ -31,12 +31,12 @@
           :nodekey="nodekey"
           ref="treeRef"
           :handleNodeClick="handleNodeClick"
-        ></data-list-tree
-      ></el-aside>
+        ></data-list-tree>
+      </el-aside>
       <div class="divider" ref="dividerRef"></div>
       <el-main>
         <template v-if="urlTabs.length !== 0 || route.path === `/databasem/empty`">
-          <el-tabs v-model="urlTabsValue" type="card" @tab-click="handleClick" @tab-remove="removeTab" closable>
+          <el-tabs v-model="urlTabsValue" type="card" @tab-click="handleClick" @tab-remove="removeTab" closable class="top-tab-content">
             <el-tab-pane v-for="item in urlTabs" :key="item.name" :name="item.name">
               <template #label>
                 <span>
@@ -86,7 +86,7 @@ export default {
   setup() {
     const dividerRef = ref(null);
     const store = useStore();
-    let dividerWidth = ref(300);
+    let dividerWidth = ref(240);
     let urlTabsValue = ref('');
     let urlTabs = ref([]);
     let tabData = ref({});
@@ -98,8 +98,13 @@ export default {
     const handleClick = (tab) => {
       let data = urlTabs.value[tab.index];
       urlTabsValue.value = data.name;
-      treeRef.value.treeRef.setCurrentKey(data.id);
-      nodekey.value = data.id;
+      if (data.twinTab) {
+        treeRef.value.treeRef.setCurrentKey(data.node.id);
+        nodekey.value = data.node.id;
+      } else {
+        treeRef.value.treeRef.setCurrentKey(data.id);
+        nodekey.value = data.id;
+      }
       urlSkipMap(data.node);
     };
 
@@ -165,13 +170,20 @@ export default {
       let extraParams = data.extraParams;
       let forceupdate = forceupdateparams ? forceupdateparams : '';
       if (data.type === 'connection') {
-        //数据连接
-        router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
+        if (data.extraParams && data.extraParams.type == 'modal') {
+          router.push({ name: 'DataModal', params: { ...data, serverid: data.connectionid, forceupdate, ...extraParams } });
+        } else {
+          //数据连接
+          router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
+        }
       } else if (data.type === 'newstorageGroup') {
         router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'querylist') {
         //查询列表
       } else if (data.type === 'storageGroup') {
+        // todo params存储对象会丢失, 固存在store里面
+        store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent?.parent?.name, forceupdate, ...extraParams });
+
         //判断是进入存储组详情还是编辑存储组
         if (data.extraParams && data.extraParams.type == 'edit') {
           router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
@@ -181,11 +193,13 @@ export default {
         }
       } else if (data.type === 'newdevice') {
         //新建实体
-        console.log(data);
-        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
+        // todo params存储对象会丢失, 固存在store里面
+        store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams });
+        router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams }, query: { id: data.id } });
       } else if (data.type === 'device') {
         //实体
-        console.log(data);
+        // todo params存储对象会丢失, 固存在store里面
+        store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams });
         router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
         //新建查询
@@ -205,7 +219,12 @@ export default {
       }
       urlTabsValue.value = data.id + '';
       let list = urlTabs.value;
-      if (
+      if (data.extraParams && data.extraParams.twinTab) {
+        list.push({ node: data, title: data.extraParams.title, name: data.extraParams.id, id: data.extraParams.id, type: data.type, twinTab: true });
+        urlTabs.value = list;
+        urlTabsValue.value = data.extraParams.id;
+        urlSkipMap(data, true);
+      } else if (
         !list.some((e) => {
           return e.id === data.id + '';
         })
@@ -295,28 +314,33 @@ export default {
     width: 100%;
     overflow: auto;
   }
-  &:deep(.content-container) {
+  &::v-deep(.content-container) {
     height: 100%;
-    .el-aside {
+    & > .el-aside {
       height: 100%;
     }
-    .el-main {
+    & > .el-main {
       padding: 0;
       height: 100%;
-      .el-tabs__header {
+      .top-tab-content > .el-tabs__header {
         margin: 0;
+        .el-tabs__nav-scroll {
+          background-color: #f9fbfc;
+        }
         .el-tabs__nav {
           border: 0;
           .el-tabs__item {
-            padding: 10px 15px;
             box-sizing: content-box;
             border-width: 0;
-            line-height: 22px;
-            height: 22px;
+            line-height: 42px;
+            height: 42px;
             position: relative;
             &.is-active {
               background: rgba(69, 117, 246, 0.04);
-              color: $theme-color;
+              background-color: #fff;
+              span {
+                color: $theme-color !important;
+              }
             }
           }
         }

@@ -19,7 +19,7 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -159,7 +159,7 @@
     <dependency>
       <groupId>org.apache.iotdb</groupId>
       <artifactId>iotdb-session</artifactId>
-      <version>0.12.0</version>
+      <version>0.12.1</version>
       <exclusions>
         <exclusion>
           <artifactId>logback-classic</artifactId>
@@ -171,7 +171,7 @@
     <dependency>
       <groupId>org.apache.iotdb</groupId>
       <artifactId>iotdb-jdbc</artifactId>
-      <version>0.12.0</version>
+      <version>0.12.1</version>
       <exclusions>
         <exclusion>
           <artifactId>logback-classic</artifactId>
@@ -195,17 +195,7 @@
           </execution>
         </executions>
       </plugin>
-      <!--https://blog.csdn.net/eguid/article/details/78291497-->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <verbose>true</verbose>
-          <fork>true</fork>
-          <executable>${JAVA_HOME}/bin/javac</executable>
-        </configuration>
-      </plugin>
+
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
@@ -220,6 +210,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>

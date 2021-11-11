@@ -29,7 +29,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupInfoVO implements Serializable {
-
   private String groupName;
   private Integer deviceCount;
   private String description;

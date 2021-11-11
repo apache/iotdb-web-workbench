@@ -57,7 +57,6 @@ public class ConnectionController {
       return BaseVO.success("更新成功", null);
     }
     connectionService.insert(connection);
-
     return BaseVO.success("保存成功", null);
   }
 

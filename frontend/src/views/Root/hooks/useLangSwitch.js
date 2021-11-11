@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,18 +21,20 @@ import { ref } from 'vue';
 import i18n from '@/i18n/index';
 import enLocale from 'element-plus/lib/locale/lang/en';
 import zhLocale from 'element-plus/lib/locale/lang/zh-cn';
+import deLocale from 'element-plus/lib/locale/lang/de';
 function useLangSwitch() {
-  const langMap = { cn: 0, en: 1 };
+  const langMap = { cn: 0, en: 1, de: 2 };
   const lang = langMap[localStorage.getItem('lang') || 'cn'];
   const langIndex = ref(lang);
   const handleLangCommand = (val) => {
     const langIndexMap = {
       0: 'cn',
       1: 'en',
+      2: 'de',
     };
     localStorage.setItem('lang', langIndexMap[val]);
     langIndex.value = +val;
-    i18n.global.locale = [zhLocale.name, enLocale.name][val];
+    i18n.global.locale = [zhLocale.name, enLocale.name, deLocale.name][val];
   };
   return {
     langIndex,

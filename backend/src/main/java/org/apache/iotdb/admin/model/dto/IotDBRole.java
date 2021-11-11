@@ -22,15 +22,19 @@ package org.apache.iotdb.admin.model.dto;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Pattern;
+
 import java.io.Serializable;
-import java.util.List;
 
 /** 传输role信息类 */
 @Data
 public class IotDBRole implements Serializable {
 
-  @Length(min = 4, message = "长度必须大于等于4")
+  private Integer id;
+
+  @Length(min = 4, message = "角色名长度必须大于等于4")
+  @Pattern(regexp = "^[^ ]+$", message = "角色名不能包含空格")
   private String roleName;
 
-  private List<String> privileges;
+  private String description;
 }

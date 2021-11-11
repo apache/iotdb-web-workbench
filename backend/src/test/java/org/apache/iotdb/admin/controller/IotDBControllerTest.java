@@ -40,7 +40,6 @@ import java.util.Calendar;
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IotDBControllerTest {
-
   private MockMvc mvc;
   @Autowired private WebApplicationContext wac;
 

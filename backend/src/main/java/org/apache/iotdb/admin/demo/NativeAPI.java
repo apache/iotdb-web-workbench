@@ -85,7 +85,7 @@ public class NativeAPI {
     // 数据处理
     int fetchSize = sessionDataSet.getFetchSize();
     List<String> columnNames = sessionDataSet.getColumnNames();
-    List<TSDataType> columnTypes = sessionDataSet.getColumnTypes();
+    List<String> columnTypes = sessionDataSet.getColumnTypes();
     System.out.println(columnNames);
     System.out.println(columnTypes);
     if (fetchSize > 0) {

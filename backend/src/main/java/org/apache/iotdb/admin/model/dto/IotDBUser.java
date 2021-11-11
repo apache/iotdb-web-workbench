@@ -30,15 +30,11 @@ import java.io.Serializable;
 @Data
 public class IotDBUser implements Serializable {
 
-  @Length(min = 4, message = "长度必须大于等于4")
-  @Pattern(regexp = "^[^ ]+$", message = "不能包含空格")
+  @Length(min = 4, message = "用户名长度必须大于等于4")
+  @Pattern(regexp = "^[^ ]+$", message = "用户名不能包含空格")
   private String userName;
 
-  @Length(min = 4, message = "长度必须大于等于4")
-  @Pattern(regexp = "^[^ ]+$", message = "不能包含空格")
+  @Length(min = 4, message = "用户密码长度必须大于等于4")
+  @Pattern(regexp = "^[^ ]+$", message = "用户密码不能包含空格")
   private String password;
-
-  //    private List<String> privileges;
-  //
-  //    private List<String> roles;
 }

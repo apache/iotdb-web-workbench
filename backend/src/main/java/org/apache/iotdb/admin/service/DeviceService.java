@@ -28,7 +28,6 @@ import org.apache.iotdb.admin.model.vo.DeviceVO;
 import java.util.List;
 
 public interface DeviceService {
-
   List<Device> getDevices(String host, List<String> deviceNames);
 
   void deleteDeviceInfo(String host, String groupName) throws BaseException;

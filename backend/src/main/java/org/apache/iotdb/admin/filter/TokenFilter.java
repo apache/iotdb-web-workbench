@@ -35,7 +35,6 @@ import java.net.UnknownHostException;
 
 /** 拦截器 */
 public class TokenFilter implements HandlerInterceptor {
-
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws BaseException {

@@ -26,7 +26,6 @@ import org.apache.iotdb.admin.model.vo.ConnVO;
 import java.util.List;
 
 public interface ConnectionService {
-
   List<ConnVO> getAllConnections(Integer id);
 
   void insert(Connection connection) throws BaseException;

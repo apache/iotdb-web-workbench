@@ -22,15 +22,19 @@ package org.apache.iotdb.admin.service;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
-import org.apache.iotdb.admin.model.vo.IotDBUserVO;
-import org.apache.iotdb.admin.model.vo.RecordVO;
-import org.apache.iotdb.admin.model.vo.SqlResultVO;
+import org.apache.iotdb.admin.model.vo.*;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IotDBService {
+  DataCountVO getDataCount(Connection connection) throws BaseException;
+
+  DataModelVO getDataModel(Connection connection) throws BaseException;
 
   List<String> getAllStorageGroups(Connection connection) throws BaseException;
+
+  List<NodeTreeVO> getGroupsNodeTree(Connection connection) throws BaseException;
 
   void saveStorageGroup(Connection connection, String groupName) throws BaseException;
 
@@ -48,7 +52,7 @@ public interface IotDBService {
 
   List<String> getIotDBRoleList(Connection connection) throws BaseException;
 
-  IotDBUserVO getIotDBUser(Connection connection, String userName) throws BaseException;
+  RoleVO getIotDBRoleInfo(Connection connection, String roleName) throws BaseException;
 
   void deleteIotDBUser(Connection connection, String userName) throws BaseException;
 
@@ -58,12 +62,36 @@ public interface IotDBService {
 
   void setIotDBRole(Connection connection, IotDBRole iotDBRole) throws BaseException;
 
-  void insertTimeseries(Connection connection, String deviceName, Timeseries timeseries)
+  UserRolesVO getRolesOfUser(Connection connection, String userName) throws BaseException;
+
+  void userGrant(Connection connection, String userName, UserGrantDTO userGrantDTO)
+      throws BaseException;
+
+  void roleGrant(Connection connection, String roleName, RoleGrantDTO roleGrantDTO)
+      throws BaseException;
+
+  Set<String> getUserAuthorityPrivilege(Connection connection, String userName)
+      throws BaseException;
+
+  Set<String> getAllAuthorityPrivilege(Connection connection, String userName) throws BaseException;
+
+  Set<String> getRoleAuthorityPrivilege(Connection connection, String roleName)
+      throws BaseException;
+
+  void upsertAuthorityPrivilege(
+      Connection connection,
+      String userName,
+      AuthorityPrivilegeDTO authorityPrivilegeDTO,
+      String userOrRole)
+      throws BaseException;
+
+  List<DataPrivilegeVO> getUserDataPrivilege(Connection connection, String userName)
+      throws BaseException;
+
+  List<DataPrivilegeVO> getRoleDataPrivilege(Connection connection, String roleName)
       throws BaseException;
 
   void deleteTimeseries(Connection connection, String timeseriesName) throws BaseException;
-
-  SqlResultVO showTimeseries(Connection connection, String deviceName) throws BaseException;
 
   List<Integer> getDevicesCount(Connection connection, List<String> groupNames)
       throws BaseException;
@@ -72,17 +100,16 @@ public interface IotDBService {
 
   void cancelGroupTtl(Connection connection, String groupName) throws BaseException;
 
-  Integer getDeviceCount(Connection connection, String groupName) throws BaseException;
-
   List<Integer> getTimeseriesCount(Connection connection, List<String> deviceNames)
       throws BaseException;
 
-  void deleteTimeseriesByDevice(Connection connection, String deviceName) throws BaseException;
-
-  void createDeviceWithMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO)
+  List<String> deleteTimeseriesByDevice(Connection connection, String deviceName)
       throws BaseException;
 
-  Integer getMeasurementsCount(Connection connection, String deviceName) throws BaseException;
+  void upsertMeasurements(Connection connection, DeviceInfoDTO deviceInfoDTO) throws BaseException;
+
+  Integer getOneDataCount(Connection connection, String deviceName, String measurementName)
+      throws BaseException;
 
   String getLastMeasurementValue(Connection connection, String timeseries) throws BaseException;
 
@@ -90,12 +117,43 @@ public interface IotDBService {
 
   List<String> getDevices(Connection connection, String groupName) throws BaseException;
 
-  List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
+  List<NodeTreeVO> getDeviceNodeTree(Connection connection, String groupName) throws BaseException;
 
-  void setUserPrivileges(Connection connection, String userName, PrivilegeInfoDTO privilegeInfoDTO)
+  NodeTreeVO getDeviceList(Connection connection, String groupName) throws BaseException;
+
+  List<String> getDeviceParents(Connection connection, String groupName, String deviceName)
       throws BaseException;
 
-  RecordVO getRecords(Connection connection, String deviceName, String timeseriesName)
+  Boolean deviceExist(Connection connection, String groupName, String deviceName)
+      throws BaseException;
+
+  List<String> getTimeseries(Connection connection, String deviceName) throws BaseException;
+
+  DataVO getDataByDevice(
+      Connection connection,
+      String deviceName,
+      Integer pageSize,
+      Integer pageNum,
+      DataQueryDTO dataQueryDTO)
+      throws BaseException;
+
+  void updateDataByDevice(Connection connection, String deviceName, DataUpdateDTO dataUpdateDTO)
+      throws BaseException;
+
+  void deleteDataByDevice(Connection connection, String deviceName, DataDeleteDTO dataDeleteDTO)
+      throws BaseException;
+
+  void randomImport(Connection connection, String deviceName, RandomImportDTO randomImportDTO)
+      throws BaseException;
+
+  String getSqlForExport(String deviceName, DataQueryDTO dataQueryDTO) throws BaseException;
+
+  void upsertDataPrivileges(
+      Connection connection, String userOrRole, String name, PrivilegeInfoDTO privilegeInfoDTO)
+      throws BaseException;
+
+  RecordVO getRecords(
+      Connection connection, String deviceName, String timeseriesName, String dataType)
       throws BaseException;
 
   List<SqlResultVO> queryAll(Connection connection, List<String> sqls, Long timestamp)

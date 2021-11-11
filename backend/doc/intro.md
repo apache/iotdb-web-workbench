@@ -1,24 +1,3 @@
-<!--
-
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
-
--->
-
 # IoTDB-Workbench快速入门
 
 该项目IoTDB-Workbench，为IoTDB的可视化监控程序。
@@ -49,7 +28,9 @@
 项目提供maven、gradle两种构建工具,以maven为例启动项目：  
 首先通过IntelliJ IDEA打开本项目，右键点击pom.xml,点击Add as Maven Project导入项目相关依赖。
 ![](image/pom.PNG)  
-导入完成后启动AdminApplication项目，如果未报错并出现如下界面则代表项目运行成功。  
+导入完成后启动AdminApplication项目，启动成功后你应该能看到如下界面。  
 ![](image/启动成功.PNG)  
+接着，你可以通过浏览器访问127.0.0.1:8080/api/，看到如下页面则代表后端启动成功。
+![](image/welcome.PNG)  
+具体部署步骤请参考[部署文档](deploy.md)  
 本系统默认登录用户为root,密码为123456。  
-具体部署步骤请参考[部署文档](deploy.md)

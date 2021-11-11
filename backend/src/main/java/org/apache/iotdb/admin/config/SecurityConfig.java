@@ -28,7 +28,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 /** 加密算法配置类 hash算法 */
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.authorizeRequests()

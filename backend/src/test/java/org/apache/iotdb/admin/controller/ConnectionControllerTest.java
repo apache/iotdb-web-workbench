@@ -38,7 +38,6 @@ import java.util.Calendar;
 
 @SpringBootTest
 class ConnectionControllerTest {
-
   private MockMvc mvc;
 
   @Autowired private WebApplicationContext wac;

@@ -23,7 +23,6 @@ import java.sql.*;
 
 /** JDBC demo代码 */
 public class JDBC {
-
   public static void main(String[] args) throws SQLException {
     Connection connection = getConnection();
     if (connection == null) {

@@ -87,9 +87,43 @@ public class ErrorCode {
   public static final String SET_JWT_FAIL = "USER-0011";
   public static final String SET_JWT_FAIL_MSG = "JWT编解码失败";
 
+  // 导入导出csv相关
+  public static final String FILE_NAME_ILLEGAL = "CSV-0001";
+  public static final String FILE_NAME_ILLEGAL_MSG = "文件必须以.csv结尾";
+
+  public static final String UPLOAD_FILE_FAIL = "CSV-0002";
+  public static final String UPLOAD_FILE_FAIL_MSG = "上传CSV文件失败";
+
+  public static final String FILE_FIRST_LINE_ILLEGAL = "CSV-0003";
+  public static final String FILE_FIRST_LINE_ILLEGAL_MSG = "CSV文件格式有误，请检查第1行";
+
+  public static final String FILE_LINE_ILLEGAL = "CSV-0004";
+  public static final String FILE_LINE_ILLEGAL_MSG = "CSV文件格式有误，非法行:";
+
+  public static final String FILE_FORMAT_ILLEGAL = "CSV-0005";
+  public static final String FILE_FORMAT_ILLEGAL_MSG = "CSV文件格式有误，数据行的列数不能小于第一行的列数";
+
+  public static final String FILE_TIME_ILLEGAL = "CSV-0006";
+  public static final String FILE_TIME_ILLEGAL_MSG = "CSV文件时间戳格式有误";
+
+  public static final String FILE_IO_FAIL = "CSV-0007";
+  public static final String FILE_IO_FAIL_MSG = "文件读取或写入失败，由于:";
+
+  public static final String IMPORT_CSV_FAIL = "CSV-0008";
+  public static final String IMPORT_CSV_FAIL_MSG = "导入csv文件失败，由于:";
+
+  public static final String CREATE_FILE_FAIL = "CSV-0009";
+  public static final String CREATE_FILE_FAIL_MSG = "创建文件失败";
+
+  public static final String EXPORT_CSV_FAIL = "CSV-0010";
+  public static final String EXPORT_CSV_FAIL_MSG = "导出csv文件失败，由于:";
+
+  public static final String FILE_NOT_FOUND = "CSV-0011";
+  public static final String FILE_NOT_FOUND_MSG = "文件未找到";
+
   // iotDB相关
   public static final String INSERT_TS_FAIL = "IOTDB-0001";
-  public static final String INSERT_TS_FAIL_MSG = "插入时间序列失败";
+  public static final String INSERT_TS_FAIL_MSG = "物理量创建失败";
 
   public static final String DELETE_TS_FAIL = "IOTDB-0002";
   public static final String DELETE_TS_FAIL_MSG = "删除时间序列失败";
@@ -98,16 +132,16 @@ public class ErrorCode {
   public static final String DB_BOOL_WRONG_MSG = "Boolean值输入错误,0为false，1为true";
 
   public static final String DB_DATATYPE_WRONG = "IOTDB-0004";
-  public static final String DB_DATATYPE_WRONG_MSG = "TSDataType类型传入错误";
+  public static final String DB_DATATYPE_WRONG_MSG = "物理量数据类型传入错误";
 
   public static final String GET_DBCONN_FAIL = "IOTDB-005";
   public static final String GET_DBCONN_FAIL_MSG = "获取数据库连接失败";
 
   public static final String GET_SESSION_FAIL = "IOTDB-0006";
-  public static final String GET_SESSION_FAIL_MSG = "获取session失败";
+  public static final String GET_SESSION_FAIL_MSG = "连接IoTDB失败";
 
   public static final String CLOSE_DBCONN_FAIL = "IOTDB-0007";
-  public static final String CLOSE_DBCONN_FAIL_MSG = "关闭连接失败";
+  public static final String CLOSE_DBCONN_FAIL_MSG = "关闭IoTDB连接失败";
 
   public static final String SQL_EP = "IOTDB-0008";
   public static final String SQL_EP_MSG = "没有权限或sql异常";
@@ -143,7 +177,7 @@ public class ErrorCode {
   public static final String INSERT_DEV_FAIL_MSG = "插入实体失败";
 
   public static final String GET_MSM_FAIL = "IOTDB-0019";
-  public static final String GET_MSM_FAIL_MSG = "获取物理量数据信息失败";
+  public static final String GET_MSM_FAIL_MSG = "获取物理量信息失败";
 
   public static final String NO_SUCH_FIELD = "IOTDB-0020";
   public static final String NO_SUCH_FIELD_MSG = "返回集没此属性";
@@ -167,7 +201,7 @@ public class ErrorCode {
   public static final String SET_DB_USER_FAIL_MSG = "创建数据库用户失败";
 
   public static final String SET_DB_ROLE_FAIL = "IOTDB-0027";
-  public static final String SET_DB_ROLE_FAIL_MSG = "创建数据库角色或对应权限时失败";
+  public static final String SET_DB_ROLE_FAIL_MSG = "创建数据库角色失败";
 
   public static final String NO_TYPE = "IOTDB-0028";
   public static final String NO_TYPE_MSG = "粒度类型不存在";
@@ -188,10 +222,10 @@ public class ErrorCode {
   public static final String GET_RECORD_FAIL_MSG = "获取物理量记录失败";
 
   public static final String NO_SQL = "IOTDB-0034";
-  public static final String NO_SQL_MSG = "没有sql执行语句";
+  public static final String NO_SQL_MSG = "查询脚本没有sql语句";
 
   public static final String UPDATE_GROUP_INFO_FAIL = "IOTDB-0035";
-  public static final String UPDATE_GROUP_INFO_FAIL_MSG = "更新组信息失败";
+  public static final String UPDATE_GROUP_INFO_FAIL_MSG = "更新存储组信息失败";
 
   public static final String NO_GROUP_INFO = "IOTDB-0036";
   public static final String NO_GROUP_INFO_MSG = "不存在存储组信息";
@@ -206,7 +240,7 @@ public class ErrorCode {
   public static final String UPDATE_PWD_FAIL_MSG = "修改账号密码失败";
 
   public static final String NO_QUERY = "IOTDB-0040";
-  public static final String NO_QUERY_MSG = "不存在此查询";
+  public static final String NO_QUERY_MSG = "不存在此查询或该查询已结束";
 
   public static final String NO_ALL_NUM_SEARCH = "IOTDB-0041";
   public static final String NO_ALL_NUM_SEARCH_MSG = "不支持纯数字查询";
@@ -242,10 +276,130 @@ public class ErrorCode {
   public static final String TTL_WRONG_MSG = "存活时间必须大于等于0";
 
   public static final String NO_PRI_TIMESERIES_DATA = "IOTDB-0051";
-  public static final String NO_PRI_TIMESERIES_DATA_MSG = "没有权限查看测点数据";
+  public static final String NO_PRI_TIMESERIES_DATA_MSG = "没有权限查看物理量数据";
 
   public static final String NO_SUP_CONTAIN_ROOT = "IOTDB-0052";
-  public static final String NO_SUP_CONTAIN_ROOT_MSG = "不支持包含\"root\"的输入";
+  public static final String NO_SUP_CONTAIN_ROOT_MSG = "root必须且只能作为路径开头";
+
+  public static final String GET_DATA_FAIL = "IOTDB-0053";
+  public static final String GET_DATA_FAIL_MSG = "获取物理量数据失败";
+
+  public static final String UPDATE_DATA_FAIL = "IOTDB-0054";
+  public static final String UPDATE_DATA_FAIL_MSG = "编辑物理量数据失败";
+
+  public static final String DELETE_DATA_FAIL = "IOTDB-0055";
+  public static final String DELETE_DATA_FAIL_MSG = "删除物理量数据失败";
+
+  public static final String GET_DATA_COUNT_FAIL = "IOTDB-0056";
+  public static final String GET_DATA_COUNT_FAIL_MSG = "获取数据统计信息失败";
+
+  public static final String DB_COMPRESSION_WRONG = "IOTDB-0057";
+  public static final String DB_COMPRESSION_WRONG_MSG = "物理量压缩方式传入错误";
+
+  public static final String DB_ENCODING_WRONG = "IOTDB-0058";
+  public static final String DB_ENCODING_WRONG_MSG = "物理量编码方式传入错误";
+
+  public static final String UPSERT_ALIAS_FAIL = "IOTDB-0059";
+  public static final String UPSERT_ALIAS_FAIL_MSG = "设置别名失败，请检查当前实体下是否已存在该别名";
+
+  public static final String UPSERT_TAGS_FAIL = "IOTDB-0060";
+  public static final String UPSERT_TAGS_FAIL_MSG = "设置标签失败";
+
+  public static final String UPSERT_ATTRIBUTES_FAIL = "IOTDB-0061";
+  public static final String UPSERT_ATTRIBUTES_FAIL_MSG = "设置属性失败";
+
+  public static final String GET_MEASUREMENT_DATA_COUNT_FAIL = "IOTDB-0062";
+  public static final String GET_MEASUREMENT_DATA_COUNT_FAIL_MSG = "获取物理量数据统计信息失败";
+
+  public static final String RANDOM_IMPORT_DATA_FAIL = "IOTDB-0063";
+  public static final String RANDOM_IMPORT_DATA_FAIL_MSG = "随机导入物理量数据失败";
+
+  public static final String NO_MEASUREMENT = "IOTDB-0064";
+  public static final String NO_MEASUREMENT_MSG = "该实体下没有物理量，不能插入数据";
+
+  public static final String ROLE_GET_USERS_FAIL = "IOTDB-0065";
+  public static final String ROLE_GET_USERS_FAIL_MSG = "获取角色的用户列表失败";
+
+  public static final String REVOKE_ROLE = "IOTDB-0066";
+  public static final String REVOKE_ROLE_MSG = "撤销用户角色失败";
+
+  public static final String GRANT_ROLE = "IOTDB-0067";
+  public static final String GRANT_ROLE_MSG = "赋予用户角色失败";
+
+  public static final String NO_PRI_DO_THIS = "IOTDB-0068";
+  public static final String NO_PRI_DO_THIS_MSG = "没有权限进行该操作";
+
+  public static final String NO_PRI_CREATE_USER = "IOTDB-0069";
+  public static final String NO_PRI_CREATE_USER_MSG = "没有权限创建用户";
+
+  public static final String NO_PRI_DELETE_USER = "IOTDB-0070";
+  public static final String NO_PRI_DELETE_USER_MSG = "没有权限删除用户";
+
+  public static final String NO_PRI_CREATE_ROLE = "IOTDB-0071";
+  public static final String NO_PRI_CREATE_ROLE_MSG = "没有权限创建角色";
+
+  public static final String NO_PRI_DELETE_ROLE = "IOTDB-0072";
+  public static final String NO_PRI_DELETE_ROLE_MSG = "没有权限删除角色";
+
+  public static final String NO_PRI_LIST_ROLE = "IOTDB-0073";
+  public static final String NO_PRI_LIST_ROLE_MSG = "没有权限获取角色信息";
+
+  public static final String NO_PRI_GRANT_USER_ROLE = "IOTDB-0074";
+  public static final String NO_PRI_GRANT_USER_ROLE_MSG = "没有权限赋予用户角色";
+
+  public static final String NO_PRI_REVOKE_USER_ROLE = "IOTDB-0075";
+  public static final String NO_PRI_REVOKE_USER_ROLE_MSG = "没有权限撤销用户角色";
+
+  public static final String NO_PRI_GRANT_PRIVILEGE = "IOTDB-0076";
+  public static final String NO_PRI_GRANT_PRIVILEGE_MSG = "没有给用户或角色赋权的权限";
+
+  public static final String GET_USER_PRIVILEGE_FAIL = "IOTDB-0080";
+  public static final String GET_USER_PRIVILEGE_FAIL_MSG = "获取用户权限信息失败";
+
+  public static final String GET_ROLE_PRIVILEGE_FAIL = "IOTDB-0081";
+  public static final String GET_ROLE_PRIVILEGE_FAIL_MSG = "获取角色权限信息失败";
+
+  public static final String NOT_SUPPORT_ALL_DIGIT = "IOTDB-0082";
+  public static final String NOT_SUPPORT_ALL_DIGIT_MSG = "名称不能为纯数字";
+
+  public static final String USER_NAME_EXISTS = "IOTDB-0083";
+  public static final String USER_NAME_EXISTS_MSG = "用户名已存在";
+
+  public static final String ROLE_NAME_EXISTS = "IOTDB-0083";
+  public static final String ROLE_NAME_EXISTS_MSG = "角色名已存在";
+
+  public static final String NO_SUP_CONTAIN_WORD = "IOTDB-0084";
+  public static final String NO_SUP_CONTAIN_WORD_MSG = "as/null/like不能作为路径名";
+
+  public static final String MEASUREMENTS_NAME_CONTAIN_DOT = "IOTDB-0085";
+  public static final String MEASUREMENTS_NAME_CONTAIN_DOT_MSG = "物理量层名不能级联";
+
+  public static final String MEASUREMENT_NAME_EQUALS_DEVICE = "IOTDB-0086";
+  public static final String MEASUREMENT_NAME_EQUALS_DEVICE_MSG = "实体名不能和已有物理量重名";
+
+  public static final String GET_DATA_PRIVILEGE_FAIL = "IOTDB-0087";
+  public static final String GET_DATA_PRIVILEGE_FAIL_MSG = "获取数据管理权限信息失败";
+
+  public static final String NO_PRI_INSERT_DATA = "IOTDB-0088";
+  public static final String NO_PRI_INSERT_DATA_MSG = "没有权限插入数据";
+
+  public static final String NO_PRI_ALTER_MEASUREMENT = "IOTDB-0089";
+  public static final String NO_PRI_ALTER_MEASUREMENT_MSG = "没有权限修改物理量";
+
+  public static final String NO_SUP_WORD = "IOTDB-0090";
+  public static final String NO_SUP_WORD_MSG = "标签/属性不能为as/null/like";
+
+  public static final String NO_SUP_ALL_DIGIT = "IOTDB-0091";
+  public static final String NO_SUP_ALL_DIGIT_MSG = "标签/属性的键不能为纯数字";
+
+  public static final String NO_SUP_ALIAS_WORD = "IOTDB-0092";
+  public static final String NO_SUP_ALIAS_WORD_MSG = "物理量别名不能为as、like或纯数字";
+
+  public static final String TTL_OVER = "IOTDB-0093";
+  public static final String TTL_OVER_MSG = "存活时间设置过长";
+
+  public static final String MEASUREMENT_ALREADY_EXIST = "IOTDB-0094";
+  public static final String MEASUREMENT_ALREADY_EXIST_MSG = "物理量创建失败,请检查是否与已有物理量或别名重名";
 
   // 存储组表相关
   public static final String INSERT_GROUP_INFO_FAIL = "GROUP-0001";
@@ -277,6 +431,16 @@ public class ErrorCode {
 
   public static final String QUERY_NOT_EXIST = "QUERY-0002";
   public static final String QUERY_NOT_EXIST_MSG = "脚本不存在";
+
+  // 角色表相关
+  public static final String UPSERT_ROLE_INFO_FAIL = "ROLE-0001";
+  public static final String UPSERT_ROLE_INFO_FAIL_MSG = "更新角色信息失败";
+
+  public static final String DELETE_ROLE_INFO_FAIL = "ROLE-0002";
+  public static final String DELETE_ROLE_INFO_FAIL_MSG = "删除角色信息失败";
+
+  public static final String GET_ROLE_INFO_FAIL = "ROLE-0003";
+  public static final String GET_ROLE_INFO_FAIL_MSG = "获取角色信息失败";
 
   // 参数校验相关
   public static final String WRONG_PARAM = "PARAM-0001";

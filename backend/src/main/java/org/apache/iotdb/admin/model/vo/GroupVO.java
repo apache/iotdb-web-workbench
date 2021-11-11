@@ -25,7 +25,6 @@ import java.io.Serializable;
 
 @Data
 public class GroupVO implements Serializable {
-
   private String groupName;
   private String alias;
   private String description;

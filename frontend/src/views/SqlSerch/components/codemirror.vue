@@ -1,21 +1,21 @@
 <!--
-  - Licensed to the Apache Software Foundation (ASF) under one
-  - or more contributor license agreements.  See the NOTICE file
-  - distributed with this work for additional information
-  - regarding copyright ownership.  The ASF licenses this file
-  - to you under the Apache License, Version 2.0 (the
-  - "License"); you may not use this file except in compliance
-  - with the License.  You may obtain a copy of the License at
-  -
-  -   http://www.apache.org/licenses/LICENSE-2.0
-  -
-  - Unless required by applicable law or agreed to in writing,
-  - software distributed under the License is distributed on an
-  - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  - KIND, either express or implied.  See the License for the
-  - specific language governing permissions and limitations
-  - under the License.
-  -->
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+-->
 
 <template>
   <div class="font_fmiy">
@@ -100,6 +100,9 @@ export default {
     setCode(value) {
       this.coder.setValue(value);
     },
+    getSelecValue() {
+      return this.coder.getSelection();
+    },
     setEvent() {
       this.coder.on('change', () => {
         this.$emit('getCode', this.code);
@@ -155,16 +158,22 @@ pre.CodeMirror-line {
   text-align: left !important;
 }
 .CodeMirror {
-  background: #f7f7f7 !important;
+  background: #f9fbfc !important;
+  pre {
+    &.CodeMirror-line {
+      font-size: 11px !important;
+      font-family: 'PingFang SC, Arial, sans-serif';
+    }
+  }
 }
 .CodeMirror-gutters {
-  background-color: #efefef !important;
+  background-color: #f9fbfc !important;
   width: 30px !important;
+  border-right: none !important;
 }
 .font_fmiy {
-  .CodeMirror-line {
-    font-size: 11px !important;
-    font-family: PingFang SC, Arial, sans-serif !important;
+  .CodeMirror-scroll {
+    background: #f9fbfc !important;
   }
 }
 </style>
