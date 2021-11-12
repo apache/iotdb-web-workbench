@@ -254,6 +254,25 @@ td {
   border-top: 2px solid #ccc;
   z-index: 1;
 }
+// 竖向
+.landscape {
+  transform: translate(-100%, 0) rotate(-90deg);
+  transform-origin: 100% 0;
+  .node {
+    text-align: left;
+    height: 8em;
+    width: 8em;
+  }
+  .person {
+    position: relative;
+    transform: rotate(90deg);
+    // padding-left: 4.5em;
+    // height: 4em;
+    top: 35px;
+    left: 12px;
+    width: 110px;
+  }
+}
 .node.hasMate .person:last-child {
   margin-left: 1em;
 }
@@ -303,26 +322,6 @@ td {
 .el-dialog__headerbtn {
   top: 30px;
   right: 30px;
-}
-
-// 竖向
-.landscape {
-  transform: translate(-100%, 0) rotate(-90deg);
-  transform-origin: 100% 0;
-  .node {
-    text-align: left;
-    height: 8em;
-    width: 8em;
-  }
-  .person {
-    position: relative;
-    transform: rotate(90deg);
-    // padding-left: 4.5em;
-    // height: 4em;
-    top: 35px;
-    left: 12px;
-    width: 110px;
-  }
 }
 
 .el-popover {
