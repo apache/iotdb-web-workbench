@@ -1,0 +1,53 @@
+name: frontend
+
+on:
+  push:
+    branches:
+      - master
+      - 'rel/*'
+      - Vector
+    paths-ignore:
+      - 'docs/**'
+  pull_request:
+    branches:
+      - master
+      - 'rel/*'
+      - cluster_new
+      - Vector
+    paths-ignore:
+      - 'docs/**'
+  # allow manually run the action:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+      - name: npm install
+        run: cd frontend && npm install
+      - name: lint
+        run: cd frontend && npm run lint
+      - name: lint-css
+        run: cd frontend && npm run lint-css
+    
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+      - name: npm install
+        run: cd frontend && npm install
+      - name: test
+        run: cd frontend && npm run test:unit
+  
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+      - name: npm install
+        run: cd frontend && npm install
+      - name: Build
+        run: cd frontend && npm run build

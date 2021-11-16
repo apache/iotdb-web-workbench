@@ -36,10 +36,9 @@ import org.springframework.web.context.WebApplicationContext;
 import java.net.InetAddress;
 import java.util.Calendar;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 class QueryControllerTest {
+
   private MockMvc mvc;
 
   @Autowired private WebApplicationContext wac;
