@@ -26,7 +26,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.List;
 
-/** 展示用户的连接列表 */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

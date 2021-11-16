@@ -27,7 +27,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 import javax.servlet.http.HttpServletRequest;
 
-/** 校验工具类 */
+/** Validation tool class */
 public class AuthenticationUtils {
 
   public static void userAuthentication(Integer userId, HttpServletRequest request)

@@ -67,7 +67,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     queryWrapper.eq("user_id", userId);
     queryWrapper.eq("alias", alias);
     Connection existConnection = connectionMapper.selectOne(queryWrapper);
-    // 别名唯一
+    // Alias are unique
     if (existConnection != null) {
       throw new BaseException(ErrorCode.ALIAS_REPEAT, ErrorCode.ALIAS_REPEAT_MSG);
     }
@@ -120,7 +120,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     queryWrapper.eq("user_id", userId);
     queryWrapper.eq("alias", alias);
     Connection existConnection = connectionMapper.selectOne(queryWrapper);
-    // 别名唯一
+    // Alias are unique
     if (existConnection != null && !connection.getId().equals(existConnection.getId())) {
       throw new BaseException(ErrorCode.ALIAS_REPEAT, ErrorCode.ALIAS_REPEAT_MSG);
     }

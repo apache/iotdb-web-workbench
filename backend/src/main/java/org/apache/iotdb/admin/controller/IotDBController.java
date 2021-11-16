@@ -52,7 +52,7 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@Api(value = "iotdb操作相关接口")
+@Api(value = "IoTDB related")
 @RequestMapping("/servers/{serverId}")
 public class IotDBController {
 
@@ -73,27 +73,27 @@ public class IotDBController {
   @Autowired private ExportCsv exportCsv;
 
   @GetMapping("/dataCount")
-  @ApiOperation("获取iotdb数据统计信息  (新增2.1)")
+  @ApiOperation("Get IoTDB data statistics")
   public BaseVO<DataCountVO> getDataCount(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     DataCountVO dataCountVO = iotDBService.getDataCount(connection);
-    return BaseVO.success("获取统计信息成功", dataCountVO);
+    return BaseVO.success("Get IoTDB data statistics successfully", dataCountVO);
   }
 
   @GetMapping("/dataModel")
-  @ApiOperation("获取iotdb数据模型  (新增2.2)")
+  @ApiOperation("Get IoTDB data model")
   public BaseVO<DataModelVO> getDataModel(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     DataModelVO dataModelVO = iotDBService.getDataModel(connection);
-    return BaseVO.success("获取数据模型成功", dataModelVO);
+    return BaseVO.success("Get IoTDB data model successfully", dataModelVO);
   }
 
   @GetMapping("/storageGroups/info")
-  @ApiOperation("获得存储组信息列表")
+  @ApiOperation("Get information of the storage group list")
   public BaseVO<List<GroupInfoVO>> getAllStorageGroupsInfo(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
@@ -101,7 +101,7 @@ public class IotDBController {
     List<String> groupNames = iotDBService.getAllStorageGroups(connection);
     List<GroupInfoVO> groupInfoList = new ArrayList<>();
     if (groupNames == null || groupNames.size() == 0) {
-      return BaseVO.success("获取成功", groupInfoList);
+      return BaseVO.success("Get successfully", groupInfoList);
     }
     String host = connection.getHost();
     List<Integer> deviceCounts = iotDBService.getDevicesCount(connection, groupNames);
@@ -113,11 +113,11 @@ public class IotDBController {
       groupInfoVO.setDescription(descriptions.get(i));
       groupInfoList.add(groupInfoVO);
     }
-    return BaseVO.success("获取成功", groupInfoList);
+    return BaseVO.success("Get successfully", groupInfoList);
   }
 
   @GetMapping("/storageGroups")
-  @ApiOperation("获得存储组列表")
+  @ApiOperation("Get storage group list")
   public BaseVO<List<StorageGroupVO>> getAllStorageGroups(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
@@ -125,7 +125,7 @@ public class IotDBController {
     List<StorageGroupVO> storageGroupVOList = new ArrayList<>();
     List<String> groupNames = iotDBService.getAllStorageGroups(connection);
     if (groupNames == null || groupNames.size() == 0) {
-      return BaseVO.success("获取成功", storageGroupVOList);
+      return BaseVO.success("Get successfully", storageGroupVOList);
     }
     String host = connection.getHost();
     for (String groupName : groupNames) {
@@ -135,21 +135,21 @@ public class IotDBController {
       storageGroupVO.setGroupName(groupName);
       storageGroupVOList.add(storageGroupVO);
     }
-    return BaseVO.success("获取成功", storageGroupVOList);
+    return BaseVO.success("Get successfully", storageGroupVOList);
   }
 
   @GetMapping("/storageGroups/nodeTree")
-  @ApiOperation("获得存储组列表(节点树形结构) (新增2.27)")
+  @ApiOperation("Get storage group list(Node tree structure)")
   public BaseVO<List<NodeTreeVO>> getGroupsNodeTree(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     List<NodeTreeVO> groupsNodeTree = iotDBService.getGroupsNodeTree(connection);
-    return BaseVO.success("获取成功", groupsNodeTree);
+    return BaseVO.success("Get successfully", groupsNodeTree);
   }
 
   @PostMapping("/storageGroups")
-  @ApiOperation("新增或修改存储组")
+  @ApiOperation("Upsert storage group")
   public BaseVO saveStorageGroup(
       @PathVariable("serverId") Integer serverId,
       @RequestBody GroupDTO groupDTO,
@@ -188,11 +188,11 @@ public class IotDBController {
         throw new BaseException(ErrorCode.WRONG_DB_PARAM, ErrorCode.WRONG_DB_PARAM_MSG);
       }
     }
-    return BaseVO.success("新增或更新成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @DeleteMapping("/storageGroups/{groupName}")
-  @ApiOperation("删除存储组")
+  @ApiOperation("Delete storage group")
   public BaseVO deleteStorageGroup(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -206,11 +206,11 @@ public class IotDBController {
     groupService.deleteGroupInfo(host, groupName);
     deviceService.deleteDeviceInfo(host, groupName);
     measurementService.deleteMeasurementInfo(host, groupName);
-    return BaseVO.success("删除成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @GetMapping("/storageGroups/{groupName}")
-  @ApiOperation("存储组详情获取")
+  @ApiOperation("Get detailed information of the specified storage group")
   public BaseVO<GroupVO> getStorageGroup(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -244,11 +244,11 @@ public class IotDBController {
     }
     groupVO.setGroupName(groupName);
     groupVO.setAlias(connection.getAlias());
-    return BaseVO.success("获取成功", groupVO);
+    return BaseVO.success("Get successfully", groupVO);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/info")
-  @ApiOperation("获取指定存储组下的实体(设备)信息列表")
+  @ApiOperation("Gets information of entities under the specified storage group")
   public BaseVO<DeviceInfoVO> getDevicesInfoByGroupName(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -287,11 +287,11 @@ public class IotDBController {
       }
     }
     deviceInfoVO.setDeviceInfos(deviceInfos);
-    return BaseVO.success("获取设备信息列表成功", deviceInfoVO);
+    return BaseVO.success("Get successfully", deviceInfoVO);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices")
-  @ApiOperation("获取指定存储组下的实体列表")
+  @ApiOperation("Gets a list of entities under the specified storage group")
   public BaseVO<List<String>> getDevicesByGroup(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -301,11 +301,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     final List<String> devices = iotDBService.getDevices(connection, groupName);
-    return BaseVO.success("获取成功", devices);
+    return BaseVO.success("Get successfully", devices);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/nodeTree")
-  @ApiOperation("获取指定存储组下的实体列表(节点树形结构)  (新增2.28)")
+  @ApiOperation("Get entity list(Node tree structure) of the specified storage group")
   public BaseVO<List<NodeTreeVO>> getDevicesNodeTreeByGroup(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -315,11 +315,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     List<NodeTreeVO> deviceList = iotDBService.getDeviceNodeTree(connection, groupName);
-    return BaseVO.success("获取设备列表成功", deviceList);
+    return BaseVO.success("Get successfully", deviceList);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/tree")
-  @ApiOperation("获取指定存储组下的实体列表(树形结构)  (新增2.29)")
+  @ApiOperation("Get entity list(Tree structure) of the specified storage group")
   public BaseVO<NodeTreeVO> getDevicesTreeByGroup(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -329,11 +329,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     NodeTreeVO deviceList = iotDBService.getDeviceList(connection, groupName);
-    return BaseVO.success("获取设备列表成功", deviceList);
+    return BaseVO.success("Get successfully", deviceList);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/parents")
-  @ApiOperation("获取指定实体的父实体列表  (新增2.31)")
+  @ApiOperation("Get the list of the parent entities of the specified entity")
   public BaseVO<List<String>> getDeviceParents(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -344,11 +344,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     List<String> deviceParents = iotDBService.getDeviceParents(connection, groupName, deviceName);
-    return BaseVO.success("获取父实体列表成功", deviceParents);
+    return BaseVO.success("Get successfully", deviceParents);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/exist")
-  @ApiOperation("判断设备是否已存在  (新增2.3)")
+  @ApiOperation("Check whether the device already exists")
   public BaseVO<Boolean> deviceExist(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -359,11 +359,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     Boolean isExist = iotDBService.deviceExist(connection, groupName, deviceName);
-    return BaseVO.success("获取成功", isExist);
+    return BaseVO.success("Get successfully", isExist);
   }
 
   @PostMapping("/storageGroups/{groupName}/devices")
-  @ApiOperation("新增或编辑实体(设备)  (变更1.2)")
+  @ApiOperation("Upsert entity")
   public BaseVO saveOrUpdateDevice(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -384,11 +384,11 @@ public class IotDBController {
       deviceService.updateDeviceInfo(deviceInfoDTO);
       measurementService.updateMeasurementsInfo(host, deviceInfoDTO);
     }
-    return BaseVO.success("新增或更新成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @DeleteMapping("/storageGroups/{groupName}/devices/{deviceName}")
-  @ApiOperation("删除实体(设备)")
+  @ApiOperation("Delete entity")
   public BaseVO deleteDevice(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -405,11 +405,11 @@ public class IotDBController {
     for (String timeseries : deletedTimeseriesList) {
       measurementService.deleteMeasurementInfo(host, timeseries);
     }
-    return BaseVO.success("删除成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}")
-  @ApiOperation("获取实体(设备)详情")
+  @ApiOperation("Get information of the specified entity")
   public BaseVO<DeviceVO> getDeviceInfo(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -421,11 +421,11 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     String host = connection.getHost();
     DeviceVO deviceVO = deviceService.getDevice(host, deviceName);
-    return BaseVO.success("获取成功", deviceVO);
+    return BaseVO.success("Get successfully", deviceVO);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/info")
-  @ApiOperation("获取指定实体(设备)下的物理量列表详情  (变更1.3)")
+  @ApiOperation("Gets detailed information of measurements under the specified entity")
   public BaseVO<MeasuremtnInfoVO> getMeasurementsByDeviceName(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -494,11 +494,11 @@ public class IotDBController {
     measuremtnInfoVO.setTotalCount(countDTO.getTotalCount());
     measuremtnInfoVO.setTotalPage(countDTO.getTotalPage());
     measuremtnInfoVO.setMeasurementVOList(measurementVOList);
-    return BaseVO.success("获取成功", measuremtnInfoVO);
+    return BaseVO.success("Get successfully", measuremtnInfoVO);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/{timeseriesName}")
-  @ApiOperation("获取指定物理量的最新两百条数据记录 (变更1.4)")
+  @ApiOperation("Get the latest 200 data records of the specified measurement")
   public BaseVO<RecordVO> getMeasurementInfo(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -511,11 +511,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     RecordVO recordVO = iotDBService.getRecords(connection, deviceName, timeseriesName, dataType);
-    return BaseVO.success("获取成功", recordVO);
+    return BaseVO.success("Get successfully", recordVO);
   }
 
   @GetMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries")
-  @ApiOperation("指定设备下的物理量列表")
+  @ApiOperation("Get the list of measurement under the specified entity")
   public BaseVO<List<String>> getTimeseries(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -526,11 +526,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     List<String> timeseries = iotDBService.getTimeseries(connection, deviceName);
-    return BaseVO.success("获取成功", timeseries);
+    return BaseVO.success("Get successfully", timeseries);
   }
 
   @DeleteMapping("/storageGroups/{groupName}/devices/{deviceName}/timeseries/{timeseriesName}")
-  @ApiOperation("删除物理量")
+  @ApiOperation("Delete measurement")
   public BaseVO deleteTimeseries(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -544,11 +544,11 @@ public class IotDBController {
     iotDBService.deleteTimeseries(connection, timeseriesName);
     String host = connection.getHost();
     measurementService.deleteMeasurementInfo(host, timeseriesName);
-    return BaseVO.success("删除成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/data")
-  @ApiOperation("获取指定设备下的物理量数据  (新增2.4)")
+  @ApiOperation("Get measurement data of the specified entity")
   public BaseVO<DataVO> getDataByDevice(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -563,11 +563,11 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     DataVO dataVO =
         iotDBService.getDataByDevice(connection, deviceName, pageSize, pageNum, dataQueryDTO);
-    return BaseVO.success("获取物理量数据成功", dataVO);
+    return BaseVO.success("Get successfully", dataVO);
   }
 
   @PutMapping("/storageGroups/{groupName}/devices/{deviceName}/data")
-  @ApiOperation("编辑物理量数据  (新增2.5)")
+  @ApiOperation("Update measurement data")
   public BaseVO updateDataByDevice(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -584,11 +584,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.updateDataByDevice(connection, deviceName, dataUpdateDTO);
-    return BaseVO.success("编辑物理量数据成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @DeleteMapping("/storageGroups/{groupName}/devices/{deviceName}/data")
-  @ApiOperation("删除物理量数据  (新增2.6)")
+  @ApiOperation("Delete measurement data")
   public BaseVO deleteDataByDevice(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -602,11 +602,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.deleteDataByDevice(connection, deviceName, dataDeleteDTO);
-    return BaseVO.success("删除物理量数据成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/randomImport")
-  @ApiOperation("随机批量导入指定设备下的物理量数据 (新增2.7）")
+  @ApiOperation("Import measurement data of specified devices in batches")
   public BaseVO randomImport(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
@@ -618,10 +618,10 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.randomImport(connection, deviceName, randomImportDTO);
-    return BaseVO.success("随机导入物理量数据成功", null);
+    return BaseVO.success("Randomly import successfully", null);
   }
 
-  @ApiOperation("导出指定实体下的物理量数据  (新增2.9)")
+  @ApiOperation("Export measurement data of the specified entity")
   @PostMapping("/storageGroups/{groupName}/devices/{deviceName}/exportData")
   public ResponseEntity<Resource> exportData(
       @PathVariable("serverId") Integer serverId,
@@ -656,7 +656,7 @@ public class IotDBController {
   }
 
   @PostMapping("/users")
-  @ApiOperation("创建数据库用户")
+  @ApiOperation("Create IoTDB user")
   public BaseVO setIotDBUser(
       @PathVariable("serverId") Integer serverId,
       @RequestBody IotDBUser iotDBUser,
@@ -668,11 +668,11 @@ public class IotDBController {
     }
     Connection connection = connectionService.getById(serverId);
     iotDBService.setIotDBUser(connection, iotDBUser);
-    return BaseVO.success("创建成功", null);
+    return BaseVO.success("Create successfully", null);
   }
 
   @DeleteMapping("/users/{userName}")
-  @ApiOperation("删除数据库用户")
+  @ApiOperation("Delete IoTDB user")
   public BaseVO deleteIotDBUser(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
@@ -682,11 +682,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.deleteIotDBUser(connection, userName);
-    return BaseVO.success("删除成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @GetMapping("/users")
-  @ApiOperation("获取数据库用户列表")
+  @ApiOperation("Get IoTDB users")
   public BaseVO<List<String>> getIotDBUserList(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
@@ -696,9 +696,9 @@ public class IotDBController {
     if (users == null) {
       users = new ArrayList<>();
       users.add(username);
-      return BaseVO.success("获取成功", users);
+      return BaseVO.success("Get successfully", users);
     }
-    // 前端需要将当前用户处于列表第一位
+    // The page needs to place the current user first in the list
     List<String> newUsers = new ArrayList<>();
     newUsers.add(username);
     for (String user : users) {
@@ -707,11 +707,11 @@ public class IotDBController {
       }
       newUsers.add(user);
     }
-    return BaseVO.success("获取成功", newUsers);
+    return BaseVO.success("Get successfully", newUsers);
   }
 
   @GetMapping("/users/{userName}")
-  @ApiOperation("获取指定用户的密码和角色列表  (新增2.15)")
+  @ApiOperation("Get the password and role list of the specified user")
   public BaseVO<UserRolesVO> getRolesOfUser(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
@@ -721,11 +721,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     UserRolesVO userRolesVO = iotDBService.getRolesOfUser(connection, userName);
-    return BaseVO.success("获取成功", userRolesVO);
+    return BaseVO.success("Get successfully", userRolesVO);
   }
 
   @PostMapping("/users/pwd")
-  @ApiOperation("改变用户密码")
+  @ApiOperation("Alter user password")
   public BaseVO updatePassword(
       @PathVariable("serverId") Integer serverId,
       @RequestBody IotDBUser iotDBUser,
@@ -734,11 +734,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.updatePwd(connection, iotDBUser);
-    return BaseVO.success("修改成功", null);
+    return BaseVO.success("Alter password successfully", null);
   }
 
   @PostMapping("/roles")
-  @ApiOperation("新增或编辑角色   (新增2.11)")
+  @ApiOperation("Upsert role")
   public BaseVO upsertIotDBRole(
       @PathVariable("serverId") Integer serverId,
       @RequestBody IotDBRole iotDBRole,
@@ -753,11 +753,11 @@ public class IotDBController {
       iotDBService.setIotDBRole(connection, iotDBRole);
     }
     roleService.upsertRoleInfo(connection.getHost(), connection.getPort(), iotDBRole);
-    return BaseVO.success("创建或更新成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @DeleteMapping("/roles/{roleName}")
-  @ApiOperation("删除指定角色  (新增2.12)")
+  @ApiOperation("Delete role")
   public BaseVO deleteIotDBRole(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
@@ -768,21 +768,21 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     iotDBService.deleteIotDBRole(connection, roleName);
     roleService.deleteRoleInfo(connection.getHost(), connection.getPort(), roleName);
-    return BaseVO.success("删除成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @GetMapping("/roles")
-  @ApiOperation("获取所有角色   (新增2.13)")
+  @ApiOperation("Get all roles)")
   public BaseVO<List<String>> getIotDBRoleList(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     List<String> roles = iotDBService.getIotDBRoleList(connection);
-    return BaseVO.success("获取成功", roles);
+    return BaseVO.success("Get successfully", roles);
   }
 
   @GetMapping("/roles/{roleName}")
-  @ApiOperation("获取指定角色的信息和用户列表   (新增2.14)")
+  @ApiOperation("Get information and user list of the specified role")
   public BaseVO<RoleVO> getIotDBRoleInfo(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
@@ -797,11 +797,11 @@ public class IotDBController {
       roleVO.setId(roleInfo.getId());
       roleVO.setDescription(roleInfo.getDescription());
     }
-    return BaseVO.success("获取成功", roleVO);
+    return BaseVO.success("Get successfully", roleVO);
   }
 
   @PostMapping("/users/{userName}/grant")
-  @ApiOperation("给指定用户赋予角色  (新增2.16)")
+  @ApiOperation("Grant roles to specified user")
   public BaseVO userGrant(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
@@ -812,11 +812,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.userGrant(connection, userName, userGrantDTO);
-    return BaseVO.success("操作成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @PostMapping("/roles/{roleName}/grant")
-  @ApiOperation("把指定角色赋予给用户  (新增2.17)")
+  @ApiOperation("Grant specified role to users")
   public BaseVO roleGrant(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
@@ -827,11 +827,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.roleGrant(connection, roleName, roleGrantDTO);
-    return BaseVO.success("操作成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @GetMapping("/users/{userName}/authorityPrivilege")
-  @ApiOperation("获取用户权限管理权限 (新增2.20)")
+  @ApiOperation("Get authority management privileges of user")
   public BaseVO<Set<String>> getUserAuthorityPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
@@ -842,11 +842,11 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     Set<String> userAuthorityPrivilege =
         iotDBService.getUserAuthorityPrivilege(connection, userName);
-    return BaseVO.success("获取成功", userAuthorityPrivilege);
+    return BaseVO.success("Get successfully", userAuthorityPrivilege);
   }
 
   @GetMapping("/users/{userName}/allAuthorityPrivilege")
-  @ApiOperation("获取用户权限管理权限(包含用户的角色拥有的） (新增2.30)")
+  @ApiOperation("Get all authority management privileges of user")
   public BaseVO<Set<String>> getAllAuthorityPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
@@ -857,11 +857,11 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     Set<String> userAuthorityPrivilege =
         iotDBService.getAllAuthorityPrivilege(connection, userName);
-    return BaseVO.success("获取成功", userAuthorityPrivilege);
+    return BaseVO.success("Get successfully", userAuthorityPrivilege);
   }
 
   @GetMapping("/roles/{roleName}/authorityPrivilege")
-  @ApiOperation("获取角色权限管理权限 (新增2.21)")
+  @ApiOperation("Get authority management privileges of role")
   public BaseVO<Set<String>> getRoleAuthorityPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
@@ -872,11 +872,11 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     Set<String> roleAuthorityPrivilege =
         iotDBService.getRoleAuthorityPrivilege(connection, roleName);
-    return BaseVO.success("获取成功", roleAuthorityPrivilege);
+    return BaseVO.success("Get successfully", roleAuthorityPrivilege);
   }
 
   @PostMapping("/users/{userName}/authorityPrivilege")
-  @ApiOperation("修改用户权限管理权限 (新增2.24)")
+  @ApiOperation("Modify authority management privileges of user")
   public BaseVO upsertUserAuthorityPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
@@ -887,11 +887,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.upsertAuthorityPrivilege(connection, userName, authorityPrivilegeDTO, "user");
-    return BaseVO.success("修改成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @PostMapping("/roles/{roleName}/authorityPrivilege")
-  @ApiOperation("修改角色权限管理权限 (新增2.25)")
+  @ApiOperation("Modify authority management privileges of role")
   public BaseVO upsertRoleAuthorityPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
@@ -902,11 +902,11 @@ public class IotDBController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     iotDBService.upsertAuthorityPrivilege(connection, roleName, authorityPrivilegeDTO, "role");
-    return BaseVO.success("修改成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @GetMapping("/users/{userName}/dataPrivilege")
-  @ApiOperation("获取用户数据管理权限 (新增2.18)")
+  @ApiOperation("Get data management privileges of user")
   public BaseVO<List<DataPrivilegeVO>> getUserDataPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
@@ -917,11 +917,11 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     List<DataPrivilegeVO> dataPrivilegeList =
         iotDBService.getUserDataPrivilege(connection, userName);
-    return BaseVO.success("获取成功", dataPrivilegeList);
+    return BaseVO.success("Get successfully", dataPrivilegeList);
   }
 
   @GetMapping("/roles/{roleName}/dataPrivilege")
-  @ApiOperation("获取角色数据管理权限 (新增2.19)")
+  @ApiOperation("Get data management privileges of role")
   public BaseVO<List<DataPrivilegeVO>> getRoleDataPrivilege(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
@@ -932,11 +932,11 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     List<DataPrivilegeVO> dataPrivilegeList =
         iotDBService.getRoleDataPrivilege(connection, roleName);
-    return BaseVO.success("获取成功", dataPrivilegeList);
+    return BaseVO.success("Get successfully", dataPrivilegeList);
   }
 
   @PostMapping("/users/{userName}/dataPrivilege")
-  @ApiOperation("修改用户数据管理权限 (新增2.22)")
+  @ApiOperation("Modify data management privileges of user")
   public BaseVO setUserPrivileges(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("userName") String userName,
@@ -948,11 +948,11 @@ public class IotDBController {
     checkPrivilegeInfoDTO(privilegeInfoDTO);
     Connection connection = connectionService.getById(serverId);
     iotDBService.upsertDataPrivileges(connection, "user", userName, privilegeInfoDTO);
-    return BaseVO.success("操作成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   @PostMapping("/roles/{roleName}/dataPrivilege")
-  @ApiOperation("修改角色数据管理权限 (新增2.23)")
+  @ApiOperation("Modify data management privileges of role")
   public BaseVO setRolePrivileges(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("roleName") String roleName,
@@ -964,7 +964,7 @@ public class IotDBController {
     checkPrivilegeInfoDTO(privilegeInfoDTO);
     Connection connection = connectionService.getById(serverId);
     iotDBService.upsertDataPrivileges(connection, "role", roleName, privilegeInfoDTO);
-    return BaseVO.success("操作成功", null);
+    return BaseVO.success("Upsert successfully", null);
   }
 
   private void checkPrivilegeInfoDTO(PrivilegeInfoDTO privilegeInfoDTO) throws BaseException {

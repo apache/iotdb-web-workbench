@@ -115,7 +115,7 @@ public class ImportCsv {
 
   @SuppressWarnings("squid:S1135")
   private ImportDataVO loadDataFromCSV(File file, Session session) throws BaseException {
-    log.info("开始从" + file.getName() + "导入数据");
+    log.info("Start import data from file:" + file.getName());
     String errorFileName = "error" + System.currentTimeMillis() + ".txt";
     File errorFile = new File(this.fileStorageLocation.resolve(errorFileName).toString());
 

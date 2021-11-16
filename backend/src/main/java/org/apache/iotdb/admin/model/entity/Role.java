@@ -34,14 +34,14 @@ public class Role implements Serializable {
   @TableId(type = IdType.AUTO)
   private Integer id;
 
-  @NotNull(message = "未指定角色名")
-  @Length(min = 4, message = "角色名长度至少为4")
+  @NotNull(message = "The role name cannot be null")
+  @Length(min = 4, message = "The role name must contain at least 4 characters")
   private String name;
 
-  @NotNull(message = "未指定所属主机")
+  @NotNull(message = "The host cannot be null")
   private String host;
 
-  @NotNull(message = "未指定所属主机的端口号")
+  @NotNull(message = "The port cannot be null")
   private Integer port;
 
   private String description;

@@ -26,7 +26,7 @@ import java.util.List;
 
 @Data
 public class PrivilegeInfoDTO implements Serializable {
-  // 0 1 2 3 对应 root、storageGroup、device、timeseries
+  // 0, 1, 2, 3 corresponding to root, storageGroup, device, timeseries
   private Integer type;
   private List<String> groupPaths;
   private List<String> devicePaths;

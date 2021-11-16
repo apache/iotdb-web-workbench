@@ -125,7 +125,7 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
       queryWrapper.eq("host", host);
       queryWrapper.eq("measurement_name", measurements.get(i));
       Measurement existMeasurement = measurementMapper.selectOne(queryWrapper);
-      // 未创建的测点
+      // Uncreated measurement
       if (existMeasurement == null) {
         Measurement mea = new Measurement();
         mea.setDescription(descriptions.get(i));
@@ -138,7 +138,7 @@ public class MeasurementServiceImpl extends ServiceImpl<MeasurementMapper, Measu
         }
         continue;
       }
-      // 已创建的测点更新描述
+      // Updated description of created measurement
       existMeasurement.setDescription(descriptions.get(i));
       int flag = measurementMapper.updateById(existMeasurement);
       if (flag <= 0) {

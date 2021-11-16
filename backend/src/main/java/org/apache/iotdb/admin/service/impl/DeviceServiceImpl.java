@@ -115,7 +115,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device> impleme
     queryWrapper.eq("host", host);
     queryWrapper.eq("device_name", deviceName);
     Device device = deviceMapper.selectOne(queryWrapper);
-    // 非系统创建的设备没有设备信息
+    // Non-system created devices do not have device information
     DeviceVO deviceVO = new DeviceVO();
     if (device != null) {
       deviceVO.setCreator(device.getCreator());

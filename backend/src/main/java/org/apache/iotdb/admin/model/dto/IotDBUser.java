@@ -26,15 +26,14 @@ import javax.validation.constraints.Pattern;
 
 import java.io.Serializable;
 
-/** 传输User信息类 */
 @Data
 public class IotDBUser implements Serializable {
 
-  @Length(min = 4, message = "用户名长度必须大于等于4")
-  @Pattern(regexp = "^[^ ]+$", message = "用户名不能包含空格")
+  @Length(min = 4, message = "The username must contain at least 4 characters")
+  @Pattern(regexp = "^[^ ]+$", message = "The username cannot contain spaces")
   private String userName;
 
-  @Length(min = 4, message = "用户密码长度必须大于等于4")
-  @Pattern(regexp = "^[^ ]+$", message = "用户密码不能包含空格")
+  @Length(min = 4, message = "The password must contain at least 4 characters")
+  @Pattern(regexp = "^[^ ]+$", message = "The password cannot contain spaces")
   private String password;
 }

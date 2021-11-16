@@ -34,6 +34,6 @@ public class DataQueryDTO implements Serializable {
 
   private Date endTime;
 
-  @NotEmpty(message = "物理量列表不能为空")
+  @NotEmpty(message = "The measurement list cannot be empty")
   private List<String> measurementList;
 }

@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@Api(value = "导入导出数据相关")
+@Api(value = "File related")
 public class FileController {
   @Autowired private FileService fileService;
 
@@ -54,7 +54,7 @@ public class FileController {
 
   @Autowired private ExportCsv exportCsv;
 
-  @ApiOperation("通过csv文件导入物理量数据  (新增2.8)")
+  @ApiOperation("Import measurement data from a CSV file")
   @PostMapping("/servers/{serverId}/importData")
   public BaseVO<ImportDataVO> importData(
       @RequestParam("file") MultipartFile file,
@@ -76,10 +76,10 @@ public class FileController {
     ImportDataVO importDataVO =
         importCsv.importCsv(host, port, username, password, fileFullName, null);
 
-    return BaseVO.success("导入数据成功", importDataVO);
+    return BaseVO.success("Import data successfully", importDataVO);
   }
 
-  @ApiOperation("将查询结果导出为csv文件  (新增2.10)")
+  @ApiOperation("Export the query result as a CSV file")
   @GetMapping("/servers/{serverId}/exportData")
   public ResponseEntity<Resource> exportData(
       @PathVariable("serverId") Integer serverId,
@@ -105,7 +105,7 @@ public class FileController {
     return getResponseEntity(resource);
   }
 
-  @ApiOperation("下载csv模板文件 (新增2.26)")
+  @ApiOperation("Download the CSV template file")
   @GetMapping("/downloadFile/template")
   public ResponseEntity<Resource> downloadTemplateFile() throws BaseException {
     Resource resource = new ClassPathResource("file/template.csv");

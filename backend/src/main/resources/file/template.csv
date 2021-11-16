@@ -23,17 +23,12 @@ Time,root.group1.dev.s1,root.group1.dev.s2,root.group2.dev.s
 1,100,150,300
 3,200,300,320
 10,300,,400
-(使用本文件导入数据前请先删除license和以下内容）
-csv文件格式:
-    文件以","分割,第一行第一列为"Time",后几列为物理量名
-    从第二行开始的第一列为时间戳,后几列为导入的数据,如果某些物理量不需要导入数据则不输入,参考本文件的第四行
-    时间戳的格式除了可以用本例中的数字形式,还可以使用yyyy-MM-dd'T'HH:mm:ss, yyyy-MM-dd HH:mm:ss, yyyy-MM-dd'T'HH:mm:ss.SSS等格式
-    每行的时间戳格式需保持一致,每行的列数需保持一致
-注意:
-    1.IoTDB具有类型推断的能力，因此在数据导入前创建元数据不是必须的,
-    但为了避免类型转换错误,仍推荐你在使用本工具导入数据前创建元数据
-    2.需要特殊处理的字符：
-        , : 包含,的字段需要使用单引号或者双引号括起来
-        " : 字段中的"需要被替换成转义字符\"或者用\'将字段括起来。
-        ' : 字段中的'需要被替换成转义字符\'或者用\"将字段括起来。
-你可以通过导出csv工具导出数据,以获取更多的模板
+(Before importing data from this file, delete the license comments and the following contents.)
+CSV file format:
+    The file is split with ",", and the first column is "Time" on the first line, followed by the measurement name.
+    The first column from the second row is the timestamp, followed by the imported data.
+    If you do not need to import data for certain measurement at certain timestamps, do not enter them. Refer to line 4 of this file.
+    The timestamp format can be number, yyyy-MM-dd'T'HH:mm:ss, yyyy-MM-dd HH:mm:ss, yyyy-MM-dd'T'HH:mm:ss.SSS and so on.
+    The timestamp format and column number of each row must be the same.
+    Note:fields containing , should be escaped by \.
+You can use the export CSV tool to export data to get more templates.

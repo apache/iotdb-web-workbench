@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-/** 通用异常处理拦截器 */
+/** Global exception handler */
 @Slf4j
 @ControllerAdvice
 public class BaseExceptionAdvice {
@@ -35,7 +35,7 @@ public class BaseExceptionAdvice {
   @ExceptionHandler(BaseException.class)
   @ResponseBody
   public BaseVO handleBaseException(BaseException e) {
-    log.error("调用接口异常", e);
+    log.error("Base exception:", e);
     BaseVO result = new BaseVO(e.getErrorCode(), e.getMessage(), null);
     return result;
   }

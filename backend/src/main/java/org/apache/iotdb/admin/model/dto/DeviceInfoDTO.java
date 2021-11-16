@@ -32,12 +32,12 @@ import java.util.List;
 @Data
 public class DeviceInfoDTO implements Serializable {
 
-  @NotEmpty(message = "物理量列表不能为空")
+  @NotEmpty(message = "The measurement list cannot be empty")
   @Valid
   private List<DeviceDTO> deviceDTOList;
 
-  @NotNull(message = "设备名不能为null")
-  @Pattern(regexp = "^[^ ]+$", message = "不能包含空格")
+  @NotNull(message = "The device name cannot be null")
+  @Pattern(regexp = "^[^ ]+$", message = "The device name cannot contain spaces")
   private String deviceName;
 
   private String description;

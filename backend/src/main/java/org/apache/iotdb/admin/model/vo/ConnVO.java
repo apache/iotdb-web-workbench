@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/** 展示别名及serverId */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

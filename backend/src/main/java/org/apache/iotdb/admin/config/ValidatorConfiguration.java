@@ -27,7 +27,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-/** 校验框架配置类 */
+/** Validator configuration classes */
 @Configuration
 public class ValidatorConfiguration {
 

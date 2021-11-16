@@ -37,32 +37,32 @@ public class Connection implements Serializable {
   @TableId(type = IdType.AUTO)
   private Integer id;
 
-  @NotBlank(message = "主机地址不能为空或为null")
+  @NotBlank(message = "The host address cannot be empty or null")
   @Pattern(
       regexp =
           "^((2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})(\\.(2(5[0-5]{1}|[0-4]\\d{1})|[0-1]?\\d{1,2})){3})|(localhost)$",
-      message = "主机号输入不合法")
+      message = "The host is invalid")
   private String host;
 
-  @NotNull(message = "端口号不能为null")
-  @Range(min = 0, max = 65535, message = "端口号输入不合法")
+  @NotNull(message = "The port number cannot be null")
+  @Range(min = 0, max = 65535, message = "The host is invalid")
   private Integer port;
 
-  @NotBlank(message = "用户名不能为空或为null")
-  @Length(min = 4, message = "长度必须大于等于4")
-  @Pattern(regexp = "^[^ ]+$", message = "用户名不能包含空格")
+  @NotBlank(message = "The username cannot be empty or null")
+  @Length(min = 4, message = "The username must contain at least 4 characters")
+  @Pattern(regexp = "^[^ ]+$", message = "The username cannot contain spaces")
   private String username;
 
-  @NotBlank(message = "密码不能为空或为null")
-  @Length(min = 4, message = "长度必须大于等于4")
-  @Pattern(regexp = "^[^ ]+$", message = "密码不能包含空格")
+  @NotBlank(message = "The password cannot be empty or null")
+  @Length(min = 4, message = "The password must contain at least 4 characters")
+  @Pattern(regexp = "^[^ ]+$", message = "The username cannot contain spaces")
   private String password;
 
-  @NotBlank(message = "连接名不能为空或为null")
-  @Length(min = 3, max = 100, message = "连接名长度必须在3-100之间")
-  @Pattern(regexp = "^[^ ]+$", message = "连接名不能包含空格")
+  @NotBlank(message = "The connection name cannot be empty or null")
+  @Length(min = 3, max = 100, message = "The connection name must be between 3 and 100")
+  @Pattern(regexp = "^[^ ]+$", message = "The connection name cannot contains spaces")
   private String alias;
 
-  @NotNull(message = "用户id不能为null")
+  @NotNull(message = "The user id cannot be null")
   private Integer userId;
 }

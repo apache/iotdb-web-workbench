@@ -36,7 +36,6 @@ import javax.validation.Validator;
 
 import java.util.Set;
 
-/** 参数验证 */
 @Aspect
 @Slf4j
 @Component
@@ -44,11 +43,10 @@ public class ParamValidAspect {
 
   @Autowired private Validator validator;
 
-  /** 定义校验包的未知 */
+  /** Define the location of the package to be verified */
   @Pointcut("execution(* org.apache.iotdb.admin.controller..*.*(..))")
   public void pointcut() {}
 
-  /** 处理参数校验错误的具体方法，抛出异常组件中的异常，遵循异常规范 */
   @Around("pointcut()")
   public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
     Object[] args = pjp.getArgs();
@@ -59,10 +57,9 @@ public class ParamValidAspect {
           for (ConstraintViolation<Object> constraintViolation : constraintViolations) {
             Path property = constraintViolation.getPropertyPath();
             String name = property.iterator().next().getName();
-            // 打印具体异常信息，对应校验框架注解中的message
             log.error("[" + name + "]" + constraintViolation.getMessage());
             throw new BaseException(
-                ErrorCode.WRONG_PARAM, "参数错误:" + constraintViolation.getMessage());
+                ErrorCode.WRONG_PARAM, "Parameter error:" + constraintViolation.getMessage());
           }
         }
       }

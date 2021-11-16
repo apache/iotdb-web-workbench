@@ -26,14 +26,13 @@ import javax.validation.constraints.Pattern;
 
 import java.io.Serializable;
 
-/** 传输role信息类 */
 @Data
 public class IotDBRole implements Serializable {
 
   private Integer id;
 
-  @Length(min = 4, message = "角色名长度必须大于等于4")
-  @Pattern(regexp = "^[^ ]+$", message = "角色名不能包含空格")
+  @Length(min = 4, message = "The username must contain at least 4 characters")
+  @Pattern(regexp = "^[^ ]+$", message = "The role name cannot contain spaces")
   private String roleName;
 
   private String description;

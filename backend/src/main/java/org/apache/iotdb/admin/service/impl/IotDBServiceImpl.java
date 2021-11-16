@@ -351,10 +351,11 @@ public class IotDBServiceImpl implements IotDBService {
     try {
       sessionPool.setStorageGroup(groupName);
     } catch (StatementExecutionException e) {
-      // 300为存储组重复或者其前/后路径上已经有存储组了
       if (e.getStatusCode() == 602) {
         throw new BaseException(ErrorCode.NO_PRI_SET_GROUP, ErrorCode.NO_PRI_SET_GROUP_MSG);
       }
+      // 300 indicates that the storage group is repeated or there is already a storage group on its
+      // front or back path
       if (e.getStatusCode() == 300) {
         throw new BaseException(ErrorCode.SET_GROUP_FAIL, ErrorCode.SET_GROUP_FAIL_MSG);
       }
@@ -967,7 +968,7 @@ public class IotDBServiceImpl implements IotDBService {
           }
         }
       }
-      // rowInfos内容形式 "path : 权限1 权限2 权限3"
+      // rowInfos form: "path : privilege1 privilege2 privilege3"
       List<DataPrivilegeVO> dataPrivilegeList =
           switchRowInfosToDataPrivileges(rowInfos, sessionPool);
       return dataPrivilegeList;
@@ -994,7 +995,7 @@ public class IotDBServiceImpl implements IotDBService {
       String sql = "list role privileges " + roleName;
       List<String> rowInfos = executeQueryOneColumn(sessionPool, sql);
 
-      // rowInfos内容形式 "path : 权限1 权限2 权限3"
+      // rowInfos form: "path : privilege1 privilege2 privilege3"
       List<DataPrivilegeVO> dataPrivilegeList =
           switchRowInfosToDataPrivileges(rowInfos, sessionPool);
       return dataPrivilegeList;
@@ -1035,17 +1036,16 @@ public class IotDBServiceImpl implements IotDBService {
       paths.add(path);
     }
 
-    // Map中的String形式为"权限1 权限2 权限3.." List存储相同权限并集下的path路径
+    // Map form: {"privilege1 privilege2 privilege3..." : ["path1","path2"]} path1,path2 have the
+    // same privileges.
     Map<String, List<String>> privilegeOne = new HashMap<>();
     Map<String, List<String>> privilegeTwo = new HashMap<>();
     Map<String, List<String>> privilegeThree = new HashMap<>();
     for (int i = 0; i < paths.size(); i++) {
       String path = paths.get(i);
       String privilegesStr = String.join(" ", privilegesList.get(i));
-      // 通过路径获取所属粒度
       int type = findType(sessionPool, path);
       if (type == 1) {
-        // 判断相同的权限集合 放入同一list
         if (privilegeOne.containsKey(privilegesStr)) {
           List<String> pathList = privilegeOne.get(privilegesStr);
           pathList.add(path);
@@ -1084,13 +1084,12 @@ public class IotDBServiceImpl implements IotDBService {
     Set<String> threeKeys = privilegeThree.keySet();
     List<String> allGroupPaths = executeQueryOneColumn(sessionPool, "show storage group");
     List<String> allDevicePaths = executeQueryOneColumn(sessionPool, "show devices");
-    // 封装成PrivilegeInfo返回 字符串处理
+
     for (String oneKey : oneKeys) {
       DataPrivilegeVO dataPrivilegeVO = new DataPrivilegeVO();
       List<String> groupPaths = privilegeOne.get(oneKey);
       List<String> privilegesOne = Arrays.asList(oneKey.split(" "));
 
-      // 展示数据
       dataPrivilegeVO.setType(1);
       dataPrivilegeVO.setPrivileges(privilegesOne);
       dataPrivilegeVO.setGroupPaths(groupPaths);
@@ -2118,12 +2117,12 @@ public class IotDBServiceImpl implements IotDBService {
       Connection connection, String userOrRole, String name, PrivilegeInfoDTO privilegeInfoDTO)
       throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
-    // 授权
+    // grant
     List<String> privileges = privilegeInfoDTO.getPrivileges();
     if (notNullAndNotZero(privileges)) {
       grantOrRevoke("grant", userOrRole, privileges, name, privilegeInfoDTO, sessionPool);
     }
-    // 取消授权
+    // revoke
     List<String> cancelPrivileges = privilegeInfoDTO.getCancelPrivileges();
     if (notNullAndNotZero(cancelPrivileges)) {
       grantOrRevoke("revoke", userOrRole, cancelPrivileges, name, privilegeInfoDTO, sessionPool);
@@ -2260,7 +2259,12 @@ public class IotDBServiceImpl implements IotDBService {
           logger.error(e.getMessage());
           throw new BaseException(
               ErrorCode.SQL_EP,
-              ErrorCode.SQL_EP_MSG + ":" + sql + "语句执行出错,错误信息[" + e.getMessage() + "]");
+              ErrorCode.SQL_EP_MSG
+                  + ":["
+                  + sql
+                  + "]statement execution error, error message:["
+                  + e.getMessage()
+                  + "]");
         } catch (IoTDBConnectionException e) {
           logger.error(e.getMessage());
           throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
@@ -2366,7 +2370,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
   }
 
-  /** 判断集合不为空且长度大于0 */
+  /** Determines that the list is not empty and has a length greater than 0 */
   private boolean notNullAndNotZero(List list) {
     if (list != null && list.size() > 0) {
       return true;
@@ -2444,7 +2448,7 @@ public class IotDBServiceImpl implements IotDBService {
       List<String> columnNames = sessionDataSetWrapper.getColumnNames();
       sqlResultVO.setMetaDataList(columnNames);
       int batchSize = sessionDataSetWrapper.getBatchSize();
-      // 记录行数
+
       long count = 0;
       if (batchSize > 0) {
         while (sessionDataSetWrapper.hasNext()) {
@@ -2493,7 +2497,6 @@ public class IotDBServiceImpl implements IotDBService {
         timeFlag = true;
       }
       int batchSize = sessionDataSetWrapper.getBatchSize();
-      // 记录行数
       long count = 0;
       if (batchSize > 0) {
         while (sessionDataSetWrapper.hasNext() && QUERY_STOP.get(notStopKey)) {
@@ -2522,7 +2525,12 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
       throw new BaseException(
           ErrorCode.SQL_EP,
-          ErrorCode.SQL_EP_MSG + ":" + sql + "语句执行出错,错误信息[" + e.getMessage() + "]");
+          ErrorCode.SQL_EP_MSG
+              + ":["
+              + sql
+              + "]statement execution error, error message:["
+              + e.getMessage()
+              + "]");
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);
@@ -2702,7 +2710,7 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   private int findType(SessionPool sessionPool, String path) throws BaseException {
-    // 主要用于判断s路径是否已经不存在 iotdb存在已删除路径的权限还会展示出来的问题
+    // Check whether the path does not exist
     String sql = "count timeseries " + path;
     SessionDataSetWrapper sessionDataSetWrapper = null;
     try {

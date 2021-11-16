@@ -33,10 +33,10 @@ public class Measurement implements Serializable {
   @TableId(type = IdType.AUTO)
   private Integer id;
 
-  @NotNull(message = "未指定所属主机")
+  @NotNull(message = "The host cannot be null")
   private String host;
 
-  @NotNull(message = "未指定测点名")
+  @NotNull(message = "The measurement name cannot be null")
   private String measurementName;
 
   private String description;

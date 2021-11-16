@@ -36,17 +36,17 @@ public class StorageGroup implements Serializable {
   @TableId(type = IdType.AUTO)
   private Integer id;
 
-  @NotNull(message = "未指定所属主机")
+  @NotNull(message = "The host cannot be null")
   private String host;
 
   private String description;
 
   @NotBlank
-  @Length(min = 4, message = "创建者名长度必须大于等于4")
-  @Pattern(regexp = "^[^ ]+$", message = "创建者名不能包含空格")
+  @Length(min = 4, message = "The creator name must contain at least 4 characters")
+  @Pattern(regexp = "^[^ ]+$", message = "The creator name cannot contains spaces")
   private String creator;
 
-  @NotNull(message = "未指定创建时间")
+  @NotNull(message = "The create time cannot be null")
   private Long createTime;
 
   @NotBlank private String groupName;

@@ -25,7 +25,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-/** 加密算法配置类 hash算法 */
+/** Encryption algorithm configuration class */
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override

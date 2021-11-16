@@ -31,7 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/** 用于定时删除导入导出csv过程中产生的文件 */
+/** Periodically delete files generated during CSV import and export */
 @Slf4j
 @Component
 public class ScheduledTask {
@@ -46,9 +46,8 @@ public class ScheduledTask {
     try {
       Files.createDirectories(fileStorageLocation);
     } catch (Exception e) {
-      log.error("无法创建文件夹/Could not create the directory:" + fileStorageLocation, e);
-      throw new RuntimeException(
-          "无法创建文件夹/Could not create the directory:" + fileStorageLocation, e);
+      log.error("Could not create the directory:" + fileStorageLocation, e);
+      throw new RuntimeException("Could not create the directory:" + fileStorageLocation, e);
     }
   }
 
@@ -58,7 +57,7 @@ public class ScheduledTask {
     for (File file : files) {
       if (file.lastModified() < System.currentTimeMillis() - 1000 * 60 * 10L) {
         file.delete();
-        log.info("删除文件/Delete file:" + file.getAbsolutePath());
+        log.info("Delete file:" + file.getAbsolutePath());
       }
     }
   }

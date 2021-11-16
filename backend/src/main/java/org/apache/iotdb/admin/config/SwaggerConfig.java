@@ -37,7 +37,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.ArrayList;
 import java.util.List;
 
-/** swagger配置类 */
+/** swagger configuration class */
 @Configuration
 @EnableSwagger2
 @Profile({"dev", "test"})
@@ -58,8 +58,8 @@ public class SwaggerConfig {
 
   private ApiInfo apiinfo() {
     return new ApiInfoBuilder()
-        .title("IoTDB-Workbench接口文档")
-        .description("IoTDB层级关系 存储组 -> 实体(设备) -> 测点(时间序列)")
+        .title("IoTDB-Workbench API")
+        .description("IoTDB hierarchy: storage group -> entity -> measurement")
         .build();
   }
 
@@ -69,7 +69,7 @@ public class SwaggerConfig {
     List<Parameter> pars = new ArrayList<>();
     tokenPar
         .name("Authorization")
-        .description("jwt令牌")
+        .description("java web token")
         .modelRef(new ModelRef("string"))
         .parameterType("header")
         .required(false);

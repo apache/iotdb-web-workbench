@@ -100,7 +100,7 @@ public class ExportCsv {
     } catch (IOException | BaseException e) {
       throw new BaseException(ErrorCode.CREATE_FILE_FAIL, ErrorCode.CREATE_FILE_FAIL_MSG);
     }
-    log.info("开始从sql语句：" + sql + "导出数据");
+    log.info("Start exporting data from SQL statement:" + sql);
     try (BufferedWriter bw = new BufferedWriter(new FileWriter(tf))) {
       SessionDataSet sessionDataSet = session.executeQueryStatement(sql);
       long startTime = System.currentTimeMillis();
@@ -112,14 +112,8 @@ public class ExportCsv {
         isDataType = true;
       }
       int line = writeResultSet(sessionDataSet, bw, zoneId, isDataType);
-      log.info(
-          "从sql语句："
-              + sql
-              + "成功导出"
-              + line
-              + "行数据，用时"
-              + (System.currentTimeMillis() - startTime)
-              + "ms");
+      String runTime = System.currentTimeMillis() - startTime + "ms";
+      log.info("Export " + line + " line data from SQL:" + sql + ". Time consuming:" + runTime);
       return fileName;
     } catch (IoTDBConnectionException e) {
       throw new BaseException(ErrorCode.GET_SESSION_FAIL, ErrorCode.GET_SESSION_FAIL_MSG);

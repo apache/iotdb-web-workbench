@@ -31,14 +31,14 @@ import java.util.Date;
 @Data
 public class RandomImportDTO implements Serializable {
 
-  @NotNull(message = "开始时间不能为空")
+  @NotNull(message = "The start time cannot be null")
   private Date startTime;
 
-  @NotNull(message = "步长不能为空")
-  @Min(value = 1, message = "步长至少为1ms")
+  @NotNull(message = "The step size cannot be null")
+  @Min(value = 1, message = "The step size must be at least 1ms")
   private Integer stepSize;
 
-  @NotNull(message = "数据行数不能为空")
-  @Range(min = 1, max = 1000000, message = "数据行数在1到1000000之间")
+  @NotNull(message = "The data line cannot be null")
+  @Range(min = 1, max = 1000000, message = "The number of data lines is between 1 and 1000000")
   private Integer totalLine;
 }

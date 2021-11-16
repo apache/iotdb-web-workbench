@@ -30,9 +30,9 @@ import java.util.List;
 @Data
 public class DataDeleteDTO implements Serializable {
 
-  @NotEmpty(message = "时间戳不能为空")
+  @NotEmpty(message = "The timestamp list cannot be empty")
   private List<Date> timestampList;
 
-  @NotEmpty(message = "物理量列表不能为空")
+  @NotEmpty(message = "The measurement list cannot be empty")
   private List<String> measurementList;
 }
