@@ -8,20 +8,20 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item prop="path" :label="$t('sourcePage.range')">
-          <!-- 数据连接 -->
+          <!-- data connection -->
           <template v-if="form.type === 0"> -- </template>
-          <!-- 存储组 -->
+          <!-- Storage group -->
           <template v-else-if="form.type === 1">
             <tree-select :checked-keys="storage" :data="storageGroupTreeOption" :type="DataGranularityMap.group" @change="changeTreeValue($event, DataGranularityMap.group)"></tree-select>
           </template>
-          <!-- 实体 -->
+          <!-- Entity -->
           <template v-else-if="form.type === 2">
             <el-select v-model="device.storage" :placeholder="$t('sourcePage.selectdataconnection')" @change="changeStorageInDevice">
               <el-option v-for="item in storageGroupOption" :key="item.groupName" :label="item.groupName" :value="item.groupName"> </el-option>
             </el-select>
             <tree-select :checked-keys="device.device" :data="deviceTreeOption" :type="DataGranularityMap.device" @change="changeTreeValue($event, DataGranularityMap.device)"></tree-select>
           </template>
-          <!-- 物理量 -->
+          <!-- Measurement  -->
           <template v-else>
             <el-select v-model="time.storage" :placeholder="$t('sourcePage.selectdataconnection')" @change="changeStorageInTime">
               <el-option v-for="item in storageGroupOption" :key="item.groupName" :label="item.groupName" :value="item.groupName"> </el-option>
@@ -79,13 +79,12 @@ export default {
     let visible = ref(false);
     let dialogType = ref({});
     let formRef = ref(null);
-    // 数据粒度 0数据连接 1存储组 2实体 3物理量
+    // Data granularity 0: data connection 1: storage group 2: entity 3: Measurement
     let granularityValue = ref(null);
-    // 表单数据
     let form = reactive({
-      type: 0, //数据粒度
-      path: [], //树形
-      privileges: [], //权限
+      type: 0, //Data granularity
+      path: [], //tree
+      privileges: [],
     });
 
     let storage = ref([]);
@@ -101,15 +100,15 @@ export default {
     let oldValue = ref({});
 
     let options = reactive({
-      // 存储组树形
+      // Storage group tree
       storageGroupTreeOption: [],
-      // 存储组平铺
+      // Storage group list
       storageGroupOption: [],
-      // 实体树形
+      // Entity tree
       deviceTreeOption: [],
-      // 实体平铺
+      // Entity list
       deviceOption: [],
-      // 物理量平铺
+      // Measurement list
       timeSeriesOption: [],
     });
 
@@ -311,8 +310,7 @@ export default {
       ];
       pathMap.value = { 0: t('sourcePage.selectAlias'), 1: t('sourcePage.selectGroup'), 2: t('sourcePage.selectDevice'), 3: t('sourcePage.selectTime') };
     });
-    // type 弹出框类型 edit or add
-    // data 编辑回显数据
+    // type : edit or add
     const open = async ({ type, data } = {}) => {
       dialogType.value = type;
       oldValue.value = { ...data };
@@ -320,7 +318,6 @@ export default {
       nextTick(() => {
         formRef.value.clearValidate();
       });
-      // type 数据粒度
       let dataType = data?.type;
       if (type === 'add') {
         form.type = 0;
@@ -328,7 +325,7 @@ export default {
       } else {
         form.type = dataType;
         form.privileges = data.privileges;
-        // 存储组
+        // Storage group
         if (dataType === 1) {
           await getStorageGroupTree();
           storage.value = [...data.groupPaths];
@@ -348,7 +345,7 @@ export default {
         }
       }
     };
-    // 改变存储组/实体的树形
+    // Change the tree of storage group / entity
     const changeTreeValue = (data, type) => {
       if (type === DataGranularityMap.group) {
         storage.value = data;
@@ -356,25 +353,25 @@ export default {
         device.device = data;
       }
     };
-    // 数据粒度为实体的时候, 改变存储组
+    // When the data granularity is entity, change the storage group
     const changeStorageInDevice = (groupName) => {
       device.storage = groupName;
       getDeviceTree({ serverId, groupName });
     };
 
-    // 数据粒度为物理量的时候, 改变存储组
+    // When the data granularity is a physical quantity, change the storage group
     const changeStorageInTime = (groupName) => {
       time.storage = groupName;
       getDevice({ serverId, groupName });
     };
 
-    // 数据粒度为物理量的时候, 改变实体
+    // When the data granularity is a physical quantity, the entity is changed
     const changeDeviceInTime = (deviceName) => {
       time.device = deviceName;
       getTimeseries({ serverId, deviceName, groupName: time.storage });
     };
 
-    // 数据粒度为物理量的时候, 改变物理量, 处理全选
+    // When the data granularity is physical quantity, change the physical quantity and process select all
     const changeTime = (val) => {
       if (val.includes(null) || (val.length === options.timeSeriesOption.length - 1 && !val.includes(null))) {
         time.time = [null];
@@ -387,7 +384,7 @@ export default {
       nextTick(() => {
         formRef.value.clearValidate();
       });
-      // 存储组
+      // Storage group
       if (value === 1) {
         getStorageGroupTree();
       } else if (value === 2) {
@@ -396,26 +393,26 @@ export default {
         getStorageGroup();
       }
     };
-    // 获取存储组树形
+    // Get storage group tree
     const getStorageGroupTree = async () => {
       options.storageGroupTreeOption = (await api.getStorageGroupTree({ serverId })).data;
     };
-    // 获取存储组平铺
+    // Get storage group list
     const getStorageGroup = async () => {
       options.storageGroupOption = (await api.getStorageGroup({ serverId })).data;
     };
-    // 获取实体树形
+    // Get entity tree
     const getDeviceTree = async ({ serverId, groupName }) => {
       options.deviceTreeOption = (await api.getDeviceTreeByGroup({ serverId, groupName })).data;
     };
-    // 获取实体平铺
+    // Get entity list
     const getDevice = async ({ serverId, groupName }) => {
       options.deviceOption = (await api.getDeviceByGroup({ serverId, groupName })).data;
     };
-    // 获取物理量平铺
+    // Get Measurement  list
     const getTimeseries = async ({ serverId, groupName, deviceName }) => {
       options.timeSeriesOption = (await api.getTimeseries({ serverId, groupName, deviceName })).data.map((timeSeries) => ({ id: timeSeries, name: timeSeries }));
-      options.timeSeriesOption.length && options.timeSeriesOption.unshift({ id: null, name: '全部物理量' });
+      options.timeSeriesOption.length && options.timeSeriesOption.unshift({ id: null, name: t('sourcePage.allMeasurement') });
     };
     const handleCancel = () => {
       visible.value = false;
@@ -444,20 +441,20 @@ export default {
         serverId,
       };
       params[paramMap.value] = props.name;
-      // 处理权限
+      // Processing authority
       let dealPivilege = handlePath('privileges', [...privileges]);
       payload.privileges = privileges;
       payload.cancelPrivileges = dealPivilege.deleteList;
-      // 处理存储组
+      // Processing storage groups
       if (type === 1) {
         payload.groupPaths = [...range];
       }
-      // 处理实体
+      // Processing entity
       if (type === 2) {
         payload.groupPaths = [range.storage];
         payload.devicePaths = range.device;
       }
-      // 处理物理量
+      // Processing physical quantity
       if (type === 3) {
         payload.groupPaths = [range.storage];
         payload.devicePaths = [range.device];
@@ -465,7 +462,7 @@ export default {
       }
       await methodMap.value(params, payload);
       visible.value = false;
-      ElMessage.success(`${dialogType.value === 'add' ? '新增' : '编辑'}权限成功`);
+      ElMessage.success(`${dialogType.value === 'add' ? t('sourcePage.addPrivilegeSuccess') : t('sourcePage.editPrivilegeSuccess')}`);
       emit('submit');
     };
     const handlePath = (props, List) => {

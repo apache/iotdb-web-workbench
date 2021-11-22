@@ -166,47 +166,42 @@ export default {
     });
 
     const urlSkipMap = (data, forceupdateparams) => {
-      // console.log(data, 'ppppppp');
       let extraParams = data.extraParams;
       let forceupdate = forceupdateparams ? forceupdateparams : '';
       if (data.type === 'connection') {
         if (data.extraParams && data.extraParams.type == 'modal') {
           router.push({ name: 'DataModal', params: { ...data, serverid: data.connectionid, forceupdate, ...extraParams } });
         } else {
-          //数据连接
+          //data connection
           router.push({ name: 'Source', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
         }
       } else if (data.type === 'newstorageGroup') {
         router.push({ name: 'NewStorage', params: { serverid: data.connectionid, forceupdate, ...extraParams } });
       } else if (data.type === 'querylist') {
-        //查询列表
+        //Query list
       } else if (data.type === 'storageGroup') {
-        // todo params存储对象会丢失, 固存在store里面
         store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent?.parent?.name, forceupdate, ...extraParams });
 
-        //判断是进入存储组详情还是编辑存储组
+        //Determine whether to enter the storage group details or edit the storage group
         if (data.extraParams && data.extraParams.type == 'edit') {
           router.push({ name: 'EditStorage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
         } else {
-          //存储组
+          //Storage group
           router.push({ name: 'Storage', params: { serverid: data.connectionid, groupname: data.name, forceupdate, ...extraParams } });
         }
       } else if (data.type === 'newdevice') {
-        //新建实体
-        // todo params存储对象会丢失, 固存在store里面
+        //New entity
         store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams });
         router.push({ name: 'Device', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams }, query: { id: data.id } });
       } else if (data.type === 'device') {
-        //实体
-        // todo params存储对象会丢失, 固存在store里面
         store.commit('setCurrRouteParams', { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams });
         router.push({ name: 'DeviceMessage', params: { ...data, parentid: data.parent.id, parentids: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'newquery') {
-        //新建查询
+        //new query
         console.log(data);
         router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name, forceupdate, ...extraParams } });
       } else if (data.type === 'query') {
-        //查询
+        //new query
         router.push({ name: 'SqlSerch', params: { ...data, connectId: data.parent.parent.name, forceupdate, ...extraParams } });
       }
     };

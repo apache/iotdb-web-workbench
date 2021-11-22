@@ -19,51 +19,51 @@
 
 import axios from '@/util/axios.js';
 
-//获取实体详情
+//Get entity details
 export function getDeviceDate(data) {
   return axios.get(`/servers/${data.connectionid}/storageGroups/${data.storagegroupid}/devices/${data.name}`);
 }
-//获取实体下物理量列表
+//Get Measurement  list under entity
 export function getList(data, params) {
   return axios.get(`/servers/${data.connectionid}/storageGroups/${data.storagegroupid}/devices/${data.name}/info`, { params: params });
 }
-//获取测点数据趋势
+//Obtain the trend of measuring point data
 export function getData(serverId, groupName, deviceName, timeseriesName, params) {
   return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries/${timeseriesName}`, { params });
 }
-//删除实体
+//Delete entity
 export function deleteDevice(data) {
   return axios.delete(`/servers/${data.connectionid}/storageGroups/${data.storagegroupid}/devices/${data.name}`);
 }
-//获取数据预览
+//Get data preview
 export function getDataDeviceList(info, params, data) {
   return axios.post(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/data`, data, { params });
 }
-//随机导入数据
+//Random import data
 export function randomImport(info, data) {
   return axios.post(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/randomImport`, data);
 }
-//编辑物理量数据
+//Edit Measurement  data
 export function editData(info, data) {
   return axios.put(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/data`, data);
 }
-//删除物理量
+//delete Measurement
 export function deleteDeviceData(info, data) {
   return axios.delete(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/data`, { data });
 }
-//导出物理量数据
+//Export Measurement data
 export function exportDataCSV(info, data) {
   return axios.post(`/servers/${info.connectionid}/storageGroups/${info.storagegroupid}/devices/${info.name}/exportData`, data, { responseType: 'blob' });
 }
-//文件导入
+//File import
 export function importData(info, data) {
   return axios.post(`/servers/${info.connectionid}/importData`, data);
 }
-//模板下载
+//Template download
 export function downloadFile() {
   return axios.get(`/downloadFile/template`);
 }
-//指定设备下的物理量列表
+//List of physical quantities under the specified device
 export function getTimeseiresList(serverId, groupName, deviceName) {
   return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries`);
 }

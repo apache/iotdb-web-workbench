@@ -10,37 +10,37 @@
 <script>
 import { ref, watch, computed } from 'vue';
 import { DataGranularityMap } from '@/util/constant';
+import { useI18n } from 'vue-i18n';
 // import _cloneDeep from 'lodash/cloneDeep'
 export default {
   name: 'Test',
   props: {
     data: {
-      /**树形数据 */
+      /** Tree data */
       type: Array,
       default: () => {
         return [];
       },
     },
     checkedKeys: {
-      /**树形选择节点id */
+      /** Tree selection node ID */
       type: Array,
       default: () => {
         return [];
       },
     },
     type: {
-      /**判断是存储组还是实体 */
+      /** Determine storage group or entity */
       type: String,
       default: '',
     },
   },
   setup(props, { emit }) {
+    const { t } = useI18n();
     let treeRef = ref(null);
     let mineStatusValue = ref([]);
     let mineStatus = ref([]);
-    // 树形
     let treeData = ref([]);
-    // 平铺后的树形
     let treeList = ref([]);
     let defaultProps = {
       children: 'children',
@@ -48,14 +48,14 @@ export default {
     };
     let nameType = computed(() => {
       return {
-        [DataGranularityMap.group]: '所有存储组',
-        [DataGranularityMap.device]: '所有实体',
+        [DataGranularityMap.group]: t('sourcePage.allStorageGroups'),
+        [DataGranularityMap.device]: t('sourcePage.allDevices'),
       }[props.type];
     });
     let placeholder = computed(() => {
       return {
-        [DataGranularityMap.group]: '请选择存储组',
-        [DataGranularityMap.device]: '请选择实体',
+        [DataGranularityMap.group]: t('device.selectdataconnection'),
+        [DataGranularityMap.device]: t('device.selectp'),
       }[props.type];
     });
     const changeSelect = (e) => {
@@ -69,16 +69,17 @@ export default {
           }
         }
       }
-      treeRef.value.setCheckedNodes(arrNew); //设置勾选的值
+      treeRef.value.setCheckedNodes(arrNew); //Set the checked value
     };
     const handleCheckChange = () => {
-      let res = treeRef.value.getCheckedNodes(false, false); //这里两个true，1. 是否只是叶子节点 2. 是否包含半选节点（就是使得选择的时候不包含父节点）
+      //There are two truths here: 1. Whether it is only a leaf node; 2. Whether it contains a semi selected node (that is, it does not include a parent node when selecting)
+      let res = treeRef.value.getCheckedNodes(false, false);
       mineStatus.value = res.map((d) => d.name);
       mineStatusValue.value = res;
       emit('change', filterValue(mineStatus.value));
     };
     const filterValue = (origin) => {
-      if (origin.includes('所有存储组') || origin.includes('所有实体')) {
+      if (origin.includes(t('sourcePage.allStorageGroups')) || origin.includes(t('sourcePage.allDevices'))) {
         return treeList.value.filter((d) => d.level === 2).map((i) => i.name);
       }
       origin.forEach((d) => {
@@ -112,7 +113,7 @@ export default {
       return list;
     };
     /**
-     * 给出节点的所有子节点
+     * All child nodes of the given node
      * */
     const loopNode = (directory) => {
       let res = [];
@@ -154,7 +155,7 @@ export default {
             let obj = treeList.value.find((e) => e.name === d);
             obj && mineStatusValue.value.push(obj);
           });
-          treeRef.value.setCheckedNodes(mineStatusValue.value); //设置勾选的值
+          treeRef.value.setCheckedNodes(mineStatusValue.value);
         });
       }
     );
