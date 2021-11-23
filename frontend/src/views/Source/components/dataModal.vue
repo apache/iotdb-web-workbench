@@ -15,8 +15,6 @@ import img1 from '../../../assets/storage.png';
 import img2 from '../../../assets/data.png';
 import img3 from '../../../assets/device.png';
 var MyCharts = '';
-var treeTopPadding = 120; //tree距顶端的距离
-var rightNode; //最右侧节点,用于计算偏移量
 export default {
   name: 'DataModal',
   //   props: ['func'],
@@ -28,7 +26,6 @@ export default {
     const datas = ref({});
 
     const getModalTreeData = (func) => {
-      // /servers/{serverId}/dataModel
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
         if (res && res.code == 0) {
           datas.value = res.data || {};
@@ -37,10 +34,8 @@ export default {
       });
     };
     const initCharts = () => {
-      // 基于准备好的dom，初始化echarts实例
       MyCharts = echarts.init(document.getElementById('main'));
 
-      // 指定图表的配置项和数据
       let option = {
         tooltip: {
           trigger: 'item',
@@ -48,7 +43,7 @@ export default {
           formatter: (params) => {
             let data = params.data;
             if (data.name == 'root') {
-              //根节点
+              //root
               return t('sourcePage.storageNum') + ':' + data.groupCount || 0;
             } else if (data.isGroup) {
               return t('sourcePage.entityNum') + ':' + data.deviceCount || 0;
@@ -83,7 +78,7 @@ export default {
             initialTreeDepth: 1,
             itemStyle: {
               normal: {
-                color: '#fff', //圆圈颜色
+                color: '#fff',
                 borderWidth: 0,
                 borderColor: '#000',
                 lineStyle: {
@@ -155,61 +150,9 @@ export default {
         ],
       };
 
-      // 使用刚指定的配置项和数据显示图表。
       MyCharts.setOption(option);
-      // adjustTreeView();
-    };
-    const adjustTreeView = () => {
-      var zr = MyCharts.getZrender();
-
-      var domWidth = zr.painter.getWidth();
-
-      var treeWidth = getTreeWidth(zr);
-
-      if (treeWidth <= domWidth) return;
-
-      var adjustSize = (domWidth / treeWidth) * 0.95; //多缩小0.05不至于完全充盈dom
-
-      var lastNodeX = rightNode.style.x * adjustSize;
-
-      var rightOffset = domWidth - lastNodeX - (domWidth - treeWidth * adjustSize) / 2; //尽可能的让其居中
-
-      zr.painter._layers[1].scale = [adjustSize, adjustSize, 0, 0]; //前两个为缩放大小，后两个为缩放原点
-
-      zr.painter._layers[1].position = [rightOffset, treeTopPadding]; //偏移量
-
-      MyCharts.refresh();
     };
 
-    //计算最左边节点和最右边节点（symbol为image或icon）的间隔即为树图宽度
-
-    const getTreeWidth = (zr) => {
-      var nodes = zr.storage._roots;
-
-      var max = 0;
-
-      var min = 0;
-
-      for (var i = 0; i < nodes.length; i++) {
-        if (nodes[i].type == 'image' || nodes[i].type == 'icon') {
-          var nodeX = nodes[i].style.x;
-
-          if (nodeX > max) {
-            max = nodeX;
-
-            rightNode = nodes[i];
-
-            continue;
-          }
-
-          if (nodeX < min) {
-            min = nodeX;
-          }
-        }
-      }
-
-      return max - min;
-    };
     onMounted(() => {
       // getModalTreeData(() => {
       //   initCharts();
@@ -229,8 +172,6 @@ export default {
       datas,
       getModalTreeData,
       initCharts,
-      adjustTreeView,
-      getTreeWidth,
     };
   },
   components: {

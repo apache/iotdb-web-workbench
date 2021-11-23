@@ -181,7 +181,7 @@ export default {
       ],
     });
     /**
-     * 新增编辑数据源
+     * new/edit source
      */
     const submit = () => {
       formRef.value.validate((valid) => {
@@ -206,7 +206,7 @@ export default {
       });
     };
     /**
-     * 获取数据源基本信息
+     * get source basic info
      */
     const getBaseInfo = () => {
       axios.get(`/servers/${props.serverId}`, {}).then((res) => {
@@ -221,7 +221,7 @@ export default {
       });
     };
     /**
-     * 数据源是否联通测试
+     * source can test successful
      */
     const testConnect = () => {
       let patternReg = /^(((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?))|(localhost)$/;
