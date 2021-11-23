@@ -240,8 +240,12 @@ export default {
           width: 100%;
           margin-top: 16px;
         }
-        .form-item-input {
+        &::v-deep .form-item-input {
           width: 520px;
+          .el-input__inner {
+            height: 40px;
+            line-height: 40px;
+          }
           &::v-deep {
             .el-input__inner {
               padding: 0 12px;
