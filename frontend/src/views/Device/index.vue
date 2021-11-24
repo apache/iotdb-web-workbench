@@ -106,8 +106,8 @@ export default {
         {
           label: 'device.physicalname',
           prop: 'timeseries',
-          type: 'INPUT', //控件类型
-          required: true, //必填标志
+          type: 'INPUT',
+          required: true,
           size: 'small',
           border: true,
           event: checkVal,
@@ -115,7 +115,7 @@ export default {
         {
           label: 'device.alias',
           prop: 'alias',
-          type: 'INPUT', //控件类型
+          type: 'INPUT',
           size: 'small',
           canEdit: true,
         },
@@ -198,33 +198,33 @@ export default {
       ],
     });
     const form = reactive({
-      labelPosition: 'left', //文本对齐方式
+      labelPosition: 'left',
       formData: {
         deviceId: null,
       },
       formItem: [
         {
-          label: 'device.devicename', //名称
-          type: 'INPUT', //控件类型
-          size: 'small', //element尺寸
-          labelWidth: '40%', //块宽度 px 或 %
-          itemID: 'deviceName', //数据字段名
-          placeholder: 'device.inputdevice', //灰色提示文字
-          required: true, //是否必填
+          label: 'device.devicename',
+          type: 'INPUT',
+          size: 'small',
+          labelWidth: '40%',
+          itemID: 'deviceName',
+          placeholder: 'device.inputdevice',
+          required: true,
           disabled: false,
           inputHeader: true,
           inputHeaderText: 'groupName',
-          message: 'device.inputdevice', //报错提示信息
+          message: 'device.inputdevice',
         },
         {
-          label: 'device.description', //名称
-          type: 'INPUT', //控件类型
-          size: 'small', //尺寸
-          labelWidth: '40%', //块宽度 px 或 %
-          itemID: 'description', //数据字段名
-          placeholder: 'device.inputdecr', //灰色提示文字
-          required: false, //是否必填
-          message: 'device.inputdecr', //报错提示信息
+          label: 'device.description',
+          type: 'INPUT',
+          size: 'small',
+          labelWidth: '40%',
+          itemID: 'description',
+          placeholder: 'device.inputdecr',
+          required: false,
+          message: 'device.inputdecr',
         },
       ],
     });
@@ -347,7 +347,7 @@ export default {
           checkfalg = false;
         }
       });
-      // 验证通过
+      // Verification passed
       if (checkfalg) {
         let copyForm = _cloneDeep(form);
         let { deviceName, groupName } = copyForm.formData;
@@ -373,7 +373,7 @@ export default {
               let isAdd = route.query.id.endsWith(':newdevice');
               let id = '';
               if (isAdd) {
-                // 如果是在存储组下新增的实体, id另做处理
+                // If an entity is added under a storage group, the ID will be processed separately
                 if (currRouteParams.parent.type === 'storageGroup') {
                   id = parentId + currRouteParams.storagegroupid + 'device' + copyForm.formData.deviceName + 'device';
                 } else {
@@ -382,7 +382,6 @@ export default {
               } else {
                 id = route.query.id;
               }
-              console.log('跳转id', id);
               props.func.updateTree();
               props.func.addTab(id, {}, true);
               // }

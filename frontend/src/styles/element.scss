@@ -109,13 +109,6 @@
   .el-tabs__nav-scroll {
     background-color: #fff !important;
   }
-  .el-input .el-input__inner {
-    height: 28px !important;
-    line-height: 28px !important;
-  }
-  .el-input__inner:focus {
-    border-color: $theme-color;
-  }
   .el-dialog__body {
     text-align: left;
     padding: 20px 20px 30px;
@@ -125,7 +118,13 @@
     padding: 12px 20px;
   }
 }
-
+.el-input .el-input__inner {
+  height: 28px;
+  line-height: 28px;
+}
+.el-input__inner:focus {
+  border-color: $theme-color;
+}
 .el-input {
   line-height: 28px !important;
 }

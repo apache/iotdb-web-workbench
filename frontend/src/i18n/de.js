@@ -43,6 +43,7 @@ const de = {
       noData: 'Keine Daten',
       tip: 'Tips',
       deleteSuccess: 'Löschen erfolgreich',
+      add: 'neu hinzugefügt',
     },
     databasem: {
       newStoreGroup: 'Neue Speichergruppe ("storage group")',
@@ -212,6 +213,13 @@ const de = {
       confirmDelete: 'Löschung bestätigen?',
       roleNameLimit1: 'Der Name kann keine reine Zahl sein',
       roleNameLimit2: 'Name existiert bereits',
+      allMeasurement: 'All measurement',
+      addPrivilegeSuccess: 'Erfolgreich hinzugefügte Berechtigung',
+      editPrivilegeSuccess: 'Bearbeitung erfolgreich',
+      editSucceed: 'Bearbeiten erfolgreich',
+      createdSucceed: 'Erstellt erfolgreich',
+      allStorageGroups: 'Alle Speichergruppen',
+      allDevices: 'Alle Einheiten',
     },
     storagePage: {
       alias: 'Verbindung',
@@ -243,6 +251,7 @@ const de = {
       deleteDeviceConfirm: 'Mit dieser Aktion wird das Device unwiderfulich gelöscht. Fortfahren?',
     },
     device: {
+      measurement: 'measurement',
       serchPy: 'Name der Metrik eingeben',
       dataconnection: 'Verbindung',
       selectdataconnection: 'Speichergruppe ("Storage group") auswählen',
@@ -328,6 +337,8 @@ const de = {
       failedNum: 'Anzahl der Ausfälle',
       deleteTip: 'Bitte zuerst Daten auswählen',
       all: 'ganze',
+      chooseDate: 'Zeit auswählen',
+      startDateTip: 'Bitte wählen Sie eine Startzeit',
     },
     sqlserch: {
       Aggregate: 'Aggregate',
@@ -377,6 +388,8 @@ const de = {
       stop: 'Anhalten',
       sqlserchText: 'Das Query wurde erfolgreich beendet und keine Daten wurden zurückgegeben',
       sqlrun: 'Query wird aktuell ausgeführt',
+      type: 'type',
+      description: 'Beschreibung',
     },
     standTable: {
       export: 'Exportieren',

@@ -1,4 +1,4 @@
-<!-- 权限管理权限 -->
+<!-- Permission management permission -->
 <template>
   <div class="permitpermission-content">
     <p class="tips">{{ $t('sourcePage.permitTips') }}</p>
@@ -299,14 +299,13 @@ export default {
           serverId: serverId,
           userName: props.baseInfo.userName,
         });
-        ElMessage.success('编辑成功');
+        ElMessage.success(t('sourcePage.editSucceed'));
       } catch (e) {
         //
       }
     };
 
     let handleCheckAllChange = (type) => {
-      // 如果全选
       if (allChecked.value[type]) {
         checked.value[type] = relationList.value[type].map((d) => d.id);
       } else {

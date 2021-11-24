@@ -1,4 +1,4 @@
-<!-- 用户缴了-角色列表 -->
+<!-- role list -->
 <template>
   <div class="list-wrapper">
     <div class="user-title">
@@ -59,7 +59,7 @@ export default {
     const emitter = getCurrentInstance().appContext.config.globalProperties.emitter;
     let isAdding = ref(false);
 
-    // 获取所有角色
+    // Get all roles
     let getRoleList = async (roleName) => {
       isAdding.value = false;
       let result = await api.getRoles(serverId);
@@ -122,13 +122,13 @@ export default {
       getRoleList();
     };
     const cancelAdd = () => {
-      //新增状态的时候点取消, 退出新增状态,并锁定第一个角色
+      //When adding a new role, click Cancel to exit the new status and lock the first role
       if (isAdding.value) {
         roleList.value.splice(0, 1);
         isAdding.value = false;
         clickRole(roleList?.value[0]);
       } else {
-        //编辑时候点取消, 退出编辑状态
+        //When editing, click Cancel to exit the editing status
         clickRole(activeRole.value);
       }
     };

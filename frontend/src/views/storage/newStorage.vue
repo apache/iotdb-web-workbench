@@ -122,16 +122,16 @@ export default {
       ttiUnit: '',
     });
     /**
-     * 取消新增存储组
+     * cancel new storage
      */
     const cancel = () => {
       props.func.removeTab(props.data.id);
       // props.func.addTab(router.currentRoute.value.params.serverid + 'connection');
     };
     /**
-     * 获取存储组详情
-     * serverid: 连接id
-     * groupname:存储组名
+     * get storage detail
+     * serverid: connect id
+     * groupname:storage name
      */
     const getGroupDetail = () => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${router.currentRoute.value.params.groupname}`, {}).then((res) => {
@@ -145,7 +145,7 @@ export default {
       });
     };
     /**
-     * 新增/编辑存储组
+     * new/edit storage
      */
     const submit = () => {
       formRef.value.validate((valid) => {
@@ -177,7 +177,7 @@ export default {
       });
     };
     /**
-     * 单独获取数据源的alias
+     * get souce alisa
      */
     const getServerName = () => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}`, {}).then((res) => {

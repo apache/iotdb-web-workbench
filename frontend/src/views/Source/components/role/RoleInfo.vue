@@ -1,4 +1,4 @@
-<!-- 用户角色-基础信息 -->
+<!-- User role - basic information -->
 <template>
   <el-form ref="roleForm" label-position="top" :model="form" :rules="rules" label-width="120px">
     <el-form-item :label="$t('sourcePage.roleName')" prop="roleName">
@@ -89,7 +89,6 @@ export default {
             if (reg.test(value)) {
               callback(new Error(t('sourcePage.roleNameLimit1')));
             }
-            // 重名检测
             if (oldForm?.value?.id && oldForm?.value?.roleName !== value) {
               if (props.roleList.includes(value)) {
                 callback(new Error(t('sourcePage.roleNameLimit2')));
@@ -139,7 +138,7 @@ export default {
           if (addUser?.length || deleteUser?.length) {
             await api.grantUserRole({ serverId, roleName }, { cancelUserList: deleteUser, userList: addUser });
           }
-          ElMessage.success(`角色${isEdit.value ? '编辑' : '创建'}成功`);
+          ElMessage.success(`${isEdit.value ? t('sourcePage.editSucceed') : t('sourcePage.createdSucceed')}`);
           emitter.emit('add-role', isEdit.value ? roleName : '');
         } catch (e) {
           //

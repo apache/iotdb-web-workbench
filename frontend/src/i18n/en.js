@@ -43,6 +43,7 @@ const en = {
       noData: 'No Data',
       tip: 'Tips',
       deleteSuccess: 'Delete Success',
+      add: 'Add',
     },
     databasem: {
       newStoreGroup: 'New Storage Group',
@@ -219,6 +220,13 @@ const en = {
       confirmDelete: 'Confirm Deletion?',
       roleNameLimit1: 'The Name Cannot Be A Pure Number',
       roleNameLimit2: 'Name Already Exists',
+      allMeasurement: 'Alle physikalischen Größen',
+      addPrivilegeSuccess: 'Successfully added permission',
+      editPrivilegeSuccess: 'Edit permission succeeded',
+      editSucceed: 'Edit succeeded',
+      createdSucceed: 'Created successfully',
+      allStorageGroups: 'All storage groups',
+      allDevices: 'All devices',
     },
     storagePage: {
       alias: 'Connection',
@@ -250,6 +258,7 @@ const en = {
       deleteDeviceConfirm: 'This Operation Will Lead To The Deletion Of The Device Could Not Be Resumed, Confirmed To Delete?',
     },
     device: {
+      measurement: 'physikalische Menge',
       serchPy: 'Please Input The Measuring Metrics',
       dataconnection: 'Data Connection',
       selectdataconnection: 'Please Select Save Group',
@@ -335,6 +344,8 @@ const en = {
       failedNum: 'Number Of Failures',
       deleteTip: 'Please Select Data First',
       all: 'All',
+      chooseDate: '选择时间',
+      startDateTip: 'Please select a start time',
     },
     sqlserch: {
       Aggregate: 'Aggregate',
@@ -384,6 +395,8 @@ const en = {
       stop: 'Stop',
       sqlserchText: 'The Query Is Executed Successfully, And No Data Is Returned',
       sqlrun: 'The Query Is Running. Please Do Not Repeat The Operation',
+      type: 'Typ',
+      description: 'description',
     },
     standTable: {
       export: 'Export',

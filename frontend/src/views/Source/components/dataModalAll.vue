@@ -39,8 +39,8 @@ export default {
       });
     };
     /**
-     * data 当前层级数据
-     * index  层级数
+     * data current level data
+     * index  level num
      */
     const dealData = (data, index) => {
       for (let i = 0; i < data.length; i++) {
@@ -100,7 +100,7 @@ export default {
     };
     const deepSearchSelf = (data, name, index) => {
       if (data.path == name) {
-        //找到
+        //do it
         data.collapsed = !data.collapsed;
         initialTreeDepth.value = index;
         MyChart.clear();
@@ -124,7 +124,7 @@ export default {
     const initialTreeDepth = ref(1);
     const deepSearch = (data, name, type, index) => {
       if (data.path == name) {
-        //找到
+        //do it
         // data.collapsed = false;
         let temp = JSON.parse(JSON.stringify(data.childrensTemp));
         initialTreeDepth.value = index;
@@ -160,12 +160,12 @@ export default {
       }
     };
     const initCharts = () => {
-      // 基于准备好的dom，初始化echarts实例
+      //  init charts
       MyChart = echarts.init(document.getElementById('mains'));
       MyChart.on('click', function (params) {
         clickFunction(params);
       });
-      // 指定图表的配置项和数据
+      // set option
       setOption();
     };
     const setOption = () => {
@@ -176,7 +176,7 @@ export default {
           formatter: (params) => {
             let data = params.data;
             if (data.name == 'root') {
-              //根节点
+              //root
               return t('sourcePage.storageNum') + ':' + data.groupCount || 0;
             } else if (data.isGroup) {
               return t('sourcePage.entityNum') + ':' + data.deviceCount || 0;
@@ -211,7 +211,7 @@ export default {
             initialTreeDepth: initialTreeDepth.value,
             itemStyle: {
               normal: {
-                color: '#fff', //圆圈颜色
+                color: '#fff',
                 borderWidth: 0,
                 borderColor: '#000',
                 lineStyle: {
@@ -285,18 +285,10 @@ export default {
         ],
       };
 
-      // 使用刚指定的配置项和数据显示图表。
+      // show echart
       MyChart.setOption(option);
     };
-    // const resize = () => {
-    //   let MyChart = echarts.init(document.getElementById('main'));
-    // let eleArr = Array.from(new Set(MyChart._chartViews[0]._data._graphicEls));
-    // let dep = MyChart._chartViews[0]._data.tree.root.height;
-    // let layer_height = 100;
-    // let currentHeight = layer_height * (dep + 1) || layer_height;
-    // let newHeight = Math.max(currentHeight, layer_height);
 
-    // }
     onMounted(() => {
       // getModalTreeData(() => {
       //   initCharts();

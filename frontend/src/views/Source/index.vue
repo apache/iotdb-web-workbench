@@ -448,19 +448,19 @@ export default {
     let types = ref(0);
     let activeName = ref('1');
     let sourceTabs = ref('d');
-    // 是否可以创建用户
+
     let canCreateUser = ref(false);
-    //是否可以创建存储组，用于判断是否可以删除存储组
+
     let canGroupSet = ref(false);
-    // 是否可以删除用户
+
     let canDeleteUser = ref(false);
-    // 是否可以修改密码
+
     let canModifyPassword = ref(false);
-    // 是否可以查看用户
+
     let canShowUser = ref(false);
-    // 是否可以用户赋权
+
     let canAuth = ref(false);
-    // 是否可以用户赋权角色
+
     let canAuthRole = ref(false);
     const router = useRouter();
     let pathList = ref([
@@ -543,7 +543,7 @@ export default {
     });
     let authTableData = ref([]);
     /**
-     * 当前连接下所有存储组信息
+     * all storage info
      */
     let allGroupPaths = ref([]);
     let activeIndex = ref(null);
@@ -689,7 +689,7 @@ export default {
     const triggerRelationAll = ref(false);
     const triggerRelationItems = ref([]);
     /**
-     * 数据管理权限弹框是否展示
+     * can show permit dialog
      */
     let permitType = ref(0);
     watch(locale, () => {
@@ -714,29 +714,25 @@ export default {
       };
     });
     /**
-     * 用户基本信息及所有权限列表
+     * user info && all permit list
      */
     let userAuthInfo = ref({});
     let userAuthInfoTemp = ref({});
-    /**
-     * 权限管理权限列表及备份
-     */
+
     let permitPermissionListTemp = ref([]);
-    /**
-     * 查看完整数据模型树
-     */
+
     const goToAllModal = () => {
       props.func.addTab(`${serverId.value}connection`, { twinTab: true, title: baseInfo.value.alias, id: new Date().getTime() + '', type: 'modal' });
     };
     /**
-     * 新增或编辑数据连接
+     * new or eidt source
      */
     const editSource = () => {
       showDialog.value = true;
       types.value = 1;
     };
     /**
-     * 删除数据源
+     * delete source
      */
     const deleteSource = () => {
       axios.delete(`/servers/${serverId.value}`).then((rs) => {
@@ -747,16 +743,12 @@ export default {
         }
       });
     };
-    /**
-     * 关闭或者取消新增/编辑数据连接操作
-     */
+
     const close = () => {
       showDialog.value = false;
       types.value = 0;
     };
-    /**
-     * 新增或编辑数据源成功回调
-     */
+
     const successFunc = () => {
       showDialog.value = false;
       types.value = 0;
@@ -764,18 +756,14 @@ export default {
       getUserList(1);
       getGroupList();
     };
-    /**
-     * 切换基本配置与账号权限的tab操作
-     */
+
     const handleClick = (tab) => {
       activeName.value = tab.paneName;
       if (tab.paneName == '3') {
         getPermitPermissionList({});
       }
     };
-    /**
-     * 保存用户权限管理权限
-     */
+
     const savepermitAuth = () => {
       if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_USER_PRIVILEGE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
@@ -803,9 +791,7 @@ export default {
         }
       });
     };
-    /**
-     * 获取用户权限管理权限
-     */
+
     const getPermitPermissionList = (userinfo, type) => {
       axios.get(`/servers/${serverId.value}/users/${userinfo.username || baseInfoForm.userName}/authorityPrivilege`, {}).then((rs) => {
         if (rs && rs.code == 0) {
@@ -848,9 +834,7 @@ export default {
         }
       });
     };
-    /**
-     * 切换数据源展示类型tab操作
-     */
+
     const handleClickSource = (tab) => {
       sourceTabs.value = tab.paneName;
       if (tab.paneName == 'a') {
@@ -861,9 +845,9 @@ export default {
       }
     };
     /**
-     * 选中用户列表某一个用户
-     * index: 用户下标
-     * item:当前选中用户信息
+     *  selete one user
+     * index: user index
+     * item: current selete user info
      */
     const handleUser = (index, item) => {
       for (let i = 0; i < userList.value.length; i++) {
@@ -881,7 +865,7 @@ export default {
       }
     };
     /**
-     * 编辑用户基本信息(密码)
+     * edit user info(password)
      */
     const editBaseInfo = () => {
       if (store.state.dataBaseM.privilegeListAll.indexOf('MODIFY_PASSWORD') < 0) {
@@ -891,13 +875,13 @@ export default {
       edit.value = true;
     };
     /**
-     * 取消编辑用户密码操作
+     *  cancel edit user password
      */
     const cancelEdit = () => {
       edit.value = false;
     };
     /**
-     * 修改用户密码
+     * modify user password
      */
     const doEdit = () => {
       if (!baseInfoForm.password) {
@@ -916,7 +900,7 @@ export default {
       });
     };
     /**
-     * 创建用户
+     * create user
      */
     const doCreate = () => {
       baseInfoFormRef.value.validate((valid) => {
@@ -938,7 +922,7 @@ export default {
       });
     };
     /**
-     * 给用户角色赋权
+     * grant user privilege
      */
     const grantRole = (data, func) => {
       axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/grant`, data).then((rs) => {
@@ -948,8 +932,8 @@ export default {
       });
     };
     /**
-     * 删除用户操作
-     * item: 当前被删除的数据
+     * delete user
+     * item: current user
      */
     const deleteUser = (item) => {
       if (store.state.dataBaseM.privilegeListAll.indexOf('DELETE_USER') < 0) {
@@ -965,7 +949,7 @@ export default {
       });
     };
     /**
-     * 新建用户操作
+     * new user
      */
     const newUser = () => {
       if (store.state.dataBaseM.privilegeListAll.indexOf('CREATE_USER') < 0 || store.state.dataBaseM.privilegeListAll.indexOf('LIST_USER') < 0) {
@@ -990,7 +974,7 @@ export default {
       activeIndex.value = 'new';
     };
     /**
-     * 取消新建用户
+     * cancel create
      * userName
      */
     const cancelNew = (username) => {
@@ -1006,18 +990,13 @@ export default {
       isNew.value = false;
       getUserList(1);
     };
-    /**
-     * 监听多选框change事件
-     * scope:行数据
-     */
+
     const changeCheckItem = (scope) => {
       if (!scope.row.edit) {
         return false;
       }
     };
-    /**
-     * 监听全选用户相关操作
-     */
+
     const changeUserRelation = () => {
       if (userRelationAll.value) {
         let temp = [];
@@ -1029,9 +1008,7 @@ export default {
         userRelationItems.value = [];
       }
     };
-    /**
-     * 监听全选角色相关操作
-     */
+
     const changeRoleRelation = () => {
       if (roleRelationAll.value) {
         let temp = [];
@@ -1043,9 +1020,7 @@ export default {
         roleRelationItems.value = [];
       }
     };
-    /**
-     * 监听全选udf相关操作
-     */
+
     const changeUdfRelation = () => {
       if (udfRelationAll.value) {
         let temp = [];
@@ -1057,9 +1032,7 @@ export default {
         udfRelationItems.value = [];
       }
     };
-    /**
-     * 监听全选触发器相关操作
-     */
+
     const changeTriggerRelation = () => {
       if (triggerRelationAll.value) {
         let temp = [];
@@ -1072,19 +1045,13 @@ export default {
       }
     };
     let oldValue = ref({});
-    /**
-     * 切换表格行编辑状态
-     * scope:行数据
-     * index: 行顺序
-     */
+
     const changeEditState = (scope) => {
       oldValue.value = scope.row;
       // authTableData.value[scope.$index].edit = true;
       permitDialogRef.value.open({ type: 'edit', data: scope.row });
     };
-    /**
-     * 获取头部数据连接基本信息
-     */
+
     const getBaseInfo = (func) => {
       axios.get(`/servers/${serverId.value}`, {}).then((res) => {
         if (res && res.code == 0) {
@@ -1113,7 +1080,7 @@ export default {
       editRole.value = true;
     };
     /**
-     * 添加角色
+     * add role
      */
     const addRole = (type) => {
       if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_ROLE_PRIVILEGE') < 0) {
@@ -1151,9 +1118,7 @@ export default {
         editRole.value = false;
       });
     };
-    /**
-     * 添加权限按钮
-     */
+
     const authAdd = (type) => {
       if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_USER_PRIVILEGE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
@@ -1177,9 +1142,9 @@ export default {
     };
 
     /**
-     * 获取某一个用户权限
-     * userinfo:用户信息
-     * type: 1用户本身信息
+     * get privilege by one user
+     * userinfo: user info
+     * type: 1  if user self
      */
     const getUserAuth = (userinfo, type) => {
       getUserInfo(userinfo);
@@ -1204,7 +1169,7 @@ export default {
       });
     };
     /**
-     * 获取用户账号基本信息
+     * get user basic info
      */
     const getUserInfo = (userinfo) => {
       axios.get(`/servers/${serverId.value}/users/${userinfo.username}`).then((rs) => {
@@ -1230,10 +1195,7 @@ export default {
         }
       });
     };
-    /**
-     * 检查登入用户是否有各项操作权限
-     * data:权限数组
-     */
+
     const checkAuth = (data) => {
       for (let i = 0; i < data?.length; i++) {
         if (data[i].type == 0) {
@@ -1249,9 +1211,7 @@ export default {
       canAuth.value = permitPermissionListTemp.value.indexOf('GRANT_USER_PRIVILEGE') >= 0 ? true : false;
       canAuthRole.value = permitPermissionListTemp.value.indexOf('GRANT_ROLE_PRIVILEGE') >= 0 ? true : false;
     };
-    /**
-     * 获取当前数据连接的所有存储组
-     */
+
     const getGroupList = () => {
       axios.get(`/servers/${serverId.value}/storageGroups/info`, {}).then((res) => {
         if (res && res.code == 0) {
@@ -1270,8 +1230,8 @@ export default {
       });
     };
     /**
-     * 获取用户列表
-     * type：1初始化列表时默认选中第一个并且请求相关用户的权限列表
+     * get user list
+     * type：1 check the first one
      */
     const getUserList = (type) => {
       axios.get(`/servers/${serverId.value}/users`, {}).then((res) => {
@@ -1294,10 +1254,7 @@ export default {
         }
       });
     };
-    /**
-     * 删除某一行权限
-     * scope当前行数据
-     */
+
     const deleteRowAuth = (scope) => {
       if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_USER_PRIVILEGE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
@@ -1313,10 +1270,7 @@ export default {
         }
       });
     };
-    /**
-     * 编辑某一行权限
-     * scope当前行数据
-     */
+
     const saveRowAuth = (scope) => {
       let reqObj = JSON.parse(JSON.stringify(scope.row));
       if (reqObj.type != 0 && reqObj.type != 1 && reqObj.type != 2 && reqObj.type != 3) {
@@ -1340,41 +1294,29 @@ export default {
         return false;
       }
       if (scope.row.new) {
-        //用户新增权限
         reqObj.cancelPrivileges = [];
       } else {
-        // 缓存权限信息
-        //根据后端要求设置功能数组组装开始
         let tempRow = userAuthInfoTemp.value.privilegesInfo[scope.$index].privileges;
-        // 用户删除的权限
         let deleteArr = tempRow.filter(function (val) {
           return scope.row.privileges.indexOf(val) === -1;
         });
-        // 用户新增的权限
         let newArr = scope.row.privileges.filter(function (val) {
           return tempRow.indexOf(val) === -1;
         });
-        //交集
         let intersection = tempRow.filter(function (val) {
           return scope.row.privileges.indexOf(val) > -1;
         });
         newArr = newArr.concat(intersection);
         reqObj.privileges = newArr;
         reqObj.cancelPrivileges = deleteArr;
-        //根据后端要求设置功能数组组装结束
-
-        //根据后端要求设置范围数组组装开始
         if (scope.row.type == 1) {
           let tempGroupArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].groupPaths;
-          // 用户删除的权限
           let deleteGroupArr = tempGroupArr.filter(function (val) {
             return scope.row.groupPaths.indexOf(val) === -1;
           });
-          // 用户新增的权限
           let newGroupArr = scope.row.groupPaths.filter(function (val) {
             return tempGroupArr.indexOf(val) === -1;
           });
-          //交集
           let intersection = tempGroupArr.filter(function (val) {
             return scope.row.groupPaths.indexOf(val) > -1;
           });
@@ -1385,17 +1327,14 @@ export default {
           let tempGroupArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].groupPaths;
           let tempDeviceArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].devicePaths;
           if (tempGroupArr.toString() == scope.row.groupPaths.toString()) {
-            //未修改存储组
             reqObj.delGroupPaths = [];
             reqObj.groupPaths = scope.row.groupPaths;
             let deleteDeviceArr = tempDeviceArr.filter(function (val) {
               return scope.row.devicePaths.indexOf(val) === -1;
             });
-            // 用户新增的权限
             let newDeviceArr = scope.row.devicePaths.filter(function (val) {
               return tempDeviceArr.indexOf(val) === -1;
             });
-            //交集
             let intersection = tempDeviceArr.filter(function (val) {
               return scope.row.devicePaths.indexOf(val) > -1;
             });
@@ -1407,7 +1346,6 @@ export default {
             reqObj.devicePaths = newDeviceArr;
             // reqObj.privileges = scope.row.privileges;
           } else {
-            //修改了存储组
             reqObj.delGroupPaths = tempGroupArr;
             reqObj.groupPaths = scope.row.groupPaths;
             reqObj.delDevicePaths = tempDeviceArr;
@@ -1419,27 +1357,21 @@ export default {
           let tempDeviceArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].devicePaths;
           let tempTimeArr = userAuthInfoTemp.value.privilegesInfo[scope.$index].timeseriesPaths;
           if (tempGroupArr.toString() == scope.row.groupPaths.toString()) {
-            //未修改存储组
             reqObj.delGroupPaths = [];
             reqObj.groupPaths = scope.row.groupPaths;
             if (tempDeviceArr.toString() == scope.row.devicePaths.toString()) {
-              // 未修改设备
               reqObj.delDevicePaths = [];
               reqObj.devicePaths = scope.row.devicePaths;
               if (tempDeviceArr.toString() == scope.row.timeseriesPaths.toString()) {
-                // 未修改物理量
                 reqObj.delTimeseriesPaths = [];
                 reqObj.timeseriesPaths = scope.row.timeseriesPaths;
               } else {
-                //修改了物理量
                 let deleteTimeArr = tempTimeArr.filter(function (val) {
                   return scope.row.timeseriesPaths.indexOf(val) === -1;
                 });
-                // 用户新增的权限
                 let newTimeArr = scope.row.timeseriesPaths.filter(function (val) {
                   return tempTimeArr.indexOf(val) === -1;
                 });
-                //交集
                 let intersection = tempTimeArr.filter(function (val) {
                   return scope.row.timeseriesPaths.indexOf(val) > -1;
                 });
@@ -1454,7 +1386,6 @@ export default {
                 // reqObj.privileges = scope.row.privileges;
               }
             } else {
-              //修改了设备
               reqObj.delDevicePaths = tempDeviceArr;
               reqObj.devicePaths = scope.row.devicePaths;
               reqObj.delTimeseriesPaths = tempTimeArr;
@@ -1463,7 +1394,6 @@ export default {
               // reqObj.privileges = scope.row.privileges;
             }
           } else {
-            //修改了存储组
             reqObj.delGroupPaths = tempGroupArr;
             reqObj.groupPaths = scope.row.groupPaths;
             reqObj.delDevicePaths = tempDeviceArr;
@@ -1480,29 +1410,14 @@ export default {
         }
       });
     };
-    /**
-     * 取消当前行新增或编辑
-     * scope:当前行数据
-     */
     const cancelRowAuth = () => {
       getUserAuth({ username: activeIndex.value });
     };
-    /**
-     * 修改当前行type时触发
-     * val:当前type值
-     * scope:当前行数据
-     *
-     */
     const changeType = (val, scope) => {
       scope.row.groupPaths = [];
       scope.row.devicePaths = [];
       scope.row.timeseriesPaths = [];
     };
-    /**
-     * 根据groupName获取该存储组下的实体
-     * val存储组名称
-     * scope当前行数据
-     */
     const getDeviceByGroupName = (val, scope) => {
       scope.row.devicePaths = [];
       scope.row.timeseriesPaths = [];
@@ -1512,11 +1427,6 @@ export default {
         }
       });
     };
-    /**
-     * 根据deviceName获取该设备下的测点
-     * val设备名称
-     * scope当前行数据
-     */
     const getTimeSeriesByDeviceName = (val, scope) => {
       scope.row.timeseriesPaths = [];
       axios.get(`/servers/${serverId.value}/storageGroups/${scope.row.groupPaths[0]}/devices/${val}/timeseries`).then((rs) => {
@@ -1525,9 +1435,6 @@ export default {
         }
       });
     };
-    /**
-     * 删除某一行存储组信息
-     */
     const deleteGroup = (scope) => {
       axios.delete(`/servers/${serverId.value}/storageGroups/${scope.row.groupName}`).then((rs) => {
         if (rs && rs.code == 0) {
@@ -1538,23 +1445,15 @@ export default {
         }
       });
     };
-    /**
-     * 跳转编辑存储组 type为了区分是去往存储组编辑页
-     */
     const goEditGroup = (scope) => {
-      //先获取数据(防止是收起状态没有加载数据)
       props.func.updateTreeByIds([serverId.value + 'connection']);
-      //展开数据
       props.func.expandByIds([serverId.value + 'connection']);
       props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', { type: 'edit' }, true);
     };
     /**
-     * 查看存储组详情
      */
     const goGroupDetail = (scope) => {
-      //先获取数据(防止是收起状态没有加载数据)
       props.func.updateTreeByIds([serverId.value + 'connection']);
-      //展开数据
       props.func.expandByIds([serverId.value + 'connection']);
       props.func.addTab(serverId.value + 'connection' + scope.row.groupName + 'storageGroup', {}, true);
     };
@@ -1564,9 +1463,7 @@ export default {
       dataCount: null,
       measurementCount: null,
     });
-    /**
-     * 获取数据连接统计数据
-     */
+
     const getDataCount = () => {
       axios.get(`/servers/${serverId.value}/dataCount`, {}).then((res) => {
         if (res && res.code == 0) {
@@ -1579,7 +1476,6 @@ export default {
     onMounted(() => {
       // serverId.value = router.currentRoute.value.params.serverid;
       // getBaseInfo((data) => {
-      //   //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
       //   getUserAuth(data, 1);
       // });
       // getGroupList();
@@ -1588,7 +1484,6 @@ export default {
     onActivated(() => {
       serverId.value = router.currentRoute.value.params.serverid;
       getBaseInfo((data) => {
-        //此处调用用户权限接口是为了判断当前登入连接用户是否有各项权限
         // getUserAuth(data, 1);
         // getPermitPermissionList(data, 1);
         store.dispatch('fetchAllPrivileges', {

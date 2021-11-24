@@ -1,4 +1,4 @@
-<!-- 授权用户弹窗 -->
+<!-- Authorized user Popup -->
 <template>
   <el-dialog :title="$t('sourcePage.grantUser')" width="520px" :append-to-body="true" v-model="visible" custom-class="grant-dialog">
     <div class="dialog-content">
@@ -88,7 +88,6 @@ export default {
       checkedUser.value = users ? [...users] : [];
       resetAllChecked();
     };
-    // 更新全选状态
     let resetAllChecked = () => {
       const checkedCount = checkedUser.value.length;
       isIndeterminate.value = checkedUser.value.length > 0 && checkedUser.value.length < props.userList.length;

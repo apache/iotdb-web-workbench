@@ -1,4 +1,4 @@
-<!-- 角色管理右部分 -->
+<!-- Right part of role management -->
 <template>
   <div id="role-tabs">
     <el-tabs v-if="roleList.length" v-model="activeTab" @tab-click="handleClick">

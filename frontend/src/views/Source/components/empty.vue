@@ -47,21 +47,21 @@ export default {
     let types = ref(0);
 
     /**
-     * 新增数据连接
+     * new source
      */
     const newSource = () => {
       showDialog.value = true;
       types.value = 0;
     };
     /**
-     * 关闭或者取消新增/编辑数据连接操作
+     * close or cancel new/edit souce
      */
     const close = () => {
       showDialog.value = false;
       types.value = 0;
     };
     /**
-     * 新增或编辑数据源成功回调
+     * successful func
      */
     const successFunc = () => {
       showDialog.value = false;

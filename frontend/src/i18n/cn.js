@@ -44,6 +44,7 @@ const cn = {
       noData: '暂无数据',
       tip: '提示',
       deleteSuccess: '删除成功',
+      add: '新增',
     },
     databasem: {
       newStoreGroup: '新建存储组',
@@ -222,6 +223,13 @@ const cn = {
       confirmDelete: '确认删除?',
       roleNameLimit1: '名称不能为纯数字',
       roleNameLimit2: '名称已存在',
+      allMeasurement: '全部物理量',
+      addPrivilegeSuccess: '新增权限成功',
+      editPrivilegeSuccess: '编辑权限成功',
+      editSucceed: '编辑成功',
+      createdSucceed: '创建成功',
+      allStorageGroups: '所有存储组',
+      allDevices: '所有实体',
     },
     storagePage: {
       alias: '数据连接',
@@ -253,6 +261,7 @@ const cn = {
       deleteDeviceConfirm: '你确定要删除该实体吗?删除后,该实体的数据会丢失,不可恢复。',
     },
     device: {
+      measurement: '物理量',
       serchPy: '请输入物理量名称',
       dataconnection: '数据连接',
       selectdataconnection: '请选择存储组',
@@ -338,6 +347,8 @@ const cn = {
       failedNum: '失败数量',
       deleteTip: '请先选择数据',
       all: '全部',
+      chooseDate: '选择时间',
+      startDateTip: '请选择开始时间',
     },
     sqlserch: {
       Aggregate: '聚合函数',
@@ -387,6 +398,8 @@ const cn = {
       stop: '暂停',
       sqlserchText: '执行成功,该查询语句无数据返回',
       sqlrun: '查询正在运行中，请勿重复操作',
+      type: '类型',
+      description: '描述',
     },
     standTable: {
       export: '批量导出',

@@ -40,15 +40,6 @@
             </span>
           </template>
         </el-popconfirm>
-        <!-- <el-popconfirm placement="top" :title="$t('storagePage.deleteGroupConfirm')" @confirm="deleteGroup()">
-          <template #reference>
-            <span class="icon-del">
-              <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-se-icon-delete"></use>
-              </svg>
-            </span>
-          </template>
-        </el-popconfirm> -->
       </div>
       <div class="descript-container">
         <el-descriptions :title="baseInfo.groupName">
@@ -64,15 +55,12 @@
     <div class="device-content">
       <div class="device-padding">
         <div class="search-panel clearfix">
-          <!-- <span class="search-title">{{ $t('storagePage.deviceName') }}</span> -->
           <el-button type="primary" @click="newDevice">{{ $t('storagePage.newDevice') }}</el-button>
 
           <el-input v-model="searchVal" class="search-btn" suffix-icon="el-icon-search" :placeholder="$t('device.devicename')" @blur="search()" @keyup.enter="search()"></el-input>
         </div>
         <div class="device-list">
-          <!-- @selection-change="handleSelectionChange" -->
           <el-table :data="tableData" style="width: 100%">
-            <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
             <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('device.devicename')" width="180" sortable>
               <template #default="scope">
                 <a class="to-entity" @click="goToEntity(scope)">{{ scope.row.deviceName }}</a>
@@ -142,9 +130,7 @@ export default {
       month: t('storagePage.monthLabel'),
       year: t('storagePage.yearLabel'),
     });
-    // const handleSelectionChange = (selection) => {
-    //   console.log(selection);
-    // };
+
     watch(locale, () => {
       ttlValue.value = ttlMap();
     });
@@ -153,14 +139,14 @@ export default {
       getDeviceList();
     };
     /**
-     * 实体名称搜索
+     * search device name
      */
     const search = () => {
       currentPage.value = 1;
       getDeviceList();
     };
     /**
-     * 编辑存储组信息
+     * edit storage info
      */
     const editGroup = () => {
       router.push({
@@ -169,7 +155,7 @@ export default {
       });
     };
     /**
-     * 删除存储组信息
+     * delete storage
      */
     const deleteGroup = () => {
       axios.delete(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${baseInfo.value.groupName}`).then((rs) => {
@@ -181,9 +167,9 @@ export default {
       });
     };
     /**
-     * 获取存储组详情
-     * serverid: 连接id
-     * groupname:存储组名
+     * get storage detail info
+     * serverid: connect id
+     * groupname:storage name
      */
     const getGroupDetail = () => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${router.currentRoute.value.params.groupname}`, {}).then((res) => {
@@ -193,9 +179,9 @@ export default {
       });
     };
     /**
-     * 获取存储组下面的实体列表
-     * serverid: 连接id
-     * groupname:存储组名
+     * get device list
+     * serverid: connect id
+     * groupname:storage name
      */
     const getDeviceList = () => {
       axios
@@ -217,8 +203,8 @@ export default {
         });
     };
     /**
-     * 删除实体
-     * scope:要被删除的实体的信息
+     * delete device
+     * scope:current device info
      */
     const deleteDevice = (scope) => {
       axios.delete(`/servers/${props.data.connectionid}/storageGroups/${props.data.storagegroupid}/devices/${scope.row.deviceName}`).then((res) => {
@@ -232,8 +218,8 @@ export default {
       });
     };
     /**
-     * 编辑实体
-     * row:要被删除的实体的信息
+     * modify device
+     * row:current device
      */
     const editDevice = (row) => {
       router.push({
@@ -245,7 +231,7 @@ export default {
       // props.func.addTab(`${props.data.id}${row.deviceName}device`);
     };
     /**
-     * 新建实体
+     * new device
      */
     const newDevice = () => {
       router.push({

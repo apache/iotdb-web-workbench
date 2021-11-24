@@ -45,6 +45,7 @@ import { ElInput, ElSelect, ElOption } from 'element-plus';
 import { ref, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { getCList, getDevice } from '../api/index';
+import { useI18n } from 'vue-i18n';
 export default {
   props: {
     placeholder: String,
@@ -52,6 +53,7 @@ export default {
     id: Number,
   },
   setup(props, { emit }) {
+    const { t } = useI18n();
     const userInfo = useStore();
     const data = reactive(props.treeList);
     let filterText = ref(null);
@@ -103,9 +105,9 @@ export default {
           };
         });
         data.unshift({
-          label: '物理量',
-          type: '类型',
-          decr: '描述',
+          label: t('device.measurement'),
+          type: t('sqlserch.type'),
+          decr: t('sqlserch.description'),
         });
         pyData.list = data;
         pyCopyData.list = JSON.parse(JSON.stringify(data));
@@ -120,13 +122,13 @@ export default {
           return item.label.indexOf(filterText.value) !== -1;
         });
         pyData.list.unshift({
-          label: '物理量',
-          type: '类型',
-          decr: '描述',
+          label: t('device.measurement'),
+          type: t('sqlserch.type'),
+          decr: t('sqlserch.description'),
         });
       }
     }
-    return { data, defaultProps, filterText, tree, append, serchpylist, getFunction, groupName, getdevicel, getpylist, devicelist, deviceName, pyData };
+    return { t, data, defaultProps, filterText, tree, append, serchpylist, getFunction, groupName, getdevicel, getpylist, devicelist, deviceName, pyData };
   },
   components: {
     ElInput,

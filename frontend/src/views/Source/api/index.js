@@ -20,89 +20,89 @@
 import axios from '@/util/axios.js';
 
 export default {
-  //获取角色列表
+  //get role list
   getRoles(serverId) {
     return axios.get(`/servers/${serverId}/roles`);
   },
-  //新增或编辑角色
+  //new / edit role
   editRole(serverId, payload) {
     return axios.post(`/servers/${serverId}/roles`, payload);
   },
-  //把指定角色赋予给用户
+  //grant privilege to user
   grantUserRole(params, payload) {
     let { serverId, roleName } = params;
     return axios.post(`/servers/${serverId}/roles/${roleName}/grant`, payload);
   },
-  //修改角色权限管理权限
+  //modify role authorityPrivilege
   editRolePrivilegePower(params, payload) {
     let { serverId, roleName } = params;
     return axios.post(`/servers/${serverId}/roles/${roleName}/authorityPrivilege`, payload);
   },
-  //获取角色权限管理权限
+  //get role authorityPrivilege
   getRolePrivilegePower(params) {
     let { serverId, roleName } = params;
     return axios.get(`/servers/${serverId}/roles/${roleName}/authorityPrivilege`);
   },
-  //获取指定角色的信息和用户列表
+  //get role info && user list
   getRoleInfo(params) {
     let { serverId, roleName } = params;
     return axios.get(`/servers/${serverId}/roles/${roleName}`);
   },
-  //获取用户列表
+  //get user list
   getUsers(serverId) {
     return axios.get(`/servers/${serverId}/users`);
   },
-  //删除指定角色
+  //delete role
   deleteRole(params) {
     let { serverId, roleName } = params;
     return axios.delete(`/servers/${serverId}/roles/${roleName}`);
   },
-  //获取角色权限管理权限
+  //get role authorityPrivilege
   getAuthPrivilege(params) {
     let { serverId, roleName } = params;
     return axios.get(`/servers/${serverId}/roles/${roleName}/authorityPrivilege`);
   },
-  //修改角色管理权限
+  //modify role authorityPrivilege
   editAuthPrivilege(params, payload) {
     let { serverId, roleName } = params;
     return axios.post(`/servers/${serverId}/roles/${roleName}/authorityPrivilege`, payload);
   },
-  //获取角色数据管理权限
+  //get role dataPrivilege
   getDataPrivilege(params) {
     let { serverId, roleName } = params;
     return axios.get(`/servers/${serverId}/roles/${roleName}/dataPrivilege`);
   },
-  //修改角色数据管理权限
+  //modify role dataPrivilege
   editDataPrivilege(params, payload) {
     let { serverId, roleName } = params;
     return axios.post(`/servers/${serverId}/roles/${roleName}/dataPrivilege`, payload);
   },
-  //获取存储组列表(节点树形结构)
+  // get storage list (tree structure)
   getStorageGroupTree(params) {
     let { serverId } = params;
     return axios.get(`/servers/${serverId}/storageGroups/nodeTree`);
   },
-  //获取存储组列表(平铺)
+  //get storage list (list)
   getStorageGroup(params) {
     let { serverId } = params;
     return axios.get(`/servers/${serverId}/storageGroups`);
   },
-  //获取指定存储组下的实体列表(节点树形结构)
+  //get device list(tree structure)
   getDeviceTreeByGroup(params) {
     let { serverId, groupName } = params;
     return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/nodeTree`);
   },
-  //获取指定存储组下的实体列表
+  //get device list(list)
   getDeviceByGroup(params) {
     let { serverId, groupName } = params;
     return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices`);
   },
-  //获取指定设备下的物理量列表
+  //get timeseries
   getTimeseries(params) {
     let { serverId, groupName, deviceName } = params;
     return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/timeseries`);
   },
-  //修改用户数据管理权限
+  //modify user dataPrivilege
   editUserDataPrivilege(params, payload) {
     let { serverId, userName } = params;
     return axios.post(`/servers/${serverId}/users/${userName}/dataPrivilege`, payload);

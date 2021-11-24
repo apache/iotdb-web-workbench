@@ -1,4 +1,4 @@
-<!-- 角色数据管理权限 -->
+<!-- Role data management permission -->
 <template>
   <div class="data-manage">
     <el-button class="add-btn" type="primary" @click="addPermit">{{ $t('sourcePage.addAuthBtn') }}</el-button>

@@ -315,17 +315,17 @@ export default {
       flag1: false,
     });
     const form = reactive({
-      inline: true, //横向
+      inline: true,
       formData: {},
       formItem: [
         {
-          label: '', //名称
-          type: 'INPUT', //控件类型
-          size: 'small', //element尺寸
+          label: '',
+          type: 'INPUT',
+          size: 'small',
           width: '400px',
-          itemID: 'keyword', //数据字段名
-          suffixIcon: 'el-icon-search', // 后图标样式
-          placeholder: 'device.serchPy', //灰色提示文字
+          itemID: 'keyword',
+          suffixIcon: 'el-icon-search',
+          placeholder: 'device.serchPy',
         },
       ],
     });
@@ -337,26 +337,26 @@ export default {
       },
       formItem: [
         {
-          label: 'device.timeRange', //名称
-          type: 'DATE', //控件类型
-          size: 'small', //element尺寸
+          label: 'device.timeRange',
+          type: 'DATE',
+          size: 'small',
           width: '400px',
-          itemID: 'time', //数据字段名
-          // suffixIcon: "el-icon-search", // 后图标样式
-          startPlaceholder: 'device.startTime', //灰色提示文字
-          endPlaceholder: 'device.endTime', //灰色提示文字
+          itemID: 'time',
+          // suffixIcon: "el-icon-search",
+          startPlaceholder: 'device.startTime',
+          endPlaceholder: 'device.endTime',
           defauleTime: [new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 2, 1, 23, 59, 59)],
           disabledDate: (time) => {
             return time > dayjs(dayjs().format('YYYY-MM-DD 23:59:59')).valueOf();
           },
         },
         {
-          label: 'device.screenPhysical', //名称
-          type: 'SELECT', //控件类型
-          size: 'small', //element尺寸
+          label: 'device.screenPhysical',
+          type: 'SELECT',
+          size: 'small',
           width: '150px',
-          itemID: 'measurementList', //数据字段名
-          placeholder: 'device.serchPy', //灰色提示文字
+          itemID: 'measurementList',
+          placeholder: 'device.serchPy',
           options: timeseriesOptions,
           multiple: true,
         },
@@ -370,22 +370,22 @@ export default {
       },
       formItem: [
         {
-          label: 'device.startTime', //名称
-          type: 'DATETIME', //控件类型
-          size: 'small', //element尺寸
+          label: 'device.startTime',
+          type: 'DATETIME',
+          size: 'small',
           width: '100%',
-          itemID: 'startTime', //数据字段名
-          placeholder: '选择时间', //灰色提示文字
+          itemID: 'startTime',
+          placeholder: t('device.chooseDate'),
           required: true,
-          rules: [{ required: true, message: '请选择开始时间', trigger: 'blur' }],
+          rules: [{ required: true, message: t('device.startDateTip'), trigger: 'blur' }],
         },
         {
-          label: 'device.step', //名称
-          type: 'INPUTNUM', //控件类型
-          size: 'small', //element尺寸
+          label: 'device.step',
+          type: 'INPUTNUM',
+          size: 'small',
           width: '100%',
-          itemID: 'stepSize', //数据字段名
-          placeholder: 'device.stepTip', //灰色提示文字
+          itemID: 'stepSize',
+          placeholder: 'device.stepTip',
           unit: 'ms',
           required: true,
           rules: [
@@ -402,12 +402,12 @@ export default {
           ],
         },
         {
-          label: 'device.generatedQuantity', //名称
-          type: 'INPUTNUM', //控件类型
-          size: 'small', //element尺寸
+          label: 'device.generatedQuantity',
+          type: 'INPUTNUM',
+          size: 'small',
           width: '100%',
-          itemID: 'totalLine', //数据字段名
-          placeholder: 'device.generateTip', //灰色提示文字
+          itemID: 'totalLine',
+          placeholder: 'device.generateTip',
           required: true,
           rules: [
             { required: true, message: t('device.generateTip'), trigger: 'blur' },
@@ -429,20 +429,20 @@ export default {
       ],
     });
     const formdate = reactive({
-      inline: true, //横向
+      inline: true,
       formData: {
         time: [],
       },
       formItem: [
         {
-          label: 'device.time', //名称
-          type: 'DATE', //控件类型
-          size: 'small', //element尺寸
+          label: 'device.time',
+          type: 'DATE',
+          size: 'small',
           width: '400px',
-          itemID: 'time', //数据字段名
-          // suffixIcon: "el-icon-search", // 后图标样式
-          startPlaceholder: 'device.startTime', //灰色提示文字
-          endPlaceholder: 'device.endTime', //灰色提示文字
+          itemID: 'time',
+          // suffixIcon: "el-icon-search",
+          startPlaceholder: 'device.startTime',
+          endPlaceholder: 'device.endTime',
           Event: checkDateValue,
         },
       ],
@@ -452,7 +452,7 @@ export default {
         {
           label: 'device.physicalname',
           prop: 'timeseries',
-          value: '——', //默认值，该项如果没有数据显示
+          value: '——',
         },
         {
           label: 'device.alias',
@@ -462,12 +462,12 @@ export default {
         {
           label: 'device.datatype',
           prop: 'dataType',
-          value: '——', //默认值，该项如果没有数据显示
+          value: '——',
         },
         {
           label: 'device.codingmode',
           prop: 'encoding',
-          value: '——', //默认值，该项如果没有数据显示
+          value: '——',
         },
         {
           label: 'device.compressionMode',
@@ -482,7 +482,7 @@ export default {
         {
           label: 'device.newValue',
           prop: 'newValue',
-          value: '——', //默认值，该项如果没有数据显示
+          value: '——',
         },
         // {
         //   label: 'device.datatrends',
@@ -505,7 +505,7 @@ export default {
         {
           label: 'device.physicaldescr',
           prop: 'description',
-          value: '——', //默认值，该项如果没有数据显示
+          value: '——',
         },
       ],
     });
@@ -551,11 +551,11 @@ export default {
     const tableData2 = reactive({
       list: [],
     });
-    //选择上传文件
+    //Select upload file
     function selectFile() {
       filesd.value.click();
     }
-    //上传文件
+    //Upload file
     function getfile(obj) {
       console.log('obj', obj);
       let files = obj?.target?.files[0];
@@ -601,13 +601,13 @@ export default {
           }, 500);
         });
     }
-    // 下载失败数据
+    // Download failed data
     function downfile(downUrl) {
       axios.get(downUrl).then((res) => {
         handleExport(res, `log.txt`);
       });
     }
-    //文件导入弹窗关闭,重置数据
+    //The file import pop-up window closes and resets the data
     function cencelexport() {
       dialogVisible1.flag = false;
       display.flag = true;
@@ -619,11 +619,11 @@ export default {
     function getDataLook() {
       formTable.value.checkData(dialogFormVisible);
     }
-    //下载模板
+    //Download template
     function downloadEx() {
       downloadFile().then((res) => {
         if (res.data) {
-          handleExport(res.data, `模板.CSV`);
+          handleExport(res.data, `template.CSV`);
         }
       });
     }
@@ -650,11 +650,11 @@ export default {
         drawerFlag.value = false;
       }, 400);
     }
-    //数据预览复选框选择数据
+    //Select the data preview check box
     function selectData(val) {
       handleChange.value = val;
     }
-    //批量删除
+    //Batch delete
     function deleteArry() {
       if (handleChange?.value?.length) {
         deleteRow(handleChange.value);
@@ -662,7 +662,7 @@ export default {
       }
       ElMessage.error(t('device.deleteTip'));
     }
-    //编辑物理量数据
+    //Edit physical quantity data
     function editRow(row) {
       let obj = {};
       editFormData.formItem = [];
@@ -686,7 +686,7 @@ export default {
       editFormData.formData = obj;
       dialogFormVisible.editflag = true;
     }
-    //编辑保存物理量
+    //Edit and save physical quantity
     function saveData() {
       valueList.value = Object.values(editFormData.formData);
       editData(routeData.obj, { timestamp: new Date(timestamp.value), measurementList: measurementList.value, valueList: valueList.value })
@@ -713,7 +713,7 @@ export default {
     function editDevce() {
       router.push({ name: 'Device', params: { ...routeData.obj } });
     }
-    //删除实体
+    //Delete entity
     function deleteData() {
       ElMessageBox.confirm(`${t('device.deletecontent1')}"${routeData.obj.name}"？${t('device.deletecontent2')}`, '提示', {
         confirmButtonText: t('device.ok'),
@@ -737,7 +737,7 @@ export default {
           });
         });
     }
-    //删除物理量
+    //Delete physical quantity
     function deleteRow(dataArr) {
       let arr = column1.list.filter((item) => item.prop !== 't0' && item.prop !== 'action').map((item) => item.label);
       let timeArr = dataArr.map((item) => new Date(item.t0));
@@ -758,7 +758,7 @@ export default {
         });
       });
     }
-    //导出物理量
+    //Export physical quantity
     function exportData() {
       let sTime = null;
       let eTime = null;
@@ -776,13 +776,13 @@ export default {
         });
       });
     }
-    //物理量翻页
+    //Physical quantity page turning
     function serchFormData() {
       pagination.pageSize = 10;
       pagination.pageNum = 1;
       getListData();
     }
-    //物理量数据预览翻页
+    //Physical quantity data preview page turning
     function serchFormData1({ type, value } = {}) {
       if (type === 'select') {
         let lastValue = value[value.length - 1];
@@ -806,7 +806,7 @@ export default {
       console.log(val);
       console.log(pagination);
     }
-    //获取物理量列表
+    //Get physical quantity list
     async function getListData() {
       await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
@@ -822,7 +822,7 @@ export default {
         }
       });
     }
-    //获取物理量数据预览列表
+    //Get physical quantity data preview list
     function getPview() {
       tableflag.flag = false;
       let sTime = null;
@@ -868,7 +868,7 @@ export default {
       dialogFormVisible.flag = true;
       formTable.value.clearValidator();
     };
-    //随机导入物理量数据
+    //Random import of physical quantity data
     async function randomImData() {
       await formTable.value.checkData(dialogFormVisible);
       randomImport(routeData.obj, newData.formData).then((res) => {

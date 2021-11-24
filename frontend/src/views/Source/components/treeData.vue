@@ -1,3 +1,22 @@
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+-->
+
 <template>
   <table v-if="treeData && treeData.partnerName">
     <tr>
@@ -24,7 +43,6 @@
         <div class="extend_handle" v-if="treeData.childers && treeData.childers.length" @click="toggleExtend(treeData)"></div>
       </td>
     </tr>
-    <!-- 这是一个递归组件,注意,这里还要调用,需要传递的数据这里也要传递,否则操作时拿不到子级的数据 -->
     <tr v-if="treeData.childers && treeData.childers.length && treeData.extend">
       <td v-for="(childers, index) in treeData.childers" :key="index" colspan="2" class="childLevel">
         <TreeChart :json="childers" @add="$emit('add', $event)" @delete="$emit('delete', $event)" @click-node="$emit('click-node', $event)" />
@@ -37,7 +55,7 @@
 export default {
   name: 'TreeChart',
   props: {
-    json: {}, // 渲染数据
+    json: {},
   },
 
   data() {
@@ -52,7 +70,6 @@ export default {
 
   watch: {
     json: {
-      // 遍历当前的数据
       handler: function (Props) {
         let extendKey = function (jsonData) {
           jsonData.extend = jsonData.extend === void 0 ? true : !!jsonData.extend;
@@ -77,13 +94,13 @@ export default {
       this.$forceUpdate();
     },
 
-    // 新增编辑股东,val: 0 新增, 1 编辑
+    // new or edit val:0new  1edit
     addStock(val) {
       // console.log(this.treeData)
       this.$emit('add', { val: val, data: this.treeData });
     },
 
-    // 删除股东
+    // delete
     deleteStock() {
       this.$emit('delete', this.treeData);
     },
