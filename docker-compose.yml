@@ -17,13 +17,19 @@
 # under the License.
 #
 
+version: "3.8"
 
+services:
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - 8081:8080
 
-
-FROM hub.segma.tech/library/java:8-jre-centos7-apollo
-
-COPY --from=builder /app/target/workbench-1.0.0.jar /app/workbench-1.0.0.jar
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "/app/workbench-1.0.0.jar"]
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - backend

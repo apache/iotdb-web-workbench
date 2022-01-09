@@ -20,3 +20,6 @@ IoTDB-Workbench是IoTDB的可视化管理工具，可对IoTDB的数据进行增�
 
 
 
+## Docker
+
+`docker-compose up -d`
