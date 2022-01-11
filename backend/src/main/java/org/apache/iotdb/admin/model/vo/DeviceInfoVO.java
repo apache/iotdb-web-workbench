@@ -26,7 +26,6 @@ import java.util.List;
 
 @Data
 public class DeviceInfoVO implements Serializable {
-
   private List<DeviceInfo> deviceInfos;
   private Integer totalCount;
   private Integer totalPage;

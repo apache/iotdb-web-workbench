@@ -22,15 +22,18 @@ package org.apache.iotdb.admin.model.dto;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.io.Serializable;
-import java.util.List;
+import javax.validation.constraints.Pattern;
 
-/** 传输role信息类 */
+import java.io.Serializable;
+
 @Data
 public class IotDBRole implements Serializable {
 
-  @Length(min = 4, message = "长度必须大于等于4")
+  private Integer id;
+
+  @Length(min = 4, message = "The username must contain at least 4 characters")
+  @Pattern(regexp = "^[^ ]+$", message = "The role name cannot contain spaces")
   private String roleName;
 
-  private List<String> privileges;
+  private String description;
 }

@@ -21,7 +21,6 @@
 <configuration status="ERROR">
 
     <Properties>
-        <!--应用名-->
         <property name="app">IoTDB-Workbench</property>
         <property name="log.root.level">INFO</property>
         <property name="log.home">/data/applogs/app-prod</property>
@@ -101,7 +100,7 @@
     </appenders>
 
     <loggers>
-        <!--level日志级别: ALL < TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
+        <!--level: ALL < TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
         <Root level="${log.root.level}">
             <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="ROLLING_INFO"/>

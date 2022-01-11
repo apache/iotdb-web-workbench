@@ -42,7 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@Api(value = "查询相关接口")
+@Api(value = "Query related")
 @RequestMapping("/servers/{serverId}")
 public class QueryController {
 
@@ -53,7 +53,7 @@ public class QueryController {
   @Autowired private QueryService queryService;
 
   @PostMapping("/querySql")
-  @ApiOperation("用于查询器查询")
+  @ApiOperation("Execute the query script")
   public BaseVO<List<SqlResultVO>> query(
       @PathVariable("serverId") Integer serverId,
       @RequestBody SearchDTO searchDTO,
@@ -67,11 +67,11 @@ public class QueryController {
     Connection connection = connectionService.getById(serverId);
     Long timestamp = searchDTO.getTimestamp();
     List<SqlResultVO> sqlResultVOList = iotDBService.queryAll(connection, sqls, timestamp);
-    return BaseVO.success("查询成功", sqlResultVOList);
+    return BaseVO.success("Execute the query script successfully", sqlResultVOList);
   }
 
   @PostMapping("/query")
-  @ApiOperation("用于查询脚本保存或编辑")
+  @ApiOperation("Save or update the query script")
   public BaseVO saveQuery(
       @PathVariable("serverId") Integer serverId,
       @RequestBody Query query,
@@ -84,23 +84,23 @@ public class QueryController {
     check(request, serverId);
     if (query.getId() != null) {
       queryService.update(serverId, query);
-      return BaseVO.success("更新成功", null);
+      return BaseVO.success("Update successful", query.getId());
     }
-    queryService.save(serverId, query);
-    return BaseVO.success("保存成功", null);
+    Integer id = queryService.save(serverId, query);
+    return BaseVO.success("Save successful", id);
   }
 
   @GetMapping("/query")
-  @ApiOperation("获取脚本列表")
+  @ApiOperation("Get query scripts")
   public BaseVO<List<QueryVO>> getQueries(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     check(request, serverId);
     List<QueryVO> queryVOList = queryService.getQueryList(serverId);
-    return BaseVO.success("获取成功", queryVOList);
+    return BaseVO.success("Get successful", queryVOList);
   }
 
   @DeleteMapping("/query/{queryId}")
-  @ApiOperation("删除脚本")
+  @ApiOperation("Delete the query script")
   public BaseVO deleteQuery(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("queryId") Integer queryId,
@@ -108,11 +108,11 @@ public class QueryController {
       throws BaseException {
     check(request, serverId);
     queryService.deleteQuery(queryId);
-    return BaseVO.success("删除成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @GetMapping("/query/{queryId}")
-  @ApiOperation("获取指定脚本")
+  @ApiOperation("Get the specified query script")
   public BaseVO<Query> getQuery(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("queryId") Integer queryId,
@@ -120,11 +120,11 @@ public class QueryController {
       throws BaseException {
     check(request, serverId);
     Query query = queryService.getQuery(queryId);
-    return BaseVO.success("获取成功", query);
+    return BaseVO.success("Get successfully", query);
   }
 
   @GetMapping("/stop")
-  @ApiOperation("用于查询终止")
+  @ApiOperation("Stop the query")
   public BaseVO query(
       @PathVariable("serverId") Integer serverId,
       @RequestParam("timestamp") Long timestamp,
@@ -132,7 +132,7 @@ public class QueryController {
       throws BaseException {
     check(request, serverId);
     iotDBService.stopQuery(serverId, timestamp);
-    return BaseVO.success("停止成功", null);
+    return BaseVO.success("Stop the query successful", null);
   }
 
   public void check(HttpServletRequest request, Integer serverId) throws BaseException {

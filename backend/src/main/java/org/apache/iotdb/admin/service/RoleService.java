@@ -17,22 +17,16 @@
  * under the License.
  */
 
-package org.apache.iotdb.admin;
+package org.apache.iotdb.admin.service;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.apache.iotdb.admin.common.exception.BaseException;
+import org.apache.iotdb.admin.model.dto.IotDBRole;
+import org.apache.iotdb.admin.model.entity.Role;
 
-/**
- * ${DESCRIPTION}
- *
- * @author fanli
- */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class DemoJDBC {
+public interface RoleService {
+  void upsertRoleInfo(String host, Integer port, IotDBRole iotDBRole) throws BaseException;
 
-  @Test
-  public void testSelect() {}
+  void deleteRoleInfo(String host, Integer port, String roleName) throws BaseException;
+
+  Role getRoleInfo(String host, Integer port, String roleName) throws BaseException;
 }

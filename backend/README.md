@@ -23,14 +23,6 @@
 
 [IoTDB-Workbench快速入门](doc/intro.md)
 
-## Building the Backend
-
-The backend can be built using maven by using
-
-```
-mvn clean install
-```
-
 ## 开发环境搭建
 
 [Maven配置](doc/maven.md)

@@ -1,21 +1,21 @@
 <!--
-  - Licensed to the Apache Software Foundation (ASF) under one
-  - or more contributor license agreements.  See the NOTICE file
-  - distributed with this work for additional information
-  - regarding copyright ownership.  The ASF licenses this file
-  - to you under the Apache License, Version 2.0 (the
-  - "License"); you may not use this file except in compliance
-  - with the License.  You may obtain a copy of the License at
-  -
-  -   http://www.apache.org/licenses/LICENSE-2.0
-  -
-  - Unless required by applicable law or agreed to in writing,
-  - software distributed under the License is distributed on an
-  - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  - KIND, either express or implied.  See the License for the
-  - specific language governing permissions and limitations
-  - under the License.
-  -->
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+-->
 
 <template>
   <el-container>
@@ -28,14 +28,14 @@
           <div class="rightIcon flex">
             <eltooltip label="sqlserch.save">
               <span>
-                <svg class="icon icon-1" aria-hidden="true" @click="centerDialogVisible = true" v-icon="`#icon-baocun-color`">
-                  <use xlink:href="#icon-baocun"></use>
+                <svg class="icon icon-1" aria-hidden="true" @click="centerDialogVisible = true">
+                  <use xlink:href="#icon-se-icon-save"></use>
                 </svg>
               </span>
             </eltooltip>
             <eltooltip label="sqlserch.run">
               <span>
-                <svg class="icon icon-1" aria-hidden="true" @click="querySqlRun" v-icon="`#icon-yunhang-color`">
+                <svg class="icon icon-1 stop" aria-hidden="true" @click="querySqlRun">
                   <use xlink:href="#icon-yunhang"></use>
                 </svg>
               </span>
@@ -63,40 +63,45 @@
                 <template #label>
                   <span>{{ $t('standTable.running') }}{{ index + 1 }}<i class="el-icon-more iconmore green"></i> </span>
                 </template>
+                <div class="table_top_border"></div>
+                <div class="tab_table" v-if="item && display">
+                  <stand-table
+                    ref="standTable"
+                    :column="item"
+                    :tableData="tableData.list[index]"
+                    :lineHeight="5"
+                    :celineHeight="5"
+                    :maxHeight="divwerHeight - 78"
+                    :pagination="pagination"
+                    backColor="#E7EAF2"
+                  >
+                  </stand-table>
+                </div>
+                <div class="tab_table" v-else>
+                  <span v-if="display">{{ $t('sqlserch.sqlserchText') }}</span>
+                </div>
                 <div class="header_messge flex">
                   <div>
-                    <!-- <span>
-                      <svg class="icon icon-1 icon-color" aria-hidden="true" @click="btnClick1">
+                    <span @click="exportSql(index)">
+                      <svg class="icon icon-1 icon-color" aria-hidden="true">
                         <use xlink:href="#icon-se-icon-download"></use>
                       </svg>
                       <span class="downloadchart">{{ $t('standTable.download') }}</span>
                     </span>
-                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span> -->
+                    <span class="frist_span">{{ $t('standTable.maxdownload') }}</span>
                   </div>
                   <div>
                     <span class="frist_span">{{ $t('standTable.serchtime') }}：{{ time.list[index] }}</span>
                     <span class="frist_span">{{ $t('standTable.queryline') }}：{{ line.list[index] }}</span>
                   </div>
                 </div>
-                <div class="table_top_border"></div>
-                <div class="tab_table" v-if="item">
-                  <stand-table ref="standTable" :column="item" :tableData="tableData.list[index]" :lineHeight="5" :lineWidth="13" :maxHeight="divwerHeight" :pagination="pagination"> </stand-table>
-                </div>
-                <div class="tab_table" v-else>
-                  <span>{{ $t('sqlserch.sqlserchText') }}</span>
-                </div>
               </el-tab-pane>
-              <!-- <el-tab-pane name="second2">
-                <template #label>
-                  <span>{{ $t('standTable.running') }}2<i class="el-icon-more iconmore red"></i> </span>
-                </template>
-              </el-tab-pane> -->
             </el-tabs>
           </div>
         </div>
       </el-footer>
     </el-container>
-    <el-aside width="300px">
+    <el-aside width="240px">
       <div class="el_aside_div">
         <div class="tabgad">
           <el-tabs v-model="activeNameRight" @tab-click="handleClick" class="tabs_nav_aside">
@@ -112,9 +117,9 @@
     </el-aside>
   </el-container>
   <div class="footer_button">
-    <el-dialog :title="$t('standTable.savequery')" v-model="centerDialogVisible" width="30%" center>
+    <el-dialog :title="$t('standTable.savequery')" v-model="centerDialogVisible" width="400px">
       <div class="dilog_div">
-        <span>{{ $t('standTable.queryname') }}：</span><el-input style="width: 50%" v-model="sqlName"></el-input>
+        <span>{{ $t('standTable.queryname') }}：</span><el-input style="width: 70%" v-model="sqlName"></el-input>
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -135,9 +140,10 @@ import useElementResize from './hooks/useElementResize.js';
 import codemirror from './components/codemirror';
 import eltooltip from './components/eltooltip';
 import { ref, computed, nextTick, reactive, onActivated } from 'vue';
-import { querySql, saveQuery, getSql, queryStop, getGroup, deleteQueryS } from './api/index';
+import { querySql, saveQuery, getSql, queryStop, getGroup, deleteQueryS, exportDataSql } from './api/index';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { handleExport } from '@/util/export';
 export default {
   name: 'Sqlserch',
   props: {
@@ -152,6 +158,7 @@ export default {
     let timeNumber = ref(0);
     let dividerRef = ref(null);
     let sqlName = ref(null);
+    let display = ref(false);
     let codemirror = ref(null);
     let tabelNum = ref(0);
     const standTable = ref(null);
@@ -192,10 +199,14 @@ export default {
       codeArr = codeArr.filter((item) => {
         return item;
       });
-      console.log(codeArr);
     }
     function querySqlRun() {
       if (runFlag.value) {
+        let cd = codemirror.value.getSelecValue();
+        if (cd) {
+          getCode(cd);
+        }
+        display.value = false;
         runFlag.value = false;
         divwerHeight.value = 400;
         timeNumber.value = Number(new Date());
@@ -204,8 +215,12 @@ export default {
           activeName.value = 't0';
           column.list = [];
           tableData.list = [];
+          let lengthArry = [];
+          time.list = [];
+          line.list = [];
           tabelNum.value = res.data.length;
           res.data.forEach((item) => {
+            let length = [];
             time.list.push(item.queryTime);
             line.list.push(item.line);
             if (item.metaDataList) {
@@ -214,6 +229,8 @@ export default {
                   return {
                     label: eleitem,
                     prop: `t${index}`,
+                    width: 'auto',
+                    fixed: index === 0 ? 'left' : index === item.metaDataList.length - 1 ? 'right' : false,
                   };
                 }),
               });
@@ -225,6 +242,9 @@ export default {
                 list: item.valueList.map((eleitem) => {
                   const obj = {};
                   for (let i = 0; i < eleitem.length; i++) {
+                    if (eleitem[i].length > length[i] || !length[i]) {
+                      length[i] = eleitem[i].length;
+                    }
                     obj[`t${i}`] = eleitem[i];
                   }
                   return obj;
@@ -233,8 +253,19 @@ export default {
             } else {
               tableData.list.push(null);
             }
+            lengthArry.push(length);
           });
+          // lengthArry.forEach((element, i) => {
+          //   element.forEach((item, index) => {
+          //     if (index === element.length - 1) {
+          //       return false;
+          //     }
+          //     column.list[i].list[index].width = column.list[i].list[index].label.length < item ? item * 12 : column.list[i].list[index].label.length * 12;
+          //   });
+          // });
+          display.value = true;
           runFlag.value = true;
+          console.log(line.list);
         });
         setTimeout(() => {
           runFlag.value = true;
@@ -245,10 +276,6 @@ export default {
     }
     function centerDialog() {
       centerDialogVisible.value = false;
-      ElMessage({
-        type: 'info',
-        message: t('device.cencel'),
-      });
     }
     function centerDialogOk() {
       let codes = '';
@@ -269,6 +296,14 @@ export default {
           });
           centerDialogVisible.value = false;
           props.func.updateTree();
+          let locationId = '';
+          if (routeData.obj.id.endsWith('newquery')) {
+            locationId = routeData.obj.id.substring(0, routeData.obj.id.length - 9) + res.data + 'query';
+          } else {
+            locationId = route.params.connectionid + 'connection:querylist' + res.data.id + 'query';
+          }
+          props.func.updateTree();
+          props.func.addTab(locationId, {}, true);
         }
       });
     }
@@ -303,8 +338,22 @@ export default {
       });
     }
     function stopquery() {
-      queryStop(routeData.obj.connectionid, { timestamp: timeNumber.value }).then((res) => {
-        console.log(res);
+      queryStop(routeData.obj.connectionid, { timestamp: timeNumber.value }).then(() => {});
+    }
+    function exportSql(i) {
+      exportDataSql(routeData.obj.connectionid, { sql: codeArr[i] }).then((res) => {
+        if (res) {
+          ElMessage({
+            type: 'success',
+            message: `导出成功!`,
+          });
+          handleExport(res, '查询导出.CSV');
+        } else {
+          ElMessage({
+            type: 'error',
+            message: res.message,
+          });
+        }
       });
     }
     function deleteQuery() {
@@ -334,8 +383,6 @@ export default {
     }
     onActivated(() => {
       routeData.obj = route.params;
-      console.log(11111);
-      console.log(routeData.obj);
       if (route.params.forceupdate) {
         getSqlCode();
         getGroupList();
@@ -343,8 +390,10 @@ export default {
       }
     });
     return {
+      exportSql,
       column,
       line,
+      display,
       tabelNum,
       activeNameRight,
       treeList,
@@ -395,18 +444,14 @@ export default {
 }
 .dilog_div {
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 .el_aside_div {
-  width: 298px;
+  width: 240px;
   height: calc(100vh - 106px);
-  // overflow: hidden;
+  box-sizing: border-box;
   position: absolute;
   border-left: 1px solid #ebeef5;
-  .tabgad {
-    background: #efefef;
-  }
 }
 .downloadchart {
   font-size: 11px;
@@ -427,18 +472,23 @@ export default {
   }
   .divider {
     // width: 1px;
-    height: 1px;
-    background-color: #efefef;
+    height: 3px;
+    background-color: #f9fafc;
     cursor: n-resize;
     &:hover {
       background-color: $theme-color !important;
       height: 2px;
     }
   }
-  .tabs {
-    height: 30px;
-    background: #efefef;
+  :deep(.tabs) {
+    height: 40px;
+    background: #fff;
     box-shadow: 0 0 2px #d2d2d2;
+    .el-tabs {
+      .el-tabs__header {
+        margin-bottom: 0;
+      }
+    }
     .frist_span {
       color: #ccc;
       font-size: 11px;
@@ -472,6 +522,12 @@ export default {
 }
 </style>
 <style lang="scss">
+.tabgad {
+  .el-tabs__nav-wrap::after {
+    height: 1px;
+    bottom: 1px;
+  }
+}
 .backcolor.el-main {
   padding: 0;
   height: 100%;

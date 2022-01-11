@@ -21,17 +21,15 @@ package org.apache.iotdb.admin.model.vo;
 
 import lombok.Data;
 
-/** 返回信息类 */
+/** Return base class */
 @Data
 public class BaseVO<T> {
 
-  /** 0 表示成功 其他表示错误类型 */
+  /** 0 indicates success and other indicates error types */
   private String code;
 
-  /** 定义出错时候用户可读的信息 */
   private String message;
 
-  /** 这是一个返回数据的通用类型模板 */
   private T data;
 
   public BaseVO() {}

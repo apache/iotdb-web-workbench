@@ -21,16 +21,31 @@ package org.apache.iotdb.admin.model.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class DeviceDTO implements Serializable {
 
+  @NotEmpty(message = "The measurement cannot be empty")
   private String timeseries;
 
+  @NotEmpty(message = "The data type cannot be empty")
   private String dataType;
 
+  @NotEmpty(message = "The encoding cannot be empty")
   private String encoding;
 
   private String description;
+
+  private String alias;
+
+  @NotEmpty(message = "The compression cannot be empty")
+  private String compression;
+
+  private List<List<String>> tags;
+
+  private List<List<String>> attributes;
 }

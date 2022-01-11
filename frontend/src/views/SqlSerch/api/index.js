@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,40 +19,43 @@
 
 import axios from '@/util/axios.js';
 
-//用于查询器查询
+// sql query
 export function querySql(serverId, data) {
   return axios.post(`/servers/${serverId}/querySql`, data);
 }
-//保存查询
+//save sql
 export function saveQuery(serverId, data) {
   return axios.post(`/servers/${serverId}/query`, data);
 }
-//获取存储组列表
+//Get storage group list
 export function getGroup(serverId) {
   return axios.get(`/servers/${serverId}/storageGroups`);
 }
-//获取实体列表
+//Get entity list
 export function getDevice(serverId, groupName) {
   return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices`);
 }
-//获取实体下物理量列表
+//Get physical quantity list under entity
 export function getCList(serverId, groupName, deviceName, params) {
   return axios.get(`/servers/${serverId}/storageGroups/${groupName}/devices/${deviceName}/info`, { params: params });
 }
-//获取指定查询
+//Gets the specified query
 export function getSql(serverId, queryId) {
   return axios.get(`/servers/${serverId}/query/${queryId}`);
 }
-//终止查询
+//Terminate query
 export function queryStop(serverId, params) {
   return axios.get(`/servers/${serverId}/stop`, { params: params });
 }
-// 获取数据连接
+// Get data connection
 export function getlink(params) {
   return axios.get(`/servers`, { params: params });
 }
-
-// 删除查询
+// Delete query
 export function deleteQueryS(serverId, queryId) {
   return axios.delete(`/servers/${serverId}/query/${queryId}`);
+}
+// Import query
+export function exportDataSql(serverId, params) {
+  return axios.get(`/servers/${serverId}/exportData`, { params });
 }

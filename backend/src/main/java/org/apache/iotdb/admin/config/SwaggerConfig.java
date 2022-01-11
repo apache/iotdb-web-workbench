@@ -19,6 +19,7 @@
 
 package org.apache.iotdb.admin.config;
 
+import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -36,7 +37,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.ArrayList;
 import java.util.List;
 
-/** swagger配置类 */
+/** swagger configuration class */
 @Configuration
 @EnableSwagger2
 @Profile({"dev", "test"})
@@ -50,14 +51,15 @@ public class SwaggerConfig {
         .globalOperationParameters(jwtToken())
         .select()
         .apis(RequestHandlerSelectors.basePackage("org.apache.iotdb.admin.controller"))
+        .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
         .paths(PathSelectors.any())
         .build();
   }
 
   private ApiInfo apiinfo() {
     return new ApiInfoBuilder()
-        .title("IOTDB接口文档")
-        .description("iotDB层级关系 存储组 -> 实体(设备) -> 测点(时间序列)")
+        .title("IoTDB-Workbench API")
+        .description("IoTDB hierarchy: storage group -> entity -> measurement")
         .build();
   }
 
@@ -67,7 +69,7 @@ public class SwaggerConfig {
     List<Parameter> pars = new ArrayList<>();
     tokenPar
         .name("Authorization")
-        .description("jwt令牌")
+        .description("java web token")
         .modelRef(new ModelRef("string"))
         .parameterType("header")
         .required(false);

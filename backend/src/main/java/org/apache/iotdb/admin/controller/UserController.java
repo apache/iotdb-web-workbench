@@ -47,7 +47,7 @@ import java.util.Calendar;
 import java.util.List;
 
 @RestController
-@Api(value = "登录相关接口")
+@Api(value = "User related")
 public class UserController {
 
   @Autowired private UserService userService;
@@ -57,7 +57,7 @@ public class UserController {
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
   @PostMapping("/login")
-  @ApiOperation("登录")
+  @ApiOperation("login")
   public BaseVO<ConnectionVO> login(
       @RequestParam("name") String name,
       @RequestParam("password") String password,
@@ -71,27 +71,27 @@ public class UserController {
     List<ConnVO> connVOs = connectionService.getAllConnections(userId);
     ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, name);
     response.addHeader("Authorization", getToken(user));
-    return BaseVO.success("登录成功", connectionVO);
+    return BaseVO.success("Login  successful", connectionVO);
   }
 
   @PostMapping("/save")
-  @ApiOperation("创建用户  (未使用)")
+  @ApiOperation("Create user (not used)")
   public BaseVO save(@RequestBody User user) throws BaseException {
     userService.insert(user);
-    return BaseVO.success("保存成功", null);
+    return BaseVO.success("Save successful", null);
   }
 
   @DeleteMapping("/delete")
-  @ApiOperation("删除用户  (未使用)")
+  @ApiOperation("Delete user (not used)")
   public BaseVO delete(@RequestParam("userId") Integer userId, HttpServletRequest request)
       throws BaseException {
     AuthenticationUtils.userAuthentication(userId, request);
     userService.delete(userId);
-    return BaseVO.success("删除成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @GetMapping("/get")
-  @ApiOperation("二次登录获取用户信息")
+  @ApiOperation("Get information of user")
   public BaseVO<User> getUser(HttpServletRequest request) {
     String authorization = request.getHeader("Authorization");
     DecodedJWT decode = JWT.decode(authorization);
@@ -102,7 +102,24 @@ public class UserController {
       user.setId(userId);
       user.setName(name);
     }
-    return BaseVO.success("获取成功", user);
+    return BaseVO.success("Get successfully", user);
+  }
+
+  @GetMapping("/")
+  public String welcome() {
+    String str =
+        "<!DOCTYPE html>\n"
+            + "<html lang=\"ch\">\n"
+            + "<head>\n"
+            + "    <meta charset=\"UTF-8\">\n"
+            + "    <title>welcome</title>\n"
+            + "</head>\n"
+            + "<body>\n"
+            + "<h1>You have successfully started IoTDB-Workbench backend application!</h1>\n"
+            + "<h2>For a better experience with IOTDB-Workbench, Please refer to the <a href=\"https://github.com/loveher147/iotdb-admin/blob/main/backend/doc/deploy.md\">deployment documentation</a> for deployment</h2>\n"
+            + "</body>\n"
+            + "</html>";
+    return str;
   }
 
   private String getToken(User user) throws BaseException {
@@ -115,7 +132,7 @@ public class UserController {
               .withClaim("name", user.getName())
               .withExpiresAt(instance.getTime())
               .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
-      logger.info(user.getName() + "登录成功");
+      logger.info(user.getName() + "login successfully");
       return token;
     } catch (Exception e) {
       logger.info(e.getMessage());

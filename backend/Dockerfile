@@ -17,13 +17,6 @@
 # under the License.
 #
 
-FROM maven:3.8.2-amazoncorretto-8 as builder
-
-WORKDIR /app
-
-COPY . .
-
-RUN mvn package
 
 
 

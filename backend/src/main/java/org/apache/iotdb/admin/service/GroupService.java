@@ -27,7 +27,6 @@ import org.apache.iotdb.admin.model.entity.StorageGroup;
 import java.util.List;
 
 public interface GroupService {
-
   List<String> getGroupDescription(String host, List<String> groupNames) throws BaseException;
 
   void setStorageGroupInfo(Connection connection, GroupDTO groupDTO) throws BaseException;

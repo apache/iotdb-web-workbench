@@ -29,8 +29,8 @@ import java.io.Serializable;
 @Data
 public class GroupDTO implements Serializable {
 
-  @NotNull(message = "存储组名不能为null")
-  @Pattern(regexp = "^[^ ]+$", message = "不能包含空格")
+  @NotNull(message = "The storage group name cannot be null")
+  @Pattern(regexp = "^[^ ]+$", message = "The storage group name cannot contain spaces")
   private String groupName;
 
   private String description;

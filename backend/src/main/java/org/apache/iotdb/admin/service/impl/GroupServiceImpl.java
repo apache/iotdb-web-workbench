@@ -57,9 +57,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, StorageGroup>
     String host = connection.getHost();
     String groupName = groupDTO.getGroupName();
     String description = groupDTO.getDescription();
-    if ("127.0.0.1".equals(host)) {
-      host = "localhost";
-    }
     queryWrapper.eq("host", host);
     queryWrapper.eq("group_name", groupName);
     StorageGroup storageGroup = groupMapper.selectOne(queryWrapper);

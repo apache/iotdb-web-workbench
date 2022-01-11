@@ -1,21 +1,21 @@
 <!--
-  - Licensed to the Apache Software Foundation (ASF) under one
-  - or more contributor license agreements.  See the NOTICE file
-  - distributed with this work for additional information
-  - regarding copyright ownership.  The ASF licenses this file
-  - to you under the Apache License, Version 2.0 (the
-  - "License"); you may not use this file except in compliance
-  - with the License.  You may obtain a copy of the License at
-  -
-  -   http://www.apache.org/licenses/LICENSE-2.0
-  -
-  - Unless required by applicable law or agreed to in writing,
-  - software distributed under the License is distributed on an
-  - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  - KIND, either express or implied.  See the License for the
-  - specific language governing permissions and limitations
-  - under the License.
-  -->
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+-->
 
 <template>
   <div class="font_fmiy">
@@ -57,15 +57,15 @@ export default {
         theme: 'neat',
         lineNumbers: true,
         line: true,
-        lineWrapping: true, // 自动换行
-        styleActiveLine: true, // 当前行背景高亮
+        lineWrapping: true, // Auto wrap
+        styleActiveLine: true, // Highlight current line background
         smartIndent: true,
         matchBrackets: true,
         hintOptions: {
           completeSingle: false,
           hint: handleShowHint,
         },
-        indentUnit: 4, // 缩进单位为4
+        indentUnit: 4, // Indent in 4
         extraKeys: {
           Ctrl: 'autocomplete',
           Tab: (cmInstance) => {
@@ -100,46 +100,49 @@ export default {
     setCode(value) {
       this.coder.setValue(value);
     },
+    getSelecValue() {
+      return this.coder.getSelection();
+    },
     setEvent() {
       this.coder.on('change', () => {
         this.$emit('getCode', this.code);
         handleShowHint(this.coder);
-        //编译器内容更改事件
+        //Compiler content change event
         this.coder.showHint();
       });
     },
     _initialize() {
-      // 初始化编辑器实例，传入需要被实例化的文本域对象和默认配置
+      // Initialize the editor instance, and pass in the text field object to be instantiated and the default configuration
       this.coder = CodeMirror.fromTextArea(this.$refs.textarea, this.options);
-      // 编辑器赋值
+      // Editor assignment
       // this.coder.setSize("auto", `calc(100vh - 443px)`);
-      // 支持双向绑定
+      // Support bidirectional binding
       this.coder.on('change', (coder) => {
         this.code = coder.getValue();
       });
       keywords.forEach((words) => {
         CodeMirror.resolveMode('text/x-mysql').keywords[words.toLowerCase()] = true;
       });
-      // 尝试从父容器获取语法类型
+      // Trying to get syntax type from parent container
       if (this.language) {
-        // 获取具体的语法类型对象
+        // Gets the specific syntax type object
         let modeObj = this._getLanguage(this.language);
 
-        // 判断父容器传入的语法是否被支持
+        // Determine whether the syntax passed in by the parent container is supported
         if (modeObj) {
           this.mode = modeObj.label;
         }
       }
     },
-    // 获取当前语法类型
+    // Gets the current syntax type
     _getLanguage(language) {
-      // 在支持的语法类型列表中寻找传入的语法类型
+      // Look for the incoming syntax type in the list of supported syntax types
       return this.modes.find((mode) => {
-        // 所有的值都忽略大小写，方便比较
+        // All values ignore case for comparison
         let currentLanguage = language.toLowerCase();
         let currentLabel = mode.label.toLowerCase();
         let currentValue = mode.value.toLowerCase();
-        // 由于真实值可能不规范，例如 java 的真实值是 x-java ，所以讲 value 和 label 同时和传入语法进行比较
+        // Because the real value may not be standardized, for example, the real value of Java is x-java, so value and label are compared with the incoming syntax at the same time
         return currentLabel === currentLanguage || currentValue === currentLanguage;
       });
     },
@@ -155,16 +158,22 @@ pre.CodeMirror-line {
   text-align: left !important;
 }
 .CodeMirror {
-  background: #f7f7f7 !important;
+  background: #f9fbfc !important;
+  pre {
+    &.CodeMirror-line {
+      font-size: 11px !important;
+      font-family: 'PingFang SC, Arial, sans-serif';
+    }
+  }
 }
 .CodeMirror-gutters {
-  background-color: #efefef !important;
+  background-color: #f9fbfc !important;
   width: 30px !important;
+  border-right: none !important;
 }
 .font_fmiy {
-  .CodeMirror-line {
-    font-size: 11px !important;
-    font-family: PingFang SC, Arial, sans-serif !important;
+  .CodeMirror-scroll {
+    background: #f9fbfc !important;
   }
 }
 </style>

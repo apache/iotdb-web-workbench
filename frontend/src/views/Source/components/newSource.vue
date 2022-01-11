@@ -1,21 +1,21 @@
 <!--
-  - Licensed to the Apache Software Foundation (ASF) under one
-  - or more contributor license agreements.  See the NOTICE file
-  - distributed with this work for additional information
-  - regarding copyright ownership.  The ASF licenses this file
-  - to you under the Apache License, Version 2.0 (the
-  - "License"); you may not use this file except in compliance
-  - with the License.  You may obtain a copy of the License at
-  -
-  -   http://www.apache.org/licenses/LICENSE-2.0
-  -
-  - Unless required by applicable law or agreed to in writing,
-  - software distributed under the License is distributed on an
-  - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  - KIND, either express or implied.  See the License for the
-  - specific language governing permissions and limitations
-  - under the License.
-  -->
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+-->
 
 <template>
   <div class="new-source">
@@ -181,7 +181,7 @@ export default {
       ],
     });
     /**
-     * 新增编辑数据源
+     * new/edit source
      */
     const submit = () => {
       formRef.value.validate((valid) => {
@@ -206,7 +206,7 @@ export default {
       });
     };
     /**
-     * 获取数据源基本信息
+     * get source basic info
      */
     const getBaseInfo = () => {
       axios.get(`/servers/${props.serverId}`, {}).then((res) => {
@@ -221,7 +221,7 @@ export default {
       });
     };
     /**
-     * 数据源是否联通测试
+     * source can test successful
      */
     const testConnect = () => {
       let patternReg = /^(((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?))|(localhost)$/;
@@ -292,6 +292,15 @@ export default {
 
 <style scoped lang="scss">
 .new-source {
+  &:deep(.el-form-item__content) {
+    line-height: 20px;
+  }
+  &:deep(.el-dialog) {
+    margin-top: 10vh !important;
+  }
+  &:deep(.el-form .el-form-item .el-form-item__label) {
+    width: 100px !important;
+  }
   .source-form {
     .eg {
       font-size: 12px;
@@ -300,12 +309,6 @@ export default {
   }
   .test-form-item {
     margin-top: 20px;
-  }
-  &:deep(.el-form-item__content) {
-    line-height: 20px;
-  }
-  &:deep(.el-dialog) {
-    margin-top: 10vh !important;
   }
 }
 </style>

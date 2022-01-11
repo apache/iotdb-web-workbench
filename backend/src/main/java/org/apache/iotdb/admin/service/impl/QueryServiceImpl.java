@@ -41,7 +41,7 @@ public class QueryServiceImpl extends ServiceImpl<QueryMapper, Query> implements
   @Autowired private QueryMapper queryMapper;
 
   @Override
-  public void save(Integer serverId, Query inputQuery) throws BaseException {
+  public Integer save(Integer serverId, Query inputQuery) throws BaseException {
     QueryWrapper queryWrapper = new QueryWrapper();
     queryWrapper.eq("connection_id", serverId);
     queryWrapper.eq("query_name", inputQuery.getQueryName());
@@ -52,7 +52,7 @@ public class QueryServiceImpl extends ServiceImpl<QueryMapper, Query> implements
       newQuery.setQueryName(inputQuery.getQueryName());
       newQuery.setSqls(inputQuery.getSqls());
       queryMapper.insert(newQuery);
-      return;
+      return queryMapper.selectOne(queryWrapper).getId();
     }
     throw new BaseException(ErrorCode.QUERY_EXIST, ErrorCode.QUERY_EXIST_MSG);
   }

@@ -19,7 +19,6 @@
 
 package org.apache.iotdb.admin.common.exception;
 
-/** 异常类 */
 public class BaseException extends Exception {
 
   private String errorCode;

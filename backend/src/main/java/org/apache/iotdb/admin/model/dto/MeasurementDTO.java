@@ -25,7 +25,6 @@ import java.io.Serializable;
 
 @Data
 public class MeasurementDTO implements Serializable {
-
   private String timeseries;
   private String alias;
   private String storagegroup;

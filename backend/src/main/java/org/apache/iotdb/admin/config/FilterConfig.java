@@ -29,7 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 拦截器配置类 */
+/** Interceptor configuration class */
 @Component
 public class FilterConfig implements WebMvcConfigurer {
 
@@ -39,6 +39,7 @@ public class FilterConfig implements WebMvcConfigurer {
     List<String> paths = new ArrayList();
     paths.add("/servers/**");
     paths.add("/get");
+    paths.add("/downloadFile/**");
     interceptorRegistration.addPathPatterns(paths);
   }
 }

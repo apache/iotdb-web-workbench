@@ -42,56 +42,55 @@ import java.net.Socket;
 import java.util.List;
 
 @RestController
-@Api(value = "连接相关接口")
+@Api(value = "Connection related")
 public class ConnectionController {
 
   @Autowired private ConnectionService connectionService;
 
   @PostMapping("/servers")
-  @ApiOperation("保存或更新连接")
+  @ApiOperation("Upsert connection")
   public BaseVO saveOrUpdateConnection(
       @RequestBody Connection connection, HttpServletRequest request) throws BaseException {
     AuthenticationUtils.userAuthentication(connection.getUserId(), request);
     if (connection.getId() != null) {
       connectionService.update(connection);
-      return BaseVO.success("更新成功", null);
+      return BaseVO.success("Update successfully", null);
     }
     connectionService.insert(connection);
-
-    return BaseVO.success("保存成功", null);
+    return BaseVO.success("Save successfully", null);
   }
 
   @DeleteMapping("/servers/{serverId}")
-  @ApiOperation("删除连接")
+  @ApiOperation("Delete connection")
   public BaseVO deleteConnection(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     Integer userId = AuthenticationUtils.getUserId(request);
     connectionService.check(serverId, userId);
     connectionService.deleteById(serverId, userId);
-    return BaseVO.success("删除成功", null);
+    return BaseVO.success("Delete successfully", null);
   }
 
   @GetMapping("/servers/{serverId}")
-  @ApiOperation("获取连接具体配置")
+  @ApiOperation("Get detailed information of the specified connection")
   public BaseVO<Connection> getConnection(
       @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
     Integer userId = AuthenticationUtils.getUserId(request);
     connectionService.check(serverId, userId);
-    return BaseVO.success("获取成功", connectionService.getById(serverId));
+    return BaseVO.success("Get successfully", connectionService.getById(serverId));
   }
 
   @GetMapping("/servers")
-  @ApiOperation("获取所有连接")
+  @ApiOperation("Get all connection")
   public BaseVO<ConnectionVO> getAllConnections(
       @RequestParam("userId") Integer userId, HttpServletRequest request) throws BaseException {
     AuthenticationUtils.userAuthentication(userId, request);
     List<ConnVO> connVOs = connectionService.getAllConnections(userId);
     ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, null);
-    return BaseVO.success("获取成功", connectionVO);
+    return BaseVO.success("Get successfully", connectionVO);
   }
 
   @PostMapping("/test")
-  @ApiOperation("连通性测试")
+  @ApiOperation("Connectivity test")
   public BaseVO testConnection(@RequestBody ConnectionDTO conn) throws BaseException {
     Socket socket = null;
     try {
@@ -123,6 +122,6 @@ public class ConnectionController {
         throw new BaseException(ErrorCode.TEST_CONN_FAIL_PWD, ErrorCode.TEST_CONN_FAIL_PWD_MSG);
       }
     }
-    return BaseVO.success("连通成功", null);
+    return BaseVO.success("Connection successfully", null);
   }
 }

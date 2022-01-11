@@ -33,10 +33,10 @@ public class Query implements Serializable {
   @TableId(type = IdType.AUTO)
   private Integer id;
 
-  @NotNull(message = "未指定所属连接id")
+  @NotNull(message = "The connection id cannot be null")
   private Integer connectionId;
 
-  @NotNull(message = "未指定脚本名")
+  @NotNull(message = "The query name cannot be null")
   private String queryName;
 
   private String sqls;

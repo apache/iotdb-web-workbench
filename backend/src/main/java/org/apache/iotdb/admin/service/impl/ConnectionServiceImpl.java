@@ -47,7 +47,14 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     List<Connection> connections = connectionMapper.selectList(queryWrapper);
     List<ConnVO> ConnVOs = new ArrayList();
     for (Connection connection : connections) {
-      ConnVOs.add(new ConnVO(connection.getId(), connection.getAlias()));
+      ConnVOs.add(
+          new ConnVO(
+              connection.getId(),
+              connection.getAlias(),
+              connection.getHost(),
+              connection.getPort(),
+              connection.getUsername(),
+              connection.getPassword()));
     }
     return ConnVOs;
   }
@@ -60,12 +67,9 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     queryWrapper.eq("user_id", userId);
     queryWrapper.eq("alias", alias);
     Connection existConnection = connectionMapper.selectOne(queryWrapper);
-    // 别名唯一
+    // Alias are unique
     if (existConnection != null) {
       throw new BaseException(ErrorCode.ALIAS_REPEAT, ErrorCode.ALIAS_REPEAT_MSG);
-    }
-    if ("127.0.0.1".equals(connection.getHost())) {
-      connection.setHost("localhost");
     }
     int flag = connectionMapper.insert(connection);
     if (flag <= 0) {
@@ -116,7 +120,7 @@ public class ConnectionServiceImpl extends ServiceImpl<ConnectionMapper, Connect
     queryWrapper.eq("user_id", userId);
     queryWrapper.eq("alias", alias);
     Connection existConnection = connectionMapper.selectOne(queryWrapper);
-    // 别名唯一
+    // Alias are unique
     if (existConnection != null && !connection.getId().equals(existConnection.getId())) {
       throw new BaseException(ErrorCode.ALIAS_REPEAT, ErrorCode.ALIAS_REPEAT_MSG);
     }
