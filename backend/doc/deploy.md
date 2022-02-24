@@ -23,7 +23,9 @@
 
 ## 后端部署
 
-1 通过backend/src/main/resources/application-xxx.properties文件配置项目，注意修改数据源的路径。
+1 通过backend/src/main/resources/application.properties指定配置文件为prod：`spring.profiles.active=prod`
+
+在application-prod.properties中可按照自己需求修改端口号，并注意修改数据源的路径：
 
 ![](image/配置文件.PNG)
 
@@ -31,10 +33,12 @@
 
 ![](image/打包.png)
 
-3 打包之后，将jar包上传到指定服务器并运行。  
+3 打包之后，将jar包上传到你的服务器并运行：  
 
 首先请确定服务器上安装了sqlite3（一般Linux系统自带sqlite3，如果没有请安装）。  
+
 通过如下命令将jar包挂载到后台运行:  
+
 nohup java -jar xxx.jar >/dev/null 2>&1 &
 
 至此后端部署完成。
@@ -55,10 +59,15 @@ yum install -y nginx
 
 ![](image/nginx配置文件.png)
 
-黄框内容为监听端口号配置；  
-红框内容以“/”映射前端资源文件，请指定为你的dist文件路径；  
-绿框以“/api”映射后台服务地址，与application-xxx.properties文件中配置的端口号和上下文根保持一致；  
-如果你需要多个服务则需配置多个server
+其中：
+
+- 黄框内容为监听端口号配置；  
+
+- 红框内容以“/”映射前端资源文件，请指定为你的dist文件夹路径（dist文件夹是由前端打包产生的）；  
+
+- 绿框以“/api”映射后台服务地址，其端口号与application-prod.properties文件中配置的端口号保持一致 。
+
+如果你需要多个服务则需配置多个server。
 
 4 保存配置后，命令行输入nginx启动nginx
 

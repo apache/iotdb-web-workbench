@@ -25,7 +25,7 @@
 
 ## Maven 安装
 
-无论你是mac电脑还是window电脑，都可以到Maven官网直接下载[Maven 3.8.2](https://dlcdn.apache.org/maven/maven-3/3.8.2/binaries/apache-maven-3.8.2-bin.tar.gz)
+无论你是mac电脑还是window电脑，都可以到[Maven官网](https://archive.apache.org/dist/maven/maven-3/)直接下载，选择3.3.9或以上版本即可。
 
 然后找一个目录解压，路径最好不要有中文，然后在Idea中引用该Maven。在下图中找到"Maven Setting"
 

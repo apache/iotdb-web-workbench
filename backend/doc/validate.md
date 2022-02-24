@@ -26,16 +26,17 @@
 1. 直接写在controller中，有时候，特别是新人，98%会忘记写参数验证
 2. 切面，注解形式的参数验证
 
-我们认为第2种方式会好于第一种方式，所以我们使用了成熟的hibernat验证框架对参数进行验证
+我们认为第2种方式会好于第一种方式，所以我们使用了成熟的hibernate验证框架对参数进行验证
 
-## hibernat参数验证配置
+## hibernate参数验证配置
 
 在开发中经常需要写一些字段校验的代码，比如字段非空，字段长度限制，邮箱格式验证等等，写这些与业务逻辑关系不大的代码有几个麻烦：
 
 1. 验证代码繁琐，重复劳动
 2. 方法内代码显得冗长
 3. 每次要看哪些参数验证是否完整，需要去翻阅验证逻辑代码
-hibernate validator（官方文档）提供了一套比较完善、便捷的验证实现方式。
+  
+[hibernate validator](http://hibernate.org/validator/documentation/) 提供了一套比较完善、便捷的验证实现方式。
 
 spring-boot-starter-web包里面有hibernate-validator包，不需要引用hibernate validator依赖。
 
