@@ -44,7 +44,7 @@ swagger在前后端联调开发中，启动非常重要的作用，如下：
 
 ## 网页地址
 
-你可以通过http://localhost:8080/swagger-ui.html这个地址获得接口信息。
+你可以通过 http://localhost:9090/api/swagger-ui.html 这个地址获得接口信息。
 
 ## 生产环境、测试环境、开发环境配置
 

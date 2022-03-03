@@ -44,14 +44,30 @@
 
 由于是开源软件，使用的所有库都应该是maven公有仓库能找的，满足轻量、稳定2个特性。
 
-## 快速启动
+## 启动后端
 
-项目提供maven、gradle两种构建工具,以maven为例启动项目：  
-首先通过IntelliJ IDEA打开本项目，右键点击pom.xml,点击Add as Maven Project导入项目相关依赖。
+项目提供maven、gradle两种构建工具，以maven为例启动项目：  
+
+首先通过IntelliJ IDEA打开本项目，右键点击pom.xml，点击Add as Maven Project导入项目相关依赖。
 ![](image/pom.PNG)  
+
 导入完成后启动AdminApplication项目，启动成功后你应该能看到如下界面。  
+
 ![](image/启动成功.PNG)  
-接着，你可以通过浏览器访问127.0.0.1:8080/api/，看到如下页面则代表后端启动成功。
+
+接着，你可以通过浏览器访问127.0.0.1:9090/api/，看到如下页面则代表后端启动成功。
 ![](image/welcome.PNG)  
-具体部署步骤请参考[部署文档](deploy.md)  
-本系统默认登录用户为root,密码为123456。  
+
+## 启动前端
+
+在启动前端之前请先确保frontend/vue.config.js中配置的proxy的目标地址为后端服务的ip+端口，如图：
+
+![](image/proxyConfig.png)
+
+进入frontend目录，命令行输入`npm run serve`启动前端（具体步骤请参考[前端文档](../../frontend/README.md) ），启动成功后通过浏览器访问127.0.0.1:8080，你将进入登陆界面：
+
+![](image/login.png)
+
+输入默认账号root、密码123456，点击登录，你就可以使用本系统了。
+
+如果你想将本项目部署到服务器上，请参考[部署文档](deploy.md) 。
