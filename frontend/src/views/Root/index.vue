@@ -23,6 +23,8 @@
       <el-header>
         <el-menu :default-active="menuIndex" mode="horizontal" @select="handleMenuSelect">
           <el-menu-item index="1">{{ $t('rootPage.databaseManagement') }}</el-menu-item>
+          <el-menu-item index="2">{{ $t('rootPage.databaseManagement') }}</el-menu-item>
+
         </el-menu>
         <div class="logo-img"></div>
         <div class="lang-btn">
@@ -78,6 +80,13 @@ export default {
     const { langIndex, handleLangCommand } = useLangSwitch();
     const handleMenuSelect = (key) => {
       menuIndex.value = key;
+      if (key == 1) {
+        store.commit('setFirstPageLoad', true);
+
+        router.push({ name: 'DataBaseM' });
+      } else if (key == 2) {
+        router.push({ name: 'Indicator' });
+      }
     };
 
     const handleLoginCommand = (val) => {

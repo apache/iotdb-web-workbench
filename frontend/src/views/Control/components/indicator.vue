@@ -1,4 +1,4 @@
-/*
+<!--
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -15,30 +15,37 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- */
+-->
 
-const path = require('path');
-function resolve(dir) {
-  return path.join(__dirname, dir);
-}
+<template>
+  <div class="control-page-wraper">dsdsd</div>
+</template>
 
-module.exports = {
-  chainWebpack: (config) => {
-    config.resolve.alias.set('@', resolve('./src')).set('components', resolve('./src/components'));
+<script>
+// @ is an alias to /src
+import { onMounted } from 'vue';
+// import { ElTabs } from 'element-plus';
+// import { useRouter } from 'vue-router';
+
+export default {
+  name: 'Indicator',
+  setup() {
+    // const router = useRouter();
+    // let activeTab = ref('controlIndicator');
+    onMounted(() => {});
+    // const handleClick = (tabs) => {
+    //   activeTab.value = tabs.paneName;
+    // };
+
+    return {
+      //   activeTab,
+      //   handleClick,
+    };
   },
-  css: {
-    loaderOptions: {
-      sass: {
-        prependData: `@use "@/styles/variables.scss" as *;`,
-      },
-    },
-  },
-  devServer: {
-    proxy: {
-      '/.*': {
-        target: 'http://119.84.128.59:8079',
-        changeOrigin: true,
-      },
-    },
+  components: {
+    // ElTabs,
   },
 };
+</script>
+
+<style scoped lang="scss"></style>
