@@ -23,8 +23,7 @@
       <el-header>
         <el-menu :default-active="menuIndex" mode="horizontal" @select="handleMenuSelect">
           <el-menu-item index="1">{{ $t('rootPage.databaseManagement') }}</el-menu-item>
-          <el-menu-item index="2">{{ $t('rootPage.databaseManagement') }}</el-menu-item>
-
+          <el-menu-item index="2">{{ $t('rootPage.monitorManagement') }}</el-menu-item>
         </el-menu>
         <div class="logo-img"></div>
         <div class="lang-btn">
@@ -67,25 +66,29 @@
 // @ is an alias to /src
 import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import useLangSwitch from './hooks/useLangSwitch.js';
 import { ElContainer, ElHeader, ElMenu, ElMenuItem, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
 
 export default {
   name: 'Root',
   setup() {
+    const TopMenuMap = {
+      DataBaseM: '1',
+      Control: '2',
+    };
     const router = useRouter();
+    const route = useRoute();
     const store = useStore();
-    const menuIndex = ref('1');
+    const menuIndex = ref(TopMenuMap[route.matched[1]?.name] || '1');
     const { langIndex, handleLangCommand } = useLangSwitch();
     const handleMenuSelect = (key) => {
       menuIndex.value = key;
       if (key == 1) {
         store.commit('setFirstPageLoad', true);
-
         router.push({ name: 'DataBaseM' });
       } else if (key == 2) {
-        router.push({ name: 'Indicator' });
+        router.push({ name: 'Control' });
       }
     };
 

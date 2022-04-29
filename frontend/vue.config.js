@@ -19,26 +19,33 @@
 
 const path = require('path');
 function resolve(dir) {
-  return path.join(__dirname, dir);
+    return path.join(__dirname, dir);
 }
 
 module.exports = {
-  chainWebpack: (config) => {
-    config.resolve.alias.set('@', resolve('./src')).set('components', resolve('./src/components'));
-  },
-  css: {
-    loaderOptions: {
-      sass: {
-        prependData: `@use "@/styles/variables.scss" as *;`,
-      },
+    chainWebpack: (config) => {
+        config.resolve.alias.set('@', resolve('./src')).set('components', resolve('./src/components'));
     },
-  },
-  devServer: {
-    proxy: {
-      '/.*': {
-        target: 'http://119.84.128.59:8079',
-        changeOrigin: true,
-      },
+    css: {
+        loaderOptions: {
+            sass: {
+                prependData: `@use "@/styles/variables.scss" as *;`,
+            },
+        },
     },
-  },
+    devServer: {
+        proxy: {
+            '/.*': {
+                target: 'http://192.168.1.84:9090',
+                progress: false,
+            },
+            // '/user': {
+            //     target: 'http://119.84.128.59:8079/api',
+            //     changeOrigin: true,
+            //     pathRewrite: {
+            //         '^/user': ''
+            //     }
+            // },
+        },
+    },
 };

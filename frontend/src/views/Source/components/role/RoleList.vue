@@ -9,7 +9,7 @@
         </svg>
       </div>
     </div>
-    <ul v-if="roleList.length" class="role-list">
+    <ul v-if="roleList?.length" class="role-list">
       <li v-for="item in roleList" :key="item" :class="[activeRole === item ? 'active-item' : '']" class="role-list-item" @click="clickRole(item)">
         <div :class="[activeRole === item ? 'circle active-circle' : 'circle']">
           <div class="small-circle"></div>
@@ -64,7 +64,7 @@ export default {
       isAdding.value = false;
       let result = await api.getRoles(serverId);
       roleList.value = result.data;
-      if (!roleList.value.length) {
+      if (!roleList.value?.length) {
         emit('changeCurrRole', { id: '', name: 'NEW' });
         activeRole.value = '';
       } else {

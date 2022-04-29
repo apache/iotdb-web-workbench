@@ -18,34 +18,60 @@
 -->
 
 <template>
-  <div class="control-page-wraper">dsdsd</div>
+  <div class="main-center">
+    <div class="main-center-container">
+      <indicator-list v-if="panelMode === 'list'" :currentData="currentData" />
+
+      <indicator-panel v-else :currentData="currentData" />
+    </div>
+  </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import { onMounted } from 'vue';
-// import { ElTabs } from 'element-plus';
-// import { useRouter } from 'vue-router';
-
+import { computed, ref, watch } from 'vue';
+import IndicatorPanel from './indicatorPanel';
+import IndicatorList from './indicatorList';
+import { useRoute } from 'vue-router';
 export default {
   name: 'Indicator',
-  setup() {
-    // const router = useRouter();
-    // let activeTab = ref('controlIndicator');
-    onMounted(() => {});
-    // const handleClick = (tabs) => {
-    //   activeTab.value = tabs.paneName;
-    // };
-
-    return {
-      //   activeTab,
-      //   handleClick,
-    };
+  props: {
+    data: {
+      type: Object,
+    },
   },
   components: {
-    // ElTabs,
+    IndicatorPanel,
+    IndicatorList,
+  },
+  setup(props) {
+    let route = useRoute();
+    let panelMode = ref('list');
+    let currentData = computed(() => props.data);
+    watch(
+      () => route.params.panel,
+      (newValue) => {
+        panelMode.value = newValue;
+      },
+      {
+        immediate: true,
+      }
+    );
+    return {
+      panelMode,
+      currentData,
+    };
   },
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.main-center {
+  min-height: calc(100% - 243px);
+  padding: 20px;
+  background: #f9fbfc;
+  &-container {
+    background: #fff;
+    border-radius: 4px;
+  }
+}
+</style>
