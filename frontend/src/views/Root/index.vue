@@ -24,7 +24,6 @@
         <el-menu :default-active="menuIndex" mode="horizontal" @select="handleMenuSelect">
           <el-menu-item index="1">{{ $t('rootPage.databaseManagement') }}</el-menu-item>
           <el-menu-item index="2">{{ $t('rootPage.databaseManagement') }}</el-menu-item>
-
         </el-menu>
         <div class="logo-img"></div>
         <div class="lang-btn">
