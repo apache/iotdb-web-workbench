@@ -27,7 +27,7 @@
           <template v-for="(item, index) in tableColumn">
             <el-table-column v-if="!item.fixed" :key="'col' + index" v-bind="item"></el-table-column>
 
-            <el-table-column v-else :key="'colfixed' + index" fixed="right" :label="$t('common.operation')" width="100">
+            <el-table-column v-else :key="'colfixed' + index" fixed="right" :label="$t('common.operation')" width="140">
               <template #default="scoped">
                 <el-button v-if="scoped.row.detailAvailable !== 0" type="text" size="small" @click="handleDeatil(scoped)">{{ $t('common.detail') }}</el-button>
               </template>

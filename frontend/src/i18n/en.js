@@ -496,6 +496,7 @@ const en = {
       Ptotal: 'Total',
       Pentries: 'Entries',
       EachPage: 'EachPage',
+      slow: 'Slow',
     },
   },
 };

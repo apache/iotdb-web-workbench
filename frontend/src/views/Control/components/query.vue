@@ -64,9 +64,9 @@
         <div class="container-right-table">
           <el-table class="iotdb-table" border style="width: 100%" :data="tableData">
             <template v-for="(item, index) in tableColumn">
-              <el-table-column v-if="item.isSlowQuery" :key="'col' + index" label="" :width="item.maxWidth">
+              <el-table-column v-if="item.isSlowQuery" :key="'col' + index" label="" align="right">
                 <template #default="scope">
-                  <div class="slow-query" v-if="scope.row.isSlowQuery">{{ '慢' }}</div>
+                  <div class="slow-query" v-if="scope.row.isSlowQuery">{{ $t('controlPage.slow') }}</div>
                 </template>
               </el-table-column>
               <el-table-column v-else-if="item.type === 'result'" :key="'col' + index" :label="$t('controlPage.exeResult')">
@@ -76,7 +76,7 @@
               </el-table-column>
               <el-table-column v-else :key="'col' + index" show-overflow-tooltip v-bind="item"></el-table-column>
             </template>
-            <el-table-column fixed="right" :label="$t('common.operation')" width="100">
+            <el-table-column fixed="right" :label="$t('common.operation')" width="150">
               <template #default="scoped">
                 <el-button type="text" size="small" @click="handleDownload(scoped)">{{ $t('controlPage.downloadLog') }}</el-button>
               </template>
@@ -162,7 +162,7 @@ export default {
       let temp = [
         {
           label: '',
-          maxWidth: '40',
+          maxWidth: '80',
           isSlowQuery: true,
         },
         {

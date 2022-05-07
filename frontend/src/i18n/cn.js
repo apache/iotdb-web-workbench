@@ -499,6 +499,7 @@ const cn = {
       Ptotal: '共',
       Pentries: '条',
       EachPage: '每页',
+      slow: '慢',
     },
   },
 };

@@ -34,7 +34,7 @@ const de = {
     common: {
       submit: 'Absenden',
       cancel: 'Abbrechen',
-      detail: 'Details',
+      detail: 'Weitere Informationen',
       delete: 'Löschen',
       edit: 'Bearbeiten',
       operation: 'Oeration',
@@ -451,7 +451,7 @@ const de = {
       runCount: 'Anzahl der Ausführungen',
       querySentence: 'Abfrageanweisungen',
       exeResult: 'Ausführungsergebnisse',
-      downloadLog: 'Download Log',
+      downloadLog: 'Protokolle Herunterladen',
       totalUseTime: 'Gesamte verstrichene Zeit (ms)',
       garmmarUseTime: 'Syntax zeitaufwändig (ms)',
       ybyUseTime: 'Kompilierungszeit (ms)',
@@ -489,6 +489,7 @@ const de = {
       Ptotal: 'gesamt',
       Pentries: 'Einträge',
       EachPage: 'Jede Seite',
+      slow: 'Langsam',
     },
   },
 };
