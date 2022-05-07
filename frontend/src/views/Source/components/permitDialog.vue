@@ -95,7 +95,7 @@ export default {
   setup(props, { emit }) {
     const { t, locale } = useI18n();
     let checkList = ref([]);
-    let visible = ref(true);
+    let visible = ref(false);
     let dialogType = ref({});
     let formRef = ref(null);
     // Data granularity 0: data connection 1: storage group 2: entity 3: Measurement

@@ -84,14 +84,24 @@
           </el-table>
           <!-- :page-sizes="[10, 25,50, 100]" -->
           <div class="table-pagination">
+            <el-pagination layout="slot" v-model:currentPage="currentPage" v-model:page-size="pageSize" :total="totalCount">
+              <span class="pagination-title">{{ $t('controlPage.Ptotal') }} {{ totalCount }} {{ $t('controlPage.Pentries') }}</span>
+            </el-pagination>
+            <el-pagination layout="slot" v-model:currentPage="currentPage" v-model:page-size="pageSize" :total="totalCount">
+              {{ $t('controlPage.EachPage')
+              }}<el-select class="pageSelectContainer" v-model="pageSize" @change="handlePageSize" placeholder="请选择">
+                <el-option v-for="item in optionsPage" :key="item.value" :label="item.label" :value="item.value"> </el-option> </el-select
+              >{{ $t('controlPage.Pentries') }}
+            </el-pagination>
             <el-pagination
               v-model:currentPage="currentPage"
               v-model:page-size="pageSize"
-              layout="total, sizes, prev, pager, next"
+              layout="prev, pager, next"
               :total="totalCount"
               @size-change="handlePageSize"
               @current-change="handleCurrentPage"
-            />
+            >
+            </el-pagination>
           </div>
         </div>
       </div>
@@ -152,7 +162,7 @@ export default {
       let temp = [
         {
           label: '',
-          maxWidth: '30',
+          maxWidth: '40',
           isSlowQuery: true,
         },
         {
@@ -204,6 +214,20 @@ export default {
       });
       return temp;
     });
+    let optionsPage = computed(() => [
+      {
+        label: '10',
+        value: 10,
+      },
+      {
+        label: '20',
+        value: 20,
+      },
+      {
+        label: '30',
+        value: 30,
+      },
+    ]);
     watch(activeType, (newValue) => {
       if (newValue) {
         QueryDataInit();
@@ -282,6 +306,7 @@ export default {
       runTime,
       runResult,
       tableData,
+      optionsPage,
       ...toRefs(tablePage),
       ...toRefs(pageReactive),
       //   ...toRefs(tablePage),
@@ -410,6 +435,13 @@ export default {
       .table-pagination {
         padding: 12px 0;
         text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        .pagination-title {
+          font-weight: 400;
+          font-size: 14px;
+          color: rgb(96, 98, 102);
+        }
         &:deep button:hover {
           color: #15c294;
         }
@@ -427,6 +459,15 @@ export default {
   }
   &:deep .el-input .el-input__inner {
     font-size: 12px;
+  }
+  &:deep .el-pagination {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(34, 34, 34, 0.75);
+    line-height: 14px;
+  }
+  &:deep .el-pagination .el-select .el-input {
+    width: 60px;
   }
 }
 </style>

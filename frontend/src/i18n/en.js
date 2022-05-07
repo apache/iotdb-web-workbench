@@ -493,6 +493,9 @@ const en = {
       ygcCount: 'ygc Times',
       fgcTime: 'fgc Time Consuming',
       ygcTime: 'ygc Time Consuming',
+      Ptotal: 'Total',
+      Pentries: 'Entries',
+      EachPage: 'EachPage',
     },
   },
 };

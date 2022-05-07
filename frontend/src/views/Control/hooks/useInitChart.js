@@ -153,7 +153,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
           top: '20px',
           left: '20px',
           right: '20px',
-          bottom: '40px',
+          bottom: '16px',
           containLabel: true,
         },
         series: [
@@ -189,7 +189,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
           top: '20px',
           left: '20px',
           right: '20px',
-          bottom: '40px',
+          bottom: '16px',
           containLabel: true,
         },
         series: [
@@ -210,11 +210,6 @@ async function initMatchChart(serverId, type, refreshData = true) {
           data: ['front', 'end', 'total'],
           bottom: '12px',
         },
-        // grid: {
-        //   //   top: '40px',
-        //   right: '20px',
-        //   bottom: '60px',
-        // },
         xAxis: {
           type: 'category',
           axisTick: { show: false },
@@ -431,6 +426,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
       options: {
         color: ['#5776ED', '#66A5FF', '#F69823', '#379E7D'],
         legend: {
+          type: 'scroll',
           data: ['wal_size', 'tsfile_seq', 'tsfile_unseq', 'total'],
           bottom: '12px',
         },
@@ -472,6 +468,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
       options: {
         color: ['#5776ED', '#66A5FF', '#F69823', '#379E7D'],
         legend: {
+          type: 'scroll',
           data: ['wal_size', 'tsfile_seq', 'tsfile_unseq', 'total'],
           bottom: '12px',
         },

@@ -31,9 +31,11 @@ export default {
           },
         },
         grid: {
-          left: '10%',
-          top: '10%',
+          top: '20px',
+          left: '20px',
           right: '20px',
+          bottom: '44px',
+          containLabel: true,
         },
         xAxis: {
           type: 'category',

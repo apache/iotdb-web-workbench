@@ -486,6 +486,9 @@ const de = {
       ygcCount: 'ygc Anzahl',
       fgcTime: 'fgc Zeit',
       ygcTime: 'ygc Zeit',
+      Ptotal: 'gesamt',
+      Pentries: 'Einträge',
+      EachPage: 'Jede Seite',
     },
   },
 };

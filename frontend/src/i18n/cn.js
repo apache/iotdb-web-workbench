@@ -495,6 +495,10 @@ const cn = {
       ygcCount: 'ygc次数',
       fgcTime: 'fgc耗时',
       ygcTime: 'ygc耗时',
+
+      Ptotal: '共',
+      Pentries: '条',
+      EachPage: '每页',
     },
   },
 };
