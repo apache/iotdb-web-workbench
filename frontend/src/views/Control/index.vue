@@ -147,7 +147,6 @@ export default {
         monitorInfo.value = res.data;
         // if (monitorInfo.value?.url) {
         //     }
-        console.log(res.data);
         handleChangeTab({ paneName: activeTab.value });
       }
     });

@@ -200,8 +200,7 @@ export default {
         return [CPU, memory, store, write, search];
       }
     });
-    watch(modeValue, (newValue) => {
-      console.log(newValue);
+    watch(modeValue, () => {
       typeValue.value = '';
       nextTick(() => {
         lazyChart();
@@ -215,7 +214,6 @@ export default {
     watch(
       () => props.currentData,
       () => {
-        console.log(1111111);
         handleRefresh();
       }
     );
@@ -331,7 +329,6 @@ export default {
     async function initMatchChart(name, refreshData) {
       let result = await useInitChart(props.currentData.serverId, name, refreshData);
       ChartObject[name] = result;
-      console.log(name, '加载完毕');
     }
     function handleRefresh(refreshData) {
       let arr = [...document.querySelectorAll('.chart-item')];

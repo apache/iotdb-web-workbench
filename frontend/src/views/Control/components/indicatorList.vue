@@ -22,7 +22,6 @@
           <span :class="{ active: searchWay === '0' }" @click="handleSearchWay('0')">Top Sql</span>
           <span :class="{ active: searchWay === '1' }" @click="handleSearchWay('1')">{{ $t('controlPage.slowSearch') }}</span>
         </div>
-        <!-- v-loading='true' -->
         <el-table class="iotdb-table" border style="width: 100%" :data="tableData">
           <template v-for="(item, index) in tableColumn">
             <el-table-column v-if="!item.fixed" :key="'col' + index" v-bind="item"></el-table-column>
@@ -42,11 +41,8 @@
 <script>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-// import { MonitorTargetType } from '@/util/constant';
-// import useLanguageWatch from '@/hooks/useLanguageWatch';
 import { useI18n } from 'vue-i18n';
 import { getMetricsData, getSearchMetricsData } from '../api';
-// import { ElLoading } from 'element-plus';
 
 export default {
   name: 'IndicatorList',
@@ -178,7 +174,6 @@ export default {
     watch(
       activeName,
       (newVlaue) => {
-        console.log('指标切换');
         initTableData(props.currentData, newVlaue);
         router.push({
           path: `/control/indicator/${route.params?.panel || 'list'}/${props.currentData.serverId}/${newVlaue}`,
@@ -192,7 +187,6 @@ export default {
     watch(
       () => route.params.mode,
       (newValue) => {
-        console.log(newValue);
         newValue && (activeName.value = newValue);
       },
       {
@@ -224,7 +218,6 @@ export default {
       if (searchWay.value !== way) {
         searchWay.value = way;
         initTableData(props.currentData, activeName.value);
-        console.log('切换');
       }
     }
     function checkedTarget(data, type) {
@@ -245,7 +238,6 @@ export default {
         },
       };
       let type = activeName.value === 'JVM' ? modeMap[activeName.value][row.detailAvailable] : undefined;
-      console.log(type);
       router.push({ path: `/control/indicator/chart/${route.params.id}/${route.params.mode}`, query: { mode: mode.value, type } });
     }
     function initTableData(data, mode) {
@@ -260,17 +252,14 @@ export default {
       if (mode !== 'search') {
         getMetricsData(data.serverId, modeMap[mode]).then((res) => {
           tableData.value = res.data.listInfo;
-          console.log(res, '指标接口');
         });
       } else {
         getSearchMetricsData(data.serverId, searchWay.value).then((res) => {
           tableData.value = res.data.queryMetricsVOs;
-          console.log(res.data, '查询指标接口');
         });
       }
     }
     function handleChangePanel() {
-      console.log('面板切换');
       router.push({ path: `/control/indicator/chart/${route.params.id}/${route.params.mode}`, query: { mode: mode.value } });
     }
     return {

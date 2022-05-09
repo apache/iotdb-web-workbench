@@ -64,7 +64,7 @@
         <div class="container-right-table">
           <el-table class="iotdb-table" border style="width: 100%" :data="tableData">
             <template v-for="(item, index) in tableColumn">
-              <el-table-column v-if="item.isSlowQuery" :key="'col' + index" label="" align="right">
+              <el-table-column v-if="item.isSlowQuery" :key="'col' + index" label="" align="right" :width="item.maxWidth">
                 <template #default="scope">
                   <div class="slow-query" v-if="scope.row.isSlowQuery">{{ $t('controlPage.slow') }}</div>
                 </template>
@@ -74,13 +74,13 @@
                   <div :class="+scope.row.executionResult === 1 ? 'success' : 'error'">{{ +scope.row.executionResult === 1 ? $t('common.success') : $t('common.fail') }}{{ scope.row.result }}</div>
                 </template>
               </el-table-column>
+              <el-table-column v-else-if="item.fixed === 'right'" :key="'colright' + index" v-bind="item">
+                <template #default="scoped">
+                  <el-button type="text" size="small" @click="handleDownload(scoped)">{{ $t('controlPage.downloadLog') }}</el-button>
+                </template>
+              </el-table-column>
               <el-table-column v-else :key="'col' + index" show-overflow-tooltip v-bind="item"></el-table-column>
             </template>
-            <el-table-column fixed="right" :label="$t('common.operation')" width="150">
-              <template #default="scoped">
-                <el-button type="text" size="small" @click="handleDownload(scoped)">{{ $t('controlPage.downloadLog') }}</el-button>
-              </template>
-            </el-table-column>
           </el-table>
           <!-- :page-sizes="[10, 25,50, 100]" -->
           <div class="table-pagination">
@@ -112,10 +112,7 @@
 <script>
 // @ is an alias to /src
 import { computed, nextTick, onMounted, reactive, ref, toRefs, watch } from 'vue';
-// import useLanguageWatch from '@/hooks/useLanguageWatch';
 import { useI18n } from 'vue-i18n';
-// import { ElTabs } from 'element-plus';
-// import { useRouter } from 'vue-router';
 import { getClassifyList, getClassifyData } from '../api';
 
 export default {
@@ -126,7 +123,7 @@ export default {
     },
   },
   setup(props) {
-    let { t } = useI18n();
+    let { t, locale } = useI18n();
     let tabPanelOptions = ref();
     let tableColumnType = ref(true);
     let activeType = ref();
@@ -159,21 +156,31 @@ export default {
     ]);
 
     let tableColumn = computed(() => {
+      let flagWidthMap = {
+        'zh-cn': 40,
+        en: 50,
+        de: 80,
+      };
+      let ctrlWidthMap = {
+        'zh-cn': 100,
+        en: 120,
+        de: 170,
+      };
       let temp = [
         {
           label: '',
-          maxWidth: '80',
+          maxWidth: flagWidthMap[locale.value] || 80,
           isSlowQuery: true,
         },
         {
           label: t('controlPage.runTime'),
           prop: 'runningTime',
-          minWidth: '150px',
+          width: '170px',
         },
         {
           label: t('controlPage.querySentence'),
           prop: 'statement',
-          minWidth: '150px',
+          minWidth: '180px',
         },
         {
           label: t('controlPage.totalUseTime'),
@@ -212,6 +219,11 @@ export default {
         minWidth: '80px',
         type: 'result',
       });
+      temp.push({
+        fixed: 'right',
+        label: t('common.operation'),
+        width: ctrlWidthMap[locale.value],
+      });
       return temp;
     });
     let optionsPage = computed(() => [
@@ -244,9 +256,7 @@ export default {
     watch(
       () => props.data,
       (newValue) => {
-        console.log(newValue);
         getClassifyList(newValue.serverId).then((res) => {
-          console.log(res);
           tabPanelOptions.value = res.data.classificationList;
           activeType.value = '';
           nextTick(() => {
@@ -282,9 +292,7 @@ export default {
         endTime: (runTime.value && runTime.value[1]?.getTime()) || undefined,
         executionResult: runResult.value,
       };
-      console.log('接口参数', query);
       getClassifyData(props.data.serverId, activeType.value, query).then((res) => {
-        console.log(res);
         let { data } = res;
         pageReactive.latestTime = data.latestRunningTime;
         pageReactive.runTotal = data.totalCount;
