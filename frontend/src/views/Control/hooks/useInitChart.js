@@ -367,7 +367,16 @@ async function initMatchChart(serverId, type, refreshData = true) {
           type: 'scroll',
           bottom: '12px',
         },
-        tooltip: {},
+        tooltip: {
+          trigger: 'item',
+          textStyle: {
+            align: 'left',
+          },
+          formatter: function (val) {
+            console.log(val.name, val.value);
+            return `${val.marker}${val.name}&nbsp;&nbsp;&nbsp;&nbsp;${val.value}%`;
+          },
+        },
         xAxis: null,
         yAxis: null,
         series: [

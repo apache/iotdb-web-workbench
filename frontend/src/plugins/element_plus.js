@@ -79,7 +79,8 @@ import {
   // ElMessageBox,
   // ElMessage,
   ElPopconfirm,
-  // ElNotification
+  // ElNotification,
+  ElConfigProvider,
 } from 'element-plus';
 
 export default {
@@ -160,6 +161,7 @@ export default {
     // Vue.use(ElBacktop);
     // Vue.use(ElPageHeader);
     // Vue.use(ElCascaderPanel);
+    Vue.use(ElConfigProvider);
     // Vue.prototype.$message = ElMessage;
     // Vue.prototype.$alert = ElMessageBox.alert;
     // Vue.prototype.$confirm = ElMessageBox.confirm;

@@ -23,12 +23,12 @@
       <div class="header-logo"></div>
       <div class="lang-btn">
         <el-dropdown @command="handleLangCommand">
-          <span class="el-dropdown-link"> {{ [$t('rootPage.chinalang'), $t('rootPage.englishlang'), $t('rootPage.deutsch')][langIndex] }}<i class="el-icon-arrow-down el-icon--right"></i> </span>
+          <span class="el-dropdown-link">{{ langIndex === 1 ? '中文' : 'English' }}<i class="el-icon-arrow-down el-icon--right"></i> </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item :disabled="langIndex === 0" command="0">{{ $t('rootPage.chinalang') }}</el-dropdown-item>
-              <el-dropdown-item :disabled="langIndex === 1" command="1">{{ $t('rootPage.englishlang') }}</el-dropdown-item>
-              <el-dropdown-item :disabled="langIndex === 2" command="2">{{ $t('rootPage.deutsch') }}</el-dropdown-item>
+              <el-dropdown-item :disabled="langIndex === 0" command="0">中文</el-dropdown-item>
+              <el-dropdown-item :disabled="langIndex === 1" command="1">English</el-dropdown-item>
+              <el-dropdown-item :disabled="langIndex === 2" command="2">Deutsch</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -191,6 +191,7 @@ export default {
       right: 20px;
       top: 50%;
       transform: translate(0, -50%);
+      cursor: pointer;
     }
     .header-logo {
       background-image: url(~@/assets/logo.png);

@@ -48,7 +48,10 @@
           <div class="operate-item">
             <span class="input-label">{{ $t('controlPage.runTime') }}：</span>
             <div class="date-box">
-              <el-date-picker v-model="runTime" size="mini" type="datetimerange" :start-placeholder="$t('common.startTime')" :end-placeholder="$t('common.endTime')" />
+              <el-config-provider :locale="langLocale">
+                <!-- <el-color-picker :model-value="''" style="vertical-align: middle" /> -->
+                <el-date-picker v-model="runTime" size="mini" type="datetimerange" :start-placeholder="$t('common.startTime')" :end-placeholder="$t('common.endTime')" />
+              </el-config-provider>
             </div>
           </div>
           <div class="operate-item">
@@ -114,6 +117,9 @@
 import { computed, nextTick, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getClassifyList, getClassifyData } from '../api';
+import zhCn from 'element-plus/lib/locale/lang/zh-cn';
+import en from 'element-plus/lib/locale/lang/en';
+import de from 'element-plus/lib/locale/lang/de';
 
 export default {
   name: 'Query',
@@ -154,7 +160,15 @@ export default {
         value: '2',
       },
     ]);
-
+    let langLocale = computed(() => {
+      let lang = locale.value;
+      let langMap = {
+        'zh-cn': zhCn,
+        en,
+        de,
+      };
+      return langMap[lang];
+    });
     let tableColumn = computed(() => {
       let flagWidthMap = {
         'zh-cn': 40,
@@ -318,6 +332,7 @@ export default {
       ...toRefs(tablePage),
       ...toRefs(pageReactive),
       //   ...toRefs(tablePage),
+      langLocale,
 
       resultOptions,
       tableColumn,
@@ -354,9 +369,11 @@ export default {
     &:deep .el-tabs__item {
       height: 24px;
       line-height: 24px;
+      font-weight: 400;
       color: #8e97aa;
       font-size: 12px !important;
       &.is-active {
+        font-weight: 400;
         color: $theme-bj-color !important;
       }
     }
