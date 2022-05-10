@@ -196,7 +196,7 @@ export default {
             type: 'tree',
             edgeShape: 'polyline',
             data: [datas.value],
-            left: '2%',
+            left: '4%',
             // right: '2%',
             top: '8%',
             bottom: '8%',
