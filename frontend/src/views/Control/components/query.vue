@@ -65,7 +65,7 @@
           <el-button class="operate-btn" @click="handleSearch">{{ $t('common.query') }}</el-button>
         </div>
         <div class="container-right-table">
-          <el-table class="iotdb-table" border style="width: 100%" :data="tableData">
+          <el-table class="iotdb-table" border style="width: 100%" :empty-text="$t('controlPage.nodata')" :data="tableData">
             <template v-for="(item, index) in tableColumn">
               <el-table-column v-if="item.isSlowQuery" :key="'col' + index" label="" align="right" :width="item.maxWidth">
                 <template #default="scope">

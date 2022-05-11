@@ -48,7 +48,7 @@ const cn = {
       placeHolder: '请输入',
       selectPlaceholder: '请选择',
       survival: '存活',
-      death: '死亡',
+      death: '死机',
       port: '端口',
       refresh: '刷新',
       startTime: '开始时间',
@@ -500,6 +500,7 @@ const cn = {
       Pentries: '条',
       EachPage: '每页',
       slow: '慢',
+      nodata: '无数据',
     },
   },
 };

@@ -47,7 +47,7 @@ const en = {
       placeHolder: 'Please Input',
       selectPlaceholder: 'Please Select',
       survival: 'Survival',
-      death: 'Death',
+      death: 'Die',
       port: 'Prot',
       refresh: 'Refresh',
       startTime: 'Start Time',
@@ -497,6 +497,7 @@ const en = {
       Pentries: 'Entries',
       EachPage: 'EachPage',
       slow: 'Slow',
+      nodata: 'No Data',
     },
   },
 };

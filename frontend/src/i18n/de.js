@@ -47,7 +47,7 @@ const de = {
       placeHolder: 'Bitte geben Sie ein',
       selectPlaceholder: 'Wählen Sie',
       survival: 'Überleben',
-      death: 'Tod',
+      death: 'Tot',
       port: 'Hafen',
       refresh: 'Auffrischen',
       startTime: 'Startzeit',
@@ -490,6 +490,7 @@ const de = {
       Pentries: 'Einträge',
       EachPage: 'Jede Seite',
       slow: 'Langsam',
+      nodata: 'Keine Daten',
     },
   },
 };

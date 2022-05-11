@@ -22,7 +22,7 @@
           <span :class="{ active: searchWay === '0' }" @click="handleSearchWay('0')">Top Sql</span>
           <span :class="{ active: searchWay === '1' }" @click="handleSearchWay('1')">{{ $t('controlPage.slowSearch') }}</span>
         </div>
-        <el-table class="iotdb-table" border style="width: 100%" :data="tableData">
+        <el-table class="iotdb-table" border style="width: 100%" :empty-text="$t('controlPage.nodata')" :data="tableData">
           <template v-for="(item, index) in tableColumn">
             <el-table-column v-if="!item.fixed" :key="'col' + index" v-bind="item"></el-table-column>
 

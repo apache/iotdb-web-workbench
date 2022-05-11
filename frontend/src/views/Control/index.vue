@@ -31,7 +31,9 @@
               <use xlink:href="#icon-shujulianjie1"></use></svg
             >{{ item.name }}
           </div>
-          <div v-if="dataList.length === 0" class="datalist-empty"><span>No Data</span></div>
+          <div v-if="dataList.length === 0" class="datalist-empty">
+            <span>{{ $t('controlPage.nodata') }}</span>
+          </div>
         </div>
       </el-aside>
       <div class="divider" ref="dividerRef"></div>
@@ -82,7 +84,9 @@
           </div>
           <div class="main-top-tabs">
             <el-tabs v-model="activeTab" @tab-click="handleChangeTab">
-              <el-tab-pane v-for="(item, index) in tabPaneOptions" :key="index" v-bind="item"> </el-tab-pane>
+              <template v-for="(item, index) in tabPaneOptions" :key="index">
+                <el-tab-pane v-bind="item" :disabled="item.name === 'Query' ? disabled : false"> </el-tab-pane>
+              </template>
             </el-tabs>
           </div>
         </div>
@@ -127,13 +131,11 @@ export default {
     let dataList = ref([]);
     let monitorInfo = ref();
     let show = ref(false);
-    let tabPaneOptions = computed(() => {
-      let disabled = !monitorInfo.value?.status;
-      return [
-        { name: 'Indicator', label: t('controlPage.monitor') },
-        { name: 'Query', label: t('controlPage.search'), disabled },
-      ];
-    });
+    let disabled = ref(false);
+    let tabPaneOptions = ref([
+      { name: 'Indicator', label: t('controlPage.monitor') },
+      { name: 'Query', label: t('controlPage.search') },
+    ]);
     //数据列表选中id
     let checkedId = computed(() => currentData.value && currentData.value.id);
     let filterDataList = computed(() => {
@@ -149,9 +151,11 @@ export default {
         let res = await getMonitorInfo(newValue.id);
         monitorInfo.value = res.data;
         if (monitorInfo.value?.status) {
+          disabled.value = false;
           handleChangeTab({ paneName: activeTab.value });
         } else {
           handleChangeTab({ paneName: 'Indicator' });
+          disabled.value = true;
         }
       }
     });
@@ -226,6 +230,7 @@ export default {
       monitorInfo,
       filterDataList,
       show,
+      disabled,
 
       checkedId,
       tabPaneOptions,
