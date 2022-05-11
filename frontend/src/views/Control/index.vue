@@ -48,41 +48,41 @@
                 <svg class="main-icon" aria-hidden="true">
                   <use xlink:href="#icon-se-icon-ip"></use>
                 </svg>
-                {{ $t('controlPage.address') }}：<span>{{ monitorInfo?.url }}</span>
+                {{ $t('controlPage.address') }}：<span>{{ formatInfo(monitorInfo?.url) }}</span>
               </div>
               <div>
                 <svg class="main-icon" aria-hidden="true">
                   <use xlink:href="#icon-duankou"></use>
                 </svg>
-                {{ $t('common.port') }}： <span>{{ monitorInfo?.port }}</span>
+                {{ $t('common.port') }}： <span>{{ formatInfo(monitorInfo?.port) }}</span>
               </div>
             </div>
             <div class="main-info format">
               <div>
                 <svg class="main-icon" aria-hidden="true">
                   <use xlink:href="#icon-cunchuzu1"></use></svg
-                >{{ $t('controlPage.storage') }}： <span>{{ monitorInfo?.storageGroupCount }}</span>
+                >{{ $t('controlPage.storage') }}： <span>{{ formatInfo(monitorInfo?.storageGroupCount) }}</span>
               </div>
               <div>
                 <svg class="main-icon" aria-hidden="true">
                   <use xlink:href="#icon-shiti"></use></svg
-                >{{ $t('controlPage.entity') }}： <span>{{ monitorInfo?.monitorCount }}</span>
+                >{{ $t('controlPage.entity') }}： <span>{{ formatInfo(monitorInfo?.monitorCount) }}</span>
               </div>
               <div>
                 <svg class="main-icon" aria-hidden="true">
                   <use xlink:href="#icon-wuliliang"></use></svg
-                >{{ $t('controlPage.physics') }}： <span>{{ monitorInfo?.deviceCount }}</span>
+                >{{ $t('controlPage.physics') }}： <span>{{ formatInfo(monitorInfo?.deviceCount) }}</span>
               </div>
               <div>
                 <svg class="main-icon" aria-hidden="true">
                   <use xlink:href="#icon-shujuzongliang"></use></svg
-                >{{ $t('controlPage.total') }}： <span>{{ monitorInfo?.dataCount }}</span>
+                >{{ $t('controlPage.total') }}： <span>{{ formatInfo(monitorInfo?.dataCount) }}</span>
               </div>
             </div>
           </div>
           <div class="main-top-tabs">
             <el-tabs v-model="activeTab" @tab-click="handleChangeTab">
-              <el-tab-pane v-for="(item, index) in tabPaneOptions" :key="index" :label="item.label" :name="item.name"> </el-tab-pane>
+              <el-tab-pane v-for="(item, index) in tabPaneOptions" :key="index" v-bind="item"> </el-tab-pane>
             </el-tabs>
           </div>
         </div>
@@ -127,10 +127,13 @@ export default {
     let dataList = ref([]);
     let monitorInfo = ref();
     let show = ref(false);
-    let tabPaneOptions = ref([
-      { name: 'Indicator', label: t('controlPage.monitor') },
-      { name: 'Query', label: t('controlPage.search') },
-    ]);
+    let tabPaneOptions = computed(() => {
+      let disabled = !monitorInfo.value?.status;
+      return [
+        { name: 'Indicator', label: t('controlPage.monitor') },
+        { name: 'Query', label: t('controlPage.search'), disabled },
+      ];
+    });
     //数据列表选中id
     let checkedId = computed(() => currentData.value && currentData.value.id);
     let filterDataList = computed(() => {
@@ -145,9 +148,11 @@ export default {
       if (newValue) {
         let res = await getMonitorInfo(newValue.id);
         monitorInfo.value = res.data;
-        // if (monitorInfo.value?.url) {
-        //     }
-        handleChangeTab({ paneName: activeTab.value });
+        if (monitorInfo.value?.status) {
+          handleChangeTab({ paneName: activeTab.value });
+        } else {
+          handleChangeTab({ paneName: 'Indicator' });
+        }
       }
     });
 
@@ -208,6 +213,9 @@ export default {
     function handleSwitch(data) {
       currentData.value = data;
     }
+    function formatInfo(val) {
+      return val || '-';
+    }
     return {
       dividerRef,
       dividerWidth,
@@ -224,6 +232,7 @@ export default {
 
       handleChangeTab,
       handleSwitch,
+      formatInfo,
     };
   },
 };
@@ -309,15 +318,16 @@ export default {
       .el-tabs__nav-wrap::after {
         display: none;
       }
+      .el-tabs__item.is-disabled {
+        cursor: not-allowed;
+        &:hover {
+          color: #8e97aaff !important;
+        }
+      }
       .el-tabs__header {
         margin: 0;
       }
       .el-tabs__item {
-        // height: auto;
-        // line-height: normal;
-
-        // padding: 0;
-
         &.is-active {
           color: #15c294 !important;
         }

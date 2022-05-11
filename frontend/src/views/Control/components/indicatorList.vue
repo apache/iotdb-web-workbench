@@ -6,7 +6,7 @@
           <el-option v-for="item in modeOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </div>
-      <div>
+      <div v-if="showBtnGroup">
         <el-button type="primary" @click="handleChangePanel">{{ $t('controlPage.chartBtn') }}</el-button>
         <el-button @click="handleRefres">{{ $t('common.refresh') }}</el-button>
       </div>
@@ -171,6 +171,7 @@ export default {
       checkedTarget(filterData, activeName.value);
       return filterData;
     });
+    let showBtnGroup = computed(() => props.currentData?.status);
     watch(
       activeName,
       (newVlaue) => {
@@ -206,11 +207,6 @@ export default {
       }
     );
     onMounted(() => {});
-    // ElLoading.service({
-    //   lock: true,
-    //   text: 'Loading',
-    //   background: 'rgba(0, 0, 0, 0.7)',
-    // });
     function handleRefres() {
       initTableData(props.currentData, activeName.value);
     }
@@ -248,6 +244,10 @@ export default {
         store: 3,
         write: 4,
       };
+      if (!data?.status) {
+        tableData.value = [];
+        return;
+      }
       // 数据列表信息
       if (mode !== 'search') {
         getMetricsData(data.serverId, modeMap[mode]).then((res) => {
@@ -270,6 +270,7 @@ export default {
       tableData,
       tableColumn,
       searchWay,
+      showBtnGroup,
 
       handleDeatil,
       handleSearchWay,

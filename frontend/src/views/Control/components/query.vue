@@ -29,13 +29,13 @@
           </el-tab-pane>
         </el-tabs>
       </div>
-      <div class="container-right">
+      <div v-if="tabPanelOptions?.length" class="container-right">
         <div class="container-right-tip">
           <div>
-            {{ $t('controlPage.lastTime') }} <span>{{ latestTime }}</span>
+            {{ $t('controlPage.lastTime') }} <span>{{ formatInfo(latestTime) }}</span>
           </div>
           <div>
-            {{ $t('controlPage.runCount') }}<span>{{ runTotal }}</span>
+            {{ $t('controlPage.runCount') }}<span>{{ formatInfo(runTotal) }}</span>
           </div>
         </div>
         <div class="container-right-operate">
@@ -270,13 +270,19 @@ export default {
     watch(
       () => props.data,
       (newValue) => {
-        getClassifyList(newValue.serverId).then((res) => {
-          tabPanelOptions.value = res.data.classificationList;
-          activeType.value = '';
-          nextTick(() => {
-            activeType.value = tabPanelOptions.value[0]?.id + '';
+        if (newValue.status) {
+          getClassifyList(newValue.serverId).then((res) => {
+            tabPanelOptions.value = res.data.classificationList;
+            activeType.value = '';
+            nextTick(() => {
+              activeType.value = tabPanelOptions.value[0]?.id + '';
+            });
           });
-        });
+        } else {
+          tabPanelOptions.value = [];
+          tableData.value = [];
+          QueryDataInit();
+        }
       },
       { immediate: true }
     );
@@ -287,6 +293,7 @@ export default {
       pageReactive.runTotal = '';
       tablePage.currentPage = 1;
       tablePage.pageSize = 10;
+      tablePage.totalCount = 0;
       runResult.value = '0';
       searchValue.value = '';
     }
@@ -298,6 +305,10 @@ export default {
       getCurrentQueryData();
     }
     function getCurrentQueryData() {
+      if (!props.data.status) {
+        tableData.value = [];
+        return;
+      }
       let query = {
         pageSize: tablePage.pageSize,
         pageNum: tablePage.currentPage,
@@ -306,6 +317,7 @@ export default {
         endTime: (runTime.value && runTime.value[1]?.getTime()) || undefined,
         executionResult: runResult.value,
       };
+
       getClassifyData(props.data.serverId, activeType.value, query).then((res) => {
         let { data } = res;
         pageReactive.latestTime = data.latestRunningTime;
@@ -320,7 +332,9 @@ export default {
     function handleDownload({ row }) {
       console.log('下载', row, props.data.serverId, activeType.value);
     }
-
+    function formatInfo(val) {
+      return val || '-';
+    }
     return {
       searchValue,
       activeType,
@@ -342,6 +356,7 @@ export default {
       handleDownload,
       handleCurrentPage,
       handlePageSize,
+      formatInfo,
     };
   },
   components: {
@@ -355,7 +370,9 @@ export default {
   min-height: calc(100% - 243px);
   padding: 20px;
   background: #f9fbfc;
+  display: flex;
   &-container {
+    width: 100%;
     display: flex;
     background: #fff;
     border-radius: 4px;
