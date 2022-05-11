@@ -22,6 +22,7 @@ export default {
     let Chart;
     onMounted(() => {
       let option;
+      console.log(chartDom.value);
       Chart = echarts.init(chartDom.value);
       option = {
         tooltip: {

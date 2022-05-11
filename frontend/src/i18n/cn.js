@@ -25,9 +25,9 @@ const cn = {
     about: {
       'line-2': '关于我们',
       'line-3': 'IoTDB的可视化管理工具',
-      'line-4': 'IoTDB Admin是IoTDB的可视化管理工具，可对IoTDB的数据进行增删改查、权限控制等，简化IoTDB的使用及学习成本。',
+      'line-4': 'IoTDB WorkBench是IoTDB的可视化管理工具，可对IoTDB的数据进行增删改查、权限控制等，简化IoTDB的使用及学习成本。',
       'line-5': `在我们心中IoTDB是最棒的时序数据库之一，我们将一直不遗余力地推动国产时序数据库IoTDB的应用和发展，为本土开源能力的提高、开源生态的发展，贡献自己的力量，欢迎大家加入IoTDB
-      Admin的开发及维护，期待你的加入：`,
+      WorkBench的开发及维护，期待你的加入：`,
       'line-6-text': '微信扫一扫',
       'line-7': '版本号: V0.12',
       'back-btn': '返回工作页面',
@@ -87,13 +87,13 @@ const cn = {
       forgetPassWord: '忘记密码',
       signIn: '登录',
       forgetPassword: '忘记密码',
-      forgetPasswordTip: '请联系系统管理员',
+      forgetPasswordTip: '请联系系统管理员 WeChat:loveher147',
       accountEmptyTip: '账号不能为空',
       accountContentTip: '用户名必须由字母、数字、下划线组成，不能以数字和下划线开始',
       accountLengthTip: '用户名必须大于等于3个字符，小于等于32字符',
       passwordEmptyTip: '密码不能为空',
       passwordLenghtTip: '密码必须大于等于6位，请检查密码位数',
-      welcomeLogin: '欢迎登录IoTDB数据库管理系统',
+      welcomeLogin: '欢迎登录 IoTDB WorkBench',
       loginErrorTip: '用户名或密码不正确，请重新输入',
     },
 

@@ -170,8 +170,9 @@ export default {
     });
 
     function urlSkip(routerName, id, params) {
+      let panelMode = monitorInfo.value?.status ? params?.panel || 'list' : 'list';
       if (routerName == 'Indicator') {
-        router.push({ path: `/control/indicator/${params?.panel || 'list'}/${id}/${params.mode}`, query: { ...route.query } });
+        router.push({ path: `/control/indicator/${panelMode}/${id}/${params.mode}`, query: { ...route.query } });
       } else if (routerName === 'Query') {
         router.push({ path: `/control/query/${id}` });
       }
