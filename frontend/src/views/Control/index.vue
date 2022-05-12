@@ -358,7 +358,7 @@ export default {
       font-size: 16px;
       font-weight: 500;
       span {
-        margin-left: 38px;
+        margin-left: 26px;
         font-size: 12px;
         padding: 0 12px;
         height: 20px;

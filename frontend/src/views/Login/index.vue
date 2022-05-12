@@ -194,7 +194,7 @@ export default {
     position: relative;
     .lang-btn {
       position: absolute;
-      right: 20px;
+      right: 40px;
       top: 50%;
       transform: translate(0, -50%);
       cursor: pointer;
