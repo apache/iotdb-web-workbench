@@ -40,7 +40,7 @@
       <p class="more last">
         <span
           ><span class="more-title">{{ $t('sourcePage.storageNum') + ':' }}</span
-          >{{ countInfo.groupCount }}</span
+          >{{ countInfo.storageGroupCount }}</span
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.entityNum') + ':' }}</span
@@ -48,7 +48,7 @@
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.physicalNum') + ':' }}</span
-          >{{ countInfo.measurementCount }}</span
+          >{{ countInfo.monitorCount }}</span
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.dataNum') + ':' }}</span
