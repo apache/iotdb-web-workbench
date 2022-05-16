@@ -114,12 +114,17 @@
 
 <script>
 // @ is an alias to /src
+import { get } from 'lodash';
+import { ElMessage } from 'element-plus';
+import { handleExport } from '@/util/export';
 import { computed, nextTick, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getClassifyList, getClassifyData } from '../api';
 import zhCn from 'element-plus/lib/locale/lang/zh-cn';
 import en from 'element-plus/lib/locale/lang/en';
 import de from 'element-plus/lib/locale/lang/de';
+// import { ElTabs } from 'element-plus';
+// import { useRouter } from 'vue-router';
+import { getClassifyList, getClassifyData, getDownloadQueryLogFile } from '../api';
 
 export default {
   name: 'Query',
@@ -329,8 +334,24 @@ export default {
     function handleSearch() {
       getCurrentQueryData();
     }
-    function handleDownload({ row }) {
-      console.log('下载', row, props.data.serverId, activeType.value);
+    async function handleDownload({ row }) {
+      const res = await getDownloadQueryLogFile({
+        SQLStatement: row.statement,
+        timeStamp: new Date(row.runningTime).valueOf(),
+      });
+      let filename = get(res, 'headers.content-disposition');
+      filename = filename ? decodeURI(filename.replace(/.*(?=filename=)filename=/, '')) : '';
+      if (get(res, 'data.type') === 'application/json') {
+        return ElMessage({
+          type: 'error',
+          message: `${t('common.fail')}`,
+        });
+      }
+      handleExport(res.data, filename);
+      ElMessage({
+        type: 'success',
+        message: `${t('device.exportSucceeded')}`,
+      });
     }
     function formatInfo(val) {
       return val || '-';

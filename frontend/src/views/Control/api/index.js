@@ -59,6 +59,14 @@ export function getChartData(serverId, metricsId) {
   return axios.get(`/servers/${serverId}/metrics/diagram/?metricId=${metricsId}`);
 }
 
+// Get log
+export function getDownloadQueryLogFile(params) {
+  return axios.get(`/downloadQueryLogFile`, {
+    params,
+    responseType: 'blob',
+  });
+}
+
 //Get the measurement  list under the entity
 // export function getList(deviceData, data) {
 //     return axios.get(`/servers/${deviceData.connectionid}/storageGroups/${deviceData.storagegroupid}/devices/${deviceData.name}/info`, { params: data });
