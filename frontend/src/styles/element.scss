@@ -20,6 +20,11 @@
 .el-button--primary {
   background-color: $theme-color !important;
   border-color: $theme-color !important;
+  &:hover.el-button,&:focus.el-button {
+    background:$theme-color !important;
+    border-color:$theme-color !important;
+    color: #fff;
+  }
   span {
     color: #fff;
   }
