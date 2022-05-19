@@ -294,6 +294,7 @@ export default {
             type: 'success',
             message: t('device.savesuccess'),
           });
+          sqlName.value = null;
           centerDialogVisible.value = false;
           props.func.updateTree();
           let locationId = '';
