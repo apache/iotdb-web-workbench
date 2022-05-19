@@ -74,9 +74,12 @@ export default {
           form.value = { ...val };
           form.value.users = val.userList;
           oldForm.value = { ...form.value };
-          roleForm.value.clearValidate();
+          roleForm.value?.clearValidate();
           stateType.value = props.roleInfo.type;
         }
+      },
+      {
+        immediate: true,
       }
     );
     const rules = ref({
