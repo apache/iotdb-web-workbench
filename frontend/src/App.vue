@@ -18,9 +18,42 @@
 -->
 
 <template>
-  <router-view />
+  <el-config-provider :locale="language">
+    <router-view />
+  </el-config-provider>
 </template>
 
+<script>
+import { ref } from 'vue';
+import { ElConfigProvider } from 'element-plus';
+import { useI18n } from 'vue-i18n';
+import enLocale from 'element-plus/lib/locale/lang/en';
+import deLocale from 'element-plus/lib/locale/lang/de';
+import zhLocale from 'element-plus/lib/locale/lang/zh-cn';
+import useLanguageWatch from '@/hooks/useLanguageWatch';
+
+export default {
+  name: 'App',
+  components: {
+    ElConfigProvider,
+  },
+  setup() {
+    const map = {
+      [enLocale.name]: enLocale,
+      [deLocale.name]: deLocale,
+      [zhLocale.name]: zhLocale,
+    };
+    let { locale } = useI18n();
+    let language = ref(map[locale.value]);
+    useLanguageWatch(language, () => {
+      return map[locale.value];
+    });
+    return {
+      language,
+    };
+  },
+};
+</script>
 <style lang="scss">
 #app {
   -webkit-font-smoothing: antialiased;
