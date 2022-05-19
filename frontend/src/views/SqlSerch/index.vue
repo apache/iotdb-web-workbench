@@ -68,11 +68,13 @@
                   <stand-table
                     ref="standTable"
                     :column="item"
-                    :tableData="tableData.list[index]"
+                    :tableData="tableDataPagination[index]"
                     :lineHeight="5"
                     :celineHeight="5"
                     :maxHeight="divwerHeight - 78"
                     :pagination="pagination"
+                    :total="total[index]"
+                    :getList="getList(index)"
                     backColor="#E7EAF2"
                   >
                   </stand-table>
@@ -191,6 +193,27 @@ export default {
     const treeList = reactive({
       list: [],
     });
+    const total = computed(() => tableData.list.map((item) => item?.list?.length));
+    const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
+    });
+    const pageNums = reactive([]);
+    function getList(index) {
+      return (value) => {
+        pageNums[index] = value;
+      };
+    }
+
+    const tableDataPagination = computed(() =>
+      tableData.list.map((item, index) => {
+        return {
+          ...item,
+          list: item?.list?.slice(((pageNums[index] || 1) - 1) * pagination.pageSize, (pageNums[index] || 1) * pagination.pageSize),
+        };
+      })
+    );
+
     function getFunction(val) {
       codemirror.value.onCmCodeChange(val);
     }
@@ -417,6 +440,11 @@ export default {
       querySqlRun,
       deleteQuery,
       routeData,
+      total,
+      pagination,
+      getList,
+      pageNums,
+      tableDataPagination,
     };
   },
   components: {
