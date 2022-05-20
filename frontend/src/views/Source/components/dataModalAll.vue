@@ -32,6 +32,7 @@ export default {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
         if (res && res.code == 0) {
           dealData([res.data] || {}, 0);
+          res.data.collapsed = false;
           datas.value = res.data || {};
           func && func();
         }
