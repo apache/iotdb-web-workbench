@@ -31,7 +31,6 @@ export default {
     const getModalTreeData = (func) => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
         if (res && res.code == 0) {
-          // dealData(res.data, (res.data && res.data.children) || [], 0);
           dealData([res.data] || {}, 0);
           datas.value = res.data || {};
           func && func();
@@ -44,11 +43,13 @@ export default {
      */
     const dealData = (data, index) => {
       for (let i = 0; i < data.length; i++) {
-        if (index < initialTreeDepth.value) {
-          data[i].collapsed = false;
-        } else {
-          data[i].collapsed = true;
-        }
+        data[i].collapsed = true;
+
+        // if (index < initialTreeDepth.value) {
+        //   data[i].collapsed = false;
+        // } else {
+        //   data[i].collapsed = true;
+        // }
         if (data[i].children && data[i].children.length) {
           if (data[i].children.length > 10) {
             data[i].pageNum = 1;
@@ -61,10 +62,10 @@ export default {
           } else {
             data[i].pageNum = 1;
             data[i].totalPage = 1;
+            data[i].childrensTemp = [];
           }
-
           index += 1;
-          dealData(data[i].children, index);
+          dealData(data[i].childrensTemp, index);
         }
       }
     };
@@ -87,21 +88,32 @@ export default {
           }
         }
       } else {
-        if (params.data.children && params.data.children.length) {
-          circulateDataSelf(data);
-        }
+        axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel?path=${params.data.path}`, {}).then((res) => {
+          if (res && res.code == 0) {
+            dealData([res.data] || [], 0);
+            params.data.children = res.data.children || [];
+            if (params.data.children && params.data.children.length) {
+              circulateDataSelf(data, res.data || {}); //第二个参数为动态请求回来的数据
+            }
+          }
+        });
       }
     };
-    const circulateDataSelf = (data) => {
+    const circulateDataSelf = (data, levelData) => {
       let name = data.path;
       // let dataAll = datas.value;
       let index = 1;
-      deepSearchSelf(datas.value, name, index);
+      deepSearchSelf(datas.value, name, index, levelData);
     };
-    const deepSearchSelf = (data, name, index) => {
+    const deepSearchSelf = (data, name, index, levelData) => {
       if (data.path == name) {
         //do it
+        data.collapsed = levelData.collapsed;
         data.collapsed = !data.collapsed;
+        data.children = levelData.children || [];
+        data.childrensTemp = levelData.childrensTemp || [];
+        data.pageNum = levelData.pageNum;
+        data.totalPage = levelData.totalPage;
         initialTreeDepth.value = index;
         MyChart.clear();
         setOption();
@@ -110,22 +122,22 @@ export default {
         index++;
         if (data.children && data.children.length) {
           for (let i = 0; i < data.children.length; i++) {
-            deepSearchSelf(data.children[i], name, index);
+            deepSearchSelf(data.children[i], name, index, levelData);
           }
         }
       }
     };
     const circulateData = (data, type) => {
       let name = data.parentName;
-      let dataAll = datas.value;
+      // let dataAll = datas.value;
       let index = 1;
-      deepSearch(dataAll, name, type, index);
+      deepSearch(datas.value, name, type, index);
     };
     const initialTreeDepth = ref(1);
     const deepSearch = (data, name, type, index) => {
       if (data.path == name) {
         //do it
-        // data.collapsed = false;
+        // data.collapsed = true;
         let temp = JSON.parse(JSON.stringify(data.childrensTemp));
         initialTreeDepth.value = index;
         if (type == 'next') {
@@ -143,7 +155,9 @@ export default {
         temp.push(data.children[data.children.length - 1]);
         data.children = temp;
         for (let i = 0; i < temp.length; i++) {
+          temp[i].collapsed = true;
           if (temp[i].children && temp[i].children.length) {
+            //test
             dealData(temp[i], temp[i].children || []);
           }
         }
