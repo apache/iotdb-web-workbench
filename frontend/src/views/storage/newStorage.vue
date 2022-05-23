@@ -23,7 +23,7 @@
     <el-form ref="formRef" :model="form" :rules="rules" class="source-form" label-position="top">
       <el-form-item :label="$t('storagePage.groupName')" prop="groupName" class="form-input-item require-style">
         <el-input :disabled="router.currentRoute.value.params.groupname" v-model="form.groupName" :placeholder="$t('storagePage.groupNamePlaceholder')">
-          <template #prepend>root.</template>
+          <template #prepend>root.1</template>
         </el-input>
       </el-form-item>
       <el-form-item :label="$t('storagePage.groupDescription')" prop="description" class="form-input-item">
@@ -78,7 +78,7 @@ export default {
           trigger: 'blur',
         },
         {
-          pattern: /^[^.][a-zA-Z0-9_\u4e00-\u9fa5.]+$/,
+          pattern: /^(["'a-zA-Z0-9_\u4e00-\u9fa5]*)$/,
           message: () => {
             return t(`sourcePage.newUserErrorTip`);
           },
