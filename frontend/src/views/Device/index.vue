@@ -118,6 +118,9 @@ export default {
           type: 'INPUT',
           size: 'small',
           canEdit: true,
+          border: true,
+          required: true,
+          event: checkValue,
         },
         {
           label: 'device.datatype',
@@ -231,6 +234,13 @@ export default {
     function changeBorder(scope) {
       tableData.list[scope.$index].seBorder = false;
     }
+    function checkValue(scope, object, value) {
+      if (value == null || value === '') {
+        ElMessage.error(`${t('common.placeHolder')}`);
+      } else {
+        tableData.list[scope.$index].border = false;
+      }
+    }
     function checkVal(scope, obj, val) {
       console.log(obj);
       if (!/^\w+$/.test(val)) {
@@ -336,6 +346,9 @@ export default {
             if (item.timeseries === null) {
               item.border = true;
               ElMessage.error(`${t('device.pynamel')}`);
+            } else if (item.alias == null || item.alias === '') {
+              item.border = true;
+              ElMessage.error(`"${t('device.alias')}"${t('common.placeHolder')}`);
             } else if (item.dataType === null) {
               item.seBorder = true;
               ElMessage.error(`"${item.timeseries}"${t('device.selectdatatype')}`);
