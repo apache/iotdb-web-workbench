@@ -52,7 +52,7 @@
             </svg>
           </span>
           <span style="margin-left: 5px">{{ $t('device.description') }}：</span>
-          <span>{{ deviceObj.deviceData.description }}</span>
+          <span class="ellipsis" :title="deviceObj.deviceData.description">{{ deviceObj.deviceData.description }}</span>
           <span class="spanmargin">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-user"></use>
@@ -1128,6 +1128,15 @@ $cursor: pointer;
   background: #409eff;
   color: #fff;
   margin-top: 3px;
+}
+
+.ellipsis {
+  display: inline-block;
+  width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+  text-align: left;
 }
 </style>
 <style lang="scss">
