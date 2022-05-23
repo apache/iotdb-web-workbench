@@ -364,6 +364,9 @@ export default {
       if (checkfalg) {
         let copyForm = _cloneDeep(form);
         let { deviceName, groupName } = copyForm.formData;
+        if (/\./.test(deviceName)) {
+          return ElMessage.error(`"${t('device.devicename')}"${t('device.must')}`);
+        }
         let copyTableData = _cloneDeep(tableData);
         copyForm.formData.deviceName = deviceName ? groupName + '.' + deviceName : groupName;
 
