@@ -79,7 +79,8 @@
         <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
           <div class="tab-content">
             <el-button class="title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
-            <DataModal></DataModal>
+            每一层最多展示多{{ showNum }}个模型，若需查看所有模型，点击查看更多
+            <DataModal @show-num="onShowNum"></DataModal>
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.accountPermitLabel')" name="a">
@@ -462,6 +463,12 @@ export default {
     let canAuth = ref(false);
 
     let canAuthRole = ref(false);
+    let showNum = ref(0);
+
+    function onShowNum(value) {
+      showNum.value = value;
+    }
+
     const router = useRouter();
     let pathList = ref([
       { label: t('sourcePage.selectAlias'), value: 0 },
@@ -1590,6 +1597,8 @@ export default {
       permitPermissionListTemp,
       savepermitAuth,
       permitDialogRef,
+      showNum,
+      onShowNum,
     };
   },
   components: {

@@ -4,7 +4,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref, onActivated, onDeactivated } from 'vue';
+import { onMounted, ref, onActivated, onDeactivated, reactive } from 'vue';
 import * as echarts from 'echarts';
 // import { ElButton } from 'element-plus';
 import { useI18n } from 'vue-i18n';
@@ -25,72 +25,60 @@ export default {
     const x = ref(0);
     const router = useRouter();
     // const route = useRoute();
-
+    const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
+    });
     const datas = ref({});
 
     const getModalTreeData = (func) => {
-      axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
-        if (res && res.code == 0) {
-          dealData([res.data] || {}, 0);
-          res.data.collapsed = false;
-          datas.value = res.data || {};
-          func && func();
-        }
-      });
+      axios
+        .get(`/servers/${router.currentRoute.value.params.serverid}/dataModel/detail`, {
+          params: pagination,
+        })
+        .then((res) => {
+          if (res && res.code == 0) {
+            res.data.pageSize = pagination.pageSize;
+            res.data.pageNum = pagination.pageNum;
+            dealData([res.data] || {}, 0);
+            res.data.collapsed = false;
+            datas.value = res.data || {};
+            func && func();
+          }
+        });
     };
     /**
      * data current level data
      * index  level num
      */
-    const dealData = (data, index) => {
+    const dealData = (data) => {
       for (let i = 0; i < data.length; i++) {
         data[i].collapsed = true;
-
-        // if (index < initialTreeDepth.value) {
-        //   data[i].collapsed = false;
-        // } else {
-        //   data[i].collapsed = true;
-        // }
         if (data[i].children && data[i].children.length) {
-          if (data[i].children.length > 10) {
-            data[i].pageNum = 1;
-            data[i].totalPage = Math.ceil(data[i].children.length / 10);
-            data[i].childrensTemp = JSON.parse(JSON.stringify(data[i].children));
-            data[i].children = data[i].children.splice((data[i].pageNum - 1) * 10, 10);
-
-            data[i].children.push({ name: t('sourcePage.nextPage'), parentName: data[i].path, type: 'next', pageNum: 1, totalPage: Math.ceil(data[i].childrensTemp.length / 10) });
-            data[i].children.unshift({ name: t('sourcePage.prePage'), parentName: data[i].path, type: 'pre', pageNum: 1, totalPage: Math.ceil(data[i].childrensTemp.length / 10) });
-          } else {
-            data[i].pageNum = 1;
-            data[i].totalPage = 1;
-            data[i].childrensTemp = [];
-          }
-          index += 1;
-          dealData(data[i].childrensTemp, index);
+          data[i].children.push({ name: t('sourcePage.nextPage'), path: data[i].path, type: 'next', pageNum: data[i].pageNum, pageSize: data[i].pageSize });
+          data[i].children.unshift({ name: t('sourcePage.prePage'), path: data[i].path, type: 'pre', pageNum: data[i].pageNum, pageSize: data[i].pageSize, isLastPage: data[i].isLastPage });
         }
       }
     };
 
     const clickFunction = (params) => {
       let data = params.data || {};
-      if (data.type) {
-        //do next if has 'type' key;
-        if (data.type == 'pre') {
-          if (data.pageNum == 1) {
-            return;
-          } else {
-            circulateData(data, 'pre');
-          }
-        } else if (data.type == 'next') {
-          if (data.pageNum == data.totalPage) {
-            return;
-          } else {
-            circulateData(data, 'next');
-          }
-        }
+      if (data.type === 'next' && !data.isLastPage) {
+        data.pageNum += 1;
+      } else if (data.type === 'pre' && data.pageNum.pageNum !== 1) {
+        data.pageNum -= 1;
       } else {
-        axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel?path=${params.data.path}`, {}).then((res) => {
+        data.pageNum = 1;
+        data.pageSize = 10;
+      }
+      axios
+        .get(`/servers/${router.currentRoute.value.params.serverid}/dataModel/detail`, {
+          params: { pageNum: data.pageNum, pageSize: data.pageSize, path: data.path },
+        })
+        .then((res) => {
           if (res && res.code == 0) {
+            res.data.pageSize = pagination.pageSize;
+            res.data.pageNum = pagination.pageNum;
             dealData([res.data] || [], 0);
             params.data.children = res.data.children || [];
             if (params.data.children && params.data.children.length) {
@@ -98,7 +86,6 @@ export default {
             }
           }
         });
-      }
     };
     const circulateDataSelf = (data, levelData) => {
       let name = data.path;
@@ -128,52 +115,7 @@ export default {
         }
       }
     };
-    const circulateData = (data, type) => {
-      let name = data.parentName;
-      // let dataAll = datas.value;
-      let index = 1;
-      deepSearch(datas.value, name, type, index);
-    };
     const initialTreeDepth = ref(1);
-    const deepSearch = (data, name, type, index) => {
-      if (data.path == name) {
-        //do it
-        // data.collapsed = true;
-        let temp = JSON.parse(JSON.stringify(data.childrensTemp));
-        initialTreeDepth.value = index;
-        if (type == 'next') {
-          data.pageNum += 1;
-          temp = temp.splice((data.pageNum - 1) * 10, 10);
-          data.children[0].pageNum += 1;
-          data.children[data.children.length - 1].pageNum += 1;
-        } else {
-          data.pageNum -= 1;
-          temp = temp.splice((data.pageNum - 1) * 10, 10);
-          data.children[0].pageNum -= 1;
-          data.children[data.children.length - 1].pageNum -= 1;
-        }
-        temp.unshift(data.children[0]);
-        temp.push(data.children[data.children.length - 1]);
-        data.children = temp;
-        for (let i = 0; i < temp.length; i++) {
-          temp[i].collapsed = true;
-          if (temp[i].children && temp[i].children.length) {
-            //test
-            dealData(temp[i], temp[i].children || []);
-          }
-        }
-        MyChart.clear();
-        setOption();
-        return;
-      } else {
-        index++;
-        if (data.children && data.children.length) {
-          for (let i = 0; i < data.children.length; i++) {
-            deepSearch(data.children[i], name, type, index);
-          }
-        }
-      }
-    };
     const initCharts = () => {
       //  init charts
       MyChart = echarts.init(document.getElementById('mains'));
