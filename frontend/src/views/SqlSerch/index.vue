@@ -234,62 +234,66 @@ export default {
         divwerHeight.value = 400;
         timeNumber.value = Number(new Date());
         useElementResize(dividerRef, divwerHeight);
-        querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value }).then((res) => {
-          activeName.value = 't0';
-          column.list = [];
-          tableData.list = [];
-          let lengthArry = [];
-          time.list = [];
-          line.list = [];
-          tabelNum.value = res.data.length;
-          res.data.forEach((item) => {
-            let length = [];
-            time.list.push(item.queryTime);
-            line.list.push(item.line);
-            if (item.metaDataList) {
-              column.list.push({
-                list: item.metaDataList.map((eleitem, index) => {
-                  return {
-                    label: eleitem,
-                    prop: `t${index}`,
-                    width: 'auto',
-                    fixed: index === 0 ? 'left' : index === item.metaDataList.length - 1 ? 'right' : false,
-                  };
-                }),
-              });
-            } else {
-              column.list.push(null);
-            }
-            if (item.valueList) {
-              tableData.list.push({
-                list: item.valueList.map((eleitem) => {
-                  const obj = {};
-                  for (let i = 0; i < eleitem.length; i++) {
-                    if (eleitem[i].length > length[i] || !length[i]) {
-                      length[i] = eleitem[i].length;
+        querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value })
+          .then((res) => {
+            activeName.value = 't0';
+            column.list = [];
+            tableData.list = [];
+            let lengthArry = [];
+            time.list = [];
+            line.list = [];
+            tabelNum.value = res.data.length;
+            res.data.forEach((item) => {
+              let length = [];
+              time.list.push(item.queryTime);
+              line.list.push(item.line);
+              if (item.metaDataList) {
+                column.list.push({
+                  list: item.metaDataList.map((eleitem, index) => {
+                    return {
+                      label: eleitem,
+                      prop: `t${index}`,
+                      width: 'auto',
+                      fixed: index === 0 ? 'left' : index === item.metaDataList.length - 1 ? 'right' : false,
+                    };
+                  }),
+                });
+              } else {
+                column.list.push(null);
+              }
+              if (item.valueList) {
+                tableData.list.push({
+                  list: item.valueList.map((eleitem) => {
+                    const obj = {};
+                    for (let i = 0; i < eleitem.length; i++) {
+                      if (eleitem[i].length > length[i] || !length[i]) {
+                        length[i] = eleitem[i].length;
+                      }
+                      obj[`t${i}`] = eleitem[i];
                     }
-                    obj[`t${i}`] = eleitem[i];
-                  }
-                  return obj;
-                }),
-              });
-            } else {
-              tableData.list.push(null);
-            }
-            lengthArry.push(length);
+                    return obj;
+                  }),
+                });
+              } else {
+                tableData.list.push(null);
+              }
+              lengthArry.push(length);
+            });
+            // lengthArry.forEach((element, i) => {
+            //   element.forEach((item, index) => {
+            //     if (index === element.length - 1) {
+            //       return false;
+            //     }
+            //     column.list[i].list[index].width = column.list[i].list[index].label.length < item ? item * 12 : column.list[i].list[index].label.length * 12;
+            //   });
+            // });
+            display.value = true;
+            runFlag.value = true;
+            console.log(line.list);
+          })
+          .finally(() => {
+            runFlag.value = true;
           });
-          // lengthArry.forEach((element, i) => {
-          //   element.forEach((item, index) => {
-          //     if (index === element.length - 1) {
-          //       return false;
-          //     }
-          //     column.list[i].list[index].width = column.list[i].list[index].label.length < item ? item * 12 : column.list[i].list[index].label.length * 12;
-          //   });
-          // });
-          display.value = true;
-          runFlag.value = true;
-          console.log(line.list);
-        });
         setTimeout(() => {
           runFlag.value = true;
         }, 5000);
