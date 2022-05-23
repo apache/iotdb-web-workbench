@@ -1,5 +1,6 @@
 import { getChartData } from '../api';
 import { useI18n } from 'vue-i18n';
+import { get } from 'lodash';
 const ChartMap = {
   GCEchart: 0,
   JVMClassEchart: 1,
@@ -20,7 +21,6 @@ const ChartMap = {
 };
 let ChartCacheData = {};
 let chartsTitle = null;
-let chartsLegend = null;
 let t = null;
 async function initMatchChart(serverId, type, refreshData = true) {
   !t && (t = useI18n().t);
@@ -42,9 +42,6 @@ async function initMatchChart(serverId, type, refreshData = true) {
     ApiEchart: t('controlPage.ApiEchart'),
     ApiQPSEchart: t('controlPage.ApiQPSEchart'),
   };
-  chartsLegend = {
-    GCEchart: [t('controlPage.fgcCount'), t('controlPage.ygcCount'), t('controlPage.fgcTime'), t('controlPage.ygcTime')],
-  };
   let res;
   // Cache
   if (refreshData === '0') {
@@ -61,7 +58,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
         color: ['#379E7D', '#5776ED', '#F69823', '#FD6031'],
         legend: {
           type: 'scroll',
-          data: chartsLegend.GCEchart,
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -71,30 +68,17 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res ? res.timeList : [],
         },
-        series: [
-          {
-            name: chartsLegend.GCEchart[0],
-            data: res?.dataList && res?.dataList[0],
+        yAxis: {
+          type: 'category',
+        },
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'bar',
             barGap: '0',
-          },
-          {
-            name: chartsLegend.GCEchart[1],
-            data: res?.dataList && res?.dataList[1],
-            type: 'bar',
-            barGap: '0',
-          },
-          {
-            name: chartsLegend.GCEchart[2],
-            data: res?.dataList && res?.dataList[2],
-            type: 'line',
-          },
-          {
-            name: chartsLegend.GCEchart[3],
-            data: res?.dataList && res?.dataList[3],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -104,7 +88,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
       options: {
         color: ['#5776ED', '#FD5C5C'],
         legend: {
-          data: ['load', 'unload'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -114,18 +98,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res ? res.timeList : [],
         },
-        series: [
-          {
-            name: 'load',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'unload',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -134,8 +113,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
       title: chartsTitle[type],
       options: {
         color: ['#F69823'],
+        legend: {
+          data: res?.metricnameList,
+          bottom: '12px',
+        },
         tooltip: {},
         xAxis: {
+          type: 'category',
           splitLine: { show: false },
           axisTick: { show: false },
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
@@ -156,22 +140,28 @@ async function initMatchChart(serverId, type, refreshData = true) {
           bottom: '16px',
           containLabel: true,
         },
-        series: [
-          {
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'bar',
-            data: res?.dataList && res?.dataList[0],
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
   } else if (type === 'FGCEchart') {
     let temp = {
       title: chartsTitle[type],
+      legend: {
+        data: res?.metricnameList,
+        bottom: '12px',
+      },
       options: {
         color: ['#5855DA'],
         tooltip: {},
         xAxis: {
+          type: 'category',
           splitLine: { show: false },
           axisTick: { show: false },
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
@@ -194,8 +184,9 @@ async function initMatchChart(serverId, type, refreshData = true) {
         },
         series: [
           {
+            name: res?.metricnameList[0],
             type: 'bar',
-            data: res?.dataList && res?.dataList[0],
+            data: res?.dataList && get(res, `dataList.${get(res, 'metricnameList.0')}`),
           },
         ],
       },
@@ -207,7 +198,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
       options: {
         color: ['#F69823', '#FD5C5C', '#5776ED'],
         legend: {
-          data: ['front', 'end', 'total'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -219,24 +210,18 @@ async function initMatchChart(serverId, type, refreshData = true) {
         },
         // yAxis: {
         //   name: '单位：个',
+        //   axisLabel: {
+        //     //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+        //     formatter: '{value} 个',
+        //   },
         // },
-        series: [
-          {
-            name: 'front',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'end',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-          {
-            name: 'total',
-            data: res?.dataList && res?.dataList[2],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -247,7 +232,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
         color: ['#379E7D', '#66A5FF', '#5776ED', '#F69823', '#FD5C5C', '#50D6BB'],
         legend: {
           type: 'scroll',
-          data: ['new', 'canrunning', 'running', 'block', 'die', 'dormancy'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -257,38 +242,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'new',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'canrunning',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-          {
-            name: 'running',
-            data: res?.dataList && res?.dataList[2],
-            type: 'line',
-          },
-          {
-            name: 'block',
-            data: res?.dataList && res?.dataList[3],
-            type: 'line',
-          },
-          {
-            name: 'die',
-            data: res?.dataList && res?.dataList[4],
-            type: 'line',
-          },
-          {
-            name: 'dormancy',
-            data: res?.dataList && res?.dataList[5],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -298,7 +258,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
       options: {
         color: ['#379E7D', '#5776ED'],
         legend: {
-          data: ['storage', 'max'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -308,18 +268,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'storage',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'max',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -329,7 +284,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
       options: {
         color: ['#379E7D', '#5776ED'],
         legend: {
-          data: ['buffer', 'max'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -339,25 +294,20 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'buffer',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'max',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
   } else if (type === 'CPUEchart') {
     let data = [];
-    res?.timeList.map((item, index) => {
-      data.push({ value: res?.dataList && res.dataList[0][index], name: item });
+    res?.metricnameList.map((item) => {
+      data.push({ value: parseFloat(get(res, `dataList.${item}`)), name: item });
     });
     let temp = {
       title: chartsTitle[type],
@@ -419,13 +369,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: '磁盘 IO 吞吐',
-            data: res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -436,7 +386,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
         color: ['#5776ED', '#66A5FF', '#F69823', '#379E7D'],
         legend: {
           type: 'scroll',
-          data: ['wal_size', 'tsfile_seq', 'tsfile_unseq', 'total'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -446,28 +396,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'wal_size',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'tsfile_seq',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-          {
-            name: 'tsfile_unseq',
-            data: res?.dataList && res?.dataList[2],
-            type: 'line',
-          },
-          {
-            name: 'total',
-            data: res?.dataList && res?.dataList[3],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -478,7 +413,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
         color: ['#5776ED', '#66A5FF', '#F69823', '#379E7D'],
         legend: {
           type: 'scroll',
-          data: ['wal_size', 'tsfile_seq', 'tsfile_unseq', 'total'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -488,28 +423,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'wal_size',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'tsfile_seq',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-          {
-            name: 'tsfile_unseq',
-            data: res?.dataList && res?.dataList[2],
-            type: 'line',
-          },
-          {
-            name: 'total',
-            data: res?.dataList && res?.dataList[3],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -519,7 +439,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
       options: {
         color: ['#379E7D', '#FD6031', '#5776ED'],
         legend: {
-          data: ['success', 'fail', 'total'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -529,23 +449,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'success',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'fail',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-          {
-            name: 'total',
-            data: res?.dataList && res?.dataList[2],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
 
@@ -556,7 +466,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
       options: {
         color: ['#379E7D', '#FD6031', '#5776ED'],
         legend: {
-          data: ['success', 'fail', 'total'],
+          data: res?.metricnameList,
           bottom: '12px',
         },
         xAxis: {
@@ -566,25 +476,14 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'success',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'bar',
             barGap: '0',
-          },
-          {
-            name: 'fail',
-            data: res?.dataList && res?.dataList[1],
-            type: 'bar',
-            barGap: '0',
-          },
-          {
-            name: 'total',
-            data: res?.dataList && res?.dataList[2],
-            type: 'bar',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -595,7 +494,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
         color: ['#379E7D', '#66A5FF', '#5776ED', '#F69823', '#FD5C5C', '#50D6BB'],
         legend: {
           type: 'scroll',
-          data: ['interface1', 'interface2', 'interface3', 'interface4', 'interface5', 'interface6'],
+          data: res?.metricnameList,
           bottom: '12px',
           left: '20px',
         },
@@ -606,38 +505,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'interface1',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'interface2',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-          {
-            name: 'interface3',
-            data: res?.dataList && res?.dataList[2],
-            type: 'line',
-          },
-          {
-            name: 'interface4',
-            data: res?.dataList && res?.dataList[3],
-            type: 'line',
-          },
-          {
-            name: 'interface5',
-            data: res?.dataList && res?.dataList[4],
-            type: 'line',
-          },
-          {
-            name: 'interface6',
-            data: res?.dataList && res?.dataList[5],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
@@ -648,7 +522,7 @@ async function initMatchChart(serverId, type, refreshData = true) {
         color: ['#379E7D', '#66A5FF', '#5776ED', '#F69823', '#FD5C5C', '#50D6BB'],
         legend: {
           type: 'scroll',
-          data: ['interface1', 'interface2', 'interface3', 'interface4', 'interface5', 'interface6'],
+          data: res?.metricnameList,
           bottom: '12px',
           left: '20px',
         },
@@ -659,38 +533,13 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        series: [
-          {
-            name: 'interface1',
-            data: res?.dataList && res?.dataList[0],
+        series: res?.metricnameList.map((item, index) => {
+          return {
+            name: item,
+            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
             type: 'line',
-          },
-          {
-            name: 'interface2',
-            data: res?.dataList && res?.dataList[1],
-            type: 'line',
-          },
-          {
-            name: 'interface3',
-            data: res?.dataList && res?.dataList[2],
-            type: 'line',
-          },
-          {
-            name: 'interface4',
-            data: res?.dataList && res?.dataList[3],
-            type: 'line',
-          },
-          {
-            name: 'interface5',
-            data: res?.dataList && res?.dataList[4],
-            type: 'line',
-          },
-          {
-            name: 'interface6',
-            data: res?.dataList && res?.dataList[5],
-            type: 'line',
-          },
-        ],
+          };
+        }),
       },
     };
     return temp;
