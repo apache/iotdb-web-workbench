@@ -815,6 +815,7 @@ export default {
     }
     async function getTimeseriesOption() {
       let { connectionid, storagegroupid, deviceid } = routeData.obj;
+      if (deviceid == null) return;
       await getTimeseiresList(connectionid, storagegroupid, deviceid).then((res) => {
         if (res.code === '0') {
           timeseriesOptions.value = res.data.map((d) => ({ label: d, value: d }));
@@ -843,6 +844,7 @@ export default {
       if (form1.formData.measurementList[0] === '') {
         data = timeseriesOptions.value.filter((d) => d.value !== '').map((d) => d.value);
       }
+      if (!Array.isArray(data) || data.length === 0) return;
       getDataDeviceList(routeData.obj, pagination1, { startTime: sTime, endTime: eTime, measurementList: data }).then((res) => {
         res.data.metaDataList.forEach((item, index) => {
           column1.list.push({ label: item, prop: `t${index}`, value: '——', icon: index ? res.data.typeList[index] : 'TIME' });
