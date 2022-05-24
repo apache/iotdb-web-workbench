@@ -79,7 +79,7 @@
         <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
           <div class="tab-content">
             <el-button class="title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
-            每一层最多展示多{{ showNum }}个模型，若需查看所有模型，点击查看更多
+            <div class="tip">每一层最多展示多{{ showNum }}个模型，若需查看所有模型，点击查看更多</div>
             <DataModal @show-num="onShowNum"></DataModal>
           </div>
         </el-tab-pane>
@@ -393,6 +393,17 @@
                 </template>
               </el-table-column>
             </el-table>
+            <div class="pagination">
+              <el-pagination
+                @current-change="currentChange"
+                v-model:currentPage="pagination.pageNum"
+                v-model:page-size="pagination.pageSize"
+                layout="total, prev, pager, next"
+                :total="groupTotal"
+                :hide-on-single-page="true"
+              >
+              </el-pagination>
+            </div>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -422,6 +433,7 @@ import {
   ElPopover,
   ElPopper,
   ElTooltip,
+  ElPagination,
 } from 'element-plus';
 // import { Close } from '@element-plus/icons';
 import NewSource from './components/newSource.vue';
@@ -769,6 +781,19 @@ export default {
       if (tab.paneName == '3') {
         getPermitPermissionList({});
       }
+    };
+
+    const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
+    });
+    function currentChange() {
+      getGroupList();
+    }
+
+    let paginationAll = {
+      pagination,
+      currentChange,
     };
 
     const savepermitAuth = () => {
@@ -1220,10 +1245,10 @@ export default {
     };
 
     const getGroupList = () => {
-      axios.get(`/servers/${serverId.value}/storageGroups/info`, {}).then((res) => {
+      axios.get(`/servers/${serverId.value}/storageGroups/info`, { params: pagination }).then((res) => {
         if (res && res.code == 0) {
-          tableData.value = res.data;
-          groupTotal.value = (res.data && res.data.length) || 0;
+          tableData.value = res.data?.groupInfoList;
+          groupTotal.value = (res.data && res.data.groupCount) || 0;
           let temp = [];
           for (let i = 0; i < res.data.length; i++) {
             temp.push(res.data[i].groupName);
@@ -1599,6 +1624,7 @@ export default {
       permitDialogRef,
       showNum,
       onShowNum,
+      ...paginationAll,
     };
   },
   components: {
@@ -1625,6 +1651,7 @@ export default {
     ElPopover,
     ElPopper,
     UserRole,
+    ElPagination,
     /* eslint-disable */
   },
 };
@@ -2018,6 +2045,21 @@ export default {
     .el-button {
       padding-left: 0 !important;
     }
+  }
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+
+    // padding: 10px 0px;
+    .el-pagination {
+      padding: 4px 5px 0 5px;
+    }
+  }
+  .tip {
+    float: right;
+    font-size: 12px;
+    color: $danger-color;
   }
 }
 </style>
