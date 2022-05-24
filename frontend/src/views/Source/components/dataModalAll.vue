@@ -65,7 +65,7 @@ export default {
       let data = params.data || {};
       if (data.type === 'next' && !data.isLastPage) {
         data.pageNum += 1;
-      } else if (data.type === 'pre' && data.pageNum.pageNum !== 1) {
+      } else if (data.type === 'pre' && data.pageNum.pageNum >= 1) {
         data.pageNum -= 1;
       } else {
         data.pageNum = 1;
