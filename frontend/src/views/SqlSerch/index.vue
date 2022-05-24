@@ -66,6 +66,7 @@
                 <div class="table_top_border"></div>
                 <div class="tab_table" v-if="item && display">
                   <stand-table
+                    :key="key"
                     ref="standTable"
                     :column="item"
                     :tableData="tableDataPagination[index]"
@@ -164,6 +165,7 @@ export default {
     let codemirror = ref(null);
     let tabelNum = ref(0);
     const standTable = ref(null);
+    let key = ref('1');
     let activeName = ref(0);
     let activeNameRight = ref('first');
     let runFlag = ref(true);
@@ -204,9 +206,11 @@ export default {
         pageNums[index] = value;
       };
     }
-
     const tableDataPagination = computed(() =>
       tableData.list.map((item, index) => {
+        nextTick(() => {
+          key.value = Math.random() + Date.now() + '';
+        });
         return {
           ...item,
           list: item?.list?.slice(((pageNums[index] || 1) - 1) * pagination.pageSize, (pageNums[index] || 1) * pagination.pageSize),
@@ -449,6 +453,7 @@ export default {
       getList,
       pageNums,
       tableDataPagination,
+      key,
     };
   },
   components: {
