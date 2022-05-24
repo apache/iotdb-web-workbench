@@ -831,6 +831,10 @@ export default {
           if (type && type == 1) {
             checkPermitAuth();
           }
+          store.dispatch('fetchAllPrivileges', {
+            serverId: serverId.value,
+            userName: baseInfoForm.userName,
+          });
         }
       });
     };
