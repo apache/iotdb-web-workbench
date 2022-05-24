@@ -29,8 +29,6 @@ export default {
     const getModalTreeData = (func) => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
         if (res && res.code == 0) {
-          dealData([res.data] || [], 0);
-          res.data.collapsed = false;
           datas.value = res.data || {};
           showNum.value = res.data.showNum;
           emit('show-num', showNum);
@@ -38,30 +36,6 @@ export default {
         }
       });
     };
-    const dealData = (data) => {
-      for (let i = 0; i < data.length; i++) {
-        data[i].collapsed = true;
-      }
-    };
-    const clickFunction = (params) => {
-      let data = params.data || {};
-      axios
-        .get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {
-          params: {
-            path: data.path,
-          },
-        })
-        .then((res) => {
-          if (res && res.code == 0) {
-            dealData([res.data] || [], 0);
-            params.data.children = res.data.children || [];
-            if (params.data.children && params.data.children.length) {
-              circulateDataSelf(data, res.data || {}); //第二个参数为动态请求回来的数据
-            }
-          }
-        });
-    };
-    const initialTreeDepth = ref(1);
 
     const setOption = () => {
       let option = {
@@ -103,7 +77,7 @@ export default {
             nodePadding: 80,
             // layerPadding: 33,
             expandAndCollapse: true,
-            initialTreeDepth: initialTreeDepth.value,
+            initialTreeDepth: 1,
             itemStyle: {
               normal: {
                 color: '#fff',
@@ -181,40 +155,9 @@ export default {
       // show echart
       MyCharts.setOption(option);
     };
-    const deepSearchSelf = (data, name, index, levelData) => {
-      if (data.path == name) {
-        //do it
-        data.collapsed = levelData.collapsed;
-        data.collapsed = !data.collapsed;
-        data.children = levelData.children || [];
-        data.childrensTemp = levelData.childrensTemp || [];
-        data.pageNum = levelData.pageNum;
-        data.totalPage = levelData.totalPage;
-        initialTreeDepth.value = index;
-        MyCharts.clear();
-        setOption();
-        return;
-      } else {
-        index++;
-        if (data.children && data.children.length) {
-          for (let i = 0; i < data.children.length; i++) {
-            deepSearchSelf(data.children[i], name, index, levelData);
-          }
-        }
-      }
-    };
-    const circulateDataSelf = (data, levelData) => {
-      let name = data.path;
-      // let dataAll = datas.value;
-      let index = 1;
-      deepSearchSelf(datas.value, name, index, levelData);
-    };
 
     const initCharts = () => {
       MyCharts = echarts.init(document.getElementById('main'));
-      MyCharts.on('click', function (params) {
-        clickFunction(params);
-      });
 
       setOption();
     };
@@ -225,8 +168,6 @@ export default {
       // });
     });
     onActivated(() => {
-      initialTreeDepth.value = 1;
-
       getModalTreeData(() => {
         initCharts();
       });
