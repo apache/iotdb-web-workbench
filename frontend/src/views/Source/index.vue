@@ -79,7 +79,7 @@
         <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
           <div class="tab-content">
             <el-button class="title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
-            <div class="tip">每一层最多展示多{{ showNum }}个模型，若需查看所有模型，点击查看更多</div>
+            <div class="tip">第一层最多展示多{{ showNum }}个模型，若需查看所有模型，点击查看更多</div>
             <DataModal @show-num="onShowNum"></DataModal>
           </div>
         </el-tab-pane>
