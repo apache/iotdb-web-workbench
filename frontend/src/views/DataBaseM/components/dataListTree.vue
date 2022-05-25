@@ -113,6 +113,7 @@ export default {
       if (data.type === 'pre' || data.type === 'next') {
         const resolve = async (array) => {
           const childNodes = node.parent.childNodes.slice();
+          props.handleNodeClick(node.parent.data, node.parent);
           array.forEach((element) => {
             nextTick(() => treeRef.value.append(element, node.parent));
           });
