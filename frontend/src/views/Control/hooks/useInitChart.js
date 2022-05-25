@@ -98,6 +98,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res ? res.timeList : [],
         },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
+        },
         series: res?.metricnameList.map((item, index) => {
           return {
             name: item,
@@ -113,23 +119,19 @@ async function initMatchChart(serverId, type, refreshData = true) {
       title: chartsTitle[type],
       options: {
         color: ['#F69823'],
-        legend: {
-          data: res?.metricnameList,
-          bottom: '12px',
-        },
         tooltip: {},
         xAxis: {
-          type: 'category',
+          type: 'value',
           splitLine: { show: false },
           axisTick: { show: false },
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
-          axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
+          axisLabel: { show: true, textStyle: { color: '#8E97AA' }, formatter: `{value}${get(res, 'unitList.0')}` },
         },
         yAxis: {
           inverse: true,
           type: 'category',
-          data: res?.timeList,
           axisTick: { show: false },
+          data: res ? res.metricnameList : [],
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
         },
@@ -140,37 +142,34 @@ async function initMatchChart(serverId, type, refreshData = true) {
           bottom: '16px',
           containLabel: true,
         },
-        series: res?.metricnameList.map((item, index) => {
-          return {
-            name: item,
-            data: res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`),
+        series: [
+          {
             type: 'bar',
-          };
-        }),
+            data: res?.metricnameList.map((item, index) => {
+              return res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`).map((item) => parseFloat(item))[0];
+            }),
+          },
+        ],
       },
     };
     return temp;
   } else if (type === 'FGCEchart') {
     let temp = {
       title: chartsTitle[type],
-      legend: {
-        data: res?.metricnameList,
-        bottom: '12px',
-      },
       options: {
         color: ['#5855DA'],
         tooltip: {},
         xAxis: {
-          type: 'category',
+          type: 'value',
           splitLine: { show: false },
           axisTick: { show: false },
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
-          axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
+          axisLabel: { show: true, textStyle: { color: '#8E97AA' }, formatter: `{value}${get(res, 'unitList.0')}` },
         },
         yAxis: {
           inverse: true,
           type: 'category',
-          data: res?.timeList,
+          data: res ? res.metricnameList : [],
           axisTick: { show: false },
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
@@ -184,9 +183,10 @@ async function initMatchChart(serverId, type, refreshData = true) {
         },
         series: [
           {
-            name: res?.metricnameList[0],
             type: 'bar',
-            data: res?.dataList && get(res, `dataList.${get(res, 'metricnameList.0')}`),
+            data: res?.metricnameList.map((item, index) => {
+              return res?.dataList && get(res, `dataList.${get(res, `metricnameList.${index}`)}`).map((item) => parseFloat(item))[0];
+            }),
           },
         ],
       },
@@ -208,13 +208,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
-        // yAxis: {
-        //   name: '单位：个',
-        //   axisLabel: {
-        //     //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
-        //     formatter: '{value} 个',
-        //   },
-        // },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
+        },
         series: res?.metricnameList.map((item, index) => {
           return {
             name: item,
@@ -242,6 +241,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
+        },
         series: res?.metricnameList.map((item, index) => {
           return {
             name: item,
@@ -268,6 +273,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
+        },
         series: res?.metricnameList.map((item, index) => {
           return {
             name: item,
@@ -293,6 +304,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
+        },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
         },
         series: res?.metricnameList.map((item, index) => {
           return {
@@ -369,6 +386,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
+        },
         series: res?.metricnameList.map((item, index) => {
           return {
             name: item,
@@ -395,6 +418,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
+        },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
         },
         series: res?.metricnameList.map((item, index) => {
           return {
@@ -423,6 +452,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
+        },
         series: res?.metricnameList.map((item, index) => {
           return {
             name: item,
@@ -448,6 +483,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
+        },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
         },
         series: res?.metricnameList.map((item, index) => {
           return {
@@ -475,6 +516,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
+        },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
         },
         series: res?.metricnameList.map((item, index) => {
           return {
@@ -505,6 +552,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
         },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
+        },
         series: res?.metricnameList.map((item, index) => {
           return {
             name: item,
@@ -532,6 +585,12 @@ async function initMatchChart(serverId, type, refreshData = true) {
           axisLine: { show: true, lineStyle: { color: ' #eee', width: 1 } },
           axisLabel: { show: true, textStyle: { color: '#8E97AA' } },
           data: res?.timeList,
+        },
+        yAxis: {
+          axisLabel: {
+            //这种做法就是在y轴的数据的值旁边拼接单位，貌似也挺方便的
+            formatter: `{value}${get(res, 'unitList.0')}`,
+          },
         },
         series: res?.metricnameList.map((item, index) => {
           return {
