@@ -121,18 +121,44 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public DataModelVO getDataModel(Connection connection) throws BaseException {
+  public DataModelVO getDataModel(Connection connection, String path) throws BaseException {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
-      DataModelVO root = new DataModelVO("root");
-      assembleDataModel(root, "root", sessionPool);
-      root.setGroupCount(getGroupCount(sessionPool));
-      root.setPath("root");
+      DataModelVO root = new DataModelVO(path);
+      setNodeInfo(root, sessionPool, path);
+      List<DataModelVO> childrenDataModel = getChildrenDataModel(root, path, sessionPool, 20);
+      root.setChildren(childrenDataModel);
+      root.setGroupCount(path.equals("root") ? getGroupCount(sessionPool) : null);
+      root.setPath(path);
+      root.setShowNum(20);
       return root;
     } finally {
       closeSessionPool(sessionPool);
     }
+  }
+
+  private List<DataModelVO> getChildrenDataModel(
+      DataModelVO root, String path, SessionPool sessionPool, Integer showNum)
+      throws BaseException {
+    Set<String> childrenNode = getChildrenNode(path, sessionPool);
+    if (childrenNode == null) {
+      return null;
+    }
+    List<String> childrenNodeList = new ArrayList<>(childrenNode);
+    List<String> childrenNodeSubList = new ArrayList<>();
+    if (childrenNodeList.size() > showNum) {
+      childrenNodeSubList = childrenNodeList.subList(0, showNum);
+    } else {
+      childrenNodeSubList = childrenNodeList;
+    }
+    List<DataModelVO> childrenlist = new ArrayList<>();
+    for (String child : childrenNodeSubList) {
+      DataModelVO childNode = new DataModelVO(child);
+      setNodeInfo(childNode, sessionPool, path + "." + child);
+      childrenlist.add(childNode);
+    }
+    return childrenlist;
   }
 
   private void assembleDataModel(DataModelVO node, String prefixPath, SessionPool sessionPool)
@@ -446,10 +472,21 @@ public class IotDBServiceImpl implements IotDBService {
       Connection connection, String deviceName, Integer pageSize, Integer pageNum, String keyword)
       throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
+    String queryCountSql = "count timeseries " + deviceName;
+    String s = executeQueryOneValue(sessionPool, queryCountSql);
+    int size = Integer.parseInt(s);
     String sql = "show timeseries " + deviceName;
+    int pageStart = pageNum == 1 ? 0 : (pageNum - 1) * pageSize;
+    int pageEnd = size < pageNum * pageSize ? size : pageNum * pageSize;
+    if (size > pageStart) {
+      sql = "show timeseries " + deviceName + " limit " + pageSize + " offset " + pageStart;
+    }
     SessionDataSetWrapper sessionDataSetWrapper = null;
     try {
+      long prevTime = System.currentTimeMillis();
       sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      long currTime = System.currentTimeMillis();
+      System.out.println("标记点3计时：" + (currTime - prevTime));
       List<MeasurementDTO> results = new ArrayList<>();
       int batchSize = sessionDataSetWrapper.getBatchSize();
       int count = 0;
@@ -467,37 +504,39 @@ public class IotDBServiceImpl implements IotDBService {
             } else {
               continue;
             }
-            if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
-              MeasurementDTO t = new MeasurementDTO();
-              List<String> columnNames = sessionDataSetWrapper.getColumnNames();
-              for (int i = 0; i < fields.size(); i++) {
-                Field field =
-                    MeasurementDTO.class.getDeclaredField(columnNames.get(i).replaceAll(" ", ""));
-                field.setAccessible(true);
-                field.set(t, fields.get(i).toString());
-              }
-              results.add(t);
+            //            if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum)
+            // {
+            MeasurementDTO t = new MeasurementDTO();
+            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+            for (int i = 0; i < fields.size(); i++) {
+              Field field =
+                  MeasurementDTO.class.getDeclaredField(columnNames.get(i).replaceAll(" ", ""));
+              field.setAccessible(true);
+              field.set(t, fields.get(i).toString());
             }
+            results.add(t);
+            //            }
           } else {
             count++;
-            if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
-              MeasurementDTO t = new MeasurementDTO();
-              List<String> columnNames = sessionDataSetWrapper.getColumnNames();
-              for (int i = 0; i < fields.size(); i++) {
-                Field field =
-                    MeasurementDTO.class.getDeclaredField(columnNames.get(i).replaceAll(" ", ""));
-                field.setAccessible(true);
-                field.set(t, fields.get(i).toString());
-              }
-              results.add(t);
+            //            if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum)
+            // {
+            MeasurementDTO t = new MeasurementDTO();
+            List<String> columnNames = sessionDataSetWrapper.getColumnNames();
+            for (int i = 0; i < fields.size(); i++) {
+              Field field =
+                  MeasurementDTO.class.getDeclaredField(columnNames.get(i).replaceAll(" ", ""));
+              field.setAccessible(true);
+              field.set(t, fields.get(i).toString());
             }
+            results.add(t);
+            //            }
           }
         }
       }
       CountDTO countDTO = new CountDTO();
       countDTO.setObjects(results);
-      countDTO.setTotalCount(count);
-      Integer totalPage = count % pageSize == 0 ? count / pageSize : count / pageSize + 1;
+      countDTO.setTotalCount(size);
+      Integer totalPage = size % pageSize == 0 ? size / pageSize : size / pageSize + 1;
       countDTO.setTotalPage(totalPage);
       return countDTO;
     } catch (IoTDBConnectionException e) {
@@ -1659,7 +1698,9 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public NodeTreeVO getDeviceList(Connection connection, String groupName) throws BaseException {
+  public NodeTreeVO getDeviceList(
+      Connection connection, String groupName, Integer pageSize, Integer pageNum)
+      throws BaseException {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
@@ -1672,7 +1713,9 @@ public class IotDBServiceImpl implements IotDBService {
         ancestryName = groupName;
       }
       NodeTreeVO ancestry = new NodeTreeVO(ancestryName);
-      assembleDeviceList(ancestry, groupName, sessionPool);
+      assembleDeviceList(ancestry, groupName, sessionPool, pageSize, pageNum);
+      ancestry.setName(groupName);
+      ancestry.setTotal(devices.size());
       return ancestry;
     } finally {
       closeSessionPool(sessionPool);
@@ -1700,17 +1743,28 @@ public class IotDBServiceImpl implements IotDBService {
     }
   }
 
-  private void assembleDeviceList(NodeTreeVO node, String deviceName, SessionPool sessionPool)
+  private void assembleDeviceList(
+      NodeTreeVO node,
+      String deviceName,
+      SessionPool sessionPool,
+      Integer pageSize,
+      Integer pageNum)
       throws BaseException {
     List<String> descendants = findDescendants(deviceName, sessionPool);
     if (descendants.size() == 0) {
       return;
     }
     List<String> children = findChildren(descendants);
+    int size = children.size();
+    int pageStart = pageNum == 1 ? 0 : (pageNum - 1) * pageSize;
+    int pageEnd = size < pageNum * pageSize ? size : pageNum * pageSize;
+    if (size > pageStart) {
+      children = children.subList(pageStart, pageEnd);
+    }
     for (String child : children) {
       NodeTreeVO childNode = new NodeTreeVO(child);
       node.initChildren().add(childNode);
-      assembleDeviceList(childNode, child, sessionPool);
+      //      assembleDeviceList(childNode, child, sessionPool);
     }
   }
 
@@ -2303,6 +2357,110 @@ public class IotDBServiceImpl implements IotDBService {
       return;
     }
     throw new BaseException(ErrorCode.NO_QUERY, ErrorCode.NO_QUERY_MSG);
+  }
+
+  @Override
+  public DataModelVO getDataModelDetail(
+      Connection connection, String path, Integer pageSize, Integer pageNum) throws BaseException {
+    SessionPool sessionPool = null;
+    try {
+      sessionPool = getSessionPool(connection);
+      DataModelVO root = new DataModelVO(path);
+      setNodeInfo(root, sessionPool, path);
+      List<DataModelVO> childrenDataModel = null;
+      DataModelDetailDTO childrenDataModelDetail =
+          getChildrenDataModelDetail(root, path, sessionPool, pageSize, pageNum);
+      childrenDataModel =
+          childrenDataModelDetail == null ? null : childrenDataModelDetail.getDataModelVOList();
+      root.setIsLastPage(
+          childrenDataModelDetail == null ? null : childrenDataModelDetail.isCheckLastPage());
+      root.setChildren(childrenDataModel);
+      root.setTotalSonNodeCount(
+          getChildrenNode(path, sessionPool) == null
+              ? 0
+              : getChildrenNode(path, sessionPool).size());
+      root.setGroupCount(path.equals("root") ? getGroupCount(sessionPool) : null);
+      root.setPath(path);
+      return root;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
+  }
+
+  @Override
+  public List<String> getBatchLastMeasurementValue(
+      Connection connection, List<String> timeseriesList) throws BaseException {
+    SessionPool sessionPool = getSessionPool(connection);
+    List<Integer> indexList = new ArrayList<>();
+    for (String timeseries : timeseriesList) {
+      indexList.add(timeseries.lastIndexOf("."));
+    }
+    String sql = "select ";
+    for (int i = 0; i < timeseriesList.size(); i++) {
+      sql += "last_value(" + timeseriesList.get(i).substring(indexList.get(i) + 1) + ")" + ", ";
+    }
+    sql = sql.substring(0, sql.length() - 2);
+    sql += " from ";
+    sql += timeseriesList.get(0).substring(0, indexList.get(0));
+    List<String> values;
+    try {
+      values = executeQueryOneLine(sessionPool, sql);
+    } finally {
+      closeSessionPool(sessionPool);
+    }
+    return values;
+  }
+
+  @Override
+  public List<String> getBatchDataCount(
+      Connection connection, String deviceName, List<String> timeseriesList) throws BaseException {
+    SessionPool sessionPool = getSessionPool(connection);
+    List<Integer> indexList = new ArrayList<>();
+    for (String timeseries : timeseriesList) {
+      indexList.add(timeseries.lastIndexOf("."));
+    }
+    String sql = "select ";
+    for (int i = 0; i < timeseriesList.size(); i++) {
+      sql += "count(" + timeseriesList.get(i).substring(indexList.get(i) + 1) + ")" + ", ";
+    }
+    sql = sql.substring(0, sql.length() - 2);
+    sql += " from ";
+    sql += timeseriesList.get(0).substring(0, indexList.get(0));
+    List<String> values;
+    try {
+      values = executeQueryOneLine(sessionPool, sql);
+    } finally {
+      closeSessionPool(sessionPool);
+    }
+    return values;
+  }
+
+  private DataModelDetailDTO getChildrenDataModelDetail(
+      DataModelVO root, String path, SessionPool sessionPool, Integer pageSize, Integer pageNum)
+      throws BaseException {
+    Set<String> childrenNode = getChildrenNode(path, sessionPool);
+    if (childrenNode == null) {
+      return null;
+    }
+    List<DataModelVO> childrenlist = new ArrayList<>();
+    List<String> childrenNodeList = new ArrayList<>(childrenNode);
+    List<String> childrenNodeSubList = new ArrayList<>();
+    boolean isLastPage = false;
+    int size = childrenNode.size();
+    int pageStart = pageNum == 1 ? 0 : (pageNum - 1) * pageSize;
+    int pageEnd = size < pageNum * pageSize ? size : pageNum * pageSize;
+    if (size > pageStart) {
+      childrenNodeSubList = childrenNodeList.subList(pageStart, pageEnd);
+    }
+    for (String child : childrenNodeSubList) {
+      DataModelVO childNode = new DataModelVO(child);
+      setNodeInfo(childNode, sessionPool, path + "." + child);
+      childrenlist.add(childNode);
+    }
+    DataModelDetailDTO dataModelDetailDTO = new DataModelDetailDTO();
+    dataModelDetailDTO.setDataModelVOList(childrenlist);
+    dataModelDetailDTO.setCheckLastPage(isLastPage);
+    return dataModelDetailDTO;
   }
 
   private void grantOrRevoke(

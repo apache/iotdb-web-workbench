@@ -47,6 +47,12 @@ public class DataModelVO implements Serializable {
 
   private List<DataModelVO> children;
 
+  private Integer showNum;
+
+  private Boolean isLastPage;
+
+  private Integer totalSonNodeCount;
+
   public DataModelVO(String name) {
     this.name = name;
     this.isGroup = false;
