@@ -85,10 +85,13 @@ public class IotDBController {
   @GetMapping("/dataModel")
   @ApiOperation("Get IoTDB data model")
   public BaseVO<DataModelVO> getDataModel(
-      @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+      @PathVariable("serverId") Integer serverId,
+      @RequestParam(value = "path", required = false, defaultValue = "root") String path,
+      HttpServletRequest request)
+      throws BaseException {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    DataModelVO dataModelVO = iotDBService.getDataModel(connection);
+    DataModelVO dataModelVO = iotDBService.getDataModel(connection, path);
     return BaseVO.success("Get IoTDB data model successfully", dataModelVO);
   }
 
@@ -164,7 +167,6 @@ public class IotDBController {
     checkTtl(ttl, ttlUnit);
     Integer groupId = groupDTO.getGroupId();
     groupDTO.setGroupName(groupName);
-
     List<String> groupNames = iotDBService.getAllStorageGroups(connection);
     if (groupId == null) {
       if (!groupNames.contains(groupDTO.getGroupName())) {
@@ -1121,9 +1123,7 @@ public class IotDBController {
 
   private void checkParameter(String groupName) throws BaseException {
     String checkName = StringUtils.removeStart(groupName, "root").toLowerCase();
-    if (!groupName.matches("^root\\.[^ ]+$")
-        || checkName.contains(".root.")
-        || checkName.matches("^[^ ]*\\.root$")) {
+    if (groupName.contains(".root.") || groupName.contains(".root")) {
       throw new BaseException(ErrorCode.NO_SUP_CONTAIN_ROOT, ErrorCode.NO_SUP_CONTAIN_ROOT_MSG);
     }
     if (checkName.contains(".as.")
@@ -1229,6 +1229,9 @@ public class IotDBController {
   }
 
   private void checkTtl(Long ttl, String unit) throws BaseException {
+    if (ttl == null || unit == null) {
+      return;
+    }
     if (Long.MAX_VALUE / switchTime(unit) < ttl) {
       throw new BaseException(ErrorCode.TTL_OVER, ErrorCode.TTL_OVER_MSG);
     }

@@ -25,8 +25,9 @@ import java.io.Serializable;
 
 @Data
 public class DataCountVO implements Serializable {
-  private Integer groupCount;
+  private Integer storageGroupCount;
   private Integer deviceCount;
-  private Integer measurementCount;
+  private Integer monitorCount;
   private Integer dataCount;
+  private String version;
 }

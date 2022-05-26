@@ -30,7 +30,7 @@ import java.util.Set;
 public interface IotDBService {
   DataCountVO getDataCount(Connection connection) throws BaseException;
 
-  DataModelVO getDataModel(Connection connection) throws BaseException;
+  DataModelVO getDataModel(Connection connection, String path) throws BaseException;
 
   List<String> getAllStorageGroups(Connection connection) throws BaseException;
 
@@ -162,4 +162,22 @@ public interface IotDBService {
   void updatePwd(Connection connection, IotDBUser iotDBUser) throws BaseException;
 
   void stopQuery(Integer serverId, Long timestamp) throws BaseException;
+
+  QueryInfoDTO getQueryInfoListByQueryClassificationId(
+      Connection connection,
+      Integer queryClassificationId,
+      Integer pageSize,
+      Integer pageNum,
+      String filterString,
+      Long startTime,
+      Long endTime,
+      Integer executionResult)
+      throws BaseException;
+
+  MetricsDataForDiagramVO getMetricDataByMetricId(Connection connection, Integer metricId)
+      throws BaseException;
+
+  List<QueryMetricsVO> getTopQueryMetricsData();
+
+  List<QueryMetricsVO> getSlowQueryMetricsData();
 }

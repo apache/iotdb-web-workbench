@@ -23,6 +23,7 @@ import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.*;
 import org.apache.iotdb.admin.model.entity.Connection;
+import org.apache.iotdb.admin.model.metricsDo.QueryDataDo;
 import org.apache.iotdb.admin.model.vo.*;
 import org.apache.iotdb.admin.service.IotDBService;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
@@ -38,9 +39,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
@@ -96,22 +99,43 @@ public class IotDBServiceImpl implements IotDBService {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
+      String iotdbVersion = executeQueryOneValue(sessionPool, "show version");
+      logger.info("执行成功，获得iotdb版本号：" + iotdbVersion);
+      int versionFlag = 0;
+      if (iotdbVersion.contains("0.12.")) {
+        versionFlag = 12;
+      } else if (iotdbVersion.contains("0.13.") || iotdbVersion.contains("0.14.")) {
+        versionFlag = 13;
+      }
       String groupCountStr = executeQueryOneValue(sessionPool, "count storage group");
       int groupCount = Integer.parseInt(groupCountStr);
       String deviceCountStr = executeQueryOneValue(sessionPool, "count devices");
       int deviceCount = Integer.parseInt(deviceCountStr);
       String measurementCountStr = executeQueryOneValue(sessionPool, "count timeseries");
       int measurementCount = Integer.parseInt(measurementCountStr);
-      List<String> dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root");
+      List<String> dataCountList = new ArrayList<>();
+      if (versionFlag == 13) {
+        dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root.**");
+      } else if (versionFlag == 12) {
+        try {
+          dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root.*");
+          //          dataCountList = executeQueryOneLine(sessionPool, "select count(*) from
+          // root.*");
+        } catch (BaseException e) {
+          logger.error("发生错误！！！");
+          e.printStackTrace();
+        }
+      }
       int dataCount = 0;
       for (String dataCountStr : dataCountList) {
         dataCount += Integer.parseInt(dataCountStr);
       }
       DataCountVO dataCountVO = new DataCountVO();
-      dataCountVO.setGroupCount(groupCount);
+      dataCountVO.setStorageGroupCount(groupCount);
       dataCountVO.setDeviceCount(deviceCount);
-      dataCountVO.setMeasurementCount(measurementCount);
+      dataCountVO.setMonitorCount(measurementCount);
       dataCountVO.setDataCount(dataCount);
+      dataCountVO.setVersion(iotdbVersion);
       return dataCountVO;
     } catch (NumberFormatException e) {
       throw new BaseException(ErrorCode.GET_DATA_COUNT_FAIL, ErrorCode.GET_DATA_COUNT_FAIL_MSG);
@@ -121,18 +145,37 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public DataModelVO getDataModel(Connection connection) throws BaseException {
+  public DataModelVO getDataModel(Connection connection, String path) throws BaseException {
     SessionPool sessionPool = null;
     try {
       sessionPool = getSessionPool(connection);
-      DataModelVO root = new DataModelVO("root");
-      assembleDataModel(root, "root", sessionPool);
-      root.setGroupCount(getGroupCount(sessionPool));
-      root.setPath("root");
+      DataModelVO root = new DataModelVO(path);
+      setNodeInfo(root, sessionPool, path);
+      List<DataModelVO> childrenDataModel = getChildrenDataModel(root, path, sessionPool);
+      root.setChildren(childrenDataModel);
+      root.setGroupCount(path.equals("root") ? getGroupCount(sessionPool) : null);
+      root.setPath(path);
       return root;
     } finally {
       closeSessionPool(sessionPool);
     }
+  }
+
+  private List<DataModelVO> getChildrenDataModel(
+      DataModelVO root, String path, SessionPool sessionPool) throws BaseException {
+    Set<String> childrenNode = getChildrenNode(path, sessionPool);
+    if (childrenNode == null) {
+      return null;
+    }
+    List<DataModelVO> childrenlist = new ArrayList<>();
+
+    // TODO: 大量IO
+    for (String child : childrenNode) {
+      DataModelVO childNode = new DataModelVO(child);
+      setNodeInfo(childNode, sessionPool, path + "." + child);
+      childrenlist.add(childNode);
+    }
+    return childrenlist;
   }
 
   private void assembleDataModel(DataModelVO node, String prefixPath, SessionPool sessionPool)
@@ -152,20 +195,49 @@ public class IotDBServiceImpl implements IotDBService {
   private Set<String> getChildrenNode(String prefixPath, SessionPool sessionPool)
       throws BaseException {
     String sql = "show storage group " + prefixPath;
+    sql = sql.replace(',', '.');
     List<String> children = executeQueryOneColumn(sessionPool, sql);
-    if (children.size() == 0 || (children.size() == 1 && children.get(0).equals(prefixPath))) {
+    String dealedPrefixPath = prefixPath.replace(',', '.');
+    if (children.size() == 0
+        || (children.size() == 1 && children.get(0).equals(dealedPrefixPath))) {
       sql = "show timeseries " + prefixPath;
+      sql = sql.replace(',', '.');
       children = executeQueryOneColumn(sessionPool, sql);
-      if (children.size() == 0 || (children.size() == 1 && children.get(0).equals(prefixPath))) {
+      if (children.size() == 0
+          || (children.size() == 1 && children.get(0).equals(dealedPrefixPath))) {
         return null;
       }
     }
     Set<String> childrenNode = new HashSet<>();
     for (String child : children) {
+      child = dealChildNode(child);
       child = StringUtils.removeStart(child, prefixPath + ".").split("\\.")[0];
       childrenNode.add(child);
     }
     return childrenNode;
+  }
+
+  private String dealChildNode(String child) {
+    int left = 0, right = 0;
+    int length = child.length();
+    while (right < length) {
+      char tempChar = child.charAt(right);
+      if (tempChar != '"' && left == right) {
+        left++;
+        right++;
+      } else if ((tempChar == '"' && left == right) || (tempChar != '"' && left != right)) {
+        right++;
+      } else if (tempChar == '"' && left != right) {
+        String preSubStr = child.substring(0, left);
+        String midSubStr = child.substring(left, right + 1);
+        String tailSubStr = child.substring(right + 1, length);
+        String newMidSubStr = midSubStr.replace('.', ',');
+        child = preSubStr + newMidSubStr + tailSubStr;
+        right++;
+        left = right;
+      }
+    }
+    return child;
   }
 
   private Integer getGroupCount(SessionPool sessionPool) throws BaseException {
@@ -176,7 +248,19 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   private Integer getDeviceCount(SessionPool sessionPool, String groupName) throws BaseException {
-    String sql = "count devices " + groupName;
+    String iotdbVersion = executeQueryOneValue(sessionPool, "show version");
+    int versionFlag = 0;
+    if (iotdbVersion.contains("0.12.")) {
+      versionFlag = 12;
+    } else if (iotdbVersion.contains("0.13.") || iotdbVersion.contains("0.14.")) {
+      versionFlag = 13;
+    }
+    String sql = null;
+    if (versionFlag == 13) {
+      sql = "count devices " + groupName + ".**";
+    } else if (versionFlag == 12) {
+      sql = "count devices " + groupName;
+    }
     String value = executeQueryOneValue(sessionPool, sql);
     Integer count = Integer.valueOf(value);
     return count;
@@ -184,7 +268,19 @@ public class IotDBServiceImpl implements IotDBService {
 
   private Integer getMeasurementsCount(SessionPool sessionPool, String deviceName)
       throws BaseException {
-    String sql = "count timeseries " + deviceName;
+    String iotdbVersion = executeQueryOneValue(sessionPool, "show version");
+    int versionFlag = 0;
+    if (iotdbVersion.contains("0.12.")) {
+      versionFlag = 12;
+    } else if (iotdbVersion.contains("0.13.") || iotdbVersion.contains("0.14.")) {
+      versionFlag = 13;
+    }
+    String sql = null;
+    if (versionFlag == 13) {
+      sql = "count timeseries " + deviceName + ".**";
+    } else if (versionFlag == 12) {
+      sql = "count timeseries " + deviceName;
+    }
     String value = executeQueryOneValue(sessionPool, sql);
     Integer count = Integer.valueOf(value);
     return count;
@@ -231,6 +327,7 @@ public class IotDBServiceImpl implements IotDBService {
 
   private void setNodeInfo(DataModelVO dataModelVO, SessionPool sessionPool, String path)
       throws BaseException {
+    path = path.replace(',', '.');
     dataModelVO.setPath(path);
     if (isGroup(sessionPool, path)) {
       dataModelVO.setDeviceCount(getDeviceCount(sessionPool, path));
@@ -258,14 +355,24 @@ public class IotDBServiceImpl implements IotDBService {
             + timeseries.substring(index + 1)
             + ") from "
             + timeseries.substring(0, index);
-    String value = executeQueryOneValue(sessionPool, sql);
+    String value = "0";
+    try {
+      value = executeQueryOneValue(sessionPool, sql);
+    } catch (BaseException e) {
+      e.printStackTrace();
+    }
     return value;
   }
 
   private Integer getOneDataCount(SessionPool sessionPool, String timeseries) throws BaseException {
     int index = timeseries.lastIndexOf(".");
     String sql = "select count(*) from " + timeseries.substring(0, index);
-    String countStr = executeQueryOneLine(sessionPool, sql, "count(" + timeseries + ")");
+    String countStr = "0";
+    try {
+      countStr = executeQueryOneLine(sessionPool, sql, "count(" + timeseries + ")");
+    } catch (BaseException e) {
+      e.printStackTrace();
+    }
     return Integer.parseInt(countStr);
   }
 
@@ -349,7 +456,14 @@ public class IotDBServiceImpl implements IotDBService {
   public void saveStorageGroup(Connection connection, String groupName) throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
     try {
-      sessionPool.setStorageGroup(groupName);
+      String iotdbVersion = executeQueryOneValue(sessionPool, "show version");
+      int versionFlag = 0;
+      if (iotdbVersion.contains("0.12.")) {
+        sessionPool.executeNonQueryStatement("set storage group " + groupName);
+      } else if (iotdbVersion.contains("0.13.") || iotdbVersion.contains("0.14.")) {
+        sessionPool.executeNonQueryStatement("create storage group " + groupName);
+      }
+      //      sessionPool.setStorageGroup(groupName);
     } catch (StatementExecutionException e) {
       if (e.getStatusCode() == 602) {
         throw new BaseException(ErrorCode.NO_PRI_SET_GROUP, ErrorCode.NO_PRI_SET_GROUP_MSG);
@@ -362,7 +476,8 @@ public class IotDBServiceImpl implements IotDBService {
       logger.error(e.getMessage());
     } catch (IoTDBConnectionException e) {
       logger.error(e.getMessage());
-      throw new BaseException(ErrorCode.SET_GROUP_FAIL, ErrorCode.SET_GROUP_FAIL_MSG);
+      throw new BaseException(
+          ErrorCode.SET_GROUP_FAIL_EXISTS, ErrorCode.SET_GROUP_FAIL__EXISTS_MSG);
     } finally {
       closeSessionPool(sessionPool);
     }
@@ -907,15 +1022,29 @@ public class IotDBServiceImpl implements IotDBService {
       String name,
       String privilegesStr)
       throws BaseException {
-    String sql =
-        operationType
-            + " "
-            + userOrRole
-            + " "
-            + name
-            + " privileges '"
-            + privilegesStr
-            + "' on root";
+    String show_version = executeQueryOneValue(sessionPool, "show version");
+    String sql = null;
+    if (show_version.contains("0.13") || show_version.contains("0.14")) {
+      sql =
+          operationType
+              + " "
+              + userOrRole
+              + " "
+              + name
+              + " privileges "
+              + privilegesStr
+              + " on root";
+    } else if (show_version.contains("0.12")) {
+      sql =
+          operationType
+              + " "
+              + userOrRole
+              + " "
+              + name
+              + " privileges '"
+              + privilegesStr
+              + "' on root";
+    }
     try {
       sessionPool.executeNonQueryStatement(sql);
     } catch (StatementExecutionException e) {
@@ -1444,7 +1573,9 @@ public class IotDBServiceImpl implements IotDBService {
 
   private void upsertMeasurementAlias(SessionPool sessionPool, String timeseries, String alias)
       throws BaseException {
-    if (alias == null || "null".equals(alias) || StringUtils.isBlank(alias)) {
+    // 需要改为" "值。
+    if (alias == null || "null".equals(alias)) {
+      //    if (alias == null || "null".equals(alias) || StringUtils.isBlank(alias)) {
       return;
     }
     if (alias.matches("^as$") || alias.matches("^\\d+$") || alias.matches("^like$")) {
@@ -2305,6 +2436,1610 @@ public class IotDBServiceImpl implements IotDBService {
     throw new BaseException(ErrorCode.NO_QUERY, ErrorCode.NO_QUERY_MSG);
   }
 
+  @Override
+  public QueryInfoDTO getQueryInfoListByQueryClassificationId(
+      Connection connection,
+      Integer queryClassificationId,
+      Integer pageSize,
+      Integer pageNum,
+      String filterString,
+      Long startTime,
+      Long endTime,
+      Integer executionResult)
+      throws BaseException {
+    SessionPool sessionPool = getSessionPool(connection);
+    // TODO 【清华】需要获得查询语句详细信息的接口
+    QueryInfoDTO queryInfoDTO = new QueryInfoDTO();
+    // FakeData
+    // ***********************************************************
+    List<QueryDataVO> queryDataVOS = new ArrayList<>();
+    switch (queryClassificationId % 2) {
+      case 0:
+        for (int i = 0; i < 200; i++) {
+          QueryData1VO queryDataVO = new QueryData1VO();
+          long currentTimeMillis = System.currentTimeMillis();
+          queryDataVO.setId(i);
+          queryDataVO.setStatement(
+              "select * from root._metric.'127.0.0.1:8086'.'process_cpu_time'.'name=process'");
+          queryDataVO.setRunningTime(currentTimeMillis);
+          queryDataVO.setIsSlowQuery(i % 2 == 0 ? false : true);
+          queryDataVO.setTotalTime((int) (currentTimeMillis % 100));
+          queryDataVO.setAnalysisTime((int) (currentTimeMillis % 50));
+          queryDataVO.setPrecompiledTime((int) (currentTimeMillis % 30));
+          queryDataVO.setOptimizedTime((int) (currentTimeMillis % 20));
+          queryDataVO.setExecutionTime((int) (currentTimeMillis % 10));
+          queryDataVO.setExecutionResult(i % 2 == 0 ? 1 : 2);
+          queryDataVOS.add(queryDataVO);
+        }
+        break;
+      case 1:
+        for (int i = 0; i < 200; i++) {
+          QueryDataVO queryDataVO = new QueryDataVO();
+          long currentTimeMillis = System.currentTimeMillis();
+          queryDataVO.setId(i);
+          queryDataVO.setStatement(
+              "select * from root._metric.'127.0.0.1:8086'.'process_cpu_time'.'name=process'");
+          queryDataVO.setRunningTime(currentTimeMillis);
+          queryDataVO.setIsSlowQuery(i % 2 == 0 ? false : true);
+          queryDataVO.setTotalTime((int) (currentTimeMillis % 100));
+          queryDataVO.setAnalysisTime((int) (currentTimeMillis % 50));
+          queryDataVO.setExecutionTime((int) (currentTimeMillis % 10));
+          queryDataVO.setExecutionResult(i % 2 == 0 ? 1 : 2);
+          queryDataVOS.add(queryDataVO);
+        }
+        break;
+    }
+    // ***********************************************************
+    int queryDataVOSSize = queryDataVOS.size();
+    int count = 0;
+    Long latestTimeStamp = 0L;
+    List<QueryDataVO> filteredQueryDataVOS = new ArrayList<>();
+    if (queryDataVOSSize > 0) {
+      if ((filterString != null && filterString.length() != 0)
+          || (startTime != -1)
+          || (endTime != -1)
+          || (executionResult != null)) {
+        QueryDataDo queryDataDo =
+            filterQueryData(
+                queryDataVOS, pageSize, pageNum, filterString, startTime, endTime, executionResult);
+
+        count = queryDataDo.getCount();
+        latestTimeStamp = queryDataDo.getLatestTimeStamp();
+        filteredQueryDataVOS = queryDataDo.getQueryDataVOs();
+      } else {
+        for (QueryDataVO queryDataVO : queryDataVOS) {
+          count++;
+          latestTimeStamp = Math.max(latestTimeStamp, queryDataVO.getRunningTime());
+          if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
+            filteredQueryDataVOS.add(queryDataVO);
+          }
+        }
+      }
+    }
+    String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+    List<QueryDataStrVO> filteredQueryDataStrVOS = new ArrayList<>();
+    if (queryClassificationId % 2 == 0) {
+      for (QueryDataVO queryDataVO : filteredQueryDataVOS) {
+        QueryDataStrVO1 queryDataStrVO = new QueryDataStrVO1();
+        BeanUtils.copyProperties(queryDataVO, queryDataStrVO);
+        queryDataStrVO.setRunningTime(simpleDateFormat.format(queryDataVO.getRunningTime()));
+        filteredQueryDataStrVOS.add(queryDataStrVO);
+      }
+    } else {
+      for (QueryDataVO queryDataVO : filteredQueryDataVOS) {
+        QueryDataStrVO queryDataStrVO = new QueryDataStrVO();
+        BeanUtils.copyProperties(queryDataVO, queryDataStrVO);
+        queryDataStrVO.setRunningTime(simpleDateFormat.format(queryDataVO.getRunningTime()));
+        filteredQueryDataStrVOS.add(queryDataStrVO);
+      }
+    }
+
+    queryInfoDTO.setTotalCount(count);
+    queryInfoDTO.setLatestRunningTime(latestTimeStamp);
+    queryInfoDTO.setFilteredQueryDataStrVOSList(filteredQueryDataStrVOS);
+    queryInfoDTO.setTotalPage(count % pageSize == 0 ? count / pageSize : count / pageSize + 1);
+    return queryInfoDTO;
+  }
+
+  @Override
+  public MetricsDataForDiagramVO getMetricDataByMetricId(Connection connection, Integer metricId)
+      throws BaseException {
+    SessionPool sessionPool = getSessionPool(connection);
+    SessionDataSetWrapper sessionDataSetWrapper = null;
+    String url = connection.getHost();
+    Integer port = 0;
+    // TODO: 【清华】端口8086实际上是动态的从connection表中获取，但iotdb-0.13.0存在bug，导致写入的指标位置不对，等待修复，先暂时写死
+    String show_version = executeQueryOneValue(sessionPool, "show version");
+    if (show_version.contains("0.13") || show_version.contains("0.14")) {
+      port = 8086;
+    } else if (show_version.contains("0.12")) {
+      port = 6667;
+      url = "0.0.0.0";
+    }
+    // TODO: 指标先写死，后面根据指标Id判断用哪个timeSeries拼串为SQL查得值。
+    MetricsChartDataVO metricsChartDataVO = null;
+    MetricsDataForDiagramVO metricsDataForDiagramVO = new MetricsDataForDiagramVO();
+    switch (metricId) {
+      case 0:
+        metricsChartDataVO = getJVMGCDiagramData(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 1:
+        metricsChartDataVO = getJVMLoadDiagramData(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 2:
+        metricsChartDataVO = getYGCTimeAndReason(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 3:
+        metricsChartDataVO = getFGCTimeAndReason(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 4:
+        metricsChartDataVO = getVariableThreadCount(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 5:
+        metricsChartDataVO =
+            getVariableTimeThreadCount(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 6:
+        metricsChartDataVO = getMemUsedSize(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 7:
+        metricsChartDataVO = getBufferSize(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 8:
+        metricsChartDataVO = getCPUTime(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 9:
+        metricsChartDataVO = getDiskIO(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 10:
+        metricsChartDataVO = getFileCount(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 11:
+        metricsChartDataVO = getFileSize(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 12:
+        metricsChartDataVO = getWriteCount(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 13:
+        metricsChartDataVO = getQueryCount(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 14:
+        metricsChartDataVO = getInterfaceCount(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+      case 15:
+        metricsChartDataVO = getInterfaceTime(sessionPool, sessionDataSetWrapper, url, port);
+        break;
+    }
+    metricsDataForDiagramVO.setChartData(metricsChartDataVO);
+    metricsDataForDiagramVO.setMetricId(metricId);
+    return metricsDataForDiagramVO;
+  }
+
+  private MetricsChartDataVO getInterfaceTime(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    // TODO：假数据
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("Interface1");
+    metricnameList.add("Interface2");
+    metricnameList.add("Interface3");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("ms");
+    List<String> interface1 = new ArrayList<>();
+    List<String> interface2 = new ArrayList<>();
+    List<String> interface3 = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.buffer.memory.used\".\"id=mapped\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    //      try {
+    //        sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+    //        int batchSize = sessionDataSetWrapper.getBatchSize();
+    //        if (batchSize > 0) {
+    //          int count = 0;
+    //          while (sessionDataSetWrapper.hasNext()) {
+    //            count++;
+    //            RowRecord rowRecord = sessionDataSetWrapper.next();
+    //            long timestamp = rowRecord.getTimestamp();
+    //            List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+    //            String pattern1 = "HH:mm";
+    //            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    //            timeList.add(simpleDateFormat1.format(timestamp));
+    //            buffer.add(
+    //                    getNetFileSizeDescription(
+    //                            (getLongFromString(
+    //                                    (Float.parseFloat(fields1.get(0).toString())
+    //                                            + Float.parseFloat(fields1.get(1).toString()))
+    //                                            + ""))));
+    //          }
+    //          Collections.reverse(buffer);
+    //          Collections.reverse(max);
+    //          dataList.put(metricnameList.get(0), buffer);
+    //          dataList.put(metricnameList.get(1), max);
+    //          Collections.reverse(timeList);
+    //          metricsChartDataVO.setTimeList(timeList);
+    //          metricsChartDataVO.setMetricnameList(metricnameList);
+    //          metricsChartDataVO.setDataList(dataList);
+    //        }
+    //      } catch (IoTDBConnectionException e) {
+    //        e.printStackTrace();
+    //      } catch (StatementExecutionException e) {
+    //        e.printStackTrace();
+    //      }
+    String pattern1 = "HH:mm";
+    SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    long timestamp = System.currentTimeMillis();
+    for (int i = 0; i < 16; i++) {
+      timeList.add(simpleDateFormat1.format(timestamp));
+      timestamp -= 60000;
+      interface1.add("300");
+      interface2.add("200");
+      interface3.add("500");
+    }
+    Collections.reverse(timeList);
+    Collections.reverse(interface1);
+    Collections.reverse(interface2);
+    Collections.reverse(interface3);
+    dataList.put(metricnameList.get(0), interface1);
+    dataList.put(metricnameList.get(1), interface2);
+    dataList.put(metricnameList.get(2), interface3);
+    metricsChartDataVO.setTimeList(timeList);
+    metricsChartDataVO.setMetricnameList(metricnameList);
+    metricsChartDataVO.setDataList(dataList);
+    metricsChartDataVO.setUnitList(unitList);
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getInterfaceCount(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("Close Operation");
+    metricnameList.add("Execute Query Statement");
+    metricnameList.add("Execute Statement");
+    metricnameList.add("Get Properties");
+    metricnameList.add("Insert Record");
+    metricnameList.add("Close Session");
+    metricnameList.add("Open Session");
+    metricnameList.add("Request Statement Id");
+    metricnameList.add("Fetch Results");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("ms");
+    List<String> close_Operation = new ArrayList<>();
+    List<String> execute_Query_Statement = new ArrayList<>();
+    List<String> execute_Statement = new ArrayList<>();
+    List<String> get_Properties = new ArrayList<>();
+    List<String> insert_Record = new ArrayList<>();
+    List<String> close_Session = new ArrayList<>();
+    List<String> open_Session = new ArrayList<>();
+    List<String> request_Statement_Id = new ArrayList<>();
+    List<String> fetch_Results = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=closeOperation\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=executeQueryStatement\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=executeStatement\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=getProperties\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=insertRecord\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=closeSession\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=openSession\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=requestStatementId\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"entry_total\".\"name=fetchResults\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          close_Operation.add(fields1.get(0).toString());
+          execute_Query_Statement.add(fields1.get(1).toString());
+          execute_Statement.add(fields1.get(2).toString());
+          get_Properties.add(fields1.get(3).toString());
+          insert_Record.add(fields1.get(4).toString());
+          close_Session.add(fields1.get(5).toString());
+          open_Session.add(fields1.get(6).toString());
+          request_Statement_Id.add(fields1.get(7).toString());
+          fetch_Results.add(fields1.get(8).toString());
+        }
+        Collections.reverse(close_Operation);
+        Collections.reverse(execute_Query_Statement);
+        Collections.reverse(execute_Statement);
+        Collections.reverse(get_Properties);
+        Collections.reverse(insert_Record);
+        Collections.reverse(close_Session);
+        Collections.reverse(open_Session);
+        Collections.reverse(request_Statement_Id);
+        Collections.reverse(fetch_Results);
+        dataList.put(metricnameList.get(0), close_Operation);
+        dataList.put(metricnameList.get(1), execute_Query_Statement);
+        dataList.put(metricnameList.get(2), execute_Statement);
+        dataList.put(metricnameList.get(3), get_Properties);
+        dataList.put(metricnameList.get(4), insert_Record);
+        dataList.put(metricnameList.get(5), close_Session);
+        dataList.put(metricnameList.get(6), open_Session);
+        dataList.put(metricnameList.get(7), request_Statement_Id);
+        dataList.put(metricnameList.get(8), fetch_Results);
+        Collections.reverse(timeList);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getQueryCount(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    // TODO：假数据
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("success");
+    metricnameList.add("fail");
+    metricnameList.add("total");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("ms");
+    List<String> success = new ArrayList<>();
+    List<String> fail = new ArrayList<>();
+    List<String> total = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.buffer.memory.used\".\"id=mapped\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    //      try {
+    //        sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+    //        int batchSize = sessionDataSetWrapper.getBatchSize();
+    //        if (batchSize > 0) {
+    //          int count = 0;
+    //          while (sessionDataSetWrapper.hasNext()) {
+    //            count++;
+    //            RowRecord rowRecord = sessionDataSetWrapper.next();
+    //            long timestamp = rowRecord.getTimestamp();
+    //            List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+    //            String pattern1 = "HH:mm";
+    //            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    //            timeList.add(simpleDateFormat1.format(timestamp));
+    //            buffer.add(
+    //                    getNetFileSizeDescription(
+    //                            (getLongFromString(
+    //                                    (Float.parseFloat(fields1.get(0).toString())
+    //                                            + Float.parseFloat(fields1.get(1).toString()))
+    //                                            + ""))));
+    //          }
+    //          Collections.reverse(buffer);
+    //          Collections.reverse(max);
+    //          dataList.put(metricnameList.get(0), buffer);
+    //          dataList.put(metricnameList.get(1), max);
+    //          Collections.reverse(timeList);
+    //          metricsChartDataVO.setTimeList(timeList);
+    //          metricsChartDataVO.setMetricnameList(metricnameList);
+    //          metricsChartDataVO.setDataList(dataList);
+    //        }
+    //      } catch (IoTDBConnectionException e) {
+    //        e.printStackTrace();
+    //      } catch (StatementExecutionException e) {
+    //        e.printStackTrace();
+    //      }
+    String pattern1 = "HH:mm";
+    SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    long timestamp = System.currentTimeMillis();
+    for (int i = 0; i < 16; i++) {
+      timeList.add(simpleDateFormat1.format(timestamp));
+      timestamp -= 60000;
+      success.add("100");
+      fail.add("200");
+      total.add("300");
+    }
+    Collections.reverse(timeList);
+    Collections.reverse(success);
+    Collections.reverse(fail);
+    Collections.reverse(total);
+    dataList.put(metricnameList.get(0), success);
+    dataList.put(metricnameList.get(1), fail);
+    dataList.put(metricnameList.get(2), total);
+    metricsChartDataVO.setTimeList(timeList);
+    metricsChartDataVO.setMetricnameList(metricnameList);
+    metricsChartDataVO.setDataList(dataList);
+    metricsChartDataVO.setUnitList(unitList);
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getWriteCount(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    // TODO：假数据
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("success");
+    metricnameList.add("fail");
+    metricnameList.add("total");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("ms");
+    List<String> success = new ArrayList<>();
+    List<String> fail = new ArrayList<>();
+    List<String> total = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.buffer.memory.used\".\"id=mapped\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    //      try {
+    //        sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+    //        int batchSize = sessionDataSetWrapper.getBatchSize();
+    //        if (batchSize > 0) {
+    //          int count = 0;
+    //          while (sessionDataSetWrapper.hasNext()) {
+    //            count++;
+    //            RowRecord rowRecord = sessionDataSetWrapper.next();
+    //            long timestamp = rowRecord.getTimestamp();
+    //            List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+    //            String pattern1 = "HH:mm";
+    //            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    //            timeList.add(simpleDateFormat1.format(timestamp));
+    //            buffer.add(
+    //                    getNetFileSizeDescription(
+    //                            (getLongFromString(
+    //                                    (Float.parseFloat(fields1.get(0).toString())
+    //                                            + Float.parseFloat(fields1.get(1).toString()))
+    //                                            + ""))));
+    //          }
+    //          Collections.reverse(buffer);
+    //          Collections.reverse(max);
+    //          dataList.put(metricnameList.get(0), buffer);
+    //          dataList.put(metricnameList.get(1), max);
+    //          Collections.reverse(timeList);
+    //          metricsChartDataVO.setTimeList(timeList);
+    //          metricsChartDataVO.setMetricnameList(metricnameList);
+    //          metricsChartDataVO.setDataList(dataList);
+    //        }
+    //      } catch (IoTDBConnectionException e) {
+    //        e.printStackTrace();
+    //      } catch (StatementExecutionException e) {
+    //        e.printStackTrace();
+    //      }
+    String pattern1 = "HH:mm";
+    SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    long timestamp = System.currentTimeMillis();
+    for (int i = 0; i < 16; i++) {
+      timeList.add(simpleDateFormat1.format(timestamp));
+      timestamp -= 60000;
+      success.add("10");
+      fail.add("20");
+      total.add("30");
+    }
+    Collections.reverse(timeList);
+    Collections.reverse(success);
+    Collections.reverse(fail);
+    Collections.reverse(total);
+    dataList.put(metricnameList.get(0), success);
+    dataList.put(metricnameList.get(1), fail);
+    dataList.put(metricnameList.get(2), total);
+    metricsChartDataVO.setTimeList(timeList);
+    metricsChartDataVO.setMetricnameList(metricnameList);
+    metricsChartDataVO.setDataList(dataList);
+    metricsChartDataVO.setUnitList(unitList);
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getFileSize(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("wal");
+    metricnameList.add("tsfile_seq");
+    metricnameList.add("tsfile_unseq");
+    metricnameList.add("total");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("MB");
+    List<String> wal = new ArrayList<>();
+    List<String> tsfile_seq = new ArrayList<>();
+    List<String> tsfile_unseq = new ArrayList<>();
+    List<String> total = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"file_size\".\"name=wal\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"file_size\".\"name=seq\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"file_size\".\"name=unseq\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          wal.add(getNetFileSizeDescription((long) Float.parseFloat(fields1.get(0).toString())));
+          tsfile_seq.add(
+              getNetFileSizeDescription((long) Float.parseFloat(fields1.get(1).toString())));
+          tsfile_unseq.add(
+              getNetFileSizeDescription((long) Float.parseFloat(fields1.get(2).toString())));
+          total.add(
+              getNetFileSizeDescription(
+                  (long)
+                      (Float.parseFloat(fields1.get(0).toString())
+                          + Float.parseFloat(fields1.get(1).toString())
+                          + Float.parseFloat(fields1.get(2).toString()))));
+        }
+        Collections.reverse(timeList);
+        Collections.reverse(wal);
+        Collections.reverse(tsfile_seq);
+        Collections.reverse(tsfile_unseq);
+        Collections.reverse(total);
+        dataList.put(metricnameList.get(0), wal);
+        dataList.put(metricnameList.get(1), tsfile_seq);
+        dataList.put(metricnameList.get(2), tsfile_unseq);
+        dataList.put(metricnameList.get(3), total);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getFileCount(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("wal");
+    metricnameList.add("tsfile_seq");
+    metricnameList.add("tsfile_unseq");
+    metricnameList.add("total");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("个");
+    List<String> wal = new ArrayList<>();
+    List<String> tsfile_seq = new ArrayList<>();
+    List<String> tsfile_unseq = new ArrayList<>();
+    List<String> total = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"file_count\".\"name=wal\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"file_count\".\"name=seq\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"file_count\".\"name=unseq\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          String s1 = fields1.get(0).toString();
+          wal.add(s1.substring(0, s1.indexOf('.')));
+          String s2 = fields1.get(1).toString();
+          tsfile_seq.add(s2.substring(0, s2.indexOf('.')));
+          String s3 = fields1.get(2).toString();
+          tsfile_unseq.add(s3.substring(0, s3.indexOf('.')));
+          total.add(
+              (Integer.parseInt(s1.substring(0, s1.indexOf('.')))
+                      + Integer.parseInt(s2.substring(0, s2.indexOf('.'))))
+                  + Integer.parseInt(s3.substring(0, s3.indexOf('.')))
+                  + "个");
+        }
+        Collections.reverse(timeList);
+        Collections.reverse(wal);
+        Collections.reverse(tsfile_seq);
+        Collections.reverse(tsfile_unseq);
+        Collections.reverse(total);
+        dataList.put(metricnameList.get(0), wal);
+        dataList.put(metricnameList.get(1), tsfile_seq);
+        dataList.put(metricnameList.get(2), tsfile_unseq);
+        dataList.put(metricnameList.get(3), total);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getDiskIO(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    // TODO : 假数据 等待接口
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("io");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("次/s");
+    List<String> io = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.buffer.memory.used\".\"id=mapped\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    //      try {
+    //        sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+    //        int batchSize = sessionDataSetWrapper.getBatchSize();
+    //        if (batchSize > 0) {
+    //          int count = 0;
+    //          while (sessionDataSetWrapper.hasNext()) {
+    //            count++;
+    //            RowRecord rowRecord = sessionDataSetWrapper.next();
+    //            long timestamp = rowRecord.getTimestamp();
+    //            List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+    //            String pattern1 = "HH:mm";
+    //            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    //            timeList.add(simpleDateFormat1.format(timestamp));
+    //            buffer.add(
+    //                    getNetFileSizeDescription(
+    //                            (getLongFromString(
+    //                                    (Float.parseFloat(fields1.get(0).toString())
+    //                                            + Float.parseFloat(fields1.get(1).toString()))
+    //                                            + ""))));
+    //          }
+    //          Collections.reverse(buffer);
+    //          Collections.reverse(max);
+    //          dataList.put(metricnameList.get(0), buffer);
+    //          dataList.put(metricnameList.get(1), max);
+    //          Collections.reverse(timeList);
+    //          metricsChartDataVO.setTimeList(timeList);
+    //          metricsChartDataVO.setMetricnameList(metricnameList);
+    //          metricsChartDataVO.setDataList(dataList);
+    //        }
+    //      } catch (IoTDBConnectionException e) {
+    //        e.printStackTrace();
+    //      } catch (StatementExecutionException e) {
+    //        e.printStackTrace();
+    //      }
+    String pattern1 = "HH:mm";
+    SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    long timestamp = System.currentTimeMillis();
+    for (int i = 0; i < 16; i++) {
+      timeList.add(simpleDateFormat1.format(timestamp));
+      timestamp -= 60000;
+      io.add("20");
+    }
+    Collections.reverse(timeList);
+    Collections.reverse(io);
+    dataList.put(metricnameList.get(0), io);
+    metricsChartDataVO.setTimeList(timeList);
+    metricsChartDataVO.setMetricnameList(metricnameList);
+    metricsChartDataVO.setDataList(dataList);
+    metricsChartDataVO.setUnitList(unitList);
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getBufferSize(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("buffer");
+    metricnameList.add("max");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("MB");
+    List<String> buffer = new ArrayList<>();
+    List<String> max = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.buffer.memory.used\".\"id=mapped\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.buffer.memory.used\".\"id=direct\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.buffer.total.capacity\".\"id=mapped\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.buffer.total.capacity\".\"id=direct\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          buffer.add(
+              getNetFileSizeDescription(
+                  (getLongFromString(
+                      (Float.parseFloat(fields1.get(0).toString())
+                              + Float.parseFloat(fields1.get(1).toString()))
+                          + ""))));
+          max.add(
+              getNetFileSizeDescription(
+                  (getLongFromString(
+                      (Float.parseFloat(fields1.get(2).toString())
+                              + Float.parseFloat(fields1.get(3).toString()))
+                          + ""))));
+        }
+        Collections.reverse(buffer);
+        Collections.reverse(max);
+        dataList.put(metricnameList.get(0), buffer);
+        dataList.put(metricnameList.get(1), max);
+        Collections.reverse(timeList);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getMemUsedSize(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("storage");
+    metricnameList.add("max");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("MB");
+    List<String> storage = new ArrayList<>();
+    List<String> max = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Compressed Class Space\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Code Cache\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Metaspace\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Old Gen\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Eden Space\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Survivor Space\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Compressed Class Space\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Code Cache\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Metaspace\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Old Gen\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Eden Space\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Survivor Space\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          storage.add(
+              getNetFileSizeDescription(
+                  (getLongFromString(
+                      (Float.parseFloat(fields1.get(6).toString())
+                              + Float.parseFloat(fields1.get(7).toString())
+                              + Float.parseFloat(fields1.get(8).toString())
+                              + Float.parseFloat(fields1.get(9).toString())
+                              + Float.parseFloat(fields1.get(10).toString())
+                              + Float.parseFloat(fields1.get(11).toString()))
+                          + ""))));
+          max.add(
+              getNetFileSizeDescription(
+                  (getLongFromString(
+                      (Float.parseFloat(fields1.get(0).toString())
+                              + Float.parseFloat(fields1.get(1).toString())
+                              + Float.parseFloat(fields1.get(2).toString())
+                              + Float.parseFloat(fields1.get(3).toString())
+                              + Float.parseFloat(fields1.get(4).toString())
+                              + Float.parseFloat(fields1.get(5).toString()))
+                          + ""))));
+        }
+        Collections.reverse(storage);
+        Collections.reverse(max);
+        dataList.put(metricnameList.get(0), storage);
+        dataList.put(metricnameList.get(1), max);
+        Collections.reverse(timeList);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getVariableTimeThreadCount(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("new");
+    metricnameList.add("canrunning");
+    metricnameList.add("running");
+    metricnameList.add("block");
+    metricnameList.add("die");
+    metricnameList.add("dormancy");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("个");
+    List<String> newState = new ArrayList<>();
+    List<String> canrunning = new ArrayList<>();
+    List<String> running = new ArrayList<>();
+    List<String> block = new ArrayList<>();
+    List<String> die = new ArrayList<>();
+    List<String> dormancy = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.states\".\"state=new\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.states\".\"state=waiting\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.states\".\"state=runnable\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.states\".\"state=blocked\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.states\".\"state=timed-waiting\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.states\".\"state=terminated\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          String s1 = fields1.get(0).toString();
+          newState.add(s1.substring(0, s1.indexOf('.')));
+          String s2 = fields1.get(1).toString();
+          canrunning.add(s2.substring(0, s2.indexOf('.')));
+          String s3 = fields1.get(2).toString();
+          running.add(s3.substring(0, s3.indexOf('.')));
+          String s4 = fields1.get(3).toString();
+          block.add(s4.substring(0, s4.indexOf('.')));
+          String s5 = fields1.get(4).toString();
+          die.add(s5.substring(0, s5.indexOf('.')));
+          String s6 = fields1.get(5).toString();
+          dormancy.add(s6.substring(0, s6.indexOf('.')));
+        }
+        Collections.reverse(timeList);
+        Collections.reverse(newState);
+        Collections.reverse(canrunning);
+        Collections.reverse(running);
+        Collections.reverse(block);
+        Collections.reverse(die);
+        Collections.reverse(dormancy);
+        dataList.put(metricnameList.get(0), newState);
+        dataList.put(metricnameList.get(1), canrunning);
+        dataList.put(metricnameList.get(2), running);
+        dataList.put(metricnameList.get(3), block);
+        dataList.put(metricnameList.get(4), die);
+        dataList.put(metricnameList.get(5), dormancy);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getVariableThreadCount(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("front");
+    metricnameList.add("end");
+    metricnameList.add("total");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("个");
+    List<String> front = new ArrayList<>();
+    List<String> end = new ArrayList<>();
+    List<String> total = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.daemon\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.live\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          String s1 = fields1.get(0).toString();
+          end.add(s1.substring(0, s1.indexOf('.')));
+          String s2 = fields1.get(1).toString();
+          total.add(s2.substring(0, s2.indexOf('.')));
+          front.add(
+              (Integer.parseInt(s2.substring(0, s2.indexOf('.')))
+                      - Integer.parseInt(s1.substring(0, s1.indexOf('.'))))
+                  + "");
+        }
+        Collections.reverse(timeList);
+        Collections.reverse(front);
+        Collections.reverse(end);
+        Collections.reverse(total);
+        dataList.put(metricnameList.get(0), front);
+        dataList.put(metricnameList.get(1), end);
+        dataList.put(metricnameList.get(2), total);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getCPUTime(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    // TODO：【接口缺失，等待确认增加】
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("模块1");
+    metricnameList.add("模块2");
+    metricnameList.add("模块3");
+    metricnameList.add("模块4");
+    metricnameList.add("模块5");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("%");
+    List<String> module1 = new ArrayList<>();
+    List<String> module2 = new ArrayList<>();
+    List<String> module3 = new ArrayList<>();
+    List<String> module4 = new ArrayList<>();
+    List<String> module5 = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.daemon\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.threads.live\" "
+            + "order by time desc limit 1";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    //      try {
+    //        sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+    //        int batchSize = sessionDataSetWrapper.getBatchSize();
+    //        if (batchSize > 0) {
+    //          int count = 0;
+    //          while (sessionDataSetWrapper.hasNext()) {
+    //            count++;
+    //            RowRecord rowRecord = sessionDataSetWrapper.next();
+    //            long timestamp = rowRecord.getTimestamp();
+    //            List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+    //            String pattern1 = "HH:mm";
+    //            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+    //            timeList.add(simpleDateFormat1.format(timestamp));
+    //            String s1 = fields1.get(0).toString();
+    //            end.add(s1.substring(0, s1.indexOf('.')));
+    //            String s2 = fields1.get(1).toString();
+    //            total.add(s2.substring(0, s2.indexOf('.')));
+    //            front.add((Integer.parseInt(s2.substring(0,
+    // s2.indexOf('.')))-Integer.parseInt(s1.substring(0, s1.indexOf('.')))) + "");
+    //          }
+    //          dataList.put(metricnameList.get(0), front);
+    //          dataList.put(metricnameList.get(1), end);
+    //          dataList.put(metricnameList.get(2), total);
+    //          metricsChartDataVO.setTimeList(timeList);
+    //          metricsChartDataVO.setMetricnameList(metricnameList);
+    //          metricsChartDataVO.setDataList(dataList);
+    //        }
+    //      } catch (IoTDBConnectionException e) {
+    //        e.printStackTrace();
+    //      } catch (StatementExecutionException e) {
+    //        e.printStackTrace();
+    //      }
+    module1.add("15" + "%");
+    module2.add("25" + "%");
+    module3.add("20" + "%");
+    module4.add("30" + "%");
+    module5.add("10" + "%");
+
+    dataList.put(metricnameList.get(0), module1);
+    dataList.put(metricnameList.get(1), module2);
+    dataList.put(metricnameList.get(2), module3);
+    dataList.put(metricnameList.get(3), module3);
+    dataList.put(metricnameList.get(4), module3);
+    metricsChartDataVO.setTimeList(timeList);
+    metricsChartDataVO.setMetricnameList(metricnameList);
+    metricsChartDataVO.setDataList(dataList);
+    metricsChartDataVO.setUnitList(unitList);
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getYGCTimeAndReason(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("Metadata GC Threshold");
+    metricnameList.add("Allocation Failure");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("ms");
+    List<String> metadata_GC_Threshold_Reason = new ArrayList<>();
+    List<String> Allocation_Failure_Reason = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Allocation Failure\" "
+            + "order by time desc limit 1";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          metadata_GC_Threshold_Reason.add(Float.parseFloat(fields1.get(0).toString()) + "");
+          Allocation_Failure_Reason.add(Float.parseFloat(fields1.get(1).toString()) + "");
+        }
+        dataList.put(metricnameList.get(0), metadata_GC_Threshold_Reason);
+        dataList.put(metricnameList.get(1), Allocation_Failure_Reason);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getFGCTimeAndReason(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("Metadata GC Threshold");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("ms");
+    List<String> metadata_GC_Threshold_Reason = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\" "
+            + "order by time desc limit 1";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          metadata_GC_Threshold_Reason.add(Float.parseFloat(fields1.get(0).toString()) + "");
+        }
+        dataList.put(metricnameList.get(0), metadata_GC_Threshold_Reason);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private MetricsChartDataVO getJVMLoadDiagramData(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("load");
+    metricnameList.add("unload");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("个");
+    List<String> load = new ArrayList<>();
+    List<String> unload = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.classes.loaded\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.classes.unloaded\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          String s1 = fields1.get(0).toString();
+          load.add(s1.substring(0, s1.indexOf('.')));
+          String s2 = fields1.get(1).toString();
+          unload.add(s2.substring(0, s2.indexOf('.')));
+        }
+        Collections.reverse(load);
+        Collections.reverse(unload);
+        dataList.put(metricnameList.get(0), load);
+        dataList.put(metricnameList.get(1), unload);
+        Collections.reverse(timeList);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  @Override
+  public List<QueryMetricsVO> getTopQueryMetricsData() {
+    // TODO [清华]提供获取Top SQL语句信息的接口
+    // FakeData
+    List<QueryMetricsVO> queryMetricsVOS = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      QueryMetricsVO queryMetricsVO = new QueryMetricsVO();
+      String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
+      SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+      String timeStamp = simpleDateFormat.format(System.currentTimeMillis());
+      queryMetricsVO.setSQLStatement("SELECT * FROM root.* where time > " + timeStamp);
+      queryMetricsVO.setRunningTime(timeStamp);
+      queryMetricsVO.setExecutionTime(200 - 10 * i);
+      queryMetricsVOS.add(queryMetricsVO);
+    }
+    return queryMetricsVOS;
+  }
+
+  @Override
+  public List<QueryMetricsVO> getSlowQueryMetricsData() {
+    // TODO [清华]提供获取Slow SQL语句信息的接口
+    // FakeData
+    List<QueryMetricsVO> queryMetricsVOS = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      QueryMetricsVO queryMetricsVO = new QueryMetricsVO();
+      String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
+      SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+      String timeStamp = simpleDateFormat.format(System.currentTimeMillis());
+      queryMetricsVO.setSQLStatement("SELECT * FROM root.* where time > " + timeStamp);
+      queryMetricsVO.setRunningTime(timeStamp);
+      queryMetricsVO.setExecutionTime(1000 - 10 * i);
+      queryMetricsVOS.add(queryMetricsVO);
+    }
+    return queryMetricsVOS;
+  }
+
+  private MetricsChartDataVO getJVMGCDiagramData(
+      SessionPool sessionPool,
+      SessionDataSetWrapper sessionDataSetWrapper,
+      String url,
+      Integer port) {
+    List<String> timeList = new ArrayList<>();
+    List<String> metricnameList = new ArrayList<>();
+    metricnameList.add("fgc次数");
+    metricnameList.add("ygc次数");
+    metricnameList.add("fgc耗时");
+    metricnameList.add("ygc耗时");
+    List<String> unitList = new ArrayList<>();
+    unitList.add("次");
+    unitList.add("ms");
+    List<String> majorGCCount = new ArrayList<>();
+    List<String> minorGCCount = new ArrayList<>();
+    List<String> majorGCTime = new ArrayList<>();
+    List<String> minorGCTime = new ArrayList<>();
+    HashMap<String, List<String>> dataList = new HashMap<>();
+    if (port == 6668) {
+      port = 8086;
+    }
+    String sql =
+        "select * from "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_count\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_count\".\"action=end of minor GC\".\"cause=Allocation Failure\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_count\".\"action=end of major GC\".\"cause=Metadata GC Threshold\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Allocation Failure\", "
+            + "root._metric.\"127.0.0.1:"
+            + port
+            + "\".\"jvm.gc.pause_total\".\"action=end of major GC\".\"cause=Metadata GC Threshold\" "
+            + "order by time desc limit 16";
+    MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
+    try {
+      sessionDataSetWrapper = sessionPool.executeQueryStatement(sql);
+      int batchSize = sessionDataSetWrapper.getBatchSize();
+      if (batchSize > 0) {
+        int count = 0;
+        while (sessionDataSetWrapper.hasNext()) {
+          count++;
+          RowRecord rowRecord = sessionDataSetWrapper.next();
+          long timestamp = rowRecord.getTimestamp();
+          List<org.apache.iotdb.tsfile.read.common.Field> fields1 = rowRecord.getFields();
+          String pattern1 = "HH:mm";
+          SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
+          timeList.add(simpleDateFormat1.format(timestamp));
+          String s1 = fields1.get(2).toString();
+          s1 = s1.substring(0, s1.indexOf('.'));
+          String s2 = fields1.get(0).toString();
+          s2 = s2.substring(0, s2.indexOf('.'));
+          String s3 = fields1.get(1).toString();
+          s3 = s3.substring(0, s3.indexOf('.'));
+          majorGCCount.add(s1 + "次");
+          minorGCCount.add((Integer.parseInt(s2) + Integer.parseInt(s3)) + "次");
+          majorGCTime.add(Float.parseFloat(fields1.get(5).toString()) + "ms");
+          minorGCTime.add(
+              (Float.parseFloat(fields1.get(3).toString())
+                      + Float.parseFloat(fields1.get(4).toString()))
+                  + "ms");
+        }
+        Collections.reverse(majorGCCount);
+        Collections.reverse(minorGCCount);
+        Collections.reverse(majorGCTime);
+        Collections.reverse(minorGCTime);
+        dataList.put(metricnameList.get(0), majorGCCount);
+        dataList.put(metricnameList.get(1), minorGCCount);
+        dataList.put(metricnameList.get(2), majorGCTime);
+        dataList.put(metricnameList.get(3), minorGCTime);
+        Collections.reverse(timeList);
+        metricsChartDataVO.setTimeList(timeList);
+        metricsChartDataVO.setMetricnameList(metricnameList);
+        metricsChartDataVO.setDataList(dataList);
+        metricsChartDataVO.setUnitList(unitList);
+      }
+    } catch (IoTDBConnectionException e) {
+      e.printStackTrace();
+    } catch (StatementExecutionException e) {
+      e.printStackTrace();
+    }
+    return metricsChartDataVO;
+  }
+
+  private QueryDataDo filterQueryData(
+      List<QueryDataVO> queryDataVOS,
+      Integer pageSize,
+      Integer pageNum,
+      String filterString,
+      Long startTime,
+      Long endTime,
+      Integer executionResult) {
+    List<QueryDataVO> filteredQueryDataVOS = new ArrayList<>();
+    filteredQueryDataVOS.addAll(queryDataVOS);
+    if (filterString != null) {
+      List<QueryDataVO> tempList = new ArrayList<>();
+      for (QueryDataVO queryDataVO : filteredQueryDataVOS) {
+        if (queryDataVO.getStatement().contains(filterString)) {
+          tempList.add(queryDataVO);
+        }
+      }
+      filteredQueryDataVOS.clear();
+      filteredQueryDataVOS.addAll(tempList);
+    }
+    if (startTime != -1) {
+      List<QueryDataVO> tempList = new ArrayList<>();
+      for (QueryDataVO queryDataVO : filteredQueryDataVOS) {
+        if (queryDataVO.getRunningTime() >= startTime) {
+          tempList.add(queryDataVO);
+        }
+      }
+      filteredQueryDataVOS.clear();
+      filteredQueryDataVOS.addAll(tempList);
+    }
+    if (endTime != -1) {
+      List<QueryDataVO> tempList = new ArrayList<>();
+      for (QueryDataVO queryDataVO : filteredQueryDataVOS) {
+        if (queryDataVO.getRunningTime() <= endTime) {
+          tempList.add(queryDataVO);
+        }
+      }
+      filteredQueryDataVOS.clear();
+      filteredQueryDataVOS.addAll(tempList);
+    }
+    if (executionResult != null) {
+      List<QueryDataVO> tempList = new ArrayList<>();
+      if (executionResult == 0) {
+        tempList.addAll(filteredQueryDataVOS);
+      } else {
+        for (QueryDataVO queryDataVO : filteredQueryDataVOS) {
+          if (queryDataVO.getExecutionResult().equals(executionResult)) {
+            tempList.add(queryDataVO);
+          }
+        }
+      }
+      filteredQueryDataVOS.clear();
+      filteredQueryDataVOS.addAll(tempList);
+    }
+
+    System.out.println(filteredQueryDataVOS.size());
+    int count = 0;
+    Long latestTimeStamp = 0L;
+    List<QueryDataVO> pageFilteredQueryDataVOS = new ArrayList<>();
+    for (QueryDataVO queryDataVO : filteredQueryDataVOS) {
+      count++;
+      if (count >= pageSize * (pageNum - 1) + 1 && count <= pageSize * pageNum) {
+        pageFilteredQueryDataVOS.add(queryDataVO);
+      }
+      latestTimeStamp = Math.max(latestTimeStamp, queryDataVO.getRunningTime());
+    }
+
+    QueryDataDo queryDataDo = new QueryDataDo();
+    queryDataDo.setCount(count);
+    queryDataDo.setLatestTimeStamp(latestTimeStamp);
+    queryDataDo.setQueryDataVOs(pageFilteredQueryDataVOS);
+    return queryDataDo;
+  }
+
   private void grantOrRevoke(
       String grantOrRevoke,
       String userOrRole,
@@ -2342,20 +4077,17 @@ public class IotDBServiceImpl implements IotDBService {
       List<String> paths,
       SessionPool sessionPool)
       throws BaseException {
+    String sql = null;
+    String show_version = executeQueryOneValue(sessionPool, "show version");
+    if (show_version.contains("0.13") || show_version.contains("0.14")) {
+      sql = grantOrRevoke + " " + userOrRole + " " + name + " privileges " + privilege + " on ";
+    } else if (show_version.contains("0.12")) {
+      sql = grantOrRevoke + " " + userOrRole + " " + name + " privileges '" + privilege + "' on ";
+    }
     if (notNullAndNotZero(paths)) {
       for (String groupPath : paths) {
-        String sql =
-            grantOrRevoke
-                + " "
-                + userOrRole
-                + " "
-                + name
-                + " privileges '"
-                + privilege
-                + "' on "
-                + groupPath;
         try {
-          sessionPool.executeNonQueryStatement(sql);
+          sessionPool.executeNonQueryStatement(sql + groupPath);
         } catch (StatementExecutionException e) {
           logger.error(e.getMessage());
           if (e.getStatusCode() == 602) {
@@ -2504,7 +4236,7 @@ public class IotDBServiceImpl implements IotDBService {
           RowRecord rowRecord = sessionDataSetWrapper.next();
           if (timeFlag) {
             long timestamp = rowRecord.getTimestamp();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
             Date date = new Date(timestamp);
             String timeStr = simpleDateFormat.format(date);
             strList.add(timeStr);
@@ -2746,9 +4478,9 @@ public class IotDBServiceImpl implements IotDBService {
         case "PLAIN":
           list.add(TSEncoding.PLAIN);
           break;
-        case "PLAIN_DICTIONARY":
-          list.add(TSEncoding.PLAIN_DICTIONARY);
-          break;
+          //        case "PLAIN_DICTIONARY":
+          //          list.add(TSEncoding.DICTIONARY);
+          //          break;
         case "RLE":
           list.add(TSEncoding.RLE);
           break;
@@ -2783,9 +4515,9 @@ public class IotDBServiceImpl implements IotDBService {
       case "PLAIN":
         tsEncoding = TSEncoding.PLAIN;
         break;
-      case "PLAIN_DICTIONARY":
-        tsEncoding = TSEncoding.PLAIN_DICTIONARY;
-        break;
+        //      case "PLAIN_DICTIONARY":
+        //        tsEncoding = TSEncoding.DICTIONARY;
+        //        break;
       case "RLE":
         tsEncoding = TSEncoding.RLE;
         break;
@@ -2965,5 +4697,26 @@ public class IotDBServiceImpl implements IotDBService {
     if (sessionDataSetWrapper != null) {
       sessionDataSetWrapper.close();
     }
+  }
+
+  private static String getNetFileSizeDescription(long size) {
+    StringBuffer bytes = new StringBuffer();
+    DecimalFormat format = new DecimalFormat("###.0");
+    double i = (size / (1024.0 * 1024.0));
+    bytes.append(format.format(i));
+    if (bytes.toString().equals(".0")) {
+      return "0.0";
+    }
+    return bytes.toString();
+  }
+
+  private static long getLongFromString(String timeStr) {
+    long count = Long.parseLong(timeStr.substring(timeStr.indexOf("E") + 1));
+    double time = Double.parseDouble(timeStr.substring(0, timeStr.indexOf("E")));
+    while (count > 0) {
+      time *= 10;
+      count--;
+    }
+    return (long) time;
   }
 }

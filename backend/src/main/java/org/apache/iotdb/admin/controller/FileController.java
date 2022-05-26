@@ -115,6 +115,17 @@ public class FileController {
     return getResponseEntity(resource);
   }
 
+  @ApiOperation("Download the query log file")
+  @GetMapping("/downloadQueryLogFile")
+  public ResponseEntity<Resource> downloadQueryLogFile(
+      @RequestParam String SQLStatement, @RequestParam Long timeStamp) throws BaseException {
+    Resource resource = new ClassPathResource("file/[Fake]QueryLog.txt");
+    if (!resource.exists()) {
+      throw new BaseException(ErrorCode.FILE_NOT_FOUND, ErrorCode.FILE_NOT_FOUND_MSG);
+    }
+    return getResponseEntity(resource);
+  }
+
   private ResponseEntity<Resource> getResponseEntity(Resource resource) {
     String contentType = "application/octet-stream";
 

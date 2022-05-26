@@ -26,6 +26,7 @@ import java.util.List;
 
 @Data
 public class AuthorityPrivilegeDTO implements Serializable {
+
   private List<String> privileges;
 
   private List<String> cancelPrivileges;
