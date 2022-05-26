@@ -22,9 +22,7 @@
     <form-table :form="form"></form-table>
     <div class="addbox">
       {{ $t('device.physical') }}
-      <el-button type="primary" class="addbutton" size="small" @click="addItem">
-        {{ $t('device.addphysical') }}
-      </el-button>
+      <el-button type="primary" class="addbutton" size="small" @click="addItem"> {{ $t('device.addphysical') }} </el-button>1
     </div>
     <div class="tableBox">
       <stand-table
@@ -234,9 +232,9 @@ export default {
     function changeBorder(scope) {
       tableData.list[scope.$index].seBorder = false;
     }
-    function checkValue(scope, object, value) {
+    function checkValue(scope, object, value, event, item) {
       if (value == null || value === '') {
-        ElMessage.error(`${t('common.placeHolder')}`);
+        ElMessage.error(`${t('common.placeHolder')}${t(item.label)}`);
       } else {
         tableData.list[scope.$index].border = false;
       }
@@ -341,14 +339,14 @@ export default {
     function sumbitData() {
       let checkfalg = true;
       tableData.list.forEach((item) => {
-        if (item.timeseries === null || item.dataType === null || item.border || item.seBorder) {
+        if (item.timeseries === null || item.dataType === null || item.border || item.seBorder || item.alias == null || item.alias === '') {
           if (checkfalg) {
             if (item.timeseries === null) {
               item.border = true;
               ElMessage.error(`${t('device.pynamel')}`);
             } else if (item.alias == null || item.alias === '') {
               item.border = true;
-              ElMessage.error(`"${t('device.alias')}"${t('common.placeHolder')}`);
+              ElMessage.error(`${t('common.placeHolder')}${t('device.alias')}`);
             } else if (item.dataType === null) {
               item.seBorder = true;
               ElMessage.error(`"${item.timeseries}"${t('device.selectdatatype')}`);

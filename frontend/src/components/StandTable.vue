@@ -40,7 +40,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               :size="item.size"
               :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border && item.border }"
               :placeholder="$t('device.inputTip') + $t(item.label)"
-              @blur="item.event(scope, scope.row, scope.row[item.prop], $event)"
+              @blur="item.event(scope, scope.row, scope.row[item.prop], $event, item)"
             >
             </el-input>
             <el-input
