@@ -238,8 +238,8 @@
 import { ElMessageBox, ElMessage, ElButton, ElTabs, ElTabPane, ElDropdown, ElDropdownMenu, ElDropdownItem, ElDialog, ElForm, ElFormItem, ElProgress } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
-import { reactive, ref, onActivated } from 'vue';
-import { getList, getDeviceDate, getTimeseiresList, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile, importData } from './api';
+import { reactive, ref, onActivated, computed } from 'vue';
+import { getList, getDeviceDate, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile, importData } from './api';
 import Echarts from '@/components/Echarts';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
@@ -357,7 +357,7 @@ export default {
           width: '150px',
           itemID: 'measurementList',
           placeholder: 'device.serchPy',
-          options: timeseriesOptions,
+          options: computed(() => [{ label: t('device.all'), value: '' }, ...timeseriesOptions.value]),
           multiple: true,
         },
       ],
@@ -811,16 +811,12 @@ export default {
       await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
         tableData.list = res.data.measurementVOList;
         totalCount.value = res.data.totalCount;
+        getTimeseriesOption(res.data.measurementVOList.map((item) => item.timeseries));
       });
     }
-    async function getTimeseriesOption() {
-      let { connectionid, storagegroupid, deviceid } = routeData.obj;
-      await getTimeseiresList(connectionid, storagegroupid, deviceid).then((res) => {
-        if (res.code === '0') {
-          timeseriesOptions.value = res.data.map((d) => ({ label: d, value: d }));
-          timeseriesOptions.value.unshift({ label: t('device.all'), value: '' });
-        }
-      });
+    async function getTimeseriesOption(array) {
+      timeseriesOptions.value.unshift(...array.map((d) => ({ label: d, value: d })));
+      timeseriesOptions.value.slice(0, 50);
     }
     //Get physical quantity data preview list
     function getPview() {
@@ -845,7 +841,20 @@ export default {
       }
       getDataDeviceList(routeData.obj, pagination1, { startTime: sTime, endTime: eTime, measurementList: data }).then((res) => {
         res.data.metaDataList.forEach((item, index) => {
-          column1.list.push({ label: item, prop: `t${index}`, value: '——', icon: index ? res.data.typeList[index] : 'TIME' });
+          column1.list.push({
+            label: item,
+            prop: `t${index}`,
+            value: '——',
+            icon: index ? res.data.typeList[index] : 'TIME',
+            closable:
+              index > 0 && (form1.formData.measurementList.length === 0 || form1.formData.measurementList[0] !== item)
+                ? (data) => {
+                    const index = timeseriesOptions.value.findIndex((item) => item.value === data.label);
+                    timeseriesOptions.value.splice(index, 1);
+                    getPview();
+                  }
+                : void 0,
+          });
         });
         res.data.valueList.forEach((item) => {
           let obj = {};
@@ -900,7 +909,6 @@ export default {
       }
       setTimeout(async () => {
         getdData();
-        await getTimeseriesOption();
         await getListData();
         await getPview();
       }, 500);
