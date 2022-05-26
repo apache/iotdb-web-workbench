@@ -22,7 +22,7 @@
     <form-table :form="form"></form-table>
     <div class="addbox">
       {{ $t('device.physical') }}
-      <el-button type="primary" class="addbutton" size="small" @click="addItem"> {{ $t('device.addphysical') }} </el-button>1
+      <el-button type="primary" class="addbutton" size="small" @click="addItem"> {{ $t('device.addphysical') }} </el-button>
     </div>
     <div class="tableBox">
       <stand-table

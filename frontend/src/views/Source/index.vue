@@ -784,10 +784,10 @@ export default {
       axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/authorityPrivilege`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
           ElMessage.success(t('sourcePage.successEditPermit'));
-          store.dispatch('fetchAllPrivileges', {
-            serverId: serverId.value,
-            userName: baseInfoForm.userName,
-          });
+          //   store.dispatch('fetchAllPrivileges', {
+          //     serverId: serverId.value,
+          //     userName: baseInfoForm.userName,
+          //   });
         }
       });
     };
@@ -831,10 +831,6 @@ export default {
           if (type && type == 1) {
             checkPermitAuth();
           }
-          store.dispatch('fetchAllPrivileges', {
-            serverId: serverId.value,
-            userName: baseInfoForm.userName,
-          });
         }
       });
     };
