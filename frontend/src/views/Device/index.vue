@@ -216,7 +216,7 @@ export default {
           required: true,
           disabled: false,
           inputHeader: true,
-          inputHeaderText: 'groupName',
+          inputHeaderText: (data) => `${data.groupName}.`,
           message: 'device.inputdevice',
         },
         {
