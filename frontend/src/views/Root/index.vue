@@ -27,7 +27,9 @@
         <div class="logo-img"></div>
         <div class="lang-btn">
           <el-dropdown @command="handleLangCommand">
-            <span class="el-dropdown-link"> {{ [$t('rootPage.chinalang'), $t('rootPage.englishlang'), $t('rootPage.deutsch')][langIndex] }}<i class="el-icon-arrow-down el-icon--right"></i> </span>
+            <span class="el-dropdown-link">
+              {{ [$t('rootPage.chinalang'), $t('rootPage.englishlang'), $t('rootPage.deutsch')][langIndex] }}<el-icon class="icon-arrow"><arrow-down /></el-icon
+            ></span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item :disabled="langIndex === 0" command="0">{{ $t('rootPage.chinalang') }}</el-dropdown-item>
@@ -187,6 +189,14 @@ export default {
     right: 20px;
     top: 50%;
     transform: translate(0, -50%);
+  }
+
+  .icon-arrow {
+    svg {
+      margin-left: 5px;
+      width: 14px;
+      vertical-align: middle;
+    }
   }
 }
 </style>

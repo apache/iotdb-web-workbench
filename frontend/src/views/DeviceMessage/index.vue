@@ -849,7 +849,6 @@ export default {
             prop: `t${index}`,
             value: '——',
             icon: index ? res.data.typeList[index] : 'TIME',
-            width: '200',
             closable:
               index > 0 && (form1.formData.measurementList.length === 0 || form1.formData.measurementList[0] !== item)
                 ? (data) => {
