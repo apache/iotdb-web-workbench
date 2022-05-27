@@ -399,6 +399,9 @@ export default {
     cursor: pointer;
   }
 }
+:deep(.el-table) th > .cell {
+  white-space: nowrap;
+}
 </style>
 <style lang="scss">
 .borderRed {
