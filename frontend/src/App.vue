@@ -24,13 +24,12 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { ElConfigProvider } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 import enLocale from 'element-plus/lib/locale/lang/en';
 import deLocale from 'element-plus/lib/locale/lang/de';
 import zhLocale from 'element-plus/lib/locale/lang/zh-cn';
-import useLanguageWatch from '@/hooks/useLanguageWatch';
 
 export default {
   name: 'App',
@@ -45,6 +44,15 @@ export default {
     };
     let { locale } = useI18n();
     let language = ref(map[locale.value]);
+    function useLanguageWatch(refValue, callback) {
+      let { locale } = useI18n();
+      watch(locale, () => {
+        refValue.value = map[locale.value];
+        nextTick(() => {
+          refValue.value = callback();
+        });
+      });
+    }
     useLanguageWatch(language, () => {
       return map[locale.value];
     });
