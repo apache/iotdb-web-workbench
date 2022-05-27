@@ -30,7 +30,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
             <svg v-if="iconArr.icon[item.icon]" :class="['icon', { 'icon-time': item.icon === 'TIME' }]" @click="sqlClick" aria-hidden="true">
               <use :xlink:href="`#icon-${iconArr.icon[item.icon]}`"></use>
             </svg>
-            <span :style="{ 'margin-left': iconArr.icon[item.icon] ? '5px' : '' }" :class="[{ closable: !!item.closable }]"
+            <span :style="{ 'margin-left': iconArr.icon[item.icon] ? '5px' : '' }" :class="[{ closable: !!item.closable }]" :title="$t(item.label)"
               >{{ $t(item.label) }}
               <span class="el-icon-close" v-on:click="item.closable(item)"></span>
             </span>
