@@ -815,8 +815,11 @@ export default {
       });
     }
     async function getTimeseriesOption(array) {
-      timeseriesOptions.value.unshift(...array.map((d) => ({ label: d, value: d })));
-      timeseriesOptions.value.slice(0, 50);
+      let before = timeseriesOptions.value.map((item) => item.value);
+      before.unshift(...array);
+      timeseriesOptions.value = [...new Set(before)].map((d) => ({ label: d, value: d })).slice(0, 50);
+      form1.formData.measurementList[0] = '';
+      getPview();
     }
     //Get physical quantity data preview list
     function getPview() {
