@@ -27,13 +27,13 @@
             <el-button @click="editDevce">
               <svg class="icon edit" aria-hidden="true">
                 <use xlink:href="#icon-se-icon-f-edit"></use></svg
-              >&nbsp;{{ $t('common.edit') }}</el-button
-            >
+              >&nbsp;{{ $t('common.edit') }}
+            </el-button>
             <el-button @click="deleteData">
               <svg class="icon delete" aria-hidden="true">
                 <use xlink:href="#icon-se-icon-delete"></use></svg
-              >&nbsp;{{ $t('common.delete') }}</el-button
-            >
+              >&nbsp;{{ $t('common.delete') }}
+            </el-button>
           </div>
         </div>
         <div class="messageBox">
@@ -78,6 +78,7 @@
             <form-table :form="form" @serchFormData="serchFormData"></form-table>
           </div>
           <stand-table
+            v-loading="loading"
             :column="column"
             :tableData="tableData"
             :getList="getListData"
@@ -808,11 +809,18 @@ export default {
     }
     //Get physical quantity list
     async function getListData() {
-      await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
-        tableData.list = res.data.measurementVOList;
-        totalCount.value = res.data.totalCount;
-        getTimeseriesOption(res.data.measurementVOList.map((item) => item.timeseries));
-      });
+      try {
+        loading.value = true;
+        await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
+          tableData.list = res.data.measurementVOList;
+          totalCount.value = res.data.totalCount;
+          getTimeseriesOption(res.data.measurementVOList.map((item) => item.timeseries));
+        });
+      } catch (error) {
+        //   console.error(error)
+      } finally {
+        loading.value = false;
+      }
     }
     async function getTimeseriesOption(array) {
       let before = timeseriesOptions.value.map((item) => item.value);

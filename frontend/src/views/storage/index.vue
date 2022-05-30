@@ -60,7 +60,7 @@
           <el-input v-model="searchVal" class="search-btn" suffix-icon="el-icon-search" :placeholder="$t('device.devicename')" @blur="search()" @keyup.enter="search()"></el-input>
         </div>
         <div class="device-list">
-          <el-table :data="tableData" style="width: 100%">
+          <el-table :data="tableData" style="width: 100%" v-loading="loading">
             <el-table-column show-overflow-tooltip prop="deviceName" :label="$t('device.devicename')" width="180" sortable>
               <template #default="scope">
                 <a class="to-entity" @click="goToEntity(scope)">{{ scope.row.deviceName }}</a>
@@ -102,10 +102,10 @@ export default {
   props: ['data', 'func'],
   setup(props) {
     const { t, locale } = useI18n();
-
     const router = useRouter();
     let baseInfo = ref({});
     let searchVal = ref(null);
+    const loading = ref(false);
     let tableData = ref([]);
     let currentPage = ref(1);
     const pageSize = ref(10);
@@ -184,6 +184,7 @@ export default {
      * groupname:storage name
      */
     const getDeviceList = () => {
+      loading.value = true;
       axios
         .get(`/servers/${router.currentRoute.value.params.serverid}/storageGroups/${router.currentRoute.value.params.groupname}/devices/info`, {
           params: {
@@ -200,6 +201,9 @@ export default {
             tableData.value = [];
             total.value = 0;
           }
+        })
+        .finally(() => {
+          loading.value = false;
         });
     };
     /**
@@ -270,6 +274,7 @@ export default {
       t,
       baseInfo,
       searchVal,
+      loading,
       tableData,
       currentPage,
       pageSize,

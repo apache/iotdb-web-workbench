@@ -86,6 +86,7 @@ export default {
   install: (Vue) => {
     Vue.use(ElPopconfirm);
     Vue.use(ElPagination);
+    Vue.use(ElLoading);
     // Vue.use(ElDrawer);
     Vue.use(ElDialog);
     // Vue.use(ElAutocomplete);
