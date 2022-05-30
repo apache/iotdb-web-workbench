@@ -54,18 +54,20 @@ export default {
     const dealData = (data) => {
       for (let i = 0; i < data.length; i++) {
         data[i].collapsed = true;
+        const isNext = data[i].total > data[i].pageNum * data[i].pageSize;
+        const isPrev = data[i].pageNum !== 1;
         if (data[i].children && data[i].children.length) {
-          data[i].children.push({ name: t('sourcePage.nextPage'), path: data[i].path, type: 'next', pageNum: data[i].pageNum, pageSize: data[i].pageSize });
-          data[i].children.unshift({ name: t('sourcePage.prePage'), path: data[i].path, type: 'pre', pageNum: data[i].pageNum, pageSize: data[i].pageSize, isLastPage: data[i].isLastPage });
+          isNext && data[i].children.push({ name: t('sourcePage.nextPage'), path: data[i].path, type: 'next', pageNum: data[i].pageNum, pageSize: data[i].pageSize });
+          isPrev && data[i].children.unshift({ name: t('sourcePage.prePage'), path: data[i].path, type: 'pre', pageNum: data[i].pageNum, pageSize: data[i].pageSize });
         }
       }
     };
 
     const clickFunction = (params) => {
       let data = params.data || {};
-      if (data.type === 'next' && !data.isLastPage) {
+      if (data.type === 'next') {
         data.pageNum += 1;
-      } else if (data.type === 'pre' && data.pageNum.pageNum >= 1) {
+      } else if (data.type === 'pre' && data.pageNum >= 1) {
         data.pageNum -= 1;
       } else {
         data.pageNum = 1;
@@ -77,8 +79,6 @@ export default {
         })
         .then((res) => {
           if (res && res.code == 0) {
-            res.data.pageSize = pagination.pageSize;
-            res.data.pageNum = pagination.pageNum;
             dealData([res.data] || [], 0);
             params.data.children = res.data.children || [];
             if (params.data.children && params.data.children.length) {
