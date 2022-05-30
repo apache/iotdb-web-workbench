@@ -24,14 +24,15 @@ function resolve(dir) {
 
 module.exports = {
   chainWebpack: (config) => {
-    // 移除 preload 插件
-    config.plugins.delete('preload');
     config.resolve.alias.set('@', resolve('./src')).set('components', resolve('./src/components'));
   },
   css: {
     loaderOptions: {
       sass: {
         prependData: `@use "@/styles/variables.scss" as *;`,
+        sassOptions: {
+          outputStyle: 'expanded',
+        },
       },
     },
   },
