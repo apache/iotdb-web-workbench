@@ -62,8 +62,10 @@ export default {
         }
       }
     };
-
+    let loading = false;
     const clickFunction = (params) => {
+      if (loading) return;
+      loading = true;
       let data = params.data || {};
       if (data.type === 'next') {
         data.pageNum += 1;
@@ -85,6 +87,9 @@ export default {
               circulateDataSelf(data, res.data || {}); //第二个参数为动态请求回来的数据
             }
           }
+        })
+        .finally(() => {
+          loading = false;
         });
     };
     const circulateDataSelf = (data, levelData) => {
