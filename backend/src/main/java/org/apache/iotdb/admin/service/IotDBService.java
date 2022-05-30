@@ -62,6 +62,9 @@ public interface IotDBService {
 
   void setIotDBRole(Connection connection, IotDBRole iotDBRole) throws BaseException;
 
+  DataModelVO getDataModelDetail(
+          Connection connection, String path, Integer pageSize, Integer pageNum) throws BaseException;
+
   UserRolesVO getRolesOfUser(Connection connection, String userName) throws BaseException;
 
   void userGrant(Connection connection, String userName, UserGrantDTO userGrantDTO)

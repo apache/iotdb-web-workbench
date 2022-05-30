@@ -95,28 +95,57 @@ public class IotDBController {
     return BaseVO.success("Get IoTDB data model successfully", dataModelVO);
   }
 
+  @GetMapping("/dataModel/detail")
+  @ApiOperation("Get IoTDB data model in detail")
+  public BaseVO<DataModelVO> getDataModelDetail(
+          @PathVariable("serverId") Integer serverId,
+          @RequestParam(value = "path", required = false, defaultValue = "root") String path,
+          @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+          @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+          HttpServletRequest request)
+          throws BaseException {
+    check(request, serverId);
+    Connection connection = connectionService.getById(serverId);
+    DataModelVO dataModelVO = iotDBService.getDataModelDetail(connection, path, pageSize, pageNum);
+    return BaseVO.success("Get IoTDB data model successfully", dataModelVO);
+  }
+
   @GetMapping("/storageGroups/info")
   @ApiOperation("Get information of the storage group list")
-  public BaseVO<List<GroupInfoVO>> getAllStorageGroupsInfo(
-      @PathVariable("serverId") Integer serverId, HttpServletRequest request) throws BaseException {
+  public BaseVO<GroupInfoVO> getAllStorageGroupsInfo(
+          @PathVariable("serverId") Integer serverId,
+          @RequestParam(value = "pageSize", required = false, defaultValue = "15") Integer pageSize,
+          @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+          HttpServletRequest request)
+          throws BaseException {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     List<String> groupNames = iotDBService.getAllStorageGroups(connection);
-    List<GroupInfoVO> groupInfoList = new ArrayList<>();
-    if (groupNames == null || groupNames.size() == 0) {
-      return BaseVO.success("Get successfully", groupInfoList);
+    List<String> subGroupNames = new ArrayList<>();
+    int size = groupNames.size();
+    int pageStart = pageNum == 1 ? 0 : (pageNum - 1) * pageSize;
+    int pageEnd = size < pageNum * pageSize ? size : pageNum * pageSize;
+    if (size > pageStart) {
+      subGroupNames = groupNames.subList(pageStart, pageEnd);
+    }
+    List<GroupInfo> groupInfoList = new ArrayList<>();
+    GroupInfoVO groupInfoVO = new GroupInfoVO();
+    if (subGroupNames == null || subGroupNames.size() == 0) {
+      return BaseVO.success("Get successfully", groupInfoVO);
     }
     String host = connection.getHost();
-    List<Integer> deviceCounts = iotDBService.getDevicesCount(connection, groupNames);
-    List<String> descriptions = groupService.getGroupDescription(host, groupNames);
-    for (int i = 0; i < groupNames.size(); i++) {
-      GroupInfoVO groupInfoVO = new GroupInfoVO();
-      groupInfoVO.setGroupName(groupNames.get(i));
-      groupInfoVO.setDeviceCount(deviceCounts.get(i));
-      groupInfoVO.setDescription(descriptions.get(i));
-      groupInfoList.add(groupInfoVO);
+    List<Integer> deviceCounts = iotDBService.getDevicesCount(connection, subGroupNames);
+    List<String> descriptions = groupService.getGroupDescription(host, subGroupNames);
+    for (int i = 0; i < subGroupNames.size(); i++) {
+      GroupInfo groupInfo = new GroupInfo();
+      groupInfo.setGroupName(subGroupNames.get(i));
+      groupInfo.setDeviceCount(deviceCounts.get(i));
+      groupInfo.setDescription(descriptions.get(i));
+      groupInfoList.add(groupInfo);
     }
-    return BaseVO.success("Get successfully", groupInfoList);
+    groupInfoVO.setGroupInfoList(groupInfoList);
+    groupInfoVO.setGroupCount(size);
+    return BaseVO.success("Get successfully", groupInfoVO);
   }
 
   @GetMapping("/storageGroups")

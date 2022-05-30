@@ -766,6 +766,66 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
+  public DataModelVO getDataModelDetail(
+          Connection connection, String path, Integer pageSize, Integer pageNum) throws BaseException {
+    SessionPool sessionPool = null;
+    try {
+      sessionPool = getSessionPool(connection);
+      DataModelVO root = new DataModelVO(path);
+      setNodeInfo(root, sessionPool, path);
+      List<DataModelVO> childrenDataModel = null;
+      DataModelDetailDTO childrenDataModelDetail =
+              getChildrenDataModelDetail(root, path, sessionPool, pageSize, pageNum);
+      childrenDataModel =
+              childrenDataModelDetail == null ? null : childrenDataModelDetail.getDataModelVOList();
+      if (childrenDataModelDetail != null) {
+        root.setPageNum(childrenDataModelDetail.getPageNum());
+        root.setPageSize(childrenDataModelDetail.getPageSize());
+        root.setTotal(childrenDataModelDetail.getTotal());
+      }
+      root.setChildren(childrenDataModel);
+      root.setTotalSonNodeCount(
+              getChildrenNode(path, sessionPool) == null
+                      ? 0
+                      : getChildrenNode(path, sessionPool).size());
+      root.setGroupCount(path.equals("root") ? getGroupCount(sessionPool) : null);
+      root.setPath(path);
+      return root;
+    } finally {
+      closeSessionPool(sessionPool);
+    }
+  }
+
+  private DataModelDetailDTO getChildrenDataModelDetail(
+          DataModelVO root, String path, SessionPool sessionPool, Integer pageSize, Integer pageNum)
+          throws BaseException {
+    Set<String> childrenNode = getChildrenNode(path, sessionPool);
+    if (childrenNode == null) {
+      return null;
+    }
+    List<DataModelVO> childrenlist = new ArrayList<>();
+    List<String> childrenNodeList = new ArrayList<>(childrenNode);
+    List<String> childrenNodeSubList = new ArrayList<>();
+    int size = childrenNode.size();
+    int pageStart = pageNum == 1 ? 0 : (pageNum - 1) * pageSize;
+    int pageEnd = size < pageNum * pageSize ? size : pageNum * pageSize;
+    if (size > pageStart) {
+      childrenNodeSubList = childrenNodeList.subList(pageStart, pageEnd);
+    }
+    for (String child : childrenNodeSubList) {
+      DataModelVO childNode = new DataModelVO(child);
+      setNodeInfo(childNode, sessionPool, path + "." + child);
+      childrenlist.add(childNode);
+    }
+    DataModelDetailDTO dataModelDetailDTO = new DataModelDetailDTO();
+    dataModelDetailDTO.setDataModelVOList(childrenlist);
+    dataModelDetailDTO.setPageNum(pageNum);
+    dataModelDetailDTO.setPageSize(pageSize);
+    dataModelDetailDTO.setTotal(size);
+    return dataModelDetailDTO;
+  }
+
+  @Override
   public UserRolesVO getRolesOfUser(Connection connection, String userName) throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
     UserRolesVO userRolesVO = new UserRolesVO();
