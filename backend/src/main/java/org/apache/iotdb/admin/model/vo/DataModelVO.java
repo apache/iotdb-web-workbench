@@ -49,7 +49,11 @@ public class DataModelVO implements Serializable {
 
   private Integer showNum;
 
-  private Boolean isLastPage;
+  private Integer pageNum;
+
+  private Integer pageSize;
+
+  private Integer total;
 
   private Integer totalSonNodeCount;
 

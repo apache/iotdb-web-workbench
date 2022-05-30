@@ -10,5 +10,7 @@ import java.util.List;
 @Data
 public class DataModelDetailDTO implements Serializable {
   private List<DataModelVO> dataModelVOList;
-  private boolean checkLastPage;
+  private Integer pageNum;
+  private Integer pageSize;
+  private Integer total;
 }

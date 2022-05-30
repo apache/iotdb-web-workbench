@@ -2372,8 +2372,11 @@ public class IotDBServiceImpl implements IotDBService {
           getChildrenDataModelDetail(root, path, sessionPool, pageSize, pageNum);
       childrenDataModel =
           childrenDataModelDetail == null ? null : childrenDataModelDetail.getDataModelVOList();
-      root.setIsLastPage(
-          childrenDataModelDetail == null ? null : childrenDataModelDetail.isCheckLastPage());
+      if (childrenDataModelDetail != null) {
+        root.setPageNum(childrenDataModelDetail.getPageNum());
+        root.setPageSize(childrenDataModelDetail.getPageSize());
+        root.setTotal(childrenDataModelDetail.getTotal());
+      }
       root.setChildren(childrenDataModel);
       root.setTotalSonNodeCount(
           getChildrenNode(path, sessionPool) == null
@@ -2445,7 +2448,6 @@ public class IotDBServiceImpl implements IotDBService {
     List<DataModelVO> childrenlist = new ArrayList<>();
     List<String> childrenNodeList = new ArrayList<>(childrenNode);
     List<String> childrenNodeSubList = new ArrayList<>();
-    boolean isLastPage = false;
     int size = childrenNode.size();
     int pageStart = pageNum == 1 ? 0 : (pageNum - 1) * pageSize;
     int pageEnd = size < pageNum * pageSize ? size : pageNum * pageSize;
@@ -2459,7 +2461,9 @@ public class IotDBServiceImpl implements IotDBService {
     }
     DataModelDetailDTO dataModelDetailDTO = new DataModelDetailDTO();
     dataModelDetailDTO.setDataModelVOList(childrenlist);
-    dataModelDetailDTO.setCheckLastPage(isLastPage);
+    dataModelDetailDTO.setPageNum(pageNum);
+    dataModelDetailDTO.setPageSize(pageSize);
+    dataModelDetailDTO.setTotal(size);
     return dataModelDetailDTO;
   }
 
