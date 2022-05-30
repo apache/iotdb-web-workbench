@@ -1,7 +1,8 @@
 package org.apache.iotdb.admin.model.dto;
 
-import lombok.Data;
 import org.apache.iotdb.admin.model.vo.DataModelVO;
+
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;

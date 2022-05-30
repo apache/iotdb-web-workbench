@@ -62,9 +62,6 @@ public interface IotDBService {
 
   void setIotDBRole(Connection connection, IotDBRole iotDBRole) throws BaseException;
 
-  DataModelVO getDataModelDetail(
-          Connection connection, String path, Integer pageSize, Integer pageNum) throws BaseException;
-
   UserRolesVO getRolesOfUser(Connection connection, String userName) throws BaseException;
 
   void userGrant(Connection connection, String userName, UserGrantDTO userGrantDTO)
@@ -122,7 +119,9 @@ public interface IotDBService {
 
   List<NodeTreeVO> getDeviceNodeTree(Connection connection, String groupName) throws BaseException;
 
-  NodeTreeVO getDeviceList(Connection connection, String groupName) throws BaseException;
+  NodeTreeVO getDeviceList(
+      Connection connection, String groupName, Integer pageSize, Integer pageNum)
+      throws BaseException;
 
   List<String> getDeviceParents(Connection connection, String groupName, String deviceName)
       throws BaseException;
@@ -155,6 +154,8 @@ public interface IotDBService {
       Connection connection, String userOrRole, String name, PrivilegeInfoDTO privilegeInfoDTO)
       throws BaseException;
 
+  public List<QueryMetricsVO> getSlowQueryMetricsData();
+
   RecordVO getRecords(
       Connection connection, String deviceName, String timeseriesName, String dataType)
       throws BaseException;
@@ -164,9 +165,7 @@ public interface IotDBService {
 
   void updatePwd(Connection connection, IotDBUser iotDBUser) throws BaseException;
 
-  void stopQuery(Integer serverId, Long timestamp) throws BaseException;
-
-  QueryInfoDTO getQueryInfoListByQueryClassificationId(
+  public QueryInfoDTO getQueryInfoListByQueryClassificationId(
       Connection connection,
       Integer queryClassificationId,
       Integer pageSize,
@@ -177,10 +176,19 @@ public interface IotDBService {
       Integer executionResult)
       throws BaseException;
 
-  MetricsDataForDiagramVO getMetricDataByMetricId(Connection connection, Integer metricId)
+  public List<QueryMetricsVO> getTopQueryMetricsData();
+
+  public MetricsDataForDiagramVO getMetricDataByMetricId(Connection connection, Integer metricId)
       throws BaseException;
 
-  List<QueryMetricsVO> getTopQueryMetricsData();
+  void stopQuery(Integer serverId, Long timestamp) throws BaseException;
 
-  List<QueryMetricsVO> getSlowQueryMetricsData();
+  DataModelVO getDataModelDetail(
+      Connection connection, String path, Integer pageSize, Integer pageNum) throws BaseException;
+
+  List<String> getBatchLastMeasurementValue(Connection connection, List<String> timeseriesList)
+      throws BaseException;
+
+  List<String> getBatchDataCount(
+      Connection connection, String deviceName, List<String> timeseriesList) throws BaseException;
 }

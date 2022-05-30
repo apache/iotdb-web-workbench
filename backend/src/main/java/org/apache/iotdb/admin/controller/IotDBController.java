@@ -98,12 +98,12 @@ public class IotDBController {
   @GetMapping("/dataModel/detail")
   @ApiOperation("Get IoTDB data model in detail")
   public BaseVO<DataModelVO> getDataModelDetail(
-          @PathVariable("serverId") Integer serverId,
-          @RequestParam(value = "path", required = false, defaultValue = "root") String path,
-          @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-          @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
-          HttpServletRequest request)
-          throws BaseException {
+      @PathVariable("serverId") Integer serverId,
+      @RequestParam(value = "path", required = false, defaultValue = "root") String path,
+      @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+      @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+      HttpServletRequest request)
+      throws BaseException {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     DataModelVO dataModelVO = iotDBService.getDataModelDetail(connection, path, pageSize, pageNum);
@@ -113,11 +113,11 @@ public class IotDBController {
   @GetMapping("/storageGroups/info")
   @ApiOperation("Get information of the storage group list")
   public BaseVO<GroupInfoVO> getAllStorageGroupsInfo(
-          @PathVariable("serverId") Integer serverId,
-          @RequestParam(value = "pageSize", required = false, defaultValue = "15") Integer pageSize,
-          @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
-          HttpServletRequest request)
-          throws BaseException {
+      @PathVariable("serverId") Integer serverId,
+      @RequestParam(value = "pageSize", required = false, defaultValue = "15") Integer pageSize,
+      @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+      HttpServletRequest request)
+      throws BaseException {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     List<String> groupNames = iotDBService.getAllStorageGroups(connection);
@@ -162,8 +162,6 @@ public class IotDBController {
     String host = connection.getHost();
     for (String groupName : groupNames) {
       StorageGroupVO storageGroupVO = new StorageGroupVO();
-      Integer id = groupService.getGroupId(host, groupName);
-      storageGroupVO.setGroupId(id);
       storageGroupVO.setGroupName(groupName);
       storageGroupVOList.add(storageGroupVO);
     }
@@ -193,9 +191,9 @@ public class IotDBController {
     Connection connection = connectionService.getById(serverId);
     Long ttl = groupDTO.getTtl();
     String ttlUnit = groupDTO.getTtlUnit();
-    checkTtl(ttl, ttlUnit);
     Integer groupId = groupDTO.getGroupId();
     groupDTO.setGroupName(groupName);
+
     List<String> groupNames = iotDBService.getAllStorageGroups(connection);
     if (groupId == null) {
       if (!groupNames.contains(groupDTO.getGroupName())) {
@@ -206,6 +204,7 @@ public class IotDBController {
       groupService.updateStorageGroupInfo(connection, groupDTO);
     }
     if (ttl != null && ttlUnit != null) {
+      checkTtl(ttl, ttlUnit);
       if (ttl >= 0) {
         Long times = switchTime(ttlUnit);
         iotDBService.saveGroupTtl(connection, groupName, ttl * times);
@@ -354,12 +353,19 @@ public class IotDBController {
   public BaseVO<NodeTreeVO> getDevicesTreeByGroup(
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
+      @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+      @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
       HttpServletRequest request)
       throws BaseException {
     checkParameter(groupName);
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
-    NodeTreeVO deviceList = iotDBService.getDeviceList(connection, groupName);
+    NodeTreeVO deviceList = iotDBService.getDeviceList(connection, groupName, pageSize, pageNum);
+    if (deviceList == null) {
+      deviceList = new NodeTreeVO(groupName);
+    }
+    deviceList.setPageNum(pageNum);
+    deviceList.setPageSize(pageSize);
     return BaseVO.success("Get successfully", deviceList);
   }
 
@@ -461,8 +467,8 @@ public class IotDBController {
       @PathVariable("serverId") Integer serverId,
       @PathVariable("groupName") String groupName,
       @PathVariable("deviceName") String deviceName,
-      @RequestParam("pageSize") Integer pageSize,
-      @RequestParam("pageNum") Integer pageNum,
+      @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+      @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
       @RequestParam(value = "keyword", required = false) String keyword,
       HttpServletRequest request)
       throws BaseException {
@@ -475,17 +481,26 @@ public class IotDBController {
     List<MeasurementVO> measurementVOList = new ArrayList<>();
     String host = connection.getHost();
     if (measurementDTOList != null) {
+      List<String> timeseriesList = new ArrayList<>();
+      for (MeasurementDTO measurementDTO : measurementDTOList) {
+        timeseriesList.add(measurementDTO.getTimeseries());
+      }
+      List<String> batchNewValue =
+          iotDBService.getBatchLastMeasurementValue(connection, timeseriesList);
+      List<String> batchDataCount =
+          iotDBService.getBatchDataCount(connection, deviceName, timeseriesList);
+      int index = 0;
       for (MeasurementDTO measurementDTO : measurementDTOList) {
         MeasurementVO measurementVO = new MeasurementVO();
         BeanUtils.copyProperties(measurementDTO, measurementVO);
         String description =
             measurementService.getDescription(host, measurementDTO.getTimeseries());
-        String newValue =
-            iotDBService.getLastMeasurementValue(connection, measurementDTO.getTimeseries());
-        Integer dataCount =
-            iotDBService.getOneDataCount(connection, deviceName, measurementDTO.getTimeseries());
-        measurementVO.setDataCount(dataCount);
-        measurementVO.setNewValue(newValue);
+        if (batchNewValue.size() != 0) {
+          measurementVO.setNewValue(batchNewValue.get(index));
+        }
+        if (batchDataCount.size() != 0) {
+          measurementVO.setDataCount(Integer.parseInt(batchDataCount.get(index)));
+        }
         measurementVO.setDescription(description);
         ObjectMapper mapper = new ObjectMapper();
         List<List<String>> tags = new ArrayList<>();
@@ -519,6 +534,7 @@ public class IotDBController {
           throw new BaseException(ErrorCode.GET_MSM_FAIL, ErrorCode.GET_MSM_FAIL_MSG);
         }
         measurementVOList.add(measurementVO);
+        index++;
       }
     }
     MeasuremtnInfoVO measuremtnInfoVO = new MeasuremtnInfoVO();
