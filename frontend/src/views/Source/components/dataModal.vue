@@ -19,23 +19,25 @@ export default {
   name: 'DataModal',
   //   props: ['func'],
   //   setup(props) {
-  setup() {
+  setup(props, { emit }) {
     const { t } = useI18n();
     const x = ref(0);
     const router = useRouter();
     const datas = ref({});
+    let showNum = ref(0);
 
     const getModalTreeData = (func) => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
         if (res && res.code == 0) {
           datas.value = res.data || {};
+          showNum.value = res.data.showNum;
+          emit('show-num', showNum);
           func && func();
         }
       });
     };
-    const initCharts = () => {
-      MyCharts = echarts.init(document.getElementById('main'));
 
+    const setOption = () => {
       let option = {
         tooltip: {
           trigger: 'item',
@@ -68,6 +70,10 @@ export default {
             top: '8%',
             bottom: '8%',
             roam: true,
+            scaleLimit: {
+              min: 0.5,
+              max: 3,
+            },
             symbol: 'emptyCircle',
             symbolSize: 0,
             orient: 'vertical',
@@ -150,7 +156,14 @@ export default {
         ],
       };
 
+      // show echart
       MyCharts.setOption(option);
+    };
+
+    const initCharts = () => {
+      MyCharts = echarts.init(document.getElementById('main'));
+
+      setOption();
     };
 
     onMounted(() => {

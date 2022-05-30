@@ -300,3 +300,6 @@
 input.el-input__inner:hover {
   border: 1px solid $theme-bj-color !important;
 }
+.el-loading-spinner .path {
+    stroke: $theme-color;
+}

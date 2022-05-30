@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@element-plus/icons": "0.0.11",
+    "@element-plus/icons-vue": "^2.0.0-beta.0",
     "axios": "^0.21.1",
     "babel-plugin-lodash": "^3.3.4",
     "codemirror": "^5.62.0",

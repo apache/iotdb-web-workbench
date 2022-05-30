@@ -4,7 +4,7 @@
 
 <script>
 // @ is an alias to /src
-import { onMounted, ref, onActivated, onDeactivated } from 'vue';
+import { onMounted, ref, onActivated, onDeactivated, reactive } from 'vue';
 import * as echarts from 'echarts';
 // import { ElButton } from 'element-plus';
 import { useI18n } from 'vue-i18n';
@@ -25,83 +25,83 @@ export default {
     const x = ref(0);
     const router = useRouter();
     // const route = useRoute();
-
+    const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
+    });
     const datas = ref({});
 
     const getModalTreeData = (func) => {
-      axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
-        if (res && res.code == 0) {
-          // dealData(res.data, (res.data && res.data.children) || [], 0);
-          dealData([res.data] || {}, 0);
-          datas.value = res.data || {};
-          func && func();
-        }
-      });
+      axios
+        .get(`/servers/${router.currentRoute.value.params.serverid}/dataModel/detail`, {
+          params: pagination,
+        })
+        .then((res) => {
+          if (res && res.code == 0) {
+            res.data.pageSize = pagination.pageSize;
+            res.data.pageNum = pagination.pageNum;
+            dealData([res.data] || {}, 0);
+            res.data.collapsed = false;
+            datas.value = res.data || {};
+            func && func();
+          }
+        });
     };
     /**
      * data current level data
      * index  level num
      */
-    const dealData = (data, index) => {
+    const dealData = (data) => {
       for (let i = 0; i < data.length; i++) {
-        if (index < initialTreeDepth.value) {
-          data[i].collapsed = false;
-        } else {
-          data[i].collapsed = true;
-        }
+        data[i].collapsed = true;
+        const isNext = data[i].total > data[i].pageNum * data[i].pageSize;
+        const isPrev = data[i].pageNum !== 1;
         if (data[i].children && data[i].children.length) {
-          if (data[i].children.length > 10) {
-            data[i].pageNum = 1;
-            data[i].totalPage = Math.ceil(data[i].children.length / 10);
-            data[i].childrensTemp = JSON.parse(JSON.stringify(data[i].children));
-            data[i].children = data[i].children.splice((data[i].pageNum - 1) * 10, 10);
-
-            data[i].children.push({ name: t('sourcePage.nextPage'), parentName: data[i].path, type: 'next', pageNum: 1, totalPage: Math.ceil(data[i].childrensTemp.length / 10) });
-            data[i].children.unshift({ name: t('sourcePage.prePage'), parentName: data[i].path, type: 'pre', pageNum: 1, totalPage: Math.ceil(data[i].childrensTemp.length / 10) });
-          } else {
-            data[i].pageNum = 1;
-            data[i].totalPage = 1;
-          }
-
-          index += 1;
-          dealData(data[i].children, index);
+          isNext && data[i].children.push({ name: t('sourcePage.nextPage'), path: data[i].path, type: 'next', pageNum: data[i].pageNum, pageSize: data[i].pageSize });
+          isPrev && data[i].children.unshift({ name: t('sourcePage.prePage'), path: data[i].path, type: 'pre', pageNum: data[i].pageNum, pageSize: data[i].pageSize });
         }
       }
     };
 
     const clickFunction = (params) => {
       let data = params.data || {};
-      if (data.type) {
-        //do next if has 'type' key;
-        if (data.type == 'pre') {
-          if (data.pageNum == 1) {
-            return;
-          } else {
-            circulateData(data, 'pre');
-          }
-        } else if (data.type == 'next') {
-          if (data.pageNum == data.totalPage) {
-            return;
-          } else {
-            circulateData(data, 'next');
-          }
-        }
+      if (data.type === 'next') {
+        data.pageNum += 1;
+      } else if (data.type === 'pre' && data.pageNum >= 1) {
+        data.pageNum -= 1;
       } else {
-        if (params.data.children && params.data.children.length) {
-          circulateDataSelf(data);
-        }
+        data.pageNum = 1;
+        data.pageSize = 10;
       }
+      axios
+        .get(`/servers/${router.currentRoute.value.params.serverid}/dataModel/detail`, {
+          params: { pageNum: data.pageNum, pageSize: data.pageSize, path: data.path },
+        })
+        .then((res) => {
+          if (res && res.code == 0) {
+            dealData([res.data] || [], 0);
+            params.data.children = res.data.children || [];
+            if (params.data.children && params.data.children.length) {
+              circulateDataSelf(data, res.data || {}); //第二个参数为动态请求回来的数据
+            }
+          }
+        });
     };
-    const circulateDataSelf = (data) => {
+    const circulateDataSelf = (data, levelData) => {
       let name = data.path;
       // let dataAll = datas.value;
       let index = 1;
-      deepSearchSelf(datas.value, name, index);
+      deepSearchSelf(datas.value, name, index, levelData);
     };
-    const deepSearchSelf = (data, name, index) => {
+    const deepSearchSelf = (data, name, index, levelData) => {
       if (data.path == name) {
         //do it
+        data.collapsed = levelData.collapsed;
         data.collapsed = !data.collapsed;
+        data.children = levelData.children || [];
+        data.childrensTemp = levelData.childrensTemp || [];
+        data.pageNum = levelData.pageNum;
+        data.totalPage = levelData.totalPage;
         initialTreeDepth.value = index;
         MyChart.clear();
         setOption();
@@ -110,55 +110,12 @@ export default {
         index++;
         if (data.children && data.children.length) {
           for (let i = 0; i < data.children.length; i++) {
-            deepSearchSelf(data.children[i], name, index);
+            deepSearchSelf(data.children[i], name, index, levelData);
           }
         }
       }
-    };
-    const circulateData = (data, type) => {
-      let name = data.parentName;
-      let dataAll = datas.value;
-      let index = 1;
-      deepSearch(dataAll, name, type, index);
     };
     const initialTreeDepth = ref(1);
-    const deepSearch = (data, name, type, index) => {
-      if (data.path == name) {
-        //do it
-        // data.collapsed = false;
-        let temp = JSON.parse(JSON.stringify(data.childrensTemp));
-        initialTreeDepth.value = index;
-        if (type == 'next') {
-          data.pageNum += 1;
-          temp = temp.splice((data.pageNum - 1) * 10, 10);
-          data.children[0].pageNum += 1;
-          data.children[data.children.length - 1].pageNum += 1;
-        } else {
-          data.pageNum -= 1;
-          temp = temp.splice((data.pageNum - 1) * 10, 10);
-          data.children[0].pageNum -= 1;
-          data.children[data.children.length - 1].pageNum -= 1;
-        }
-        temp.unshift(data.children[0]);
-        temp.push(data.children[data.children.length - 1]);
-        data.children = temp;
-        for (let i = 0; i < temp.length; i++) {
-          if (temp[i].children && temp[i].children.length) {
-            dealData(temp[i], temp[i].children || []);
-          }
-        }
-        MyChart.clear();
-        setOption();
-        return;
-      } else {
-        index++;
-        if (data.children && data.children.length) {
-          for (let i = 0; i < data.children.length; i++) {
-            deepSearch(data.children[i], name, type, index);
-          }
-        }
-      }
-    };
     const initCharts = () => {
       //  init charts
       MyChart = echarts.init(document.getElementById('mains'));
@@ -201,6 +158,10 @@ export default {
             top: '8%',
             bottom: '8%',
             roam: true,
+            scaleLimit: {
+              min: 0.5,
+              max: 3,
+            },
             symbol: 'emptyCircle',
             symbolSize: 0,
             // orient: 'vertical',
