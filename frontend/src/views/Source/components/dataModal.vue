@@ -70,6 +70,10 @@ export default {
             top: '8%',
             bottom: '8%',
             roam: true,
+            scaleLimit: {
+              min: 0.5,
+              max: 3,
+            },
             symbol: 'emptyCircle',
             symbolSize: 0,
             orient: 'vertical',
