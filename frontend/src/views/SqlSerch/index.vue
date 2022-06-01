@@ -66,13 +66,16 @@
                 <div class="table_top_border"></div>
                 <div class="tab_table" v-if="item && display">
                   <stand-table
+                    :key="key"
                     ref="standTable"
                     :column="item"
-                    :tableData="tableData.list[index]"
+                    :tableData="tableDataPagination[index]"
                     :lineHeight="5"
                     :celineHeight="5"
                     :maxHeight="divwerHeight - 78"
                     :pagination="pagination"
+                    :total="total[index]"
+                    :getList="getList(index)"
                     backColor="#E7EAF2"
                   >
                   </stand-table>
@@ -162,6 +165,7 @@ export default {
     let codemirror = ref(null);
     let tabelNum = ref(0);
     const standTable = ref(null);
+    let key = ref('1');
     let activeName = ref(0);
     let activeNameRight = ref('first');
     let runFlag = ref(true);
@@ -191,6 +195,29 @@ export default {
     const treeList = reactive({
       list: [],
     });
+    const total = computed(() => tableData.list.map((item) => item?.list?.length));
+    const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
+    });
+    const pageNums = reactive([]);
+    function getList(index) {
+      return (value) => {
+        pageNums[index] = value;
+      };
+    }
+    const tableDataPagination = computed(() =>
+      tableData.list.map((item, index) => {
+        nextTick(() => {
+          key.value = Math.random() + Date.now() + '';
+        });
+        return {
+          ...item,
+          list: item?.list?.slice(((pageNums[index] || 1) - 1) * pagination.pageSize, (pageNums[index] || 1) * pagination.pageSize),
+        };
+      })
+    );
+
     function getFunction(val) {
       codemirror.value.onCmCodeChange(val);
     }
@@ -211,62 +238,66 @@ export default {
         divwerHeight.value = 400;
         timeNumber.value = Number(new Date());
         useElementResize(dividerRef, divwerHeight);
-        querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value }).then((res) => {
-          activeName.value = 't0';
-          column.list = [];
-          tableData.list = [];
-          let lengthArry = [];
-          time.list = [];
-          line.list = [];
-          tabelNum.value = res.data.length;
-          res.data.forEach((item) => {
-            let length = [];
-            time.list.push(item.queryTime);
-            line.list.push(item.line);
-            if (item.metaDataList) {
-              column.list.push({
-                list: item.metaDataList.map((eleitem, index) => {
-                  return {
-                    label: eleitem,
-                    prop: `t${index}`,
-                    width: 'auto',
-                    fixed: index === 0 ? 'left' : index === item.metaDataList.length - 1 ? 'right' : false,
-                  };
-                }),
-              });
-            } else {
-              column.list.push(null);
-            }
-            if (item.valueList) {
-              tableData.list.push({
-                list: item.valueList.map((eleitem) => {
-                  const obj = {};
-                  for (let i = 0; i < eleitem.length; i++) {
-                    if (eleitem[i].length > length[i] || !length[i]) {
-                      length[i] = eleitem[i].length;
+        querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value })
+          .then((res) => {
+            activeName.value = 't0';
+            column.list = [];
+            tableData.list = [];
+            let lengthArry = [];
+            time.list = [];
+            line.list = [];
+            tabelNum.value = res.data.length;
+            res.data.forEach((item) => {
+              let length = [];
+              time.list.push(item.queryTime);
+              line.list.push(item.line);
+              if (item.metaDataList) {
+                column.list.push({
+                  list: item.metaDataList.map((eleitem, index) => {
+                    return {
+                      label: eleitem,
+                      prop: `t${index}`,
+                      width: 'auto',
+                      fixed: index === 0 ? 'left' : index === item.metaDataList.length - 1 ? 'right' : false,
+                    };
+                  }),
+                });
+              } else {
+                column.list.push(null);
+              }
+              if (item.valueList) {
+                tableData.list.push({
+                  list: item.valueList.map((eleitem) => {
+                    const obj = {};
+                    for (let i = 0; i < eleitem.length; i++) {
+                      if (eleitem[i].length > length[i] || !length[i]) {
+                        length[i] = eleitem[i].length;
+                      }
+                      obj[`t${i}`] = eleitem[i];
                     }
-                    obj[`t${i}`] = eleitem[i];
-                  }
-                  return obj;
-                }),
-              });
-            } else {
-              tableData.list.push(null);
-            }
-            lengthArry.push(length);
+                    return obj;
+                  }),
+                });
+              } else {
+                tableData.list.push(null);
+              }
+              lengthArry.push(length);
+            });
+            // lengthArry.forEach((element, i) => {
+            //   element.forEach((item, index) => {
+            //     if (index === element.length - 1) {
+            //       return false;
+            //     }
+            //     column.list[i].list[index].width = column.list[i].list[index].label.length < item ? item * 12 : column.list[i].list[index].label.length * 12;
+            //   });
+            // });
+            display.value = true;
+            runFlag.value = true;
+            console.log(line.list);
+          })
+          .finally(() => {
+            runFlag.value = true;
           });
-          // lengthArry.forEach((element, i) => {
-          //   element.forEach((item, index) => {
-          //     if (index === element.length - 1) {
-          //       return false;
-          //     }
-          //     column.list[i].list[index].width = column.list[i].list[index].label.length < item ? item * 12 : column.list[i].list[index].label.length * 12;
-          //   });
-          // });
-          display.value = true;
-          runFlag.value = true;
-          console.log(line.list);
-        });
         setTimeout(() => {
           runFlag.value = true;
         }, 5000);
@@ -294,6 +325,7 @@ export default {
             type: 'success',
             message: t('device.savesuccess'),
           });
+          sqlName.value = null;
           centerDialogVisible.value = false;
           props.func.updateTree();
           let locationId = '';
@@ -416,6 +448,12 @@ export default {
       querySqlRun,
       deleteQuery,
       routeData,
+      total,
+      pagination,
+      getList,
+      pageNums,
+      tableDataPagination,
+      key,
     };
   },
   components: {
