@@ -38,10 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Erickin
- * @create 2022-04-22-上午 9:55
- */
 @RestController
 @Api(value = "metrics related")
 public class MetricsController {
