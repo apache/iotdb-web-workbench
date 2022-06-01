@@ -206,13 +206,5 @@ export default {
     transform: translate(0, -50%);
     cursor: pointer;
   }
-
-  .icon-arrow {
-    svg {
-      margin-left: 5px;
-      width: 14px;
-      vertical-align: middle;
-    }
-  }
 }
 </style>

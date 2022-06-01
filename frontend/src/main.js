@@ -18,7 +18,6 @@
  */
 
 import { createApp } from 'vue';
-import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import App from './App.vue';
 import router from './router';
 import directive from './directive';
@@ -40,7 +39,4 @@ if (VUE_APP_VERSION != vers) {
 i18n(i18nFile.global.t);
 const app = createApp(App);
 directive(app);
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component);
-}
 app.use(store).use(router).use(i18nFile).use(plugins).mount('#app');
