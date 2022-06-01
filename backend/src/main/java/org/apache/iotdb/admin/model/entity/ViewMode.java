@@ -16,38 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.iotdb.admin.model.entity;
 
-package org.apache.iotdb.admin.model.vo;
-
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
-public class NodeTreeVO implements Serializable {
+@TableName("view_mode")
+public class ViewMode implements Serializable {
+  private static final long serialVersionUID = 1L;
+
+  @Null
+  @TableId(type = IdType.AUTO)
+  private Integer id;
+
+  @NotBlank
+  @Pattern(regexp = "^[^ ]+$", message = "The account name cannot contain spaces")
   private String name;
-
-  private List<NodeTreeVO> children;
-
-  private Integer pageSize;
-
-  private Integer pageNum;
-
-  private Integer total;
-  //  private List<String> childrenName;
-
-  public NodeTreeVO(String name) {
-    this.name = name;
-  }
-
-  public NodeTreeVO() {}
-
-  public List<NodeTreeVO> initChildren() {
-    if (children == null) {
-      children = new ArrayList<>();
-    }
-    return children;
-  }
 }

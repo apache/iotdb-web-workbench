@@ -158,6 +158,10 @@ public class ErrorCode {
   public static final String SET_GROUP_FAIL = "IOTDB-0022";
   public static final String SET_GROUP_FAIL_MSG = "Failed to create storage group";
 
+  public static final String SET_GROUP_FAIL_EXISTS = "IOTDB-0095";
+  public static final String SET_GROUP_FAIL__EXISTS_MSG =
+      "Failed to create storage group, the storage group already exists";
+
   public static final String DELETE_GROUP_FAIL = "IOTDB-0023";
   public static final String DELETE_GROUP_FAIL_MSG = "Failed to delete storage group";
 
