@@ -22,6 +22,8 @@ function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
+const Version = new Date().getTime();
+
 module.exports = {
   chainWebpack: (config) => {
     config.resolve.alias.set('@', resolve('./src')).set('components', resolve('./src/components'));
@@ -32,11 +34,24 @@ module.exports = {
         prependData: `@use "@/styles/variables.scss" as *;`,
       },
     },
+    extract: {
+      // 打包后css文件名称添加时间戳
+      filename: `css/[name].${Version}.css`,
+      chunkFilename: `css/chunk.[id].${Version}.css`,
+    },
+  },
+  configureWebpack: {
+    // 重点
+    // 输出重构 打包编译后的js文件名称,添加时间戳.
+    output: {
+      filename: `js/[name].${Version}.js`,
+      chunkFilename: `js/chunk.[id].${Version}.js`,
+    },
   },
   devServer: {
     proxy: {
       '/.*': {
-        target: 'http://127.0.0.1:9090',
+        target: 'http://192.168.1.84:9088',
         changeOrigin: true,
       },
     },
