@@ -31,9 +31,18 @@ public class NodeTreeVO implements Serializable {
 
   private List<NodeTreeVO> children;
 
+  private Integer pageSize;
+
+  private Integer pageNum;
+
+  private Integer total;
+  //  private List<String> childrenName;
+
   public NodeTreeVO(String name) {
     this.name = name;
   }
+
+  public NodeTreeVO() {}
 
   public List<NodeTreeVO> initChildren() {
     if (children == null) {

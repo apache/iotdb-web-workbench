@@ -30,7 +30,7 @@ import java.util.Set;
 public interface IotDBService {
   DataCountVO getDataCount(Connection connection) throws BaseException;
 
-  DataModelVO getDataModel(Connection connection) throws BaseException;
+  DataModelVO getDataModel(Connection connection, String path) throws BaseException;
 
   List<String> getAllStorageGroups(Connection connection) throws BaseException;
 
@@ -119,7 +119,9 @@ public interface IotDBService {
 
   List<NodeTreeVO> getDeviceNodeTree(Connection connection, String groupName) throws BaseException;
 
-  NodeTreeVO getDeviceList(Connection connection, String groupName) throws BaseException;
+  NodeTreeVO getDeviceList(
+      Connection connection, String groupName, Integer pageSize, Integer pageNum)
+      throws BaseException;
 
   List<String> getDeviceParents(Connection connection, String groupName, String deviceName)
       throws BaseException;
@@ -162,4 +164,13 @@ public interface IotDBService {
   void updatePwd(Connection connection, IotDBUser iotDBUser) throws BaseException;
 
   void stopQuery(Integer serverId, Long timestamp) throws BaseException;
+
+  DataModelVO getDataModelDetail(
+      Connection connection, String path, Integer pageSize, Integer pageNum) throws BaseException;
+
+  List<String> getBatchLastMeasurementValue(Connection connection, List<String> timeseriesList)
+      throws BaseException;
+
+  List<String> getBatchDataCount(
+      Connection connection, String deviceName, List<String> timeseriesList) throws BaseException;
 }
