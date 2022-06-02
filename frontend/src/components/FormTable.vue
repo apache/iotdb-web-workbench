@@ -23,7 +23,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
         :suffix-icon="item.suffixIcon"
         :prefix-icon="item.prefixIcon"
       >
-        <template #prepend v-if="item.inputHeader">{{ formData[item.inputHeaderText] }}</template>
+        <template #prepend v-if="item.inputHeader">{{ typeof item.inputHeaderText === 'function' ? item.inputHeaderText(formData, item) : formData[item.inputHeaderText] }}</template>
       </el-input>
       <el-select
         v-if="item.type === 'SELECT'"

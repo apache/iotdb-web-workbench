@@ -98,6 +98,23 @@ const routes = [
           },
         ],
       },
+      {
+        path: '/control',
+        name: 'Control',
+        component: () => import(/* webpackChunkName: "control" */ '../views/Control'),
+        children: [
+          {
+            path: 'indicator/:panel/:id/:mode',
+            name: 'Indicator',
+            component: () => import(/* webpackChunkName: "Indicator" */ '../views/Control/components/indicator.vue'),
+          },
+          {
+            path: 'query/:id',
+            name: 'Query',
+            component: () => import(/* webpackChunkName: "Query" */ '../views/Control/components/query.vue'),
+          },
+        ],
+      },
     ],
   },
   {

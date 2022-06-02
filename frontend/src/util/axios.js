@@ -22,7 +22,7 @@ import { ElMessage } from 'element-plus';
 import router from '../router';
 
 const instance = axios.create({});
-const headerUrls = ['/api/login', '/api/downloadFile/template'];
+const headerUrls = ['/api/login', '/api/downloadFile/template', '/api/downloadQueryLogFile'];
 const exportUrl = '/exportData';
 const downUrl = '/downloadFile';
 instance.defaults.withCredentials = true;

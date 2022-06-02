@@ -40,7 +40,7 @@
       <p class="more last">
         <span
           ><span class="more-title">{{ $t('sourcePage.storageNum') + ':' }}</span
-          >{{ countInfo.groupCount }}</span
+          >{{ countInfo.storageGroupCount }}</span
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.entityNum') + ':' }}</span
@@ -48,7 +48,7 @@
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.physicalNum') + ':' }}</span
-          >{{ countInfo.measurementCount }}</span
+          >{{ countInfo.monitorCount }}</span
         >
         <span
           ><span class="more-title">{{ $t('sourcePage.dataNum') + ':' }}</span
@@ -79,7 +79,8 @@
         <el-tab-pane :label="$t('sourcePage.dataModel')" name="d">
           <div class="tab-content">
             <el-button class="title" @click="goToAllModal()">{{ $t('sourcePage.showMore') }}</el-button>
-            <DataModal></DataModal>
+            <div class="tip">第一层最多展示多{{ showNum }}个模型，若需查看所有模型，点击查看更多</div>
+            <DataModal @show-num="onShowNum"></DataModal>
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('sourcePage.accountPermitLabel')" name="a">
@@ -392,6 +393,17 @@
                 </template>
               </el-table-column>
             </el-table>
+            <div class="pagination">
+              <el-pagination
+                @current-change="currentChange"
+                v-model:currentPage="pagination.pageNum"
+                v-model:page-size="pagination.pageSize"
+                layout="total, prev, pager, next"
+                :total="groupTotal"
+                :hide-on-single-page="true"
+              >
+              </el-pagination>
+            </div>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -421,6 +433,7 @@ import {
   ElPopover,
   ElPopper,
   ElTooltip,
+  ElPagination,
 } from 'element-plus';
 // import { Close } from '@element-plus/icons';
 import NewSource from './components/newSource.vue';
@@ -462,6 +475,12 @@ export default {
     let canAuth = ref(false);
 
     let canAuthRole = ref(false);
+    let showNum = ref(0);
+
+    function onShowNum(value) {
+      showNum.value = value;
+    }
+
     const router = useRouter();
     let pathList = ref([
       { label: t('sourcePage.selectAlias'), value: 0 },
@@ -764,6 +783,19 @@ export default {
       }
     };
 
+    const pagination = reactive({
+      pageSize: 10,
+      pageNum: 1,
+    });
+    function currentChange() {
+      getGroupList();
+    }
+
+    let paginationAll = {
+      pagination,
+      currentChange,
+    };
+
     const savepermitAuth = () => {
       if (store.state.dataBaseM.privilegeListAll.indexOf('GRANT_USER_PRIVILEGE') < 0) {
         ElMessage.error(t(`sourcePage.noAuthTip`));
@@ -784,10 +816,6 @@ export default {
       axios.post(`/servers/${serverId.value}/users/${baseInfoForm.userName}/authorityPrivilege`, { ...reqObj }).then((rs) => {
         if (rs && rs.code == 0) {
           ElMessage.success(t('sourcePage.successEditPermit'));
-          store.dispatch('fetchAllPrivileges', {
-            serverId: serverId.value,
-            userName: baseInfoForm.userName,
-          });
         }
       });
     };
@@ -1213,10 +1241,10 @@ export default {
     };
 
     const getGroupList = () => {
-      axios.get(`/servers/${serverId.value}/storageGroups/info`, {}).then((res) => {
+      axios.get(`/servers/${serverId.value}/storageGroups/info`, { params: pagination }).then((res) => {
         if (res && res.code == 0) {
-          tableData.value = res.data;
-          groupTotal.value = (res.data && res.data.length) || 0;
+          tableData.value = res.data?.groupInfoList;
+          groupTotal.value = (res.data && res.data.groupCount) || 0;
           let temp = [];
           for (let i = 0; i < res.data.length; i++) {
             temp.push(res.data[i].groupName);
@@ -1590,6 +1618,9 @@ export default {
       permitPermissionListTemp,
       savepermitAuth,
       permitDialogRef,
+      showNum,
+      onShowNum,
+      ...paginationAll,
     };
   },
   components: {
@@ -1616,6 +1647,7 @@ export default {
     ElPopover,
     ElPopper,
     UserRole,
+    ElPagination,
     /* eslint-disable */
   },
 };
@@ -2001,7 +2033,7 @@ export default {
   .group-table {
     width: 100%;
     padding: 10px;
-    height: 100% !important;
+    height: calc(100% - 34px) !important;
     max-height: initial !important;
     &:deep(.el-table__body-wrapper) {
       height: calc(100% - 32px) !important;
@@ -2009,6 +2041,21 @@ export default {
     .el-button {
       padding-left: 0 !important;
     }
+  }
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+
+    // padding: 10px 0px;
+    .el-pagination {
+      padding: 4px 5px 0 5px;
+    }
+  }
+  .tip {
+    float: right;
+    font-size: 12px;
+    color: $danger-color;
   }
 }
 </style>

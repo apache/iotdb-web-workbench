@@ -22,9 +22,7 @@
     <form-table :form="form"></form-table>
     <div class="addbox">
       {{ $t('device.physical') }}
-      <el-button type="primary" class="addbutton" size="small" @click="addItem">
-        {{ $t('device.addphysical') }}
-      </el-button>
+      <el-button type="primary" class="addbutton" size="small" @click="addItem"> {{ $t('device.addphysical') }} </el-button>
     </div>
     <div class="tableBox">
       <stand-table
@@ -118,6 +116,9 @@ export default {
           type: 'INPUT',
           size: 'small',
           canEdit: true,
+          border: true,
+          required: true,
+          event: checkValue,
         },
         {
           label: 'device.datatype',
@@ -213,7 +214,7 @@ export default {
           required: true,
           disabled: false,
           inputHeader: true,
-          inputHeaderText: 'groupName',
+          inputHeaderText: (data) => `${data.groupName}.`,
           message: 'device.inputdevice',
         },
         {
@@ -230,6 +231,13 @@ export default {
     });
     function changeBorder(scope) {
       tableData.list[scope.$index].seBorder = false;
+    }
+    function checkValue(scope, object, value, event, item) {
+      if (value == null || value === '') {
+        ElMessage.error(`${t('common.placeHolder')}${t(item.label)}`);
+      } else {
+        tableData.list[scope.$index].border = false;
+      }
     }
     function checkVal(scope, obj, val) {
       console.log(obj);
@@ -331,11 +339,14 @@ export default {
     function sumbitData() {
       let checkfalg = true;
       tableData.list.forEach((item) => {
-        if (item.timeseries === null || item.dataType === null || item.border || item.seBorder) {
+        if (item.timeseries === null || item.dataType === null || item.border || item.seBorder || item.alias == null || item.alias === '') {
           if (checkfalg) {
             if (item.timeseries === null) {
               item.border = true;
               ElMessage.error(`${t('device.pynamel')}`);
+            } else if (item.alias == null || item.alias === '') {
+              item.border = true;
+              ElMessage.error(`${t('common.placeHolder')}${t('device.alias')}`);
             } else if (item.dataType === null) {
               item.seBorder = true;
               ElMessage.error(`"${item.timeseries}"${t('device.selectdatatype')}`);
@@ -351,6 +362,9 @@ export default {
       if (checkfalg) {
         let copyForm = _cloneDeep(form);
         let { deviceName, groupName } = copyForm.formData;
+        if (/\./.test(deviceName)) {
+          return ElMessage.error(`"${t('device.devicename')}"${t('device.must')}`);
+        }
         let copyTableData = _cloneDeep(tableData);
         copyForm.formData.deviceName = deviceName ? groupName + '.' + deviceName : groupName;
 

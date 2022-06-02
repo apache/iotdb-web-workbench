@@ -28,6 +28,14 @@ import i18nFile from '@/i18n/index.js';
 import '@/styles/reset.scss';
 import '@/styles/element.scss';
 
+const VUE_APP_VERSION = require('../package.json').version;
+const vers = window.localStorage.getItem('appVersion');
+if (VUE_APP_VERSION != vers) {
+  localStorage.clear();
+  window.localStorage.setItem('appVersion', VUE_APP_VERSION);
+  location.reload();
+}
+
 i18n(i18nFile.global.t);
 const app = createApp(App);
 directive(app);

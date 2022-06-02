@@ -21,12 +21,12 @@
   <div id="mains" class="mains-contain">
     <el-dialog v-model="visible" :title="dialogType === 'add' ? $t('sourcePage.addPermission') : $t('sourcePage.editPermission')" width="520px">
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="permit-form">
-        <el-form-item prop="type" :label="$t('sourcePage.path')">
+        <el-form-item prop="type" :label="language.path">
           <el-radio-group v-model="form.type" @change="changeRadio">
             <el-radio v-for="item in pathList" :disabled="dialogType === 'edit'" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item prop="path" :label="$t('sourcePage.range')">
+        <el-form-item prop="path" :label="language.range">
           <!-- data connection -->
           <template v-if="form.type === 0"> -- </template>
           <!-- Storage group -->
@@ -53,7 +53,7 @@
             </el-select>
           </template>
         </el-form-item>
-        <el-form-item prop="privileges" :label="$t('sourcePage.selectPermissions')">
+        <el-form-item prop="privileges" :label="language.selectPermissions">
           <el-checkbox-group v-model="form.privileges">
             <el-checkbox v-for="item in dataPrivileges[form.type]" :key="item.id" :label="item.id" :value="item.id">{{ item.label }}</el-checkbox>
           </el-checkbox-group>
@@ -61,8 +61,8 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="handleCancel">{{ $t('common.cancel') }}</el-button>
-          <el-button type="primary" @click="handleSubmit">{{ $t('common.submit') }}</el-button>
+          <el-button @click="handleCancel">{{ language.cancel }}</el-button>
+          <el-button type="primary" @click="handleSubmit">{{ language.submit }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -105,7 +105,15 @@ export default {
       path: [], //tree
       privileges: [],
     });
-
+    let language = computed(() => {
+      return {
+        cancel: t('common.cancel'),
+        submit: t('common.submit'),
+        path: t('sourcePage.path'),
+        range: t('sourcePage.range'),
+        selectPermissions: t('sourcePage.selectPermissions'),
+      };
+    });
     let storage = ref([]);
     let device = reactive({
       storage: '',
@@ -508,6 +516,8 @@ export default {
       form,
       granularityValue,
       rules,
+      language,
+
       ...toRefs(options),
       open,
       origin,

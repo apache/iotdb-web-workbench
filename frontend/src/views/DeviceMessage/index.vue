@@ -27,13 +27,13 @@
             <el-button @click="editDevce">
               <svg class="icon edit" aria-hidden="true">
                 <use xlink:href="#icon-se-icon-f-edit"></use></svg
-              >&nbsp;{{ $t('common.edit') }}</el-button
-            >
+              >&nbsp;{{ $t('common.edit') }}
+            </el-button>
             <el-button @click="deleteData">
               <svg class="icon delete" aria-hidden="true">
                 <use xlink:href="#icon-se-icon-delete"></use></svg
-              >&nbsp;{{ $t('common.delete') }}</el-button
-            >
+              >&nbsp;{{ $t('common.delete') }}
+            </el-button>
           </div>
         </div>
         <div class="messageBox">
@@ -52,7 +52,7 @@
             </svg>
           </span>
           <span style="margin-left: 5px">{{ $t('device.description') }}：</span>
-          <span>{{ deviceObj.deviceData.description }}</span>
+          <span class="ellipsis" :title="deviceObj.deviceData.description">{{ deviceObj.deviceData.description }}</span>
           <span class="spanmargin">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-user"></use>
@@ -78,6 +78,7 @@
             <form-table :form="form" @serchFormData="serchFormData"></form-table>
           </div>
           <stand-table
+            v-loading="loading"
             :column="column"
             :tableData="tableData"
             :getList="getListData"
@@ -238,8 +239,8 @@
 import { ElMessageBox, ElMessage, ElButton, ElTabs, ElTabPane, ElDropdown, ElDropdownMenu, ElDropdownItem, ElDialog, ElForm, ElFormItem, ElProgress } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import FormTable from '@/components/FormTable';
-import { reactive, ref, onActivated } from 'vue';
-import { getList, getDeviceDate, getTimeseiresList, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile, importData } from './api';
+import { reactive, ref, onActivated, computed } from 'vue';
+import { getList, getDeviceDate, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile, importData } from './api';
 import Echarts from '@/components/Echarts';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
@@ -357,7 +358,7 @@ export default {
           width: '150px',
           itemID: 'measurementList',
           placeholder: 'device.serchPy',
-          options: timeseriesOptions,
+          options: computed(() => [{ label: t('device.all'), value: '' }, ...timeseriesOptions.value]),
           multiple: true,
         },
       ],
@@ -808,19 +809,25 @@ export default {
     }
     //Get physical quantity list
     async function getListData() {
-      await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
-        tableData.list = res.data.measurementVOList;
-        totalCount.value = res.data.totalCount;
-      });
+      try {
+        loading.value = true;
+        await getList(routeData.obj, { ...pagination, ...form.formData }).then((res) => {
+          tableData.list = res.data.measurementVOList;
+          totalCount.value = res.data.totalCount;
+          getTimeseriesOption(res.data.measurementVOList.map((item) => item.timeseries));
+        });
+      } catch (error) {
+        //   console.error(error)
+      } finally {
+        loading.value = false;
+      }
     }
-    async function getTimeseriesOption() {
-      let { connectionid, storagegroupid, deviceid } = routeData.obj;
-      await getTimeseiresList(connectionid, storagegroupid, deviceid).then((res) => {
-        if (res.code === '0') {
-          timeseriesOptions.value = res.data.map((d) => ({ label: d, value: d }));
-          timeseriesOptions.value.unshift({ label: t('device.all'), value: '' });
-        }
-      });
+    async function getTimeseriesOption(array) {
+      let before = timeseriesOptions.value.map((item) => item.value);
+      before.unshift(...array);
+      timeseriesOptions.value = [...new Set(before)].map((d) => ({ label: d, value: d })).slice(0, 50);
+      form1.formData.measurementList[0] = '';
+      getPview();
     }
     //Get physical quantity data preview list
     function getPview() {
@@ -843,9 +850,23 @@ export default {
       if (form1.formData.measurementList[0] === '') {
         data = timeseriesOptions.value.filter((d) => d.value !== '').map((d) => d.value);
       }
+      if (!Array.isArray(data) || data.length === 0) return;
       getDataDeviceList(routeData.obj, pagination1, { startTime: sTime, endTime: eTime, measurementList: data }).then((res) => {
         res.data.metaDataList.forEach((item, index) => {
-          column1.list.push({ label: item, prop: `t${index}`, value: '——', icon: index ? res.data.typeList[index] : 'TIME' });
+          column1.list.push({
+            label: item,
+            prop: `t${index}`,
+            value: '——',
+            icon: index ? res.data.typeList[index] : 'TIME',
+            closable:
+              index > 0 && (form1.formData.measurementList.length === 0 || form1.formData.measurementList[0] !== item)
+                ? (data) => {
+                    const index = timeseriesOptions.value.findIndex((item) => item.value === data.label);
+                    timeseriesOptions.value.splice(index, 1);
+                    getPview();
+                  }
+                : void 0,
+          });
         });
         res.data.valueList.forEach((item) => {
           let obj = {};
@@ -900,7 +921,6 @@ export default {
       }
       setTimeout(async () => {
         getdData();
-        await getTimeseriesOption();
         await getListData();
         await getPview();
       }, 500);
@@ -1126,6 +1146,15 @@ $cursor: pointer;
   background: #409eff;
   color: #fff;
   margin-top: 3px;
+}
+
+.ellipsis {
+  display: inline-block;
+  width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+  text-align: left;
 }
 </style>
 <style lang="scss">

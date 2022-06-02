@@ -74,7 +74,7 @@
 
 <script>
 import { ElTree, ElButton } from 'element-plus';
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
@@ -110,7 +110,23 @@ export default {
     };
 
     const nodeClick = (data, node) => {
-      props.handleNodeClick(data, node);
+      if (data.type === 'pre' || data.type === 'next') {
+        const resolve = async (array) => {
+          const childNodes = node.parent.childNodes.slice();
+          props.handleNodeClick(node.parent.data, node.parent);
+          array.forEach((element) => {
+            nextTick(() => treeRef.value.append(element, node.parent));
+          });
+          await Promise.all(
+            childNodes.map((element) => {
+              return nextTick(() => treeRef.value.remove(element));
+            })
+          );
+        };
+        getData(node.parent, resolve, node);
+      } else {
+        props.handleNodeClick(data, node);
+      }
     };
 
     /**
@@ -170,7 +186,7 @@ export default {
       treeExpandKey.value = arr;
     };
 
-    const recurseDeviceTree = (data, node) => {
+    const recurseDeviceTree = (data, node, res) => {
       let newDevice = {
         id: node.data.id + ':newdevice',
         name: computed(() => t(`databasem.newDevice`)),
@@ -179,6 +195,35 @@ export default {
         parent: node.data,
         connectionid: node.data.connectionid,
         storagegroupid: node.data.storagegroupid,
+      };
+      let isPage = res.data.total > res.data.pageSize;
+      let prev = {
+        id: node.data.id + ':pre',
+        name: computed(() => t('sourcePage.prePage')),
+        type: 'pre',
+        leaf: true,
+        parent: node.data,
+        rawid: node.data.name,
+        connectionid: node.data.connectionid,
+        storagegroupid: node.data.storagegroupid,
+        serverId: res.serverId,
+        pageNum: res.data.pageNum,
+        pageSize: res.data.pageSize,
+        total: res.data.total,
+      };
+      let next = {
+        id: node.data.id + ':next',
+        name: computed(() => t('sourcePage.nextPage')),
+        type: 'next',
+        leaf: true,
+        parent: node.data,
+        rawid: node.data.name,
+        connectionid: node.data.connectionid,
+        storagegroupid: node.data.storagegroupid,
+        serverId: res.serverId,
+        pageNum: res.data.pageNum,
+        pageSize: res.data.pageSize,
+        total: res.data.total,
       };
       let childs = data.map((e) => {
         let child = {
@@ -192,15 +237,61 @@ export default {
           storagegroupid: node.data.storagegroupid,
           connectionid: node.data.connectionid,
           deviceid: e.name,
+          serverId: res.serverId,
         };
-        // if (e.children) {
-        let innerChilds = recurseDeviceTree(e.children || [], { data: child });
-        child.zones = innerChilds;
-        // }
+        if (e.children) {
+          let innerChilds = recurseDeviceTree(e.children || [], { data: child }, res);
+          child.zones = innerChilds;
+        }
         return child;
       });
+      isPage && childs.unshift(prev);
       childs.unshift(newDevice);
+      isPage && childs.push(next);
       return childs;
+    };
+    const getData = (node, resolve, pagination) => {
+      let groupName = node.data.rawid;
+      let serverId = node.data.parent.rawid;
+      if (node.data.type !== 'storageGroup') {
+        serverId = node.data.serverId;
+      }
+      const params = { pageNum: (pagination && pagination.data.pageNum) || 1, pageSize: (pagination && pagination.data.pageSize) || 10 };
+      if (pagination && pagination.data.type === 'pre') {
+        params.pageNum = params.pageNum - 1 < 1 ? 1 : params.pageNum - 1;
+      }
+      if (pagination && pagination.data.type === 'next') {
+        const max = Math.ceil((pagination.data.total || 1) / params.pageSize);
+        params.pageNum = params.pageNum + 1 > max ? max : params.pageNum + 1;
+      }
+      axios
+        .get(`/servers/${serverId}/storageGroups/${groupName}/devices/tree`, {
+          params,
+        })
+        .then((res) => {
+          if (res?.code === '0') {
+            if (!res.data) {
+              let newDevice = {
+                id: node.data.id + ':newdevice',
+                name: computed(() => t(`databasem.newDevice`)),
+                type: 'newdevice',
+                leaf: true,
+                parent: node.data,
+                connectionid: node.data.connectionid,
+                storagegroupid: node.data.storagegroupid,
+              };
+              resolve([newDevice]);
+              return;
+            }
+            let childs = recurseDeviceTree(res.data.children || [], node, { serverId, data: res.data });
+            resolve(childs);
+          } else {
+            resolve([]);
+          }
+        })
+        .catch(() => {
+          resolve([]);
+        });
     };
 
     const loadNode = (node, resolve) => {
@@ -281,53 +372,8 @@ export default {
             resolve([]);
           });
       }
-      if (node.level === 2 && node.data.type === 'storageGroup') {
-        let groupName = node.data.rawid;
-        let serverId = node.data.parent.rawid;
-        axios
-          .get(`/servers/${serverId}/storageGroups/${groupName}/devices/tree`, {})
-          .then((res) => {
-            if (res?.code === '0') {
-              if (!res.data) {
-                let newDevice = {
-                  id: node.data.id + ':newdevice',
-                  name: computed(() => t(`databasem.newDevice`)),
-                  type: 'newdevice',
-                  leaf: true,
-                  parent: node.data,
-                  connectionid: node.data.connectionid,
-                  storagegroupid: node.data.storagegroupid,
-                };
-                resolve([newDevice]);
-                return;
-              }
-              if (res.data.name === null) {
-                let childs = recurseDeviceTree(res.data.children || [], node);
-                resolve(childs);
-              } else {
-                let rootDevice = {
-                  // parent: node.data,
-                  name: res.data.name,
-                  // id: node.data.id + res.data.name + 'device',
-                  // type: 'device',
-                  // leaf: false,
-                  // rawid: res.data.name,
-                  // storagegroupid: node.data.storagegroupid,
-                  // connectionid: node.data.connectionid,
-                  // deviceid: res.data.name,
-                  children: res.data.children,
-                };
-                let childs = recurseDeviceTree([rootDevice] || [], node);
-                node.zones = childs;
-                resolve(childs);
-              }
-            } else {
-              resolve([]);
-            }
-          })
-          .catch(() => {
-            resolve([]);
-          });
+      if ((node.level === 2 && node.data.type === 'storageGroup') || (node.data && node.data.type === 'device')) {
+        getData(node, resolve);
       }
       if (node.level === 2 && node.data.type === 'querylist') {
         let serverId = node.data.parent.rawid;

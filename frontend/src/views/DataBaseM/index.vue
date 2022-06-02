@@ -74,12 +74,12 @@
 <script>
 // @ is an alias to /src
 import { onMounted, ref, watch } from 'vue';
-import useElementResize from './hooks/useElementResize.js';
+import { useStore } from 'vuex';
+import { useRouter, useRoute } from 'vue-router';
+import useElementResize from '@/hooks/useElementResize.js';
 import DataListTree from './components/dataListTree.vue';
 import IconTypes from './components/iconTypes.vue';
 import { ElContainer, ElAside, ElMain, ElTabs, ElTabPane } from 'element-plus';
-import { useStore } from 'vuex';
-import { useRouter, useRoute } from 'vue-router';
 
 export default {
   name: 'Root',
