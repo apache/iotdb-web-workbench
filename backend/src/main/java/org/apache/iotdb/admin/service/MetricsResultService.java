@@ -16,38 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.iotdb.admin.service;
 
-package org.apache.iotdb.admin.model.vo;
+import org.apache.iotdb.admin.common.exception.BaseException;
+import org.apache.iotdb.admin.model.entity.Connection;
+import org.apache.iotdb.admin.model.vo.MetricsListDataVO;
 
-import lombok.Data;
-
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
-public class NodeTreeVO implements Serializable {
-  private String name;
+public interface MetricsResultService {
+  List<MetricsListDataVO> getJVMMetricsDataList(Connection connection) throws BaseException;
 
-  private List<NodeTreeVO> children;
+  List<MetricsListDataVO> getCPUMetricsDataList(Connection connection) throws BaseException;
 
-  private Integer pageSize;
+  List<MetricsListDataVO> getMemMetricsDataList(Connection connection) throws BaseException;
 
-  private Integer pageNum;
+  List<MetricsListDataVO> getDiskMetricsDataList(Connection connection) throws BaseException;
 
-  private Integer total;
-  //  private List<String> childrenName;
-
-  public NodeTreeVO(String name) {
-    this.name = name;
-  }
-
-  public NodeTreeVO() {}
-
-  public List<NodeTreeVO> initChildren() {
-    if (children == null) {
-      children = new ArrayList<>();
-    }
-    return children;
-  }
+  List<MetricsListDataVO> getWriteMetricsDataList(Connection connection) throws BaseException;
 }

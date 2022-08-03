@@ -16,38 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.iotdb.admin.model.vo;
 
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
-public class NodeTreeVO implements Serializable {
-  private String name;
-
-  private List<NodeTreeVO> children;
-
-  private Integer pageSize;
-
-  private Integer pageNum;
-
-  private Integer total;
-  //  private List<String> childrenName;
-
-  public NodeTreeVO(String name) {
-    this.name = name;
-  }
-
-  public NodeTreeVO() {}
-
-  public List<NodeTreeVO> initChildren() {
-    if (children == null) {
-      children = new ArrayList<>();
-    }
-    return children;
-  }
+public class QueryDataStrVO implements Serializable {
+  private Integer id;
+  private String statement;
+  private String runningTime;
+  private Boolean isSlowQuery;
+  private Integer totalTime;
+  private Integer analysisTime;
+  private Integer executionTime;
+  private Integer executionResult;
 }
