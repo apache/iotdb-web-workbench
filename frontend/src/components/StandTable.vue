@@ -30,7 +30,10 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
             <svg v-if="iconArr.icon[item.icon]" :class="['icon', { 'icon-time': item.icon === 'TIME' }]" @click="sqlClick" aria-hidden="true">
               <use :xlink:href="`#icon-${iconArr.icon[item.icon]}`"></use>
             </svg>
-            <span :style="{ 'margin-left': iconArr.icon[item.icon] ? '5px' : '' }">{{ $t(item.label) }}</span>
+            <span :style="{ 'margin-left': iconArr.icon[item.icon] ? '5px' : '' }" :class="[{ closable: !!item.closable }]" :title="$t(item.label)"
+              >{{ $t(item.label) }}
+              <span class="el-icon-close" v-on:click="item.closable(item)"></span>
+            </span>
             <i :class="item.icon" style="margin-left: 4px" @click="iconEvent(item.iconNum)"></i>
           </template>
           <template #default="scope">
@@ -40,7 +43,7 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or imp
               :size="item.size"
               :class="{ borderRed: (scope.row.namecopy || !scope.row[item.prop]) && scope.row.border && item.border }"
               :placeholder="$t('device.inputTip') + $t(item.label)"
-              @blur="item.event(scope, scope.row, scope.row[item.prop], $event)"
+              @blur="item.event(scope, scope.row, scope.row[item.prop], $event, item)"
             >
             </el-input>
             <el-input
@@ -381,6 +384,23 @@ export default {
   height: 30px;
   line-height: 0px;
   min-height: 0 !important;
+}
+.el-icon-close {
+  display: none;
+  position: absolute;
+  top: 5px;
+  cursor: pointer;
+}
+.closable {
+  &:hover > .el-icon-close {
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    cursor: pointer;
+  }
+}
+:deep(.el-table) th > .cell {
+  white-space: nowrap;
 }
 </style>
 <style lang="scss">

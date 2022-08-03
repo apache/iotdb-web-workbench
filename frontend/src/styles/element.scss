@@ -20,6 +20,11 @@
 .el-button--primary {
   background-color: $theme-color !important;
   border-color: $theme-color !important;
+  &:hover.el-button,&:focus.el-button {
+    background:$theme-color !important;
+    border-color:$theme-color !important;
+    color: #fff;
+  }
   span {
     color: #fff;
   }
@@ -39,7 +44,8 @@
 }
 
 .el-button--default {
-  &:hover {
+  &:hover,
+  &:focus {
     color: #15c294 !important;
     background-color: transparent !important;
     border-color: #15c294 !important;
@@ -242,4 +248,53 @@
       color: $theme-color;
     }
   }
+}
+
+.el-select .el-input__inner:focus,
+.el-select .el-input.is-focus .el-input__inner {
+  border-color: $theme-bj-color !important;
+}
+.el-select-dropdown__item {
+  font-size: 12px;
+}
+.el-select-dropdown__item.selected {
+  color: $theme-bj-color;
+}
+// iotdb-table-style
+.iotdb-table {
+  width: 100%;
+  th {
+    font-weight: 500;
+    color: #808ba3 !important;
+    background-color: #f9fafc;
+  }
+  td {
+    font-weight: 400;
+    color: #333;
+  }
+  &.el-table--border th,
+  &.el-table--border td {
+    border-right: none;
+  }
+  &.el-table--border {
+    border-radius: 4px;
+  }
+  .el-table__row:last-child td {
+    border-bottom: none;
+  }
+  .el-table__body {
+    tr.hover-row > td {
+      background-color: #edf8f5 !important;
+    }
+  }
+  .el-table__fixed-right {
+    border-left: 1px solid #e7eaf2;
+    border-right: 1px solid #e7eaf2;
+  }
+}
+input.el-input__inner:hover {
+  border: 1px solid $theme-bj-color !important;
+}
+.el-loading-spinner .path {
+    stroke: $theme-color;
 }

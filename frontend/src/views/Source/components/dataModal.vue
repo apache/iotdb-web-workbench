@@ -1,3 +1,21 @@
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+-->
 <template>
   <div id="main" class="main-contain"></div>
 </template>
@@ -19,23 +37,25 @@ export default {
   name: 'DataModal',
   //   props: ['func'],
   //   setup(props) {
-  setup() {
+  setup(props, { emit }) {
     const { t } = useI18n();
     const x = ref(0);
     const router = useRouter();
     const datas = ref({});
+    let showNum = ref(0);
 
     const getModalTreeData = (func) => {
       axios.get(`/servers/${router.currentRoute.value.params.serverid}/dataModel`, {}).then((res) => {
         if (res && res.code == 0) {
           datas.value = res.data || {};
+          showNum.value = res.data.showNum;
+          emit('show-num', showNum);
           func && func();
         }
       });
     };
-    const initCharts = () => {
-      MyCharts = echarts.init(document.getElementById('main'));
 
+    const setOption = () => {
       let option = {
         tooltip: {
           trigger: 'item',
@@ -68,6 +88,10 @@ export default {
             top: '8%',
             bottom: '8%',
             roam: true,
+            scaleLimit: {
+              min: 0.5,
+              max: 3,
+            },
             symbol: 'emptyCircle',
             symbolSize: 0,
             orient: 'vertical',
@@ -150,7 +174,14 @@ export default {
         ],
       };
 
+      // show echart
       MyCharts.setOption(option);
+    };
+
+    const initCharts = () => {
+      MyCharts = echarts.init(document.getElementById('main'));
+
+      setOption();
     };
 
     onMounted(() => {
