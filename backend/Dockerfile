@@ -20,7 +20,7 @@
 
 
 
-FROM hub.segma.tech/library/java:8-jre-centos7-apollo
+FROM  openjdk:8-jdk-oracle
 
 COPY --from=builder /app/target/workbench-1.0.0.jar /app/workbench-1.0.0.jar
 
