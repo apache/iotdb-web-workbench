@@ -20,7 +20,7 @@
 
 
 
-FROM  openjdk:8-jdk-oracle
+FROM openjdk:8-jdk-oracle
 
 COPY --from=builder /app/target/workbench-1.0.0.jar /app/workbench-1.0.0.jar
 
