@@ -22,7 +22,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-
 @Data
 public class MetricsConnectionVO implements Serializable {
   Integer id;
