@@ -65,14 +65,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.daemon\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.live\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.daemon.threads\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.live.threads\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -84,13 +84,13 @@ public class MetricsServiceImpl implements MetricsService {
     int demoThreadCount = Integer.parseInt(s2);
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
     String latestResult =
-        "前台:"
-            + (totalThreadCount - demoThreadCount)
-            + "个，后台:"
-            + demoThreadCount
-            + "个，线程总数:"
-            + totalThreadCount
-            + "个";
+            "前台:"
+                    + (totalThreadCount - demoThreadCount)
+                    + "个，后台:"
+                    + demoThreadCount
+                    + "个，线程总数:"
+                    + totalThreadCount
+                    + "个";
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
     jvmMetricsListDataVO.setMetricType(metricType);
     jvmMetricsListDataVO.setDetailAvailable(detailAvailable);
@@ -101,7 +101,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getCurrentDaemonThreadsCount(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "当前daemon线程数";
     String metricType = "线程";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -113,11 +113,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.daemon\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.daemon.threads\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -147,11 +147,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.peak\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.peak.threads\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -181,26 +181,26 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.states\".\"state=new\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.states\".\"state=waiting\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.states\".\"state=runnable\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.states\".\"state=blocked\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.states\".\"state=timed-waiting\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.threads.states\".\"state=terminated\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.states.threads\".\"state=new\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.states.threads\".\"state=waiting\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.states.threads\".\"state=runnable\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.states.threads\".\"state=blocked\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.states.threads\".\"state=timed-waiting\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.threads.states.threads\".\"state=terminated\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -224,24 +224,24 @@ public class MetricsServiceImpl implements MetricsService {
     int terminatedThreadCount = Integer.parseInt(s6);
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
     String latestResult =
-        "新建("
-            + newThreadCount
-            + ")、"
-            + "可运行("
-            + waitingThreadCount
-            + ")、"
-            + "运行("
-            + runnableThreadCount
-            + ")、"
-            + "阻塞("
-            + blockedThreadCount
-            + ")、"
-            + "休眠("
-            + timedWaitingThreadCount
-            + ")、"
-            + "死亡("
-            + terminatedThreadCount
-            + ")";
+            "新建("
+                    + newThreadCount
+                    + ")、"
+                    + "可运行("
+                    + waitingThreadCount
+                    + ")、"
+                    + "运行("
+                    + runnableThreadCount
+                    + ")、"
+                    + "阻塞("
+                    + blockedThreadCount
+                    + ")、"
+                    + "休眠("
+                    + timedWaitingThreadCount
+                    + ")、"
+                    + "死亡("
+                    + terminatedThreadCount
+                    + ")";
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
     jvmMetricsListDataVO.setMetricType(metricType);
     jvmMetricsListDataVO.setDetailAvailable(detailAvailable);
@@ -252,7 +252,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getYGCHappendCountAndCostTime(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "YGC发生次数及总耗时";
     String metricType = "垃圾回收";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -264,23 +264,23 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String countSQL =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_count\".\"action=end of minor GC\".\"cause=Allocation Failure\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_count\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_count\".\"action=end of minor GC\".\"cause=Allocation Failure\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_count\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\" "
+                    + "order by time desc limit 1";
     String timeSQL =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Allocation Failure\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Allocation Failure\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\" "
+                    + "order by time desc limit 1";
     List<String> countValues = executeQueryOneLine(sessionPool, countSQL);
     List<String> timeValues = executeQueryOneLine(sessionPool, timeSQL);
     long lastestTimeStamp = Long.parseLong(countValues.get(0));
@@ -292,7 +292,7 @@ public class MetricsServiceImpl implements MetricsService {
     s2 = s2.substring(0, s2.indexOf('.'));
     int count = Integer.parseInt(s1) + Integer.parseInt(s2);
     double time =
-        (Double.parseDouble(timeValues.get(1)) + Double.parseDouble(timeValues.get(2))) / 1000;
+            (Double.parseDouble(timeValues.get(1)) + Double.parseDouble(timeValues.get(2))) / 1000;
     String latestResult = count + "次 " + time + "s";
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
     jvmMetricsListDataVO.setMetricType(metricType);
@@ -304,7 +304,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getYGCMaxCostTimeAndReason(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "YGC最大耗时及原因";
     String metricType = "垃圾回收";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -316,23 +316,23 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String timeSQL =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_max\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_max\".\"action=end of minor GC\".\"cause=Allocation Failure\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_max\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_max\".\"action=end of minor GC\".\"cause=Allocation Failure\" "
+                    + "order by time desc limit 1";
     List<String> timeValues = executeQueryOneLine(sessionPool, timeSQL);
     long lastestTimeStamp = Long.parseLong(timeValues.get(0));
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
     Integer detailAvailable = 2;
     String latestResult =
-        Double.parseDouble(timeValues.get(1)) / 1000
-            + "s(Metadata GC Threshold)、"
-            + Double.parseDouble(timeValues.get(2)) / 1000
-            + "s(Allocation Failure)";
+            Double.parseDouble(timeValues.get(1)) / 1000
+                    + "s(Metadata GC Threshold)、"
+                    + Double.parseDouble(timeValues.get(2)) / 1000
+                    + "s(Allocation Failure)";
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
     jvmMetricsListDataVO.setMetricType(metricType);
     jvmMetricsListDataVO.setDetailAvailable(detailAvailable);
@@ -343,7 +343,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getFGCHappendCountAndCostTime(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "FGC发生次数及总耗时";
     String metricType = "垃圾回收";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -355,29 +355,29 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String countSQL =
-        "select * from "
-            +
-            //            "root._metric.\"127.0.0.1:8086\".\"jvm.gc.pause_count\".\"action=end of
-            // major GC\".\"cause=Allocation Failure\", " +
-            "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_count\".\"action=end of major GC\".\"cause=Metadata GC Threshold\" "
-            +
-            //            "root._metric.\"127.0.0.1:8086\".\"jvm.gc.pause_count\".\"action=end of
-            // major GC\".\"cause=Ergonomics\" " +
-            "order by time desc limit 1";
+            "select * from "
+                    +
+                    //            "root._metric.\"0.0.0.0:8086\".\"jvm.gc.pause_count\".\"action=end of
+                    // major GC\".\"cause=Allocation Failure\", " +
+                    "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_count\".\"action=end of major GC\".\"cause=Metadata GC Threshold\" "
+                    +
+                    //            "root._metric.\"0.0.0.0:8086\".\"jvm.gc.pause_count\".\"action=end of
+                    // major GC\".\"cause=Ergonomics\" " +
+                    "order by time desc limit 1";
     String timeSQL =
-        "select * from "
-            +
-            //            "root._metric.\"127.0.0.1:8086\".\"jvm.gc.pause_total\".\"action=end of
-            // major GC\".\"cause=Allocation Failure\", " +
-            "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_total\".\"action=end of major GC\".\"cause=Metadata GC Threshold\" "
-            +
-            //            "root._metric.\"127.0.0.1:8086\".\"jvm.gc.pause_total\".\"action=end of
-            // major GC\".\"cause=Ergonomics\" " +
-            "order by time desc limit 1";
+            "select * from "
+                    +
+                    //            "root._metric.\"0.0.0.0:8086\".\"jvm.gc.pause_total\".\"action=end of
+                    // major GC\".\"cause=Allocation Failure\", " +
+                    "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_total\".\"action=end of major GC\".\"cause=Metadata GC Threshold\" "
+                    +
+                    //            "root._metric.\"0.0.0.0:8086\".\"jvm.gc.pause_total\".\"action=end of
+                    // major GC\".\"cause=Ergonomics\" " +
+                    "order by time desc limit 1";
     List<String> countValues = executeQueryOneLine(sessionPool, countSQL);
     List<String> timeValues = executeQueryOneLine(sessionPool, timeSQL);
     long lastestTimeStamp = Long.parseLong(countValues.get(0));
@@ -410,7 +410,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getFGCMaxCostTimeAndReason(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "FGC最大耗时及原因";
     String metricType = "垃圾回收";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -422,16 +422,16 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String timeSQL =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.pause_max\".\"action=end of major GC\".\"cause=Metadata GC Threshold\" "
-            +
-            //            "root._metric.\"127.0.0.1:8086\".\"jvm.gc.pause_max\".\"action=end of
-            // major GC\".\"cause=Allocation Failure\", " +
-            //            "root._metric.\"127.0.0.1:8086\".\"jvm.gc.pause_max\".\"action=end of
-            // major GC\".\"cause=Ergonomics\" " +
-            "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.pause_max\".\"action=end of major GC\".\"cause=Metadata GC Threshold\" "
+                    +
+                    //            "root._metric.\"0.0.0.0:8086\".\"jvm.gc.pause_max\".\"action=end of
+                    // major GC\".\"cause=Allocation Failure\", " +
+                    //            "root._metric.\"0.0.0.0:8086\".\"jvm.gc.pause_max\".\"action=end of
+                    // major GC\".\"cause=Ergonomics\" " +
+                    "order by time desc limit 1";
     List<String> timeValues = executeQueryOneLine(sessionPool, timeSQL);
     long lastestTimeStamp = Long.parseLong(timeValues.get(0));
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
@@ -464,11 +464,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.overhead\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.overhead\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -498,11 +498,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.memory.promoted\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.memory.promoted.bytes\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -518,7 +518,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getMajorMemoryMaxValueEver(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "老年代内存的历史最大值";
     String metricType = "垃圾回收";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -530,11 +530,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.max.data.size\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.max.data.size.bytes\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -550,7 +550,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getMajorMemorySizeAfterGC(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "GC之后老年代内存的大小";
     String metricType = "垃圾回收";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -562,11 +562,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.live.data.size\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.live.data.size.bytes\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -583,7 +583,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getMinorMemorySizeAddedBetweentwoGC(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "在一个GC之后到下一个GC之前年轻代增加的内存";
     String metricType = "垃圾回收";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -595,11 +595,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.gc.memory.allocated\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.gc.memory.allocated.bytes\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -627,20 +627,20 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.buffer.memory.used\".\"id=mapped\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.buffer.memory.used\".\"id=direct\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.buffer.memory.used.bytes\".\"id=mapped\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.buffer.memory.used.bytes\".\"id=direct\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
     String count =
-        getNetFileSizeDescription(
-            (long) (Double.parseDouble(values.get(1)) + Double.parseDouble(values.get(2))));
+            getNetFileSizeDescription(
+                    (long) (Double.parseDouble(values.get(1)) + Double.parseDouble(values.get(2))));
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
     String latestResult = count;
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
@@ -664,20 +664,20 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.buffer.total.capacity\".\"id=mapped\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.buffer.total.capacity\".\"id=direct\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.buffer.total.capacity.bytes\".\"id=mapped\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.buffer.total.capacity.bytes\".\"id=direct\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
     String count =
-        getNetFileSizeDescription(
-            (long) (Double.parseDouble(values.get(1)) + Double.parseDouble(values.get(2))));
+            getNetFileSizeDescription(
+                    (long) (Double.parseDouble(values.get(1)) + Double.parseDouble(values.get(2))));
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
     String latestResult = count;
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
@@ -701,14 +701,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.buffer.count\".\"id=mapped\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.buffer.count\".\"id=direct\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.buffer.count.buffers\".\"id=mapped\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.buffer.count.buffers\".\"id=direct\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -728,7 +728,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getJVMCommittedMemorySize(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "当前向JVM申请的内存大小";
     String metricType = "内存";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -740,38 +740,38 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.committed\".\"area=nonheap\".\"id=Compressed Class Space\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.committed\".\"area=nonheap\".\"id=Code Cache\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.committed\".\"area=nonheap\".\"id=Metaspace\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.committed\".\"area=heap\".\"id=PS Old Gen\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.committed\".\"area=heap\".\"id=PS Eden Space\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.committed\".\"area=heap\".\"id=PS Survivor Space\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.committed.bytes\".\"area=nonheap\".\"id=Compressed Class Space\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.committed.bytes\".\"area=nonheap\".\"id=Code Cache\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.committed.bytes\".\"area=nonheap\".\"id=Metaspace\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.committed.bytes\".\"area=heap\".\"id=PS Old Gen\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.committed.bytes\".\"area=heap\".\"id=PS Eden Space\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.committed.bytes\".\"area=heap\".\"id=PS Survivor Space\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
     String count =
-        getNetFileSizeDescription(
-            (long)
-                (Double.parseDouble(values.get(1))
-                    + Double.parseDouble(values.get(2))
-                    + Double.parseDouble(values.get(3))
-                    + Double.parseDouble(values.get(4))
-                    + Double.parseDouble(values.get(5))
-                    + Double.parseDouble(values.get(6))));
+            getNetFileSizeDescription(
+                    (long)
+                            (Double.parseDouble(values.get(1))
+                                    + Double.parseDouble(values.get(2))
+                                    + Double.parseDouble(values.get(3))
+                                    + Double.parseDouble(values.get(4))
+                                    + Double.parseDouble(values.get(5))
+                                    + Double.parseDouble(values.get(6))));
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
     String latestResult = count;
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
@@ -795,38 +795,38 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Compressed Class Space\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Code Cache\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Metaspace\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Old Gen\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Eden Space\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Survivor Space\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.max.bytes\".\"area=nonheap\".\"id=Compressed Class Space\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.max.bytes\".\"area=nonheap\".\"id=Code Cache\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.max.bytes\".\"area=nonheap\".\"id=Metaspace\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.max.bytes\".\"area=heap\".\"id=PS Old Gen\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.max.bytes\".\"area=heap\".\"id=PS Eden Space\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.max.bytes\".\"area=heap\".\"id=PS Survivor Space\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
     String count =
-        getNetFileSizeDescription(
-            (long)
-                (Double.parseDouble(values.get(1))
-                    + Double.parseDouble(values.get(2))
-                    + Double.parseDouble(values.get(3))
-                    + Double.parseDouble(values.get(4))
-                    + Double.parseDouble(values.get(5))
-                    + Double.parseDouble(values.get(6))));
+            getNetFileSizeDescription(
+                    (long)
+                            (Double.parseDouble(values.get(1))
+                                    + Double.parseDouble(values.get(2))
+                                    + Double.parseDouble(values.get(3))
+                                    + Double.parseDouble(values.get(4))
+                                    + Double.parseDouble(values.get(5))
+                                    + Double.parseDouble(values.get(6))));
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
     String latestResult = count;
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
@@ -850,38 +850,38 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Compressed Class Space\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Code Cache\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Metaspace\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Old Gen\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Eden Space\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Survivor Space\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.used.bytes\".\"area=nonheap\".\"id=Compressed Class Space\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.used.bytes\".\"area=nonheap\".\"id=Code Cache\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.used.bytes\".\"area=nonheap\".\"id=Metaspace\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.used.bytes\".\"area=heap\".\"id=PS Old Gen\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.used.bytes\".\"area=heap\".\"id=PS Eden Space\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.memory.used.bytes\".\"area=heap\".\"id=PS Survivor Space\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
     String count =
-        getNetFileSizeDescription(
-            (long)
-                (Double.parseDouble(values.get(1))
-                    + Double.parseDouble(values.get(2))
-                    + Double.parseDouble(values.get(3))
-                    + Double.parseDouble(values.get(4))
-                    + Double.parseDouble(values.get(5))
-                    + Double.parseDouble(values.get(6))));
+            getNetFileSizeDescription(
+                    (long)
+                            (Double.parseDouble(values.get(1))
+                                    + Double.parseDouble(values.get(2))
+                                    + Double.parseDouble(values.get(3))
+                                    + Double.parseDouble(values.get(4))
+                                    + Double.parseDouble(values.get(5))
+                                    + Double.parseDouble(values.get(6))));
     String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
     String latestResult = count;
     JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
@@ -894,7 +894,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   public JVMMetricsListDataVO getJVMUnloadedClassesTotal(Connection connection)
-      throws BaseException {
+          throws BaseException {
     String name = "JVM累计卸载的Class数量";
     String metricType = "Classes";
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
@@ -906,11 +906,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.classes.unloaded\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.classes.unloaded.classes\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -939,11 +939,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.classes.loaded\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.classes.loaded.classes\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -972,11 +972,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"jvm.compilation.time\".\"compiler=HotSpot 64-Bit Tiered Compilers\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"jvm.compilation.time.ms\".\"compiler=HotSpot 64-Bit Tiered Compilers\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1002,11 +1002,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"sys_cpu_load\".\"name=system\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"sys_cpu_load\".\"name=system\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1031,11 +1031,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"sys_cpu_cores\".\"name=system\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"sys_cpu_cores\".\"name=system\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1062,11 +1062,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"process_cpu_time\".\"name=process\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"process_cpu_time\".\"name=process\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1099,11 +1099,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"sys_total_physical_memory_size\".\"name=system\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"sys_total_physical_memory_size\".\"name=system\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1128,11 +1128,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"process_mem_ratio\".\"name=process\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"process_mem_ratio\".\"name=process\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1157,11 +1157,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"sys_disk_total_space\".\"name=system\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"sys_disk_total_space\".\"name=system\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1187,11 +1187,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"sys_disk_total_space\".\"name=system\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"sys_disk_total_space\".\"name=system\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1217,11 +1217,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"sys_disk_free_space\".\"name=system\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"sys_disk_free_space\".\"name=system\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1246,11 +1246,11 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"sys_disk_free_space\".\"name=system\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"sys_disk_free_space\".\"name=system\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1276,14 +1276,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_count\".\"name=wal\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_size\".\"name=wal\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_count\".\"name=wal\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_size\".\"name=wal\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1311,14 +1311,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_count\".\"name=seq\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_size\".\"name=seq\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_count\".\"name=seq\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_size\".\"name=seq\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1346,14 +1346,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_count\".\"name=unseq\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_size\".\"name=unseq\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_count\".\"name=unseq\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_size\".\"name=unseq\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1381,14 +1381,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_count\".\"name=unseq\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_size\".\"name=unseq\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_count\".\"name=unseq\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_size\".\"name=unseq\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1416,14 +1416,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_count\".\"name=unseq\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_size\".\"name=unseq\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_count\".\"name=unseq\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_size\".\"name=unseq\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1451,14 +1451,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_count\".\"name=unseq\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_size\".\"name=unseq\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_count\".\"name=unseq\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_size\".\"name=unseq\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1486,14 +1486,14 @@ public class MetricsServiceImpl implements MetricsService {
       port = 8086;
     }
     String sql =
-        "select * from "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_count\".\"name=unseq\", "
-            + "root._metric.\"127.0.0.1:"
-            + port
-            + "\".\"file_size\".\"name=unseq\" "
-            + "order by time desc limit 1";
+            "select * from "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_count\".\"name=unseq\", "
+                    + "root._metric.\"0.0.0.0:"
+                    + port
+                    + "\".\"file_size\".\"name=unseq\" "
+                    + "order by time desc limit 1";
     SessionPool sessionPool = getSessionPool(connection);
     List<String> values = executeQueryOneLine(sessionPool, sql);
     long lastestTimeStamp = Long.parseLong(values.get(0));
@@ -1521,7 +1521,8 @@ public class MetricsServiceImpl implements MetricsService {
     list.add(getYGCMaxCostTimeAndReason(connection));
     list.add(getFGCHappendCountAndCostTime(connection));
     list.add(getFGCMaxCostTimeAndReason(connection));
-    list.add(getGCCPUoverhead(connection));
+
+//    list.add(getGCCPUoverhead(connection));
     list.add(getGCPromoted(connection));
     list.add(getMajorMemoryMaxValueEver(connection));
     list.add(getMajorMemorySizeAfterGC(connection));
@@ -1557,7 +1558,7 @@ public class MetricsServiceImpl implements MetricsService {
 
   @Override
   public List<MetricsListDataVO> getDiskMetricsDataList(Connection connection)
-      throws BaseException {
+          throws BaseException {
     List<MetricsListDataVO> list = new ArrayList<>();
     list.add(getDiskTotalSize(connection));
     list.add(getDiskLoadSize(connection));
@@ -1571,7 +1572,7 @@ public class MetricsServiceImpl implements MetricsService {
 
   @Override
   public List<MetricsListDataVO> getWriteMetricsDataList(Connection connection)
-      throws BaseException {
+          throws BaseException {
     List<MetricsListDataVO> list = new ArrayList<>();
     list.add(getWriteDelay(connection));
     list.add(getWriteSucceedCount(connection));
@@ -1600,35 +1601,35 @@ public class MetricsServiceImpl implements MetricsService {
 
   @Override
   public QueryInfoVO getQueryInfo(
-      Integer serverId,
-      Integer queryClassificationId,
-      Integer pageSize,
-      Integer pageNum,
-      String filterString,
-      String startTimeStr,
-      String endTimeStr,
-      Integer executionResult)
-      throws BaseException {
+          Integer serverId,
+          Integer queryClassificationId,
+          Integer pageSize,
+          Integer pageNum,
+          String filterString,
+          String startTimeStr,
+          String endTimeStr,
+          Integer executionResult)
+          throws BaseException {
     long startTime = Long.parseLong(startTimeStr);
     long endTime = Long.parseLong(endTimeStr);
     Connection connection = connectionService.getById(serverId);
     QueryInfoDTO queryInfoDTO =
-        iotDBService.getQueryInfoListByQueryClassificationId(
-            connection,
-            queryClassificationId,
-            pageSize,
-            pageNum,
-            filterString,
-            startTime,
-            endTime,
-            executionResult);
+            iotDBService.getQueryInfoListByQueryClassificationId(
+                    connection,
+                    queryClassificationId,
+                    pageSize,
+                    pageNum,
+                    filterString,
+                    startTime,
+                    endTime,
+                    executionResult);
     QueryInfoVO queryInfoVO = new QueryInfoVO();
     queryInfoVO.setQueryClassificationId(queryClassificationId);
     String pattern = "yyyy-MM-dd' 'HH:mm:ss.SSS";
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
     Long latestRunningTime = queryInfoDTO.getLatestRunningTime();
     queryInfoVO.setLatestRunningTime(
-        latestRunningTime == 0 ? null : simpleDateFormat.format(latestRunningTime));
+            latestRunningTime == 0 ? null : simpleDateFormat.format(latestRunningTime));
     BeanUtils.copyProperties(queryInfoDTO, queryInfoVO);
     queryInfoVO.setServerId(serverId);
     return queryInfoVO;
@@ -1656,7 +1657,7 @@ public class MetricsServiceImpl implements MetricsService {
 
   @Override
   public MetricsDataForListVO getMetricsDataForList(Integer serverId, Integer metricsType)
-      throws BaseException {
+          throws BaseException {
     Connection connection = connectionService.getById(serverId);
     List<MetricsListDataVO> metricsDataList = null;
     // TODO：具体区分和判断等待清华提供方案和策略
@@ -1699,7 +1700,7 @@ public class MetricsServiceImpl implements MetricsService {
   }
 
   private List<String> executeQueryOneLine(SessionPool sessionPool, String sql)
-      throws BaseException {
+          throws BaseException {
     SessionDataSetWrapper sessionDataSetWrapper = null;
     try {
       List<String> valueList = new ArrayList<>();
