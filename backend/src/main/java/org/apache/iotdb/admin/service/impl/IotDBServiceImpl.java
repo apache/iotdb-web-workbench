@@ -2695,8 +2695,6 @@ public class IotDBServiceImpl implements IotDBService {
       port = 6667;
       url = "0.0.0.0";
     }
-    url = "0.0.0.0";
-    port = 6667;
     // TODO: 指标先写死，后面根据指标Id判断用哪个timeSeries拼串为SQL查得值。
     MetricsChartDataVO metricsChartDataVO = null;
     MetricsDataForDiagramVO metricsDataForDiagramVO = new MetricsDataForDiagramVO();
