@@ -33,6 +33,6 @@ services:
     ports:
       - 8081:80  #访问端口
     environment:
-      - PORTS=9090  #后端启动端口
+      - BACKEND_ADDRESS=backend:9090  #后端启动端口
     depends_on:
       - backend

@@ -18,6 +18,8 @@
 #
 FROM  openjdk:8-jdk-oracle
 
+ENV JAVA_MEM_OPTS="-Xmx1024m -Xms1024m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m"
+
 COPY  target/*.jar /app/app.jar
 
 RUN mkdir /data
@@ -25,4 +27,4 @@ RUN mkdir /data
 #与启动端口保持一致
 EXPOSE 9090
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "${JAVA_MEM_OPTS}","/app/app.jar"]

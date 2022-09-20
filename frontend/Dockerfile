@@ -20,10 +20,10 @@
 FROM nginx:1.20-alpine
 
 # make the 'app' folder the current working directory
-ENV PORT=9090
+ENV BACKEND_ADDRESS=backend:9090
 COPY nginx.conf  /etc/nginx/conf.d/
 RUN rm -rf /usr/share/nginx/html/*
 COPY dist/ /usr/share/nginx/html/
 WORKDIR /etc/nginx/conf.d
-ENTRYPOINT envsubst '$PORT'  < nginx.conf > default.conf &&rm nginx.conf && nginx -g 'daemon off;'
+ENTRYPOINT envsubst '$BACKEND_ADDRESS'  < nginx.conf > default.conf &&rm nginx.conf && nginx -g 'daemon off;'
 EXPOSE 80
