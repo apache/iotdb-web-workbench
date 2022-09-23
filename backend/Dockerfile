@@ -24,7 +24,8 @@ COPY  target/*.jar /app/app.jar
 
 RUN mkdir /data
 
-#与启动端口保持一致
 EXPOSE 9090
+
+FROM openjdk:8-jdk-oracle
 
 ENTRYPOINT ["java", "-jar", "${JAVA_MEM_OPTS}","/app/app.jar"]

@@ -22,6 +22,8 @@ function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
+const Version = new Date().getTime();
+
 module.exports = {
   chainWebpack: (config) => {
     config.resolve.alias.set('@', resolve('./src')).set('components', resolve('./src/components'));
@@ -30,14 +32,28 @@ module.exports = {
     loaderOptions: {
       sass: {
         prependData: `@use "@/styles/variables.scss" as *;`,
+        sassOptions: {
+          outputStyle: 'expanded',
+        },
       },
     },
+    extract: {
+      filename: `css/[name].${Version}.css`,
+      chunkFilename: `css/chunk.[id].${Version}.css`,
+    },
   },
+  configureWebpack: {
+    output: {
+      filename: `js/[name].${Version}.js`,
+      chunkFilename: `js/chunk.[id].${Version}.js`,
+    },
+  },
+  productionSourceMap: false,
   devServer: {
     proxy: {
       '/.*': {
-        target: 'http://127.0.0.1:9090',
-        changeOrigin: true,
+        target: 'http://192.168.1.84:9090',
+        progress: false,
       },
     },
   },
