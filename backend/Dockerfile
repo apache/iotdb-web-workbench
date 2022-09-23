@@ -16,14 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+FROM  openjdk:8-jdk-oracle
 
+ENV JAVA_MEM_OPTS="-Xmx1024m -Xms1024m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m"
 
+COPY  target/*.jar /app/app.jar
 
+RUN mkdir /data
 
-FROM openjdk:8-jdk-oracle
+EXPOSE 9090
 
-COPY --from=builder /app/target/workbench-1.0.0.jar /app/workbench-1.0.0.jar
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "/app/workbench-1.0.0.jar"]
+ENTRYPOINT ["java", "-jar", "${JAVA_MEM_OPTS}","/app/app.jar"]

@@ -42,4 +42,19 @@ IoTDB-Workbench是IoTDB的可视化管理工具，可对IoTDB的数据进行增�
 
 ## Docker
 
+1、构建镜像:将前后后端分别打包构建出target和dist目录，然后在对应的目录下执行命令(当docker hub 有下面镜像时可以省去构建镜像步骤)
+
+```shell script
+  cd bacnkend
+  docker build -t apache/iotdb-web-workbench:0.13.0-backend .
+  cd frontend
+  docker build -t apache/iotdb-web-frontend:0.13.0-frontend .
+```
+
+2、将backend/resources/sqlite目录下的iotdb拷贝到你需要挂载的路径，如/data/iotdb.db
+
+3、在根目录下执行
+
 `docker-compose up -d`
+
+> 注意 docker-compose.yml中volumes挂载路径为步骤2中所指定路径；PORTS和你后端端口的值一样。

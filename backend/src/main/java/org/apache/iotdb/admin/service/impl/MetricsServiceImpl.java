@@ -1559,13 +1559,19 @@ public class MetricsServiceImpl implements MetricsService {
   public List<MetricsListDataVO> getDiskMetricsDataList(Connection connection)
       throws BaseException {
     List<MetricsListDataVO> list = new ArrayList<>();
-    list.add(getDiskTotalSize(connection));
-    list.add(getDiskLoadSize(connection));
-    list.add(getDiskAvailableSize(connection));
-    list.add(getDiskIO(connection));
-    list.add(getWalFileCountAndSize(connection));
-    list.add(getSeqTSFileCountAndSize(connection));
-    list.add(getUnSeqTSFileCountAndSize(connection));
+
+    try {
+      list.add(getDiskTotalSize(connection));
+      list.add(getDiskLoadSize(connection));
+      list.add(getDiskAvailableSize(connection));
+      list.add(getDiskIO(connection));
+      list.add(getWalFileCountAndSize(connection));
+      list.add(getSeqTSFileCountAndSize(connection));
+    } catch (Exception e) {
+      e.printStackTrace();
+      return list;
+    }
+
     return list;
   }
 

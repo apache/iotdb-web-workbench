@@ -23,6 +23,5 @@ import org.apache.iotdb.admin.model.entity.ViewMode;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public interface ViewModeMapper extends BaseMapper<ViewMode> {}
