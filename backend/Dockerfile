@@ -26,6 +26,4 @@ RUN mkdir /data
 
 EXPOSE 9090
 
-FROM openjdk:8-jdk-oracle
-
 ENTRYPOINT ["java", "-jar", "${JAVA_MEM_OPTS}","/app/app.jar"]
