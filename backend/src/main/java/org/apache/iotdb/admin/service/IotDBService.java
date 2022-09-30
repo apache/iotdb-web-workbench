@@ -160,7 +160,8 @@ public interface IotDBService {
       Connection connection, String deviceName, String timeseriesName, String dataType)
       throws BaseException;
 
-  List<SqlResultVO> queryAll(Connection connection, List<String> sqls, Long timestamp)
+  List<SqlResultVO> queryAll(
+      Connection connection, List<String> sqls, Long timestamp, Boolean isShowAll)
       throws BaseException;
 
   void updatePwd(Connection connection, IotDBUser iotDBUser) throws BaseException;

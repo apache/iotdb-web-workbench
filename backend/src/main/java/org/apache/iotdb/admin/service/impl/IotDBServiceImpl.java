@@ -19,6 +19,7 @@
 
 package org.apache.iotdb.admin.service.impl;
 
+import org.apache.iotdb.admin.common.AggregateFunctionEnum;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.*;
@@ -115,7 +116,12 @@ public class IotDBServiceImpl implements IotDBService {
       int measurementCount = Integer.parseInt(measurementCountStr);
       List<String> dataCountList = new ArrayList<>();
       if (versionFlag == 13) {
-        dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root.**");
+        int maxMeasurementCount = 100000;
+        if (measurementCount > maxMeasurementCount) {
+          dataCountList.add("-1");
+        } else {
+          dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root.**");
+        }
       } else if (versionFlag == 12) {
         try {
           dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root.*");
@@ -2489,7 +2495,8 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public List<SqlResultVO> queryAll(Connection connection, List<String> sqls, Long timestamp)
+  public List<SqlResultVO> queryAll(
+      Connection connection, List<String> sqls, Long timestamp, Boolean isShowAll)
       throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
     List<SqlResultVO> results;
@@ -2503,12 +2510,63 @@ public class IotDBServiceImpl implements IotDBService {
         if (StringUtils.isBlank(sql)) {
           continue;
         }
-        String judge = sql.toLowerCase();
-        if (judge.startsWith("show")
-            || judge.startsWith("count")
-            || judge.startsWith("list")
-            || judge.startsWith("select")) {
+        String judge = sql.toLowerCase().trim();
+        sql = sql.trim();
+        if (judge.endsWith(";")) {
+          judge = judge.substring(0, judge.length() - 1);
+          sql = sql.substring(0, sql.length() - 1);
+        }
+        // sql:show storage group 不做限制
+        if (judge.startsWith("show ")
+            && judge.indexOf(" storage ") != -1
+            && judge.indexOf(" group") != -1) {
           SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          sqlResultVO.setRows((long) sqlResultVO.getValueList().size());
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
+          results.add(sqlResultVO);
+          continue;
+        } else if (judge.startsWith("show ") && judge.indexOf(" timeseries") != -1) {
+          // aql:show timeseries 限制1000条
+          String sqlCount = "count timeseries ";
+          if (sql.indexOf(" root.") != -1) {
+            String limitSeries = sql.substring(sql.indexOf(" root."));
+            sqlCount += limitSeries;
+          }
+          SqlResultVO sqlResultVOCount = executeQuery(sessionPool, sqlCount, id_plus_timestamp);
+          if (!isShowAll && judge.indexOf(" limit") == -1) {
+            sql += " limit 1000";
+          }
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          List<List<String>> valueList = sqlResultVOCount.getValueList();
+          if (valueList != null && valueList.size() >= 0) {
+            sqlResultVO.setRows(Long.parseLong(valueList.get(0).get(0)));
+          }
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
+          results.add(sqlResultVO);
+          continue;
+        } else if (judge.startsWith("count")
+            || AggregateFunctionEnum.isAggregateFunctionQuery(judge)) {
+          // 聚合函数不做限制
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          sqlResultVO.setRows((long) sqlResultVO.getValueList().size());
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
+          results.add(sqlResultVO);
+          continue;
+        } else if (judge.startsWith("show") && judge.indexOf(" limit ") != -1) {
+          // 普通查询已做限制
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          sqlResultVO.setRows((long) sqlResultVO.getValueList().size());
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
+          results.add(sqlResultVO);
+          continue;
+        } else if (judge.startsWith("select")) {
+          // 普通查询未做限制
+          if (!isShowAll) {
+            sql += " limit 100 slimit 10";
+          }
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          sqlResultVO.setRows((long) sqlResultVO.getValueList().size());
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
           results.add(sqlResultVO);
           continue;
         }
@@ -2598,7 +2656,7 @@ public class IotDBServiceImpl implements IotDBService {
           long currentTimeMillis = System.currentTimeMillis();
           queryDataVO.setId(i);
           queryDataVO.setStatement(
-              "select * from root._metric.'127.0.0.1:8086'.'process_cpu_time'.'name=process'");
+              "select * from root._metric.'0.0.0.0:8086'.'process_cpu_time'.'name=process'");
           queryDataVO.setRunningTime(currentTimeMillis);
           queryDataVO.setIsSlowQuery(i % 2 == 0 ? false : true);
           queryDataVO.setTotalTime((int) (currentTimeMillis % 100));
@@ -2616,7 +2674,7 @@ public class IotDBServiceImpl implements IotDBService {
           long currentTimeMillis = System.currentTimeMillis();
           queryDataVO.setId(i);
           queryDataVO.setStatement(
-              "select * from root._metric.'127.0.0.1:8086'.'process_cpu_time'.'name=process'");
+              "select * from root._metric.'0.0.0.0:8086'.'process_cpu_time'.'name=process'");
           queryDataVO.setRunningTime(currentTimeMillis);
           queryDataVO.setIsSlowQuery(i % 2 == 0 ? false : true);
           queryDataVO.setTotalTime((int) (currentTimeMillis % 100));
@@ -2695,6 +2753,8 @@ public class IotDBServiceImpl implements IotDBService {
       port = 6667;
       url = "0.0.0.0";
     }
+    url = "0.0.0.0";
+    port = 6667;
     // TODO: 指标先写死，后面根据指标Id判断用哪个timeSeries拼串为SQL查得值。
     MetricsChartDataVO metricsChartDataVO = null;
     MetricsDataForDiagramVO metricsDataForDiagramVO = new MetricsDataForDiagramVO();
@@ -2776,9 +2836,9 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.buffer.memory.used\".\"id=mapped\" "
+            + "\".\"jvm.buffer.memory.used.bytes\".\"id=mapped\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     //      try {
@@ -2872,31 +2932,31 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=closeOperation\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=executeQueryStatement\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=executeStatement\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=getProperties\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=insertRecord\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=closeSession\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=openSession\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=requestStatementId\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"entry_total\".\"name=fetchResults\" "
             + "order by time desc limit 16";
@@ -2978,9 +3038,9 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.buffer.memory.used\".\"id=mapped\" "
+            + "\".\"jvm.buffer.memory.used.bytes\".\"id=mapped\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     //      try {
@@ -3063,9 +3123,9 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.buffer.memory.used\".\"id=mapped\" "
+            + "\".\"jvm.buffer.memory.used.bytes\".\"id=mapped\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     //      try {
@@ -3149,13 +3209,13 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"file_size\".\"name=wal\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"file_size\".\"name=seq\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"file_size\".\"name=unseq\" "
             + "order by time desc limit 16";
@@ -3230,13 +3290,13 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"file_count\".\"name=wal\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"file_count\".\"name=seq\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"file_count\".\"name=unseq\" "
             + "order by time desc limit 16";
@@ -3306,9 +3366,9 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.buffer.memory.used\".\"id=mapped\" "
+            + "\".\"jvm.buffer.memory.used.bytes\".\"id=mapped\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     //      try {
@@ -3382,18 +3442,18 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.buffer.memory.used\".\"id=mapped\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.buffer.memory.used.bytes\".\"id=mapped\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.buffer.memory.used\".\"id=direct\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.buffer.memory.used.bytes\".\"id=direct\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.buffer.total.capacity\".\"id=mapped\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.buffer.total.capacity.bytes\".\"id=mapped\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.buffer.total.capacity\".\"id=direct\" "
+            + "\".\"jvm.buffer.total.capacity.bytes\".\"id=direct\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     try {
@@ -3459,42 +3519,42 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Compressed Class Space\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.max.bytes\".\"area=nonheap\".\"id=Compressed Class Space\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Code Cache\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.max.bytes\".\"area=nonheap\".\"id=Code Cache\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.max\".\"area=nonheap\".\"id=Metaspace\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.max.bytes\".\"area=nonheap\".\"id=Metaspace\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Old Gen\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.max.bytes\".\"area=heap\".\"id=PS Old Gen\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Eden Space\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.max.bytes\".\"area=heap\".\"id=PS Eden Space\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.max\".\"area=heap\".\"id=PS Survivor Space\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.max.bytes\".\"area=heap\".\"id=PS Survivor Space\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Compressed Class Space\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.used.bytes\".\"area=nonheap\".\"id=Compressed Class Space\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Code Cache\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.used.bytes\".\"area=nonheap\".\"id=Code Cache\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.used\".\"area=nonheap\".\"id=Metaspace\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.used.bytes\".\"area=nonheap\".\"id=Metaspace\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Old Gen\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.used.bytes\".\"area=heap\".\"id=PS Old Gen\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Eden Space\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.memory.used.bytes\".\"area=heap\".\"id=PS Eden Space\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.memory.used\".\"area=heap\".\"id=PS Survivor Space\" "
+            + "\".\"jvm.memory.used.bytes\".\"area=heap\".\"id=PS Survivor Space\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     try {
@@ -3574,26 +3634,27 @@ public class IotDBServiceImpl implements IotDBService {
     if (port == 6668) {
       port = 8086;
     }
+
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.states\".\"state=new\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.threads.states.threads\".\"state=new\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.states\".\"state=waiting\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.threads.states.threads\".\"state=waiting\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.states\".\"state=runnable\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.threads.states.threads\".\"state=runnable\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.states\".\"state=blocked\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.threads.states.threads\".\"state=blocked\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.states\".\"state=timed-waiting\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.threads.states.threads\".\"state=timed-waiting\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.states\".\"state=terminated\" "
+            + "\".\"jvm.threads.states.threads\".\"state=terminated\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     try {
@@ -3669,12 +3730,12 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.daemon\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.threads.daemon.threads\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.live\" "
+            + "\".\"jvm.threads.live.threads\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     try {
@@ -3745,12 +3806,12 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.daemon\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.threads.daemon.threads\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.threads.live\" "
+            + "\".\"jvm.threads.live.threads\" "
             + "order by time desc limit 1";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     //      try {
@@ -3822,10 +3883,10 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Allocation Failure\" "
             + "order by time desc limit 1";
@@ -3878,7 +3939,7 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\" "
             + "order by time desc limit 1";
@@ -3929,14 +3990,15 @@ public class IotDBServiceImpl implements IotDBService {
     if (port == 6668) {
       port = 8086;
     }
+    port = 6667;
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.classes.loaded\", "
-            + "root._metric.\"127.0.0.1:"
+            + "\".\"jvm.classes.loaded.classes\", "
+            + "root._metric.\"0.0.0.0:"
             + port
-            + "\".\"jvm.classes.unloaded\" "
+            + "\".\"jvm.classes.unloaded.classes\" "
             + "order by time desc limit 16";
     MetricsChartDataVO metricsChartDataVO = new MetricsChartDataVO();
     try {
@@ -4035,22 +4097,22 @@ public class IotDBServiceImpl implements IotDBService {
     }
     String sql =
         "select * from "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_count\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_count\".\"action=end of minor GC\".\"cause=Allocation Failure\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_count\".\"action=end of major GC\".\"cause=Metadata GC Threshold\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Metadata GC Threshold\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_total\".\"action=end of minor GC\".\"cause=Allocation Failure\", "
-            + "root._metric.\"127.0.0.1:"
+            + "root._metric.\"0.0.0.0:"
             + port
             + "\".\"jvm.gc.pause_total\".\"action=end of major GC\".\"cause=Metadata GC Threshold\" "
             + "order by time desc limit 16";

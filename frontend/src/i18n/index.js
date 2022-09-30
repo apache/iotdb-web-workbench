@@ -23,7 +23,7 @@ import cn from './cn.js';
 import enLocale from 'element-plus/lib/locale/lang/en';
 import deLocale from 'element-plus/lib/locale/lang/de';
 import zhLocale from 'element-plus/lib/locale/lang/zh-cn';
-import { createI18n } from 'vue-i18n';
+import { createI18n } from 'vue-i18n/index';
 
 let messages = {
   ...en,

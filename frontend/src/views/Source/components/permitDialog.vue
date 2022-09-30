@@ -71,7 +71,7 @@
 
 <script>
 import { reactive, ref, watch, toRefs, nextTick, computed } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import TreeSelect from '@/components/TreeSelect';
 import api from '../api/index';
 // import axios from '@/util/axios.js';

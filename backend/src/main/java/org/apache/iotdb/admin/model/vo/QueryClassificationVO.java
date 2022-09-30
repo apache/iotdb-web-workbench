@@ -20,7 +20,6 @@ package org.apache.iotdb.admin.model.vo;
 
 import lombok.Data;
 
-
 @Data
 public class QueryClassificationVO {
   private Integer id;

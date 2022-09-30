@@ -30,4 +30,6 @@ public class SqlResultVO implements Serializable {
   private List<List<String>> valueList;
   private String queryTime;
   private Long line;
+  private Long rows;
+  private Long columns;
 }

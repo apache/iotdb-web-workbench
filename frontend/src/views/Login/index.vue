@@ -78,7 +78,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ElForm, ElFormItem, ElInput, ElButton, ElDialog, ElMessage, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import axios from '@/util/axios.js';
 import useLangSwitch from '@/views/Root/hooks/useLangSwitch.js';
 

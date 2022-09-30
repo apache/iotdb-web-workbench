@@ -44,7 +44,7 @@
 <script>
 import { ref, watch, getCurrentInstance, computed, watchEffect } from 'vue';
 import { useStore } from 'vuex';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import DialogGrantUser from './DialogGrantUser.vue';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';

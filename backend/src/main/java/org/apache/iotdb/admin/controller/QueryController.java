@@ -66,7 +66,9 @@ public class QueryController {
     check(request, serverId);
     Connection connection = connectionService.getById(serverId);
     Long timestamp = searchDTO.getTimestamp();
-    List<SqlResultVO> sqlResultVOList = iotDBService.queryAll(connection, sqls, timestamp);
+    Boolean isShowAll = searchDTO.getIsShowAll();
+    List<SqlResultVO> sqlResultVOList =
+        iotDBService.queryAll(connection, sqls, timestamp, isShowAll);
     return BaseVO.success("Execute the query script successfully", sqlResultVOList);
   }
 

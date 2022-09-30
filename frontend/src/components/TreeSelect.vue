@@ -28,7 +28,7 @@
 <script>
 import { ref, watch, computed } from 'vue';
 import { DataGranularityMap } from '@/util/constant';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 // import _cloneDeep from 'lodash/cloneDeep'
 export default {
   name: 'Test',
