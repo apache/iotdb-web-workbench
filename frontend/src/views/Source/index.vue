@@ -438,7 +438,7 @@ import {
 // import { Close } from '@element-plus/icons';
 import NewSource from './components/newSource.vue';
 import UserRole from './components/role/Index.vue';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import DataModal from './components/dataModal.vue';
 import axios from '@/util/axios.js';
 import setOperation from '@/util/setOperation.js';

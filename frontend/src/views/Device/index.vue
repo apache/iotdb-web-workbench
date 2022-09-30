@@ -58,7 +58,7 @@ import StandTable from '@/components/StandTable';
 import { ElButton, ElMessageBox, ElMessage } from 'element-plus';
 import { onActivated, reactive, ref } from 'vue';
 import { getDeviceDate, getList, deviceAddEdite, deleteData } from './api';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { useRoute, useRouter } from 'vue-router';
 import _cloneDeep from 'lodash/cloneDeep';
 import { useStore } from 'vuex';

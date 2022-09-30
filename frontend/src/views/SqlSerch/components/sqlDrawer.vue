@@ -42,7 +42,7 @@
 import { ElDialog, ElButton, ElForm, ElSelect, ElOption, ElFormItem, ElMessage } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { getlink } from '../api/index';
 export default {
   name: 'sqldrawer',

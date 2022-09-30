@@ -17,7 +17,7 @@
  * under the License.
  */
 import { watch, nextTick } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 function useLanguageWatch(refValue, callback) {
   let { locale } = useI18n();
   watch(locale, () => {

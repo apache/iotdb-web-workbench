@@ -62,7 +62,7 @@
 // @ is an alias to /src
 import { onMounted, reactive, ref } from 'vue';
 import { ElDialog, ElButton, ElForm, ElInput, ElFormItem, ElMessage } from 'element-plus';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import axios from '@/util/axios.js';
 import { useStore } from 'vuex';
 // import { useRoute } from 'vue-router';

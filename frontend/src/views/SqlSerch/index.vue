@@ -54,11 +54,16 @@
           <codemirror ref="codemirror" :codes="code" :sqlheight="sqlheight" @getCode="getCode"></codemirror>
         </div>
       </el-main>
-      <el-footer class="footer" :style="{ display: divwerHeight > 30 ? '' : 'none' }">
+      <el-footer class="footer">
         <div class="divider" ref="dividerRef"></div>
-        <div :style="{ height: divwerHeight + 'px', overflow: 'hidden' }">
+        <div :style="{ height: divwerHeight + 'px' }">
           <div class="tabs">
             <el-tabs v-model="activeName" @tab-click="handleClick" class="tabs_nav">
+              <div class="show_tips">
+                <p>默认显示最多展示前10列，前100行，&nbsp;现一共有{{ rows }}行，{{ columns }}列。</p>
+                是否展示全部 &nbsp;
+                <el-switch v-model="isShowAll" size="small" />
+              </div>
               <el-tab-pane v-for="(item, index) of column.list" :key="index" :name="`t${index}`">
                 <template #label>
                   <span>{{ $t('standTable.running') }}{{ index + 1 }}<i class="el-icon-more iconmore green"></i> </span>
@@ -72,7 +77,7 @@
                     :tableData="tableDataPagination[index]"
                     :lineHeight="5"
                     :celineHeight="5"
-                    :maxHeight="divwerHeight - 78"
+                    :maxHeight="300"
                     :pagination="pagination"
                     :total="total[index]"
                     :getList="getList(index)"
@@ -135,17 +140,17 @@
 </template>
 
 <script>
-import { ElContainer, ElMain, ElAside, ElHeader, ElFooter, ElTabs, ElTabPane, ElDialog, ElButton, ElInput, ElMessage, ElMessageBox } from 'element-plus';
+import { ElSwitch, ElContainer, ElMain, ElAside, ElHeader, ElFooter, ElTabs, ElTabPane, ElDialog, ElButton, ElInput, ElMessage, ElMessageBox } from 'element-plus';
 import StandTable from '@/components/StandTable';
 import formserch from './components/formserch';
 import formserchData from './components/formserchData';
 import useElementResize from './hooks/useElementResize.js';
 import codemirror from './components/codemirror';
 import eltooltip from './components/eltooltip';
-import { ref, computed, nextTick, reactive, onActivated } from 'vue';
+import { ref, computed, nextTick, reactive, onActivated, watch } from 'vue';
 import { querySql, saveQuery, getSql, queryStop, getGroup, deleteQueryS, exportDataSql } from './api/index';
 import { useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { handleExport } from '@/util/export';
 export default {
   name: 'Sqlserch',
@@ -169,6 +174,8 @@ export default {
     let activeName = ref(0);
     let activeNameRight = ref('first');
     let runFlag = ref(true);
+    let rows = ref(0);
+    let columns = ref(0);
     let line = reactive({
       list: [],
     });
@@ -183,6 +190,7 @@ export default {
     });
     let code = '';
     let codeArr = [];
+    let isShowAll = ref(false);
     const routeData = reactive({
       obj: route.params,
     });
@@ -198,7 +206,7 @@ export default {
     const total = computed(() => tableData.list.map((item) => item?.list?.length));
     const pagination = reactive({
       pageSize: 10,
-      pageNum: 1,
+      pageNum: 1000,
     });
     const pageNums = reactive([]);
     function getList(index) {
@@ -238,7 +246,7 @@ export default {
         divwerHeight.value = 400;
         timeNumber.value = Number(new Date());
         useElementResize(dividerRef, divwerHeight);
-        querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value })
+        querySql(routeData.obj.connectionid, { sqls: codeArr, timestamp: timeNumber.value, isShowAll: isShowAll.value })
           .then((res) => {
             activeName.value = 't0';
             column.list = [];
@@ -293,7 +301,10 @@ export default {
             // });
             display.value = true;
             runFlag.value = true;
+            rows.value = res.data[0].rows;
+            columns.value = res.data[0].columns;
             console.log(line.list);
+            console.log(rows, columns);
           })
           .finally(() => {
             runFlag.value = true;
@@ -305,6 +316,9 @@ export default {
         ElMessage.error(`${t('sqlserch.sqlrun')}`);
       }
     }
+    watch(isShowAll, () => {
+      querySqlRun();
+    });
     function centerDialog() {
       centerDialogVisible.value = false;
     }
@@ -454,11 +468,15 @@ export default {
       pageNums,
       tableDataPagination,
       key,
+      isShowAll,
+      columns,
+      rows,
     };
   },
   components: {
     eltooltip,
     codemirror,
+    ElSwitch,
     ElContainer,
     ElMain,
     ElAside,
@@ -517,6 +535,16 @@ export default {
       background-color: $theme-color !important;
       height: 2px;
     }
+  }
+  .show_tips {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    float: right;
+    color: #606266;
+    margin: 10px 20px 10px 0;
+    z-index: 99999;
   }
   :deep(.tabs) {
     height: 40px;

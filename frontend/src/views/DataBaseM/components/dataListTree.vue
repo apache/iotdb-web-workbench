@@ -79,7 +79,7 @@ import { useStore } from 'vuex';
 import IconTypes from './iconTypes.vue';
 import axios from '@/util/axios.js';
 import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import NewSource from '../../Source/components/newSource';
 import SqlDrawer from '../../SqlSerch/components/sqlDrawer';
 

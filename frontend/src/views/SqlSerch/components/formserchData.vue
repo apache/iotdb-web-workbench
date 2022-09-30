@@ -45,7 +45,7 @@ import { ElInput, ElSelect, ElOption } from 'element-plus';
 import { ref, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { getCList, getDevice } from '../api/index';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 export default {
   props: {
     placeholder: String,

@@ -45,7 +45,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from
 import { useRouter, useRoute } from 'vue-router';
 import IndicatorChart from './indicatorChart';
 import useInitChart from '../hooks/useInitChart';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 export default {
   name: 'IndicatorPanel',
   props: {

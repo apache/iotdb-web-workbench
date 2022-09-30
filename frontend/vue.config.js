@@ -52,7 +52,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/.*': {
-        target: 'http://192.168.1.84:9090',
+        target: 'http://127.0.0.1:9091',
         progress: false,
       },
     },

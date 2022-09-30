@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { ref, onActivated, onDeactivated, getCurrentInstance, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../../api/index';

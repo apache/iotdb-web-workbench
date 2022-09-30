@@ -118,7 +118,7 @@ import { get } from 'lodash';
 import { ElMessage } from 'element-plus';
 import { handleExport } from '@/util/export';
 import { computed, nextTick, onMounted, reactive, ref, toRefs, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import zhCn from 'element-plus/lib/locale/lang/zh-cn';
 import en from 'element-plus/lib/locale/lang/en';
 import de from 'element-plus/lib/locale/lang/de';

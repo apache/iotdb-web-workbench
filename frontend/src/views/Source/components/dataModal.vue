@@ -25,7 +25,7 @@
 import { onMounted, onActivated, ref, onDeactivated } from 'vue';
 import * as echarts from 'echarts';
 // import { ElButton } from 'element-plus';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import axios from '@/util/axios.js';
 // import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
