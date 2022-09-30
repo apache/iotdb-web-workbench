@@ -590,7 +590,7 @@ public class MetricsServiceImpl implements MetricsService {
         JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
         if (values.size() > 0) {
 
-        } else {
+        }else {
             jvmMetricsListDataVO.setLatestResult("0");
             jvmMetricsListDataVO.setLatestScratchTime("0");
         }
@@ -623,7 +623,7 @@ public class MetricsServiceImpl implements MetricsService {
         JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
         if (values.size() > 0) {
 
-        } else {
+        }else {
             jvmMetricsListDataVO.setLatestResult("0");
             jvmMetricsListDataVO.setLatestScratchTime("0");
         }
@@ -656,7 +656,7 @@ public class MetricsServiceImpl implements MetricsService {
         JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
         if (values.size() > 0) {
 
-        } else {
+        }else {
             jvmMetricsListDataVO.setLatestResult("0");
             jvmMetricsListDataVO.setLatestScratchTime("0");
         }
@@ -689,7 +689,7 @@ public class MetricsServiceImpl implements MetricsService {
         JVMMetricsListDataVO jvmMetricsListDataVO = new JVMMetricsListDataVO();
         if (values.size() > 0) {
 
-        } else {
+        }else {
             jvmMetricsListDataVO.setLatestResult("0");
             jvmMetricsListDataVO.setLatestScratchTime("0");
         }
@@ -725,7 +725,7 @@ public class MetricsServiceImpl implements MetricsService {
             String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
             jvmMetricsListDataVO.setLatestResult(latestResult);
             jvmMetricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             jvmMetricsListDataVO.setLatestResult("0");
             jvmMetricsListDataVO.setLatestScratchTime("0");
         }
@@ -761,7 +761,7 @@ public class MetricsServiceImpl implements MetricsService {
             String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
             jvmMetricsListDataVO.setLatestResult(latestResult);
             jvmMetricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             jvmMetricsListDataVO.setLatestResult("0");
             jvmMetricsListDataVO.setLatestScratchTime("0");
         }
@@ -793,7 +793,7 @@ public class MetricsServiceImpl implements MetricsService {
             String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
             jvmMetricsListDataVO.setLatestResult(latestResult);
             jvmMetricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             jvmMetricsListDataVO.setLatestResult("0");
             jvmMetricsListDataVO.setLatestScratchTime("0");
         }
@@ -826,7 +826,7 @@ public class MetricsServiceImpl implements MetricsService {
             String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -860,7 +860,7 @@ public class MetricsServiceImpl implements MetricsService {
 
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -898,7 +898,7 @@ public class MetricsServiceImpl implements MetricsService {
 
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -930,7 +930,7 @@ public class MetricsServiceImpl implements MetricsService {
 
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -960,7 +960,7 @@ public class MetricsServiceImpl implements MetricsService {
 
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -990,7 +990,7 @@ public class MetricsServiceImpl implements MetricsService {
             String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -1018,12 +1018,11 @@ public class MetricsServiceImpl implements MetricsService {
         metricsListDataVO.setDetailAvailable(detailAvailable);
         if (values.size() > 0) {
             long lastestTimeStamp = Long.parseLong(values.get(0));
-            //    String latestResult = getNetFileSizeDescription((long)Double.parseDouble(values.get(1)));
-            String latestResult = "【假数据：指标暂缺】2G";
+                String latestResult = getNetFileSizeDescription((long)Double.parseDouble(values.get(1)));
             String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -1055,7 +1054,7 @@ public class MetricsServiceImpl implements MetricsService {
             String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -1081,11 +1080,11 @@ public class MetricsServiceImpl implements MetricsService {
         MetricsListDataVO metricsListDataVO = new MetricsListDataVO();
         if (values.size() > 0) {
             long lastestTimeStamp = Long.parseLong(values.get(0));
-            String latestResult = "【假数据：指标暂缺】136K/s";
+            String latestResult = values.get(1);
             String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
             metricsListDataVO.setLatestResult(latestResult);
             metricsListDataVO.setLatestScratchTime(latestScratchTime);
-        } else {
+        }else {
             metricsListDataVO.setLatestResult("0");
             metricsListDataVO.setLatestScratchTime("0");
         }
@@ -1112,19 +1111,19 @@ public class MetricsServiceImpl implements MetricsService {
         MetricsListDataVO metricsListDataVO = new MetricsListDataVO();
         metricsListDataVO.setDetailAvailable(detailAvailable);
 
-//        if (values.size() > 0) {
-//            long lastestTimeStamp = Long.parseLong(values.get(0));
-//            String count = values.get(1);
-//            count = count.substring(0, count.indexOf('.'));
-//            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
-//            String latestResult = "数量：" + count + "；" + "大小：" + size;
-//            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
-//            metricsListDataVO.setLatestResult(latestResult);
-//            metricsListDataVO.setLatestScratchTime(latestScratchTime);
-//        }else {
-        metricsListDataVO.setLatestResult("0");
-        metricsListDataVO.setLatestScratchTime("0");
-//        }
+        if (values.size() > 0) {
+            long lastestTimeStamp = Long.parseLong(values.get(0));
+            String count = values.get(1);
+            count = count.substring(0, count.indexOf('.'));
+            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
+            String latestResult = "数量：" + count + "；" + "大小：" + size;
+            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
+            metricsListDataVO.setLatestResult(latestResult);
+            metricsListDataVO.setLatestScratchTime(latestScratchTime);
+        }else {
+            metricsListDataVO.setLatestResult("0");
+            metricsListDataVO.setLatestScratchTime("0");
+        }
 
         metricsListDataVO.setName(name);
         return metricsListDataVO;
@@ -1146,19 +1145,19 @@ public class MetricsServiceImpl implements MetricsService {
 
         MetricsListDataVO metricsListDataVO = new MetricsListDataVO();
         metricsListDataVO.setDetailAvailable(detailAvailable);
-//        if (values.size() > 0) {
-//            long lastestTimeStamp = Long.parseLong(values.get(0));
-//            String count = values.get(1);
-//            count = count.substring(0, count.indexOf('.'));
-//            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
-//            String latestResult = "数量：" + count + "；" + "大小：" + size;
-//            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
-//            metricsListDataVO.setLatestResult(latestResult);
-//            metricsListDataVO.setLatestScratchTime(latestScratchTime);
-//        }else {
-        metricsListDataVO.setLatestResult("0");
-        metricsListDataVO.setLatestScratchTime("0");
-//        }
+        if (values.size() > 0) {
+            long lastestTimeStamp = Long.parseLong(values.get(0));
+            String count = values.get(1);
+            count = count.substring(0, count.indexOf('.'));
+            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
+            String latestResult = "数量：" + count + "；" + "大小：" + size;
+            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
+            metricsListDataVO.setLatestResult(latestResult);
+            metricsListDataVO.setLatestScratchTime(latestScratchTime);
+        }else {
+            metricsListDataVO.setLatestResult("0");
+            metricsListDataVO.setLatestScratchTime("0");
+        }
 
         metricsListDataVO.setName(name);
         return metricsListDataVO;
@@ -1181,19 +1180,19 @@ public class MetricsServiceImpl implements MetricsService {
         MetricsListDataVO metricsListDataVO = new MetricsListDataVO();
         metricsListDataVO.setDetailAvailable(detailAvailable);
 
-//        if (values.size() > 0) {
-//            long lastestTimeStamp = Long.parseLong(values.get(0));
-//            String count = values.get(1);
-//            count = count.substring(0, count.indexOf('.'));
-//            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
-//            String latestResult = "数量：" + count + "；" + "大小：" + size;
-//            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
-//            metricsListDataVO.setLatestResult(latestResult);
-//            metricsListDataVO.setLatestScratchTime(latestScratchTime);
-//        }else {
-        metricsListDataVO.setLatestResult("0");
-        metricsListDataVO.setLatestScratchTime("0");
-//        }
+        if (values.size() > 0) {
+            long lastestTimeStamp = Long.parseLong(values.get(0));
+            String count = values.get(1);
+            count = count.substring(0, count.indexOf('.'));
+            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
+            String latestResult = "数量：" + count + "；" + "大小：" + size;
+            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
+            metricsListDataVO.setLatestResult(latestResult);
+            metricsListDataVO.setLatestScratchTime(latestScratchTime);
+        }else {
+            metricsListDataVO.setLatestResult("0");
+            metricsListDataVO.setLatestScratchTime("0");
+        }
 
         metricsListDataVO.setName(name);
         return metricsListDataVO;
@@ -1216,19 +1215,19 @@ public class MetricsServiceImpl implements MetricsService {
         MetricsListDataVO metricsListDataVO = new MetricsListDataVO();
         metricsListDataVO.setDetailAvailable(detailAvailable);
 
-//        if (values.size() > 0) {
-//            long lastestTimeStamp = Long.parseLong(values.get(0));
-//            String count = values.get(1);
-//            count = count.substring(0, count.indexOf('.'));
-//            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
-//            String latestResult = "【假数据：指标暂缺】" + count + "%";
-//            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
-//            metricsListDataVO.setLatestResult(latestResult);
-//            metricsListDataVO.setLatestScratchTime(latestScratchTime);
-//        }else {
-        metricsListDataVO.setLatestResult("0");
-        metricsListDataVO.setLatestScratchTime("0");
-//        }
+        if (values.size() > 0) {
+            long lastestTimeStamp = Long.parseLong(values.get(0));
+            String count = values.get(1);
+            count = count.substring(0, count.indexOf('.'));
+            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
+            String latestResult =  count + "%";
+            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
+            metricsListDataVO.setLatestResult(latestResult);
+            metricsListDataVO.setLatestScratchTime(latestScratchTime);
+        }else {
+            metricsListDataVO.setLatestResult("0");
+            metricsListDataVO.setLatestScratchTime("0");
+        }
 
         metricsListDataVO.setName(name);
         return metricsListDataVO;
@@ -1248,22 +1247,21 @@ public class MetricsServiceImpl implements MetricsService {
         SessionPool sessionPool = getSessionPool(connection);
         List<String> values = executeQueryOneLine(sessionPool, sql);
 
-        MetricsListDataVO metricsListDataVO = new MetricsListDataVO();
-        metricsListDataVO.setDetailAvailable(detailAvailable);
+        MetricsListDataVO metricsListDataVO = new MetricsListDataVO();        metricsListDataVO.setDetailAvailable(detailAvailable);
 
-//        if (values.size() > 0) {
-//            long lastestTimeStamp = Long.parseLong(values.get(0));
-//            String count = values.get(1);
-//            count = count.substring(0, count.indexOf('.'));
-//            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
-//            String latestResult = "【假数据：指标暂缺】" + "100" + "次";
-//            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
-//            metricsListDataVO.setLatestResult(latestResult);
-//            metricsListDataVO.setLatestScratchTime(latestScratchTime);
-//        }else {
-        metricsListDataVO.setLatestResult("0");
-        metricsListDataVO.setLatestScratchTime("0");
-//        }
+        if (values.size() > 0) {
+            long lastestTimeStamp = Long.parseLong(values.get(0));
+            String count = values.get(1);
+            count = count.substring(0, count.indexOf('.'));
+            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
+            String latestResult =  count + "次";
+            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
+            metricsListDataVO.setLatestResult(latestResult);
+            metricsListDataVO.setLatestScratchTime(latestScratchTime);
+        }else {
+            metricsListDataVO.setLatestResult("0");
+            metricsListDataVO.setLatestScratchTime("0");
+        }
 
         metricsListDataVO.setName(name);
         return metricsListDataVO;
@@ -1283,22 +1281,21 @@ public class MetricsServiceImpl implements MetricsService {
         SessionPool sessionPool = getSessionPool(connection);
         List<String> values = executeQueryOneLine(sessionPool, sql);
 
-        MetricsListDataVO metricsListDataVO = new MetricsListDataVO();
-        metricsListDataVO.setDetailAvailable(detailAvailable);
-//
-//        if (values.size() > 0) {
-//            long lastestTimeStamp = Long.parseLong(values.get(0));
-//            String count = values.get(1);
-//            count = count.substring(0, count.indexOf('.'));
-//            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
-//            String latestResult = "【假数据：指标暂缺】" + "20" + "次";
-//            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
-//            metricsListDataVO.setLatestResult(latestResult);
-//            metricsListDataVO.setLatestScratchTime(latestScratchTime);
-//        }else {
-        metricsListDataVO.setLatestResult("0");
-        metricsListDataVO.setLatestScratchTime("0");
-//        }
+        MetricsListDataVO metricsListDataVO = new MetricsListDataVO();        metricsListDataVO.setDetailAvailable(detailAvailable);
+
+        if (values.size() > 0) {
+            long lastestTimeStamp = Long.parseLong(values.get(0));
+            String count = values.get(1);
+            count = count.substring(0, count.indexOf('.'));
+            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
+            String latestResult =  count + "次";
+            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
+            metricsListDataVO.setLatestResult(latestResult);
+            metricsListDataVO.setLatestScratchTime(latestScratchTime);
+        }else {
+            metricsListDataVO.setLatestResult("0");
+            metricsListDataVO.setLatestScratchTime("0");
+        }
 
         metricsListDataVO.setName(name);
         return metricsListDataVO;
@@ -1321,17 +1318,17 @@ public class MetricsServiceImpl implements MetricsService {
         String count = values.get(1);
 
         MetricsListDataVO metricsListDataVO = new MetricsListDataVO();
-//        if (values.size() > 0) {
-//            count = count.substring(0, count.indexOf('.'));
-//            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
-//            String latestResult = "【假数据：指标暂缺】" + "80" + "%";
-//            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
-//            metricsListDataVO.setLatestResult(latestResult);
-//            metricsListDataVO.setLatestScratchTime(latestScratchTime);
-//        }else {
-        metricsListDataVO.setLatestResult("0");
-        metricsListDataVO.setLatestScratchTime("0");
-//        }
+        if (values.size() > 0) {
+            count = count.substring(0, count.indexOf('.'));
+            String size = getNetFileSizeDescription((long) Double.parseDouble(values.get(2)));
+            String latestResult =   count + "%";
+            String latestScratchTime = simpleDateFormat.format(lastestTimeStamp);
+            metricsListDataVO.setLatestResult(latestResult);
+            metricsListDataVO.setLatestScratchTime(latestScratchTime);
+        }else {
+            metricsListDataVO.setLatestResult("0");
+            metricsListDataVO.setLatestScratchTime("0");
+        }
         metricsListDataVO.setDetailAvailable(detailAvailable);
 
         metricsListDataVO.setName(name);
