@@ -2695,6 +2695,8 @@ public class IotDBServiceImpl implements IotDBService {
       port = 6667;
       url = "0.0.0.0";
     }
+    url = "0.0.0.0";
+    port = 6667;
     // TODO: 指标先写死，后面根据指标Id判断用哪个timeSeries拼串为SQL查得值。
     MetricsChartDataVO metricsChartDataVO = null;
     MetricsDataForDiagramVO metricsDataForDiagramVO = new MetricsDataForDiagramVO();
@@ -3574,6 +3576,7 @@ public class IotDBServiceImpl implements IotDBService {
     if (port == 6668) {
       port = 8086;
     }
+
     String sql =
         "select * from "
             + "root._metric.\"0.0.0.0:"
@@ -3929,6 +3932,7 @@ public class IotDBServiceImpl implements IotDBService {
     if (port == 6668) {
       port = 8086;
     }
+    port = 6667;
     String sql =
         "select * from "
             + "root._metric.\"0.0.0.0:"
