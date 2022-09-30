@@ -2702,7 +2702,7 @@ public class IotDBServiceImpl implements IotDBService {
     MetricsDataForDiagramVO metricsDataForDiagramVO = new MetricsDataForDiagramVO();
     switch (metricId) {
       case 0:
-        metricsChartDataVO = getJVMGCDiagramData(sessionPool, sessionDataSetWrapper, url, port);
+//        metricsChartDataVO = getJVMGCDiagramData(sessionPool, sessionDataSetWrapper, url, port);
         break;
       case 1:
         metricsChartDataVO = getJVMLoadDiagramData(sessionPool, sessionDataSetWrapper, url, port);
@@ -2745,7 +2745,7 @@ public class IotDBServiceImpl implements IotDBService {
         metricsChartDataVO = getQueryCount(sessionPool, sessionDataSetWrapper, url, port);
         break;
       case 14:
-        metricsChartDataVO = getInterfaceCount(sessionPool, sessionDataSetWrapper, url, port);
+//        metricsChartDataVO = getInterfaceCount(sessionPool, sessionDataSetWrapper, url, port);
         break;
       case 15:
         metricsChartDataVO = getInterfaceTime(sessionPool, sessionDataSetWrapper, url, port);
@@ -3846,8 +3846,8 @@ public class IotDBServiceImpl implements IotDBService {
           String pattern1 = "HH:mm";
           SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
           timeList.add(simpleDateFormat1.format(timestamp));
-          metadata_GC_Threshold_Reason.add(Float.parseFloat(fields1.get(0).toString()) + "");
-          Allocation_Failure_Reason.add(Float.parseFloat(fields1.get(1).toString()) + "");
+          metadata_GC_Threshold_Reason.add(rowRecord.getTimestamp()+"");
+          Allocation_Failure_Reason.add(Float.parseFloat(fields1.get(0).toString()) + "");
         }
         dataList.put(metricnameList.get(0), metadata_GC_Threshold_Reason);
         dataList.put(metricnameList.get(1), Allocation_Failure_Reason);
@@ -4072,14 +4072,13 @@ public class IotDBServiceImpl implements IotDBService {
           String pattern1 = "HH:mm";
           SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat(pattern1);
           timeList.add(simpleDateFormat1.format(timestamp));
-          String s1 = fields1.get(2).toString();
+          String s1 = fields1.get(1).toString();
           s1 = s1.substring(0, s1.indexOf('.'));
-          String s2 = fields1.get(0).toString();
-          s2 = s2.substring(0, s2.indexOf('.'));
-          String s3 = fields1.get(1).toString();
+          String s2 = rowRecord.getTimestamp()+"";
+          String s3 = fields1.get(0).toString();
           s3 = s3.substring(0, s3.indexOf('.'));
           majorGCCount.add(s1 + "次");
-          minorGCCount.add((Integer.parseInt(s2) + Integer.parseInt(s3)) + "次");
+          minorGCCount.add((Integer.parseInt(s1) + Integer.parseInt(s3)) + "次");
           majorGCTime.add(Float.parseFloat(fields1.get(5).toString()) + "ms");
           minorGCTime.add(
               (Float.parseFloat(fields1.get(3).toString())
