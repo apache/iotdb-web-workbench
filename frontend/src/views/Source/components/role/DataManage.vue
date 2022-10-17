@@ -120,7 +120,7 @@ import PermitDialog from '../permitDialog';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { useStore } from 'vuex';
 
 export default {

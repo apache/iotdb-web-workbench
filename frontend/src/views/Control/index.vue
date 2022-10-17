@@ -107,7 +107,7 @@ import { ElTabs, ElContainer, ElAside, ElMain } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
 import useElementResize from '@/hooks/useElementResize.js';
 import useLanguageWatch from '@/hooks/useLanguageWatch';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { getMonitorList, getMonitorInfo } from './api';
 
 export default {

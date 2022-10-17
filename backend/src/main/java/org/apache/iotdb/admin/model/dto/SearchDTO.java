@@ -33,4 +33,6 @@ public class SearchDTO implements Serializable {
 
   @NotNull(message = "Timestamp cannot be null")
   private Long timestamp;
+
+  private Boolean isShowAll = false;
 }

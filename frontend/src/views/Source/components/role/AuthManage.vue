@@ -34,7 +34,7 @@
           <el-checkbox v-model="allChecked.role" :indeterminate="role" :label="$t('sourcePage.roleRelevance')" @change="handleCheckAllChange('role')"></el-checkbox>
         </div>
         <el-checkbox-group v-model="checked.role" @change="handleItemCheckedChange($event, 'role')">
-          <el-checkbox v-for="item in relationList.role" :label="item.id" :key="item.id" @change="changeItemCheck">{{ item.label }}</el-checkbox>
+          <el-checkbox v-for="item in relationList.role" :label="item.id" :key="item.id" @change="changeItemCheck(item.id)">{{ item.label }}</el-checkbox>
         </el-checkbox-group>
       </div>
       <div class="permit-list-type">
@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { ref, reactive, toRefs, computed, watch, watchEffect } from 'vue';
 import api from '../../api/index';
 import { useRoute } from 'vue-router';
@@ -336,6 +336,9 @@ export default {
       checked.value[type] = event;
       resetAllChecked(type);
     };
+    let changeItemCheck = (par) => {
+      console.log(par);
+    };
     return {
       t,
       locale,
@@ -350,6 +353,7 @@ export default {
       handleItemCheckedChange,
       resetAllChecked,
       canPrivilege,
+      changeItemCheck,
     };
   },
 };

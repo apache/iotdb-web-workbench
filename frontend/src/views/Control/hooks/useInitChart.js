@@ -17,7 +17,7 @@
  * under the License.
  */
 import { getChartData } from '../api';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { get } from 'lodash';
 const ChartMap = {
   GCEchart: 0,

@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { ref, watch } from 'vue';
 import RoleInfo from './RoleInfo.vue';
 import AuthManage from './AuthManage';

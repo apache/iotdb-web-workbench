@@ -93,7 +93,7 @@
 // @ is an alias to /src
 import { onActivated, onMounted, ref, watch } from 'vue';
 import { ElDescriptions, ElDescriptionsItem, ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage, ElPopconfirm } from 'element-plus';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { useRouter } from 'vue-router';
 import axios from '@/util/axios.js';
 

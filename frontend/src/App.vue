@@ -26,7 +26,7 @@
 <script>
 import { ref, watch, nextTick } from 'vue';
 import { ElConfigProvider } from 'element-plus';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import enLocale from 'element-plus/lib/locale/lang/en';
 import deLocale from 'element-plus/lib/locale/lang/de';
 import zhLocale from 'element-plus/lib/locale/lang/zh-cn';

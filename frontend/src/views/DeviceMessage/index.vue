@@ -242,7 +242,7 @@ import FormTable from '@/components/FormTable';
 import { reactive, ref, onActivated, computed } from 'vue';
 import { getList, getDeviceDate, deleteDevice, getDataDeviceList, randomImport, editData, deleteDeviceData, exportDataCSV, downloadFile, importData } from './api';
 import Echarts from '@/components/Echarts';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { useRoute, useRouter } from 'vue-router';
 import action from './components/action.vue';
 import { handleExport } from '@/util/export';

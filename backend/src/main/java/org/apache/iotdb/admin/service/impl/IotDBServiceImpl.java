@@ -19,6 +19,7 @@
 
 package org.apache.iotdb.admin.service.impl;
 
+import org.apache.iotdb.admin.common.AggregateFunctionEnum;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.model.dto.*;
@@ -115,7 +116,12 @@ public class IotDBServiceImpl implements IotDBService {
       int measurementCount = Integer.parseInt(measurementCountStr);
       List<String> dataCountList = new ArrayList<>();
       if (versionFlag == 13) {
-        dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root.**");
+        int maxMeasurementCount = 100000;
+        if (measurementCount > maxMeasurementCount) {
+          dataCountList.add("-1");
+        } else {
+          dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root.**");
+        }
       } else if (versionFlag == 12) {
         try {
           dataCountList = executeQueryOneLine(sessionPool, "select count(*) from root.*");
@@ -2489,7 +2495,8 @@ public class IotDBServiceImpl implements IotDBService {
   }
 
   @Override
-  public List<SqlResultVO> queryAll(Connection connection, List<String> sqls, Long timestamp)
+  public List<SqlResultVO> queryAll(
+      Connection connection, List<String> sqls, Long timestamp, Boolean isShowAll)
       throws BaseException {
     SessionPool sessionPool = getSessionPool(connection);
     List<SqlResultVO> results;
@@ -2503,12 +2510,63 @@ public class IotDBServiceImpl implements IotDBService {
         if (StringUtils.isBlank(sql)) {
           continue;
         }
-        String judge = sql.toLowerCase();
-        if (judge.startsWith("show")
-            || judge.startsWith("count")
-            || judge.startsWith("list")
-            || judge.startsWith("select")) {
+        String judge = sql.toLowerCase().trim();
+        sql = sql.trim();
+        if (judge.endsWith(";")) {
+          judge = judge.substring(0, judge.length() - 1);
+          sql = sql.substring(0, sql.length() - 1);
+        }
+        // sql:show storage group 不做限制
+        if (judge.startsWith("show ")
+            && judge.indexOf(" storage ") != -1
+            && judge.indexOf(" group") != -1) {
           SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          sqlResultVO.setRows((long) sqlResultVO.getValueList().size());
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
+          results.add(sqlResultVO);
+          continue;
+        } else if (judge.startsWith("show ") && judge.indexOf(" timeseries") != -1) {
+          // aql:show timeseries 限制1000条
+          String sqlCount = "count timeseries ";
+          if (sql.indexOf(" root.") != -1) {
+            String limitSeries = sql.substring(sql.indexOf(" root."));
+            sqlCount += limitSeries;
+          }
+          SqlResultVO sqlResultVOCount = executeQuery(sessionPool, sqlCount, id_plus_timestamp);
+          if (!isShowAll && judge.indexOf(" limit") == -1) {
+            sql += " limit 1000";
+          }
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          List<List<String>> valueList = sqlResultVOCount.getValueList();
+          if (valueList != null && valueList.size() >= 0) {
+            sqlResultVO.setRows(Long.parseLong(valueList.get(0).get(0)));
+          }
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
+          results.add(sqlResultVO);
+          continue;
+        } else if (judge.startsWith("count")
+            || AggregateFunctionEnum.isAggregateFunctionQuery(judge)) {
+          // 聚合函数不做限制
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          sqlResultVO.setRows((long) sqlResultVO.getValueList().size());
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
+          results.add(sqlResultVO);
+          continue;
+        } else if (judge.startsWith("show") && judge.indexOf(" limit ") != -1) {
+          // 普通查询已做限制
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          sqlResultVO.setRows((long) sqlResultVO.getValueList().size());
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
+          results.add(sqlResultVO);
+          continue;
+        } else if (judge.startsWith("select")) {
+          // 普通查询未做限制
+          if (!isShowAll) {
+            sql += " limit 100 slimit 10";
+          }
+          SqlResultVO sqlResultVO = executeQuery(sessionPool, sql, id_plus_timestamp);
+          sqlResultVO.setRows((long) sqlResultVO.getValueList().size());
+          sqlResultVO.setColumns((long) sqlResultVO.getMetaDataList().size());
           results.add(sqlResultVO);
           continue;
         }

@@ -59,7 +59,7 @@
 <script>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n/index';
 import { getMetricsData, getSearchMetricsData } from '../api';
 
 export default {
