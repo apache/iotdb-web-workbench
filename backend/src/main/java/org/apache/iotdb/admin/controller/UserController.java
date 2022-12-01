@@ -76,7 +76,8 @@ public class UserController {
 
   @PostMapping("/save")
   @ApiOperation("Create user (not used)")
-  public BaseVO save(@RequestBody User user) throws BaseException {
+  public BaseVO save(@RequestBody User user, HttpServletRequest request) throws BaseException {
+    AuthenticationUtils.userAuthentication(user.getId(), request);
     userService.insert(user);
     return BaseVO.success("Save successful", null);
   }
