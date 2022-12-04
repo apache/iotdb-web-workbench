@@ -19,6 +19,9 @@
 
 package org.apache.iotdb.admin.service.impl;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.mapper.UserMapper;
@@ -31,7 +34,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.InetAddress;
+import java.util.Calendar;
+
 @Service
+@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
   @Autowired private UserMapper userMapper;
@@ -76,6 +83,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
       userMapper.deleteById(userId);
     } catch (Exception e) {
       throw new BaseException(ErrorCode.DELETE_USER_FAIL, ErrorCode.DELETE_USER_FAIL_MSG);
+    }
+  }
+
+
+
+  @Override
+  public String getToken(User user) throws BaseException {
+    Calendar instance = Calendar.getInstance();
+    try {
+      instance.add(Calendar.HOUR, 24);
+      String token =
+              JWT.create()
+                      .withClaim("userId", user.getId())
+                      .withClaim("name", user.getName())
+                      .withExpiresAt(instance.getTime())
+                      .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
+      return token;
+    } catch (Exception e) {
+      throw new BaseException(ErrorCode.GET_TOKEN_FAIL, ErrorCode.GET_TOKEN_FAIL_MSG);
     }
   }
 }

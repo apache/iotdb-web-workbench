@@ -70,7 +70,7 @@ public class UserController {
     int userId = user.getId();
     List<ConnVO> connVOs = connectionService.getAllConnections(userId);
     ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, name);
-    response.addHeader("Authorization", getToken(user));
+    response.addHeader("Authorization", userService.getToken(user));
     return BaseVO.success("Login  successful", connectionVO);
   }
 
@@ -122,21 +122,5 @@ public class UserController {
     return str;
   }
 
-  private String getToken(User user) throws BaseException {
-    Calendar instance = Calendar.getInstance();
-    try {
-      instance.add(Calendar.HOUR, 24);
-      String token =
-          JWT.create()
-              .withClaim("userId", user.getId())
-              .withClaim("name", user.getName())
-              .withExpiresAt(instance.getTime())
-              .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
-      logger.info(user.getName() + "login successfully");
-      return token;
-    } catch (Exception e) {
-      logger.info(e.getMessage());
-      throw new BaseException(ErrorCode.GET_TOKEN_FAIL, ErrorCode.GET_TOKEN_FAIL_MSG);
-    }
-  }
+
 }
