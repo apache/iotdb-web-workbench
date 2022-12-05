@@ -19,17 +19,17 @@
 
 package org.apache.iotdb.admin.service.impl;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
 import org.apache.iotdb.admin.mapper.UserMapper;
 import org.apache.iotdb.admin.model.entity.User;
 import org.apache.iotdb.admin.service.UserService;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -86,19 +86,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
   }
 
-
-
   @Override
   public String getToken(User user) throws BaseException {
     Calendar instance = Calendar.getInstance();
     try {
       instance.add(Calendar.HOUR, 24);
       String token =
-              JWT.create()
-                      .withClaim("userId", user.getId())
-                      .withClaim("name", user.getName())
-                      .withExpiresAt(instance.getTime())
-                      .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
+          JWT.create()
+              .withClaim("userId", user.getId())
+              .withClaim("name", user.getName())
+              .withExpiresAt(instance.getTime())
+              .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
       return token;
     } catch (Exception e) {
       throw new BaseException(ErrorCode.GET_TOKEN_FAIL, ErrorCode.GET_TOKEN_FAIL_MSG);

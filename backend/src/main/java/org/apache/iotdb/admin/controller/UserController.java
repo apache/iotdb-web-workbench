@@ -30,7 +30,6 @@ import org.apache.iotdb.admin.service.ConnectionService;
 import org.apache.iotdb.admin.service.UserService;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,8 +41,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.net.InetAddress;
-import java.util.Calendar;
 import java.util.List;
 
 @RestController
@@ -121,6 +118,4 @@ public class UserController {
             + "</html>";
     return str;
   }
-
-
 }
