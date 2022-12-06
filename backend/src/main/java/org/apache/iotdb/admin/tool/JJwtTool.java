@@ -13,8 +13,8 @@ import java.util.Date;
 @Slf4j
 public class JJwtTool {
   private static String secret =
-      "HSyJ0eXAiOiJKV1Qasdffff>&#?fffSd3g8923402347523@#$fffasdfasgwaegwaegawegawegawegawetwgewagagew"
-          + "asdf23r23DEEasdfawef134t2fawt2g325gafasdfasdfiLCJhbGciOiJIUzI1NiJ9.....";
+      "HSyJ0eXAiOiJKV1QasdfffffffSd3g8923402347523fffasdfasgwaegwaegawegawegawegawetwgewagagew"
+          + "asdf23r23DEEasdfawef134t2fawt2g325gafasdfasdfiLCJhbGciOiJIUzI1NiJ9";
 
   public static String generateToken(User user) {
     log.info("user=" + user.toString());
