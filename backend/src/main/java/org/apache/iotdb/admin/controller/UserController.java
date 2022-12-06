@@ -28,9 +28,9 @@ import org.apache.iotdb.admin.model.vo.ConnVO;
 import org.apache.iotdb.admin.model.vo.ConnectionVO;
 import org.apache.iotdb.admin.service.ConnectionService;
 import org.apache.iotdb.admin.service.UserService;
+import org.apache.iotdb.admin.tool.JJwtTool;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,8 +42,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.net.InetAddress;
-import java.util.Calendar;
 import java.util.List;
 
 @RestController
@@ -70,7 +68,7 @@ public class UserController {
     int userId = user.getId();
     List<ConnVO> connVOs = connectionService.getAllConnections(userId);
     ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, name);
-    response.addHeader("Authorization", getToken(user));
+    response.addHeader("Authorization", JJwtTool.generateToken(user));
     return BaseVO.success("Login  successful", connectionVO);
   }
 
@@ -120,23 +118,5 @@ public class UserController {
             + "</body>\n"
             + "</html>";
     return str;
-  }
-
-  private String getToken(User user) throws BaseException {
-    Calendar instance = Calendar.getInstance();
-    try {
-      instance.add(Calendar.HOUR, 24);
-      String token =
-          JWT.create()
-              .withClaim("userId", user.getId())
-              .withClaim("name", user.getName())
-              .withExpiresAt(instance.getTime())
-              .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
-      logger.info(user.getName() + "login successfully");
-      return token;
-    } catch (Exception e) {
-      logger.info(e.getMessage());
-      throw new BaseException(ErrorCode.GET_TOKEN_FAIL, ErrorCode.GET_TOKEN_FAIL_MSG);
-    }
   }
 }

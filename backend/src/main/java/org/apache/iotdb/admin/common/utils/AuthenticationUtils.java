@@ -21,9 +21,9 @@ package org.apache.iotdb.admin.common.utils;
 
 import org.apache.iotdb.admin.common.exception.BaseException;
 import org.apache.iotdb.admin.common.exception.ErrorCode;
+import org.apache.iotdb.admin.tool.JJwtTool;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import io.jsonwebtoken.Claims;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,15 +35,20 @@ public class AuthenticationUtils {
     if (userId == null) {
       throw new BaseException(ErrorCode.NO_USER, ErrorCode.NO_USER_MSG);
     }
-    DecodedJWT authorization = JWT.decode(request.getHeader("Authorization"));
-    Integer tokenUserId = authorization.getClaim("userId").asInt();
+    String authorization = request.getHeader("Authorization");
+    Claims claimsByToken = JJwtTool.getClaimsByToken(authorization);
+    if (null == claimsByToken) {
+      throw new BaseException(ErrorCode.TOKEN_ERR, ErrorCode.TOKEN_ERR_MSG);
+    }
+    Integer tokenUserId = claimsByToken.get("userId", Integer.class);
     if (!tokenUserId.equals(userId)) {
       throw new BaseException(ErrorCode.USER_AUTH_FAIL, ErrorCode.USER_AUTH_FAIL_MSG);
     }
   }
 
   public static Integer getUserId(HttpServletRequest request) {
-    DecodedJWT authentication = JWT.decode(request.getHeader("Authorization"));
-    return authentication.getClaim("userId").asInt();
+    String authorization = request.getHeader("Authorization");
+    Claims claimsByToken = JJwtTool.getClaimsByToken(authorization);
+    return claimsByToken.get("userId", Integer.class);
   }
 }
