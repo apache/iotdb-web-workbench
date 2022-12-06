@@ -28,6 +28,4 @@ public interface UserService {
   void insert(User user) throws BaseException;
 
   void delete(Integer userId) throws BaseException;
-
-  String getToken(User user) throws BaseException;
 }

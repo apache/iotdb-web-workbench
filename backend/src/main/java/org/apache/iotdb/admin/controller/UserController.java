@@ -28,6 +28,7 @@ import org.apache.iotdb.admin.model.vo.ConnVO;
 import org.apache.iotdb.admin.model.vo.ConnectionVO;
 import org.apache.iotdb.admin.service.ConnectionService;
 import org.apache.iotdb.admin.service.UserService;
+import org.apache.iotdb.admin.tool.JJwtTool;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -67,7 +68,7 @@ public class UserController {
     int userId = user.getId();
     List<ConnVO> connVOs = connectionService.getAllConnections(userId);
     ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, name);
-    response.addHeader("Authorization", userService.getToken(user));
+    response.addHeader("Authorization", JJwtTool.generateToken(user));
     return BaseVO.success("Login  successful", connectionVO);
   }
 
