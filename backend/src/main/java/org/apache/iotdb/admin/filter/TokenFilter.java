@@ -35,7 +35,7 @@ public class TokenFilter implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws BaseException {
     String authorization = request.getHeader("Authorization");
-    if (null == authorization | !"".equals(authorization)) {
+    if (null == authorization || "".equals(authorization)) {
       throw new BaseException(ErrorCode.TOKEN_ERR, ErrorCode.TOKEN_ERR_MSG);
     }
     Claims claimsByToken = JJwtTool.getClaimsByToken(authorization);
