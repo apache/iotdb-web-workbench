@@ -58,6 +58,7 @@ exclude(module: 'protobuf-java')
     compile group: 'cn.cisdigital', name: 'exception-component', version:'1.0.0'
     compile group: 'com.dianping.cat', name: 'cat-client', version:'3.0.0'
     compile group: 'org.hibernate.validator', name: 'hibernate-validator', version:'6.0.9.Final'
+    compile group: 'io.jsonwebtoken', name: 'jjwt', version:'0.6.0'
     compile group: 'org.aspectj', name: 'aspectjweaver', version:'1.9.6'
     testCompile(group: 'org.springframework.boot', name: 'spring-boot-starter-test', version:'2.3.3.RELEASE') {
 exclude(module: 'junit-vintage-engine')
