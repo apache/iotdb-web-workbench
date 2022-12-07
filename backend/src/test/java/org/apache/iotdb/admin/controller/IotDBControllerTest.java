@@ -21,6 +21,7 @@ package org.apache.iotdb.admin.controller;
 
 import org.apache.iotdb.admin.model.entity.User;
 import org.apache.iotdb.admin.tool.JJwtTool;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -34,9 +35,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.net.InetAddress;
-import java.util.Calendar;
-
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IotDBControllerTest {
@@ -47,10 +45,10 @@ class IotDBControllerTest {
 
   private String getToken() {
     try {
-      User user=new User();
+      User user = new User();
       user.setId(1);
       user.setName("root");
-      return  JJwtTool.generateToken(user);
+      return JJwtTool.generateToken(user);
     } catch (Exception e) {
       e.printStackTrace();
       return null;
