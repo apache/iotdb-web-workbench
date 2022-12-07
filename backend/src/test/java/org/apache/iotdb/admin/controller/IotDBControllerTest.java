@@ -19,8 +19,8 @@
 
 package org.apache.iotdb.admin.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+import org.apache.iotdb.admin.model.entity.User;
+import org.apache.iotdb.admin.tool.JJwtTool;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -46,16 +46,11 @@ class IotDBControllerTest {
   private String token = getToken();
 
   private String getToken() {
-    Calendar instance = Calendar.getInstance();
     try {
-      instance.add(Calendar.HOUR, 24);
-      String token =
-          JWT.create()
-              .withClaim("userId", 1)
-              .withClaim("name", "root")
-              .withExpiresAt(instance.getTime())
-              .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
-      return token;
+      User user=new User();
+      user.setId(1);
+      user.setName("root");
+      return  JJwtTool.generateToken(user);
     } catch (Exception e) {
       e.printStackTrace();
       return null;

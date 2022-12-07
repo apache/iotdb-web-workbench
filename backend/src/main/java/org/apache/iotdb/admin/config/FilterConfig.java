@@ -41,7 +41,6 @@ public class FilterConfig implements WebMvcConfigurer {
     paths.add("/get");
     paths.add("/save");
     paths.add("/delete");
-    paths.add("/get");
     paths.add("/downloadFile/**");
     interceptorRegistration.addPathPatterns(paths);
   }

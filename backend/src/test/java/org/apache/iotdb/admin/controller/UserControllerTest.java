@@ -19,8 +19,8 @@
 
 package org.apache.iotdb.admin.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+import org.apache.iotdb.admin.model.entity.User;
+import org.apache.iotdb.admin.tool.JJwtTool;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,8 +31,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.net.InetAddress;
-import java.util.Calendar;
 
 @SpringBootTest
 class UserControllerTest {
@@ -65,16 +63,11 @@ class UserControllerTest {
   }
 
   private String getToken() {
-    Calendar instance = Calendar.getInstance();
     try {
-      instance.add(Calendar.HOUR, 24);
-      String token =
-          JWT.create()
-              .withClaim("userId", 1)
-              .withClaim("name", "root")
-              .withExpiresAt(instance.getTime())
-              .sign(Algorithm.HMAC256("IOTDB:" + InetAddress.getLocalHost().getHostAddress()));
-      return token;
+      User user=new User();
+      user.setId(1);
+      user.setName("root");
+      return  JJwtTool.generateToken(user);
     } catch (Exception e) {
       e.printStackTrace();
       return null;
