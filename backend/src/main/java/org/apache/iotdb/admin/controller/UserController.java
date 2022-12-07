@@ -30,8 +30,7 @@ import org.apache.iotdb.admin.service.ConnectionService;
 import org.apache.iotdb.admin.service.UserService;
 import org.apache.iotdb.admin.tool.JJwtTool;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -92,11 +91,11 @@ public class UserController {
   @ApiOperation("Get information of user")
   public BaseVO<User> getUser(HttpServletRequest request) {
     String authorization = request.getHeader("Authorization");
-    DecodedJWT decode = JWT.decode(authorization);
+    Claims claimsByToken = JJwtTool.getClaimsByToken(authorization);
     User user = new User();
-    if (decode != null) {
-      Integer userId = decode.getClaim("userId").asInt();
-      String name = decode.getClaim("name").asString();
+    if (claimsByToken != null) {
+      Integer userId = claimsByToken.get("userId", Integer.class);
+      String name = claimsByToken.get("name", String.class);
       user.setId(userId);
       user.setName(name);
     }
