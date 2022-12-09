@@ -33,6 +33,8 @@ import org.apache.iotdb.admin.tool.JJwtTool;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.casbin.casdoor.entity.CasdoorUser;
+import org.casbin.casdoor.service.CasdoorAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,8 @@ public class UserController {
 
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+  @Autowired private CasdoorAuthService casdoorAuthService;
+
   @PostMapping("/login")
   @ApiOperation("login")
   public BaseVO<ConnectionVO> login(
@@ -65,6 +69,36 @@ public class UserController {
     }
     User user = userService.login(name, password);
     int userId = user.getId();
+    List<ConnVO> connVOs = connectionService.getAllConnections(userId);
+    ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, name);
+    response.addHeader("Authorization", JJwtTool.generateToken(user));
+    System.out.println(BaseVO.success("Login  successful", connectionVO));
+    return BaseVO.success("Login  successful", connectionVO);
+  }
+
+  @PostMapping("/getCasdoorUrl")
+  @ApiOperation("Get Casdoor Url")
+  public BaseVO<String> getCasdoorUrl(HttpServletRequest request,
+                                            HttpServletResponse response) throws BaseException {
+    String origin = request.getParameter("origin");
+    String url = casdoorAuthService.getSigninUrl(origin);
+    return BaseVO.success("Get Url successful", url);
+  }
+
+  @PostMapping("/loginWithCasdoor")
+  @ApiOperation("loginWithCasdoor")
+  public BaseVO<ConnectionVO> loginWithCasdoor(
+          @RequestParam("code") String code,
+          @RequestParam("state") String state,
+          HttpServletResponse response)
+          throws BaseException {
+    String token = casdoorAuthService.getOAuthToken(code, state);
+    CasdoorUser casdoorUser = casdoorAuthService.parseJwtToken(token);
+    User user = new User();
+    user.setId(casdoorUser.getRanking());
+    user.setName(casdoorUser.getName());
+    int userId = user.getId();
+    String name = user.getName();
     List<ConnVO> connVOs = connectionService.getAllConnections(userId);
     ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, name);
     response.addHeader("Authorization", JJwtTool.generateToken(user));

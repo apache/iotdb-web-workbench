@@ -60,6 +60,9 @@
               <el-button class="submit-btn" type="primary" @click="submitForm('ruleForm')">{{ $t('loginPage.signIn') }}</el-button>
             </el-form-item>
           </el-form>
+          <el-form-item>
+            <el-button class="submit-btn" type="primary" @click="getLoginUrl()">{{ $t('loginPage.signInWithCasdoor') }}</el-button>
+          </el-form-item>
         </div>
       </div>
     </div>
@@ -145,6 +148,7 @@ export default {
       //   if (store.state.isLogin) {
       //     router.push({ name: "Root" });
       //   }
+      LoginWithCasdoor();
     });
 
     const submitForm = () => {
@@ -164,6 +168,31 @@ export default {
       });
     };
 
+    const getLoginUrl = () => {
+      axios.post('/getCasdoorUrl', {}, { params: { origin: window.location.origin } }).then((res) => {
+        window.location.href = res.data;
+      });
+    };
+
+    const LoginWithCasdoor = () => {
+      const url = window.document.location.href;
+      const u = new URL(url);
+      let codes = u.searchParams.get('code');
+      let state = u.searchParams.get('state');
+      if (codes != null && state != null) {
+        axios.post('/loginWithCasdoor', {}, { params: { code: codes, state: state } }).then((res) => {
+          if (res?.data?.code === '0') {
+            localStorage.setItem('authorization', res?.headers?.authorization);
+            store.commit('setLogin', true);
+            store.commit('setUserInfo', res.data || {});
+            router.push({ name: 'Root' });
+          } else {
+            ElMessage.error(t(`loginPage.loginErrorTip`));
+          }
+        });
+      }
+    };
+
     const showDialog = () => {
       dialogVisible.value = true;
     };
@@ -177,6 +206,8 @@ export default {
       rules,
       submitForm,
       showDialog,
+      getLoginUrl,
+      LoginWithCasdoor,
     };
   },
   components: { ElForm, ElFormItem, ElInput, ElButton, ElDialog, ElDropdown, ElDropdownMenu, ElDropdownItem },

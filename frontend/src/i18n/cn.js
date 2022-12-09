@@ -86,6 +86,7 @@ const cn = {
       placeholderPassword: '请输入密码',
       forgetPassWord: '忘记密码',
       signIn: '登录',
+      signInWithCasdoor: 'Casdoor登录',
       forgetPassword: '忘记密码',
       forgetPasswordTip: '请联系系统管理员 WeChat:loveher147',
       accountEmptyTip: '账号不能为空',
