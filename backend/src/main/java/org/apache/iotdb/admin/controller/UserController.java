@@ -72,7 +72,6 @@ public class UserController {
     List<ConnVO> connVOs = connectionService.getAllConnections(userId);
     ConnectionVO connectionVO = new ConnectionVO(connVOs, userId, name);
     response.addHeader("Authorization", JJwtTool.generateToken(user));
-    System.out.println(BaseVO.success("Login  successful", connectionVO));
     return BaseVO.success("Login  successful", connectionVO);
   }
 
