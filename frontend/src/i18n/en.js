@@ -85,7 +85,7 @@ const en = {
       placeholderPassword: 'Please Input Password',
       forgetPassWord: 'Forget Password',
       signIn: 'Sign In',
-      signInWithCasdoor: 'sign In With Casdoor',
+      signInWithCasdoor: 'Sign In With Casdoor',
       forgetPassword: 'Forget Password',
       forgetPasswordTip: 'Please Contact System Administrator WeChat:loveher147',
       accountEmptyTip: 'Account Can Not Be Empty',
