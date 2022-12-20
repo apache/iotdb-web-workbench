@@ -77,8 +77,8 @@ public class UserController {
 
   @PostMapping("/getCasdoorUrl")
   @ApiOperation("Get Casdoor Url")
-  public BaseVO<String> getCasdoorUrl(HttpServletRequest request,
-                                            HttpServletResponse response) throws BaseException {
+  public BaseVO<String> getCasdoorUrl(HttpServletRequest request, HttpServletResponse response)
+      throws BaseException {
     String origin = request.getParameter("origin");
     String url = casdoorAuthService.getSigninUrl(origin);
     return BaseVO.success("Get Url successful", url);
@@ -87,10 +87,10 @@ public class UserController {
   @PostMapping("/loginWithCasdoor")
   @ApiOperation("loginWithCasdoor")
   public BaseVO<ConnectionVO> loginWithCasdoor(
-          @RequestParam("code") String code,
-          @RequestParam("state") String state,
-          HttpServletResponse response)
-          throws BaseException {
+      @RequestParam("code") String code,
+      @RequestParam("state") String state,
+      HttpServletResponse response)
+      throws BaseException {
     String token = casdoorAuthService.getOAuthToken(code, state);
     CasdoorUser casdoorUser = casdoorAuthService.parseJwtToken(token);
     User user = new User();
