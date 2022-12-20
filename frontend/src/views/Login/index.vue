@@ -60,7 +60,7 @@
               <el-button class="submit-btn" type="primary" @click="submitForm('ruleForm')">{{ $t('loginPage.signIn') }}</el-button>
             </el-form-item>
           </el-form>
-          <el-form-item>
+          <el-form-item v-if="CasdoorSwitch === 'true'">
             <el-button class="submit-btn" type="primary" @click="getLoginUrl()">{{ $t('loginPage.signInWithCasdoor') }}</el-button>
           </el-form-item>
         </div>
@@ -93,6 +93,7 @@ export default {
     const formNameRef = ref(null);
     const dialogVisible = ref(false);
     const { t } = useI18n();
+    const CasdoorSwitch = process.env.VUE_APP_CASDOOR;
     const ruleForm = reactive({
       account: '',
       passport: '',
@@ -208,6 +209,7 @@ export default {
       showDialog,
       getLoginUrl,
       LoginWithCasdoor,
+      CasdoorSwitch,
     };
   },
   components: { ElForm, ElFormItem, ElInput, ElButton, ElDialog, ElDropdown, ElDropdownMenu, ElDropdownItem },
