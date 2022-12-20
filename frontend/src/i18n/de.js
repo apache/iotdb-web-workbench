@@ -85,6 +85,7 @@ const de = {
       placeholderPassword: 'Passwort eingeben',
       forgetPassWord: 'Passwort vergessen',
       signIn: 'Anmelden',
+      signInWithCasdoor: 'Loggen Sie sich mit casdoor ein',
       forgetPassword: 'Passwort vergessen',
       forgetPasswordTip: 'Bitte kontaktieren Sie Ihren Administrator WeChat:loveher147',
       accountEmptyTip: 'Benutzername darf nicht leer sein',
