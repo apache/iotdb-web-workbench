@@ -29,6 +29,8 @@
 
 ![](image/配置文件.PNG)
 
+务必在application-prod.properties中设置jwt.sign.secret
+
 2 打包
 
 ![](image/打包.png)

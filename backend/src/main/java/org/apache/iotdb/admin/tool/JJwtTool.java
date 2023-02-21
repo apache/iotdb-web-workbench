@@ -24,15 +24,30 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /** date:2022/12/6 author:yzf project_name:backend */
 @Slf4j
+@Configuration
+@ConfigurationProperties(prefix = "jwt.sign")
 public class JJwtTool {
-  private static String secret =
-      "HSyJ0eXAiOiJKV1QasdfffffffSd3g8923402347523fffasdfasgwaegwaegawegawegawegawetwgewagagew"
-          + "asdf23r23DEEasdfawef134t2fawt2g325gafasdfasdfiLCJhbGciOiJIUzI1NiJ9";
+
+  private static List<String> jwtCache = new ArrayList<>();
+  private static String secret;
+
+  public String getSecret() {
+    return secret;
+  }
+
+  public void setSecret(String payload) {
+    secret = payload;
+  }
 
   public static String generateToken(User user) {
     log.info("user=" + user.toString());
@@ -40,20 +55,28 @@ public class JJwtTool {
     //    Calendar instance = Calendar.getInstance();
     //    instance.add(Calendar.HOUR_OF_DAY, 24);
     Date expireDate = new Date(new Date().getTime() + (1000 * 60 * 60 * 10));
-    return Jwts.builder()
-        .setHeaderParam("type", "JWT")
-        .setSubject(user.getId() + "")
-        .setIssuedAt(now) // 签发时间
-        .claim("userId", user.getId())
-        .claim("name", user.getName())
-        .setExpiration(expireDate) // 过期时间
-        .signWith(SignatureAlgorithm.HS512, secret)
-        .compact();
+    String compact =
+        Jwts.builder()
+            .setHeaderParam("type", "JWT")
+            .setSubject(user.getId() + "")
+            .setIssuedAt(now) // 签发时间
+            .claim("userId", user.getId())
+            .claim("name", user.getName())
+            .setExpiration(expireDate) // 过期时间
+            .signWith(SignatureAlgorithm.HS512, secret)
+            .compact();
+    if (StringUtils.hasLength(compact) && !jwtCache.contains(compact)) {
+      jwtCache.add(compact);
+    }
+    return compact;
   }
 
   /** 解析token */
   public static Claims getClaimsByToken(String token) {
     try {
+      if (StringUtils.hasLength(token) && !jwtCache.contains(token)) {
+        return null;
+      }
       return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     } catch (Exception e) {
       System.out.println("validate is token error");
