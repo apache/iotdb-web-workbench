@@ -7,9 +7,9 @@
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
-
+    
         http://www.apache.org/licenses/LICENSE-2.0
-
+    
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -37,7 +37,9 @@ IoTDB-Workbench是IoTDB的可视化管理工具，可对IoTDB的数据进行增�
 
 [前端服务运行说明](frontend/README.md)
 
+## Casdoor运行
 
+[Casdoor单点登录运行说明](casdoor.md)
 
 
 ## Docker
