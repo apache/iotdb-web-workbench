@@ -25,8 +25,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
+        with:
+          node-version: 16
       - name: npm install
-        run: cd frontend && npm install
+        run: cd frontend && npm install --legacy-peer-deps
       - name: lint
         run: cd frontend && npm run lint
       - name: lint-css
@@ -37,8 +39,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
+        with:
+          node-version: 16
       - name: npm install
-        run: cd frontend && npm install
+        run: cd frontend && npm install --legacy-peer-deps
       - name: test
         run: cd frontend && npm run test:unit
   
@@ -47,7 +51,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
+        with:
+          node-version: 16
       - name: npm install
-        run: cd frontend && npm install
+        run: cd frontend && npm install --legacy-peer-deps
       - name: Build
         run: cd frontend && npm run build
