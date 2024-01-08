@@ -41,6 +41,8 @@ let i18n = createI18n({
   locale: langMap[locale],
   fallbackLocale: enLocale.name,
   messages,
+  legacy: true,
+  allowComposition: true,
 });
 
 export default i18n;
